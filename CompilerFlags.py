@@ -13,7 +13,7 @@ Import("env")
 # read settings from platform.ini to also include
 conf = configparser.ConfigParser()
 conf.read("platformio.ini")
-opt = conf.get("env:test", "optimization")
+opt = conf.get("env:top_board", "optimization")
 
 git_branch_name = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('ascii').strip()
 git_commit_date = subprocess.check_output(['git', 'show', '-s', '--date=format:%d/%m/%Y', '--format=%cd', 'HEAD']).decode('ascii').strip()
