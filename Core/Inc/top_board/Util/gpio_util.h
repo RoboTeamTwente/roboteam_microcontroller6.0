@@ -23,11 +23,6 @@ typedef struct GPIO_Pin{
 
 /////////////////////////////////// LIST OF KNOWN GPIO PINS
 
-// Kick/Chip
-extern GPIO_Pin Kick_pin;
-extern GPIO_Pin Chip_pin;
-extern GPIO_Pin Charge_pin;
-extern GPIO_Pin Charge_done_pin;
 
 // Wheels PWM
 extern GPIO_Pin RB_PWM_pin;
@@ -47,15 +42,11 @@ extern GPIO_Pin RF_Brake_pin;
 extern GPIO_Pin LB_Brake_pin;
 extern GPIO_Pin LF_Brake_pin;
 
-// Wheels ENC
-extern GPIO_Pin RB_ENC_A_pin;
-extern GPIO_Pin RF_ENC_A_pin;
-extern GPIO_Pin LB_ENC_A_pin;
-extern GPIO_Pin LF_ENC_A_pin;
-extern GPIO_Pin RB_ENC_B_pin;
-extern GPIO_Pin RF_ENC_B_pin;
-extern GPIO_Pin LB_ENC_B_pin;
-extern GPIO_Pin LF_ENC_B_pin;
+//Motor driver chip select
+extern GPIO_Pin RB_CS_pin;
+extern GPIO_Pin RF_CS_pin;
+extern GPIO_Pin LB_CS_pin;
+extern GPIO_Pin LF_CS_pin;
 
 // Dribbler
 extern GPIO_Pin Dribbler_PWM_pin;
@@ -92,21 +83,8 @@ extern GPIO_Pin SX_RST_pin;
 extern GPIO_Pin SX_NSS_pin;
 extern GPIO_Pin SX_BUSY_pin;
 
-// Ballsensor
-extern GPIO_Pin BS_IRQ_pin;
-extern GPIO_Pin BS_RST_pin;
-
-// Battery
-extern GPIO_Pin BAT_SDN_pin;
-extern GPIO_Pin BAT_KILL_pin;
-extern GPIO_Pin BAT_IRQ_pin;
-
-// SD
-extern GPIO_Pin SD_CD_pin;
-
-// Interface
-extern GPIO_Pin INT_EN_pin;
-extern GPIO_Pin INT_ENneg_pin;
+// Encoder Interface
+extern GPIO_Pin Encoder_Enable_pin;
 
 /////////////////////////////////////////////// GPIO UTILITY FUNCTIONS
 

@@ -12,7 +12,7 @@
 
 // Timers (clocks still need to be defined: wheel_control, KickChip)
 extern TIM_HandleTypeDef htim1;     // encoder RF       16 bit
-extern TIM_HandleTypeDef htim2;     // encoder Dribbler 32 bit
+extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;     // encoder LB       16 bit
 extern TIM_HandleTypeDef htim4;     // encoder RB       16 bit
 extern TIM_HandleTypeDef htim5;     // encoder LF       32 bit
@@ -36,10 +36,10 @@ typedef struct PWM_struct{
 // Timer Helpers
 // Encoders
 #define ENC_RF       (&htim1)
-#define ENC_DRIBBLER (&htim2)
 #define ENC_LB       (&htim3)
 #define ENC_RB       (&htim4)
 #define ENC_LF       (&htim5)
+
 #define TIM_1us      (&htim6)
 #define TIM_CONTROL  (&htim7)
 #define TIM_BUZZER   (&htim10)
@@ -51,9 +51,8 @@ extern PWM_struct PWM_RF;
 extern PWM_struct PWM_RB;
 extern PWM_struct PWM_LF;
 extern PWM_struct PWM_LB;
-extern PWM_struct PWM_Buzzer;
-extern PWM_struct PWM_Dribbler;
 
+extern PWM_struct PWM_Buzzer;
 
 
 inline void start_PWM(PWM_struct PWM){
