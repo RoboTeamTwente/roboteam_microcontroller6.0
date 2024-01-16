@@ -15,21 +15,26 @@ typedef enum{
 	MENU_ERROR
 }Menu_StatusTypeDef;
 
+#define NUMBER_OF_MENU_ITEMS 8
+#define NUMBER_OF_MENU_PAGES 4
+#define NUMBER_OF_SUBMENU_ITEMS 8
+#define MAX_STRING_LENGTH 23
+#define STRINGS_PER_PAGE 8
+#define VARIABLES_PER_PAGE 8
+#define MAX_VAR_NAME_LENGTH 9
+#define MAX_MENU_NAME_LENGTH 15
+#define MAX_SUBMENU_NAME_LENGTH 23
+#define NUMBER_OF_VARIABLE_PAGES 3
+#define NUMBER_OF_DATA_PAGES 3
 
-Menu_StatusTypeDef Menu_Init();
-void Menu_Loop();
-void Menu_Update();
-void Menu_Select(uint8_t page, uint8_t select0, uint8_t select1, uint8_t select2, uint8_t select3);
-void Menu_NextPage();
-void Menu_PreviousPage();
-Menu_StatusTypeDef Menu_SetString(uint8_t item, uint8_t position, char* str);
-Menu_StatusTypeDef Menu_SetVariable(uint8_t item, uint8_t position, int32_t variable);
-Menu_StatusTypeDef Menu_SetVariableName(uint8_t item, uint8_t position, char* variableName);
-int32_t Menu_GetVariable(uint8_t item, uint8_t position);
-void Menu_DataUpdate();
-void Menu_NextItem();
-void Menu_PreviousItem();
 
+Menu_StatusTypeDef menu_Init();
+void menu_Loop();
+Menu_StatusTypeDef menu_SetString(uint8_t item, uint8_t position, char* str);
+Menu_StatusTypeDef menu_SetVariable(uint8_t item, uint8_t position, int32_t variable);
+Menu_StatusTypeDef menu_SetVariableName(uint8_t item, uint8_t position, char* variableName);
+int32_t menu_GetVariable(uint8_t item, uint8_t position);
+void menu_DataUpdate();
 
 
 

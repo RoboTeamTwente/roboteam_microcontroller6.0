@@ -3,17 +3,7 @@
 
 #include "wheels.h"
 
-#define NUMBER_OF_MENU_ITEMS 8
-#define NUMBER_OF_MENU_PAGES 4
-#define NUMBER_OF_SUBMENU_ITEMS 8
-#define MAX_STRING_LENGTH 23
-#define STRINGS_PER_PAGE 8
-#define VARIABLES_PER_PAGE 8
-#define MAX_VAR_NAME_LENGTH 9
-#define MAX_MENU_NAME_LENGTH 15
-#define MAX_SUBMENU_NAME_LENGTH 23
-#define NUMBER_OF_VARIABLE_PAGES 3
-#define NUMBER_OF_DATA_PAGES 3
+///////////////////////////////////////////////////// STRUCTS
 
 static const unsigned char* bitmap_icons[8] = {
   bitmap_icon_3dcube,
@@ -72,11 +62,17 @@ typedef struct{
 	string_Elem *arrays[NUMBER_OF_DATA_PAGES];
 } string_Array;
 
+///////////////////////////////////////////////////// VARIABLES
+
 variable_Array variableArray;
 string_Array stringArray;
+static int8_t menu_selector[4] = {0};
+static int8_t current_page = 0;
+static uint8_t endOfPage = 0;
+static int16_t increment = 0;
 
 
-
+///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
 static void bootScreen();
 static void mainMenu(char itemNames[][MAX_MENU_NAME_LENGTH], const unsigned char* bitmaps[], uint8_t length, int8_t *scrollwheel);
@@ -100,18 +96,20 @@ static void submenu6();
 static void submenu7();
 
 static void motorSelfTest();
+static inline uint8_t constrain(uint8_t value, uint8_t min, uint8_t max);
 
-static inline uint8_t constrain(uint8_t value, uint8_t min, uint8_t max) {
-    return (value < min) ? min : ((value > max) ? max : value);
-}
-
-static int8_t menu_selector[4] = {0};
-static int8_t current_page = 0;
-static uint8_t endOfPage = 0;
-
+static void menu_Update();
+static void menu_Select(uint8_t page, uint8_t select0, uint8_t select1, uint8_t select2, uint8_t select3);
+static void menu_NextPage();
+static void menu_PreviousPage();
+static void menu_NextItem();
+static void menu_PreviousItem();
 
 
-Menu_StatusTypeDef Menu_Init(){
+///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
+
+
+Menu_StatusTypeDef menu_Init(){
 	for(int i = 0; i< NUMBER_OF_VARIABLE_PAGES; i++){ // initialize to 0
 		variableArray.arraySizes[i] = 0;
 		variableArray.arrays[i] = NULL;
@@ -121,32 +119,31 @@ Menu_StatusTypeDef Menu_Init(){
 		stringArray.arrays[i] = NULL;
 	}
 
-	Menu_Update();
+	menu_Update();
 
 	return MENU_OK;
 }
 
-static int16_t increment = 0;
 
-void Menu_Loop(){
+void menu_Loop(){
 	if(getButtonState(4)>50){//up
 		resetButtonState(4);
-		Menu_PreviousItem();
+		menu_PreviousItem();
 
 	}
 	if(getButtonState(2)>50){//down
 		resetButtonState(2);
-		Menu_NextItem();
+		menu_NextItem();
 
 	}
 
 	if(getButtonState(3)){//ok
 		if(getButtonState(3)>500){//long press
 			resetButtonState(3);
-			Menu_PreviousPage();
+			menu_PreviousPage();
 		}else if(getButtonState(3)>50){//short press
 			resetButtonState(3);
-			Menu_NextPage();
+			menu_NextPage();
 		}
 
 	}
@@ -182,8 +179,81 @@ void Menu_Loop(){
 
 }
 
+Menu_StatusTypeDef menu_SetString(uint8_t item, uint8_t position, char* str){//set the data
+	if((item > NUMBER_OF_DATA_PAGES- 1) || position > STRINGS_PER_PAGE){ //if values are out of bound
+		return MENU_OUT_OF_BOUND;
+	}
+	if(stringArray.arraySizes[item] == 0){//if array does not exist, create it
+		stringArray.arrays[item] = (string_Elem*)malloc((position+1) * sizeof(string_Elem));
+		if(stringArray.arrays[item] == NULL){
+			return MENU_MEM_ALLOC_FAILED;
+		}
+	}
+	if(position >= stringArray.arraySizes[item]){//is element does not exist, expand array
+		stringArray.arrays[item] = (string_Elem*)realloc(stringArray.arrays[item], (position+1) * sizeof(string_Elem)); //expand array
+		if(stringArray.arrays[item] == NULL){
+			return MENU_MEM_ALLOC_FAILED; //error
+		}
+		stringArray.arraySizes[item] = position + 1;
+	}
 
-void Menu_Update(){
+	strcpy(stringArray.arrays[item][position].name, str);
+	return MENU_OK;
+}
+
+Menu_StatusTypeDef menu_SetVariable(uint8_t item, uint8_t position, int32_t variable){//set the variables
+	if(position >= variableArray.arraySizes[item]){
+		return MENU_OUT_OF_BOUND; //return if slot does not exist
+	}
+	variableArray.arrays[item][position].content = variable;
+	return MENU_OK;
+}
+
+
+Menu_StatusTypeDef menu_SetVariableName(uint8_t item, uint8_t position, char* variableName){//set variable names
+	if((item > NUMBER_OF_VARIABLE_PAGES - 1) || position > VARIABLES_PER_PAGE){ //if values are out of bound
+		return MENU_OUT_OF_BOUND;
+	}
+	if(variableArray.arraySizes[item] == 0){//if array does not exist, create it
+		variableArray.arrays[item] = (variable_Elem*)malloc((position+1) * sizeof(variable_Elem));
+		if(variableArray.arrays[item] == NULL){
+			return MENU_MEM_ALLOC_FAILED;
+		}
+	}
+	if(position >= variableArray.arraySizes[item]){//is element does not exist, expand array
+		variableArray.arrays[item] = (variable_Elem*)realloc(variableArray.arrays[item], (position+1) * sizeof(variable_Elem)); //expand array
+		if(variableArray.arrays[item] == NULL){
+			return MENU_MEM_ALLOC_FAILED; //error
+		}
+		variableArray.arraySizes[item] = position + 1;
+	}
+
+	strcpy(variableArray.arrays[item][position].name, variableName);
+	variableArray.arrays[item][position].content = 0;
+	return MENU_OK;
+}
+
+
+
+int32_t menu_GetVariable(uint8_t item, uint8_t position){
+	return variableArray.arrays[item][position].content;
+}
+
+void menu_DataUpdate(){ //only updates if data is actually visible
+	switch(current_page){
+		//case 2:
+		case 3:
+			menu_Update();
+			break;
+	}
+}
+
+
+
+
+///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
+
+void menu_Update(){
 
 	switch(current_page){// item select page
 	case 0://logo page
@@ -228,7 +298,7 @@ static void page2(){
 			break;
 
 		default:
-			Menu_PreviousPage();
+			menu_PreviousPage();
 			break;
 	}
 }
@@ -261,7 +331,7 @@ static void page3(){
 			break;
 
 		default:
-			Menu_PreviousPage();
+			menu_PreviousPage();
 			break;
 	}
 }
@@ -299,12 +369,12 @@ static void submenu1(){//self-test
 		case 3://dribbler
 			break;
 	}
-	Menu_PreviousPage();
+	menu_PreviousPage();
 }
 
 
 static void submenu2(){
-	Menu_PreviousPage();
+	menu_PreviousPage();
 }
 
 static void submenu3(){
@@ -320,27 +390,23 @@ static void submenu3(){
 //			break;
 
 		default:
-			Menu_PreviousPage();
+			menu_PreviousPage();
 			break;
 	}
 }
 
 static void submenu4(){
-	Menu_PreviousPage();
+	menu_PreviousPage();
 }
 static void submenu5(){
-	Menu_PreviousPage();
+	menu_PreviousPage();
 }
 static void submenu6(){
-	Menu_PreviousPage();
+	menu_PreviousPage();
 }
 static void submenu7(){
-	Menu_PreviousPage();
+	menu_PreviousPage();
 }
-
-
-
-
 
 static void motorSelfTest(){
 	SSD1306_Fill(0);
@@ -371,51 +437,42 @@ static void motorSelfTest(){
 	SSD1306_Puts (".............", &Font_7x10, 1);
 	SSD1306_UpdateScreen();
 
-
-
 	uint8_t working[4] = {0};
-
-
 
 	for(int motor = 0; motor < 4; motor++){//motors
 
 		HAL_Delay(10);
-		if(Motor_DriverPresent(motor) != MOTOR_OK) continue; //check if motor driver is connected
+		if(motor_DriverPresent(motor) != MOTOR_OK) continue; //check if motor driver is connected
 		working[motor]++;//increment if passes test
 
-		Encoder_ResetCounter(motor);
-		Motor_SetPWM(motor, 100);
+		encoder_ResetCounter(motor);
+		motor_SetPWM(motor, 100);
 
 		for(int i = 0; i < 50; i++){ // max 0.5 sec long
-			if(Encoder_GetCounter(motor) > 100){
+			if(encoder_GetCounter(motor) > 100){
 				working[motor]++;//increment if passes test
 				break;
 			}
 			HAL_Delay(10);
 		}
-		Motor_SetPWM(motor, 0);
+		motor_SetPWM(motor, 0);
 
 		if(working[motor] != 2) continue;//check if previous test passed
 
 		HAL_Delay(50);
 
-		Encoder_ResetCounter(motor);
-		Motor_SetPWM(motor, -100);
+		encoder_ResetCounter(motor);
+		motor_SetPWM(motor, -100);
 
 		for(int i = 0; i < 50; i++){ // max .5 sec long
-			if(Encoder_GetCounter(motor) < -100){
+			if(encoder_GetCounter(motor) < -100){
 				working[motor]++;//increment if passes test
 				break;
 			}
 			HAL_Delay(10);
 		}
-		Motor_SetPWM(motor, 0);
+		motor_SetPWM(motor, 0);
 	}
-
-
-
-
-
 
 	char tempstr[20];
 
@@ -443,20 +500,53 @@ static void motorSelfTest(){
 	}
 }
 
+void menu_Select(uint8_t page, uint8_t select0, uint8_t select1, uint8_t select2, uint8_t select3){ //used to manually select a state of the menu
+	menu_selector[0]  = (int8_t)select0;
+	menu_selector[1]  = (int8_t)select1;
+	menu_selector[2]  = (int8_t)select2;
+	menu_selector[3]  = (int8_t)select3;
+	current_page = page;
 
+	if(current_page < 0) {current_page = 0;};
+	if(current_page >= NUMBER_OF_MENU_PAGES) {current_page = NUMBER_OF_MENU_PAGES-1;};
+	menu_Update();
+}
 
+void menu_NextItem(){
+	menu_selector[current_page]++;
+	menu_Update();
+}
 
+void menu_PreviousItem(){
+	menu_selector[current_page]--;
+	menu_Update();
+}
 
+void menu_NextPage(){
+	increment = 0; //set the incrementer to 0 when switching pages
+	if(!endOfPage){
+		current_page++;
+		if(current_page < 0) {current_page = 0;};
+		if(current_page >= NUMBER_OF_MENU_PAGES) {current_page = NUMBER_OF_MENU_PAGES-1;};
+		menu_Update();
+	}
+}
+void menu_PreviousPage(){
+	increment = 0; //set the incrementer to 0 when switching pages
+	menu_selector[current_page] = 0; // reset the scrollwheel of the sub menu
+	endOfPage = 0; // not end of page anymore
+	current_page--;
+	if(current_page < 0) {current_page = 0;};
+	if(current_page >= NUMBER_OF_MENU_PAGES) {current_page = NUMBER_OF_MENU_PAGES-1;};
+	menu_Update();
 
+}
 
+static inline uint8_t constrain(uint8_t value, uint8_t min, uint8_t max) {
+    return (value < min) ? min : ((value > max) ? max : value);
+}
 
-
-
-
-
-
-
-/*Functions*/
+/* Drawing functions */
 static void bootScreen(){
 	SSD1306_Fill(0); // first clear the screen before drawing the logo
 	SSD1306_DrawBitmap(0, 0, rtt_logo, 128, 64, 1);
@@ -658,117 +748,6 @@ static void underConstruction(){
 	SSD1306_UpdateScreen();
 
 }
-
-void Menu_Select(uint8_t page, uint8_t select0, uint8_t select1, uint8_t select2, uint8_t select3){ //used to manually select a state of the menu
-	menu_selector[0]  = (int8_t)select0;
-	menu_selector[1]  = (int8_t)select1;
-	menu_selector[2]  = (int8_t)select2;
-	menu_selector[3]  = (int8_t)select3;
-	current_page = page;
-
-	if(current_page < 0) {current_page = 0;};
-	if(current_page >= NUMBER_OF_MENU_PAGES) {current_page = NUMBER_OF_MENU_PAGES-1;};
-	Menu_Update();
-}
-
-void Menu_NextItem(){
-	menu_selector[current_page]++;
-	Menu_Update();
-}
-
-void Menu_PreviousItem(){
-	menu_selector[current_page]--;
-	Menu_Update();
-}
-
-void Menu_NextPage(){
-	increment = 0; //set the incrementer to 0 when switching pages
-	if(!endOfPage){
-		current_page++;
-		if(current_page < 0) {current_page = 0;};
-		if(current_page >= NUMBER_OF_MENU_PAGES) {current_page = NUMBER_OF_MENU_PAGES-1;};
-		Menu_Update();
-	}
-}
-void Menu_PreviousPage(){
-	increment = 0; //set the incrementer to 0 when switching pages
-	menu_selector[current_page] = 0; // reset the scrollwheel of the sub menu
-	endOfPage = 0; // not end of page anymore
-	current_page--;
-	if(current_page < 0) {current_page = 0;};
-	if(current_page >= NUMBER_OF_MENU_PAGES) {current_page = NUMBER_OF_MENU_PAGES-1;};
-	Menu_Update();
-
-}
-Menu_StatusTypeDef Menu_SetString(uint8_t item, uint8_t position, char* str){//set the data
-	if((item > NUMBER_OF_DATA_PAGES- 1) || position > STRINGS_PER_PAGE){ //if values are out of bound
-		return MENU_OUT_OF_BOUND;
-	}
-	if(stringArray.arraySizes[item] == 0){//if array does not exist, create it
-		stringArray.arrays[item] = (string_Elem*)malloc((position+1) * sizeof(string_Elem));
-		if(stringArray.arrays[item] == NULL){
-			return MENU_MEM_ALLOC_FAILED;
-		}
-	}
-	if(position >= stringArray.arraySizes[item]){//is element does not exist, expand array
-		stringArray.arrays[item] = (string_Elem*)realloc(stringArray.arrays[item], (position+1) * sizeof(string_Elem)); //expand array
-		if(stringArray.arrays[item] == NULL){
-			return MENU_MEM_ALLOC_FAILED; //error
-		}
-		stringArray.arraySizes[item] = position + 1;
-	}
-
-	strcpy(stringArray.arrays[item][position].name, str);
-	return MENU_OK;
-}
-
-Menu_StatusTypeDef Menu_SetVariable(uint8_t item, uint8_t position, int32_t variable){//set the variables
-	if(position >= variableArray.arraySizes[item]){
-		return MENU_OUT_OF_BOUND; //return if slot does not exist
-	}
-	variableArray.arrays[item][position].content = variable;
-	return MENU_OK;
-}
-
-
-Menu_StatusTypeDef Menu_SetVariableName(uint8_t item, uint8_t position, char* variableName){//set variable names
-	if((item > NUMBER_OF_VARIABLE_PAGES - 1) || position > VARIABLES_PER_PAGE){ //if values are out of bound
-		return MENU_OUT_OF_BOUND;
-	}
-	if(variableArray.arraySizes[item] == 0){//if array does not exist, create it
-		variableArray.arrays[item] = (variable_Elem*)malloc((position+1) * sizeof(variable_Elem));
-		if(variableArray.arrays[item] == NULL){
-			return MENU_MEM_ALLOC_FAILED;
-		}
-	}
-	if(position >= variableArray.arraySizes[item]){//is element does not exist, expand array
-		variableArray.arrays[item] = (variable_Elem*)realloc(variableArray.arrays[item], (position+1) * sizeof(variable_Elem)); //expand array
-		if(variableArray.arrays[item] == NULL){
-			return MENU_MEM_ALLOC_FAILED; //error
-		}
-		variableArray.arraySizes[item] = position + 1;
-	}
-
-	strcpy(variableArray.arrays[item][position].name, variableName);
-	variableArray.arrays[item][position].content = 0;
-	return MENU_OK;
-}
-
-
-
-int32_t Menu_GetVariable(uint8_t item, uint8_t position){
-	return variableArray.arrays[item][position].content;
-}
-
-void Menu_DataUpdate(){ //only updates if data is actually visible
-	switch(current_page){
-		//case 2:
-		case 3:
-			Menu_Update();
-			break;
-	}
-}
-
 
 
 

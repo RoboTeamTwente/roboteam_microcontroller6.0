@@ -23,19 +23,19 @@ typedef enum{
 	MOTOR_ERROR
 }Motor_StatusTypeDef;
 
-Motor_StatusTypeDef Motor_Init();
-Motor_StatusTypeDef Motor_DriverStatus(motor_id_t motor);
-Motor_StatusTypeDef Motor_DriverPresent(motor_id_t motor);
-Motor_StatusTypeDef Motor_WheelsBrake(bool BrakeStatus);
+Motor_StatusTypeDef motor_Init();
+Motor_StatusTypeDef motor_DriverStatus(motor_id_t motor);
+Motor_StatusTypeDef motor_DriverPresent(motor_id_t motor);
+Motor_StatusTypeDef motor_WheelsBrake(bool BrakeStatus);
 Motor_StatusTypeDef wheels_Init();
 Motor_StatusTypeDef wheels_DeInit();
-Motor_StatusTypeDef Motor_SetPWM(motor_id_t id, int32_t Value);
-Motor_StatusTypeDef Motor_Set(motor_id_t id, float Value);
+Motor_StatusTypeDef motor_SetPWM(motor_id_t id, int32_t Value);
+Motor_StatusTypeDef motor_Set(motor_id_t id, float Value);
 
 
 /* Encoders */
-Motor_StatusTypeDef Encoder_Init();
-int16_t Encoder_GetCounter(motor_id_t id);
-Motor_StatusTypeDef Encoder_ResetCounter(motor_id_t id);
+Motor_StatusTypeDef encoder_Init();
+int16_t encoder_GetCounter(motor_id_t id);
+Motor_StatusTypeDef encoder_ResetCounter(motor_id_t id);
 
 #endif /* INC_WHEELS_H_ */

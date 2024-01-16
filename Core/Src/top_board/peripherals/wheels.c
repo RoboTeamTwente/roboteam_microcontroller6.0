@@ -5,21 +5,22 @@
 
 
 
-static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t max) {
-    return (value < min) ? min : ((value > max) ? max : value);
-}
-
-
+///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
+static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t max);
 static void setSlaveSelect(motor_id_t motor, GPIO_PinState state);
-static uint16_t Motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits);
+static uint16_t motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits);
 
+
+
+
+
+///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 /**
   * @brief Start the PWM timers and set the settings on the motor driver
-  * @param None
-  * @retval None
+  * @retval Motor status
   */
-Motor_StatusTypeDef Motor_Init(){
+Motor_StatusTypeDef motor_Init(){
 
 	HAL_TIM_Base_Start(PWM_RF.TIM);//RF
 	HAL_TIM_Base_Start(PWM_RB.TIM);//RB
@@ -38,28 +39,28 @@ Motor_StatusTypeDef Motor_Init(){
 	Motor_StatusTypeDef output = MOTOR_OK;
 	for (int motor = 3; motor < 4; motor++){
 		HAL_Delay(1);
-		if(Motor_TransmitCommand(motor, 0, 0x02, commands[0]) != commands[0]) output = MOTOR_NORESPONSE;
+		if(motor_TransmitCommand(motor, 0, 0x02, commands[0]) != commands[0]) output = MOTOR_NORESPONSE;
 		HAL_Delay(1);
-		if(Motor_TransmitCommand(motor, 0, 0x06, commands[1]) != commands[1]) output = MOTOR_NORESPONSE;
-		Motor_SetPWM(motor, 0);
+		if(motor_TransmitCommand(motor, 0, 0x06, commands[1]) != commands[1]) output = MOTOR_NORESPONSE;
+		motor_SetPWM(motor, 0);
 	}
 
 
 
 
-	Motor_WheelsBrake(0);//brakes are active low, so 0 means brakes are enabled
+	motor_WheelsBrake(0);//brakes are active low, so 0 means brakes are enabled
 	return output;
 }
 
 
 /**
   * @brief Returns whether board can communicate with the motor driver
-  * @param Motor id
+  * @param motor Motor id
   * @retval Motor status
   */
-Motor_StatusTypeDef Motor_DriverPresent(motor_id_t motor){
+Motor_StatusTypeDef motor_DriverPresent(motor_id_t motor){
 	uint16_t received = 0;
-	received = Motor_TransmitCommand(motor, 1, 0x03, 0);//read mode
+	received = motor_TransmitCommand(motor, 1, 0x03, 0);//read mode
 
 	if(received != 0 && received != 0xFFFF) return MOTOR_OK;
 
@@ -71,74 +72,28 @@ Motor_StatusTypeDef Motor_DriverPresent(motor_id_t motor){
   * @param Motor id
   * @retval Motor status
   */
-Motor_StatusTypeDef Motor_DriverStatus(motor_id_t motor){
-	//needs to be implemented
+Motor_StatusTypeDef motor_DriverStatus(motor_id_t motor){
+	//TODO needs to be implemented
 	return MOTOR_OK;
 }
 
 
 /**
-  * @brief Sends SPI command to motor
-  * @param Motor id
-  * @param Read/Write bit (1 = read mode, 0 = write mode)
-  * @param Address bits (4 bits)
-  * @param Data bits (11 bits)
-  * @retval response of the motor driver
-  */
-static uint16_t Motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits){ //format: 1 R/W, 4 address, 11 data
-	uint16_t command = 0;
-	uint16_t received = 0;
-
-	command = ((uint16_t)(rwBit & 0x01)<<15) | ((uint16_t)(address4Bits & 0x0F) << 11) | (data11Bits & 0x7FF);
-
-	setSlaveSelect(motor, 0);
-	HAL_SPI_TransmitReceive(MOTOR_SPI, (uint8_t*)&command, (uint8_t*)&received, 1, 100);
-	setSlaveSelect(motor, 1);
-
-	return received;
-}
-
-
-/**
-  * @brief Sents slave select pin of the specified motor
-  * @param Motor id
-  * @param State of the pin (0 or 1)
-  * @retval None
-  */
-static void setSlaveSelect(motor_id_t motor, GPIO_PinState state){
-	switch(motor){
-		case RB:
-			set_Pin(RB_CS_pin, state);
-			break;
-		case RF:
-			set_Pin(RF_CS_pin, state);
-			break;
-		case LB:
-			set_Pin(LB_CS_pin, state);
-			break;
-		case LF:
-			set_Pin(LF_CS_pin, state);
-			break;
-	}
-}
-
-/**
   * @brief Sets the brakes
-  * @param Brake state (0 or 1)
+  * @param brakeStatus Brake state (0 or 1)
   * @note Brakes are active LOW, so 1 means braking, 0 means no brakes
   * @retval Motor status
   */
-Motor_StatusTypeDef Motor_WheelsBrake(bool BrakeStatus){
-	HAL_GPIO_WritePin(RB_BRK_GPIO_Port, RB_BRK_Pin, BrakeStatus);
-	HAL_GPIO_WritePin(LB_BRK_GPIO_Port, LB_BRK_Pin, BrakeStatus);
-	HAL_GPIO_WritePin(RF_BRK_GPIO_Port, RF_BRK_Pin, BrakeStatus);
-	HAL_GPIO_WritePin(LF_BRK_GPIO_Port, LF_BRK_Pin, BrakeStatus);
+Motor_StatusTypeDef motor_WheelsBrake(bool brakeStatus){
+	HAL_GPIO_WritePin(RB_BRK_GPIO_Port, RB_BRK_Pin, brakeStatus);
+	HAL_GPIO_WritePin(LB_BRK_GPIO_Port, LB_BRK_Pin, brakeStatus);
+	HAL_GPIO_WritePin(RF_BRK_GPIO_Port, RF_BRK_Pin, brakeStatus);
+	HAL_GPIO_WritePin(LF_BRK_GPIO_Port, LF_BRK_Pin, brakeStatus);
 	return MOTOR_OK;
 }
 
 /**
   * @brief Turns off encoder timers
-  * @param None
   * @retval Motor status
   */
 Motor_StatusTypeDef wheels_DeInit(){
@@ -152,17 +107,17 @@ Motor_StatusTypeDef wheels_DeInit(){
 
 /**
   * @brief Sets motor PWM
-  * @param Motor id
-  * @param PWM value
+  * @param id Motor id
+  * @param value PWM value
   * @note PWM value is between -PWM_MAX and +PWM_MAX, positive is CW and negative is CCW
   * @retval response of the motor driver
   */
-Motor_StatusTypeDef Motor_SetPWM(motor_id_t id, int32_t Value){
+Motor_StatusTypeDef motor_SetPWM(motor_id_t id, int32_t value){
 
 
-	bool Direction = (Value > 0); // forward if positive, back if neg
+	bool Direction = (value > 0); // forward if positive, back if neg
 
-	uint32_t PWMValue = MAX_PWM - constrain_uint32(abs(Value), 0,  MAX_PWM); //limit the pwm to MAX_PWM
+	uint32_t PWMValue = MAX_PWM - constrain_uint32(abs(value), 0,  MAX_PWM); //limit the pwm to MAX_PWM
 
 	switch(id){
 	case RF:
@@ -187,14 +142,14 @@ Motor_StatusTypeDef Motor_SetPWM(motor_id_t id, int32_t Value){
 
 /**
   * @brief Sets motor PWM
-  * @param Motor id
-  * @param float
+  * @param id Motor id
+  * @param value float
   * @note value is between -1 and +1, positive is CW and negative is CCW
   * @retval response of the motor driver
   */
-Motor_StatusTypeDef Motor_Set(motor_id_t id, float Value){
-	if(Value > 1 || Value < -1) return MOTOR_ERROR;
-	return Motor_SetPWM(id, Value * MAX_PWM);
+Motor_StatusTypeDef motor_Set(motor_id_t id, float value){
+	if(value > 1 || value < -1) return MOTOR_ERROR;
+	return motor_SetPWM(id, value * MAX_PWM);
 }
 
 
@@ -202,10 +157,9 @@ Motor_StatusTypeDef Motor_Set(motor_id_t id, float Value){
 
 /**
   * @brief Starts the encoder timers
-  * @param None
   * @retval Motor state
   */
-Motor_StatusTypeDef Encoder_Init(){
+Motor_StatusTypeDef encoder_Init(){
 	HAL_TIM_Base_Start(ENC_RF);//RF
 	HAL_TIM_Base_Start(ENC_LB);//LB
 	HAL_TIM_Base_Start(ENC_RB);//RB
@@ -219,10 +173,10 @@ Motor_StatusTypeDef Encoder_Init(){
 
 /**
   * @brief Returns the counter value from the encoder.
-  * @param Motor id
+  * @param id Motor id
   * @retval Returns an int_16_t
   */
-int16_t Encoder_GetCounter(motor_id_t id){
+int16_t encoder_GetCounter(motor_id_t id){
 	uint16_t rotationsuint = 0;
 	int16_t rotationsint = 0;
 
@@ -253,10 +207,10 @@ int16_t Encoder_GetCounter(motor_id_t id){
 
 /**
   * @brief Resets the encoder counter to 0
-  * @param Motor id
+  * @param id Motor id
   * @retval Motor state
   */
-Motor_StatusTypeDef Encoder_ResetCounter(motor_id_t id){
+Motor_StatusTypeDef encoder_ResetCounter(motor_id_t id){
 	switch(id){
 		case RF:
 			__HAL_TIM_SET_COUNTER(ENC_RF,0);
@@ -277,12 +231,52 @@ Motor_StatusTypeDef Encoder_ResetCounter(motor_id_t id){
 
 
 
+///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 
+static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t max) {
+    return (value < min) ? min : ((value > max) ? max : value);
+}
 
+/**
+  * @brief Sends SPI command to motor
+  * @param Motor id
+  * @param rwBit Read/Write bit (1 = read mode, 0 = write mode)
+  * @param address4Bits Address bits (4 bits)
+  * @param data11Bits Data bits (11 bits)
+  * @retval response of the motor driver
+  */
+static uint16_t motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits){ //format: 1 R/W, 4 address, 11 data
+	uint16_t command = 0;
+	uint16_t received = 0;
 
+	command = ((uint16_t)(rwBit & 0x01)<<15) | ((uint16_t)(address4Bits & 0x0F) << 11) | (data11Bits & 0x7FF);
 
+	setSlaveSelect(motor, 0);
+	HAL_SPI_TransmitReceive(MOTOR_SPI, (uint8_t*)&command, (uint8_t*)&received, 1, 100);
+	setSlaveSelect(motor, 1);
 
+	return received;
+}
 
-
-
-
+/**
+  * @brief Sents slave select pin of the specified motor
+  * @param motor motor id
+  * @param state state of the pin (0 or 1)
+  * @retval None
+  */
+static void setSlaveSelect(motor_id_t motor, GPIO_PinState state){
+	switch(motor){
+		case RB:
+			set_Pin(RB_CS_pin, state);
+			break;
+		case RF:
+			set_Pin(RF_CS_pin, state);
+			break;
+		case LB:
+			set_Pin(LB_CS_pin, state);
+			break;
+		case LF:
+			set_Pin(LF_CS_pin, state);
+			break;
+	}
+}

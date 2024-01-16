@@ -1541,10 +1541,10 @@ void setup(){
 	HAL_Delay(100); //wait until power stabilizes before setup
 	CAN_Init(&hcan1); //initialize can bus
 	CAN_SetRxCallback(testfun); //set callback for can rx
-	if(Motor_Init() != MOTOR_OK) motorErrorFlag = 1;
+	if(motor_Init() != MOTOR_OK) motorErrorFlag = 1;
 	SSD1306_Init(); // init oled
-	Menu_Init();//start the menu
-	Encoder_Init();
+	menu_Init();//start the menu
+	encoder_Init();
 
 	HAL_TIM_Base_Start_IT(TIM_CONTROL);//control
 
@@ -1557,8 +1557,8 @@ void setup(){
 
 	HAL_Delay(300);
 
-	Menu_SetVariableName(0, 0, "Motor");
-	Menu_SetVariableName(0, 1, "Encoder");
+	menu_SetVariableName(0, 0, "Motor");
+	menu_SetVariableName(0, 1, "Encoder");
 //	Menu_SetVariableName(0, 2, "I");
 //	Menu_SetVariableName(0, 3, "Motor");
 //	Menu_SetVariableName(0, 4, "A");
@@ -1566,8 +1566,8 @@ void setup(){
 //	Menu_SetVariableName(0, 6, "C");
 //	Menu_SetVariableName(0, 7, "D");
 
-	Menu_SetVariable(0, 0, 0);
-	Menu_SetVariable(0, 1, 0);
+	menu_SetVariable(0, 0, 0);
+	menu_SetVariable(0, 1, 0);
 //	Menu_SetVariable(0, 2, 0);
 //	Menu_SetVariable(0, 3, 2);
 //	Menu_SetVariable(0, 4, 0);
@@ -1582,7 +1582,7 @@ void setup(){
 
 	HAL_Delay(300);
 
-	Motor_WheelsBrake(1);
+	motor_WheelsBrake(1);
 //	Motor_SetPWM(LF, 20);
 	buzzer_Init();
 	buzzer_Play_QuickBeepUp();
@@ -1614,11 +1614,11 @@ void loop(){
 		TxData[0] = 1;
 	}
 
-	Menu_Loop();
+	menu_Loop();
 
 
-	float speed = (float)(Menu_GetVariable(0, 0))/1000;
-	Motor_Set(LF, speed);
+	float speed = (float)(menu_GetVariable(0, 0))/1000;
+	motor_Set(LF, speed);
 
 //	Motor_SetPWM(0, speed);
 //	Motor_SetPWM(1, speed);
@@ -1629,20 +1629,20 @@ void loop(){
 	HAL_GetTick();
 
 	sprintf(tempstr, "Uptime: %lu", HAL_GetTick());
-	Menu_SetString(0, 0, tempstr);
+	menu_SetString(0, 0, tempstr);
 
 	sprintf(tempstr, "ID: %u", get_Id());
-	Menu_SetString(0, 1, tempstr);
+	menu_SetString(0, 1, tempstr);
 
 	sprintf(tempstr, "MOTORERROR: %u", motorErrorFlag);
-	Menu_SetString(0, 2, tempstr);
+	menu_SetString(0, 2, tempstr);
 
 	sprintf(tempstr, "Speed(LF): %f", measuredMotorSpeed);
-	Menu_SetString(0, 3, tempstr);
+	menu_SetString(0, 3, tempstr);
 
 
 	Led(6, 1);
-	Menu_DataUpdate();
+	menu_DataUpdate();
 	Led(6, 0);
 
 	TxData[1] = counter++;
@@ -1653,7 +1653,7 @@ void loop(){
 	HAL_Delay(10);
 
 
-	Menu_SetVariable(0, 1, Encoder_GetCounter(LF));
+	menu_SetVariable(0, 1, encoder_GetCounter(LF));
 
 
 
@@ -1699,8 +1699,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	}
 	else if(htim->Instance == TIM_CONTROL->Instance){
 
-		measuredMotorSpeed = (2*M_PI) /((0.01*2.65*2048*4)*Encoder_GetCounter(LF));
-		Encoder_ResetCounter(LF);
+		measuredMotorSpeed = (2*M_PI) /((0.01*2.65*2048*4)*encoder_GetCounter(LF));
+		encoder_ResetCounter(LF);
 	}
 }
 
