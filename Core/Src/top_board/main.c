@@ -1498,7 +1498,8 @@ void Led(int id, GPIO_PinState state){
 		HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, state);
 	}
 	else if(id == 2){
-    	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, state);	}
+    	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, state);	
+  }
 	else if(id == 3){
     	HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, state);
 	}
