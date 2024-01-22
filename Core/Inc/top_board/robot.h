@@ -10,7 +10,7 @@
 #include "peripheral_util.h"
 //#include "stateControl.h"
 //#include "stateEstimation.h"
-//#include "sdcard.h"
+#include "sdcard.h"
 #include "Wireless.h"
 #include "buzzer.h"
 #include "speaker.h"
