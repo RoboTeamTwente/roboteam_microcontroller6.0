@@ -177,12 +177,6 @@ void init(void){
 
 	HAL_Delay(300);
 
-	menu_SetVariableName(0, 0, "Motor");
-	menu_SetVariableName(0, 1, "Encoder");
-	menu_SetVariable(0, 0, 0);
-	menu_SetVariable(0, 1, 0);
-
-
 	// LOG_sendAll();
 }
 
