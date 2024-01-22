@@ -22,15 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#include "tim_util.h"
-#include "gpio_util.h"
-
-#include "drivers.h"
-#include "buzzer.h"
+#include "robot.h"
 
 /* USER CODE END Includes */
 
@@ -41,10 +33,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-void Led(int id, GPIO_PinState state);
-void testfun(uint8_t RxData[8], uint8_t MessageId, uint8_t MessageLength);
-void setup();
-void loop();
 
 /* USER CODE END PD */
 
@@ -128,17 +116,6 @@ static void MX_UART8_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
-
-
-
-uint8_t TxData[8];
-uint8_t a;
-uint8_t counter = 0;
-
-
-
-
 /* USER CODE END 0 */
 
 /**
@@ -204,14 +181,16 @@ int main(void)
   MX_ADC1_Init();
   MX_UART8_Init();
   /* USER CODE BEGIN 2 */
-  	setup();
+
+  init();
 
   /* USER CODE END 2 */
-
+  
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    
 	  loop();
 
     /* USER CODE END WHILE */
@@ -1487,223 +1466,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-
-void Led(int id, GPIO_PinState state){
-
-	if(id == 0){
-		HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, state);
-	}
-	else if(id == 1){
-		HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, state);
-	}
-	else if(id == 2){
-    	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, state);	
-  }
-	else if(id == 3){
-    	HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, state);
-	}
-	else if(id == 4){
-    	HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, state);
-	}
-	else if(id == 5){
-    	HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, state);
-	}
-	else if(id == 6){
-    	HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, state);
-	}
-	else if(id == 7){
-		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, state);
-	}
-
-}
-
-
-void testfun(uint8_t RxData[8], uint8_t MessageId, uint8_t MessageLength){
-
-}
-
-
-#define RXBUFFERSIZE 10
-uint8_t Rx_data[RXBUFFERSIZE];
-uint8_t Test[] = "Debug code!\n"; //Data to send
-
-
-
-volatile uint8_t ADC_conv_complete = 0;
-
-uint16_t analogDataBuffer[6];
-uint16_t sensorData[6];
-uint32_t loopcounter = 0;
-uint8_t motorErrorFlag = 0;
-
-void setup(){
-
-	HAL_Delay(100); //wait until power stabilizes before setup
-	CAN_Init(&hcan1); //initialize can bus
-	CAN_SetRxCallback(testfun); //set callback for can rx
-	if(motor_Init() != MOTOR_OK) motorErrorFlag = 1;
-	SSD1306_Init(); // init oled
-	menu_Init();//start the menu
-	encoder_Init();
-
-	HAL_TIM_Base_Start_IT(TIM_CONTROL);//control
-
-	//encodertest = __HAL_TIM_GET_COUNTER(&htim1);
-	//__HAL_TIM_SET_COUNTER(&htim1, 0);
-
-
-	//HAL_UARTEx_ReceiveToIdle_IT(&huart8, Rx_data, RXBUFFERSIZE);
-	//HAL_UART_Transmit(&huart8,Test,sizeof(Test),10);// Sending in normal mode
-
-	HAL_Delay(300);
-
-	menu_SetVariableName(0, 0, "Motor");
-	menu_SetVariableName(0, 1, "Encoder");
-//	Menu_SetVariableName(0, 2, "I");
-//	Menu_SetVariableName(0, 3, "Motor");
-//	Menu_SetVariableName(0, 4, "A");
-//	Menu_SetVariableName(0, 5, "B");
-//	Menu_SetVariableName(0, 6, "C");
-//	Menu_SetVariableName(0, 7, "D");
-
-	menu_SetVariable(0, 0, 0);
-	menu_SetVariable(0, 1, 0);
-//	Menu_SetVariable(0, 2, 0);
-//	Menu_SetVariable(0, 3, 2);
-//	Menu_SetVariable(0, 4, 0);
-//	Menu_SetVariable(0, 5, 0);
-//	Menu_SetVariable(0, 6, 0);
-//	Menu_SetVariable(0, 7, 0);
-
-	//Menu_SetString(0, 0,"4242abc");
-//
-//	Menu_SetVariableName(1, 0, "Answer");
-
-
-	HAL_Delay(300);
-
-	motor_WheelsBrake(1);
-//	Motor_SetPWM(LF, 20);
-	buzzer_Init();
-	buzzer_Play_QuickBeepUp();
-	HAL_Delay(500); // The duration of the sound
-	buzzer_Play_BatteryDrainWarning();
-
-
-}
-
-char tempstr[20];
-uint16_t errors[2];
-
-#define AVERAGESIZE 100
-uint32_t currentSensorIndex = 0;
-uint16_t currentsensoraveragerarray[AVERAGESIZE];
-uint32_t currectSensorAverage = 0;
-
-float measuredMotorSpeed = 0;
-
-
-void loop(){
-	loopcounter++;
-
-	if(getButtonState(0)>5000){//long press
-		resetButtonState(0);
-		TxData[0] = 3; //turn off power
-	}
-	else{
-		TxData[0] = 1;
-	}
-
-	menu_Loop();
-
-
-	float speed = (float)(menu_GetVariable(0, 0))/1000;
-	motor_Set(LF, speed);
-
-//	Motor_SetPWM(0, speed);
-//	Motor_SetPWM(1, speed);
-//	Motor_SetPWM(2, speed);
-//	Motor_SetPWM(3, speed);
-
-
-	HAL_GetTick();
-
-	sprintf(tempstr, "Uptime: %lu", HAL_GetTick());
-	menu_SetString(0, 0, tempstr);
-
-	sprintf(tempstr, "ID: %u", get_Id());
-	menu_SetString(0, 1, tempstr);
-
-	sprintf(tempstr, "MOTORERROR: %u", motorErrorFlag);
-	menu_SetString(0, 2, tempstr);
-
-	sprintf(tempstr, "Speed(LF): %f", measuredMotorSpeed);
-	menu_SetString(0, 3, tempstr);
-
-
-	Led(6, 1);
-	menu_DataUpdate();
-	Led(6, 0);
-
-	TxData[1] = counter++;
-	CAN_SendMessage(&hcan1, 2, TxData, 2);
-
-
-	HAL_GPIO_TogglePin(LED7_GPIO_Port, LED7_Pin);
-	HAL_Delay(10);
-
-
-	menu_SetVariable(0, 1, encoder_GetCounter(LF));
-
-
-
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)analogDataBuffer, 6);
-
-	while(!ADC_conv_complete){}
-
-	ADC_conv_complete = 0;
-	for (int i = 0; i< hadc1.Init.NbrOfConversion; i++){
-		sensorData[i] = analogDataBuffer[i];
-	}
-
-
-
-
-
-
-	currectSensorAverage -= currentsensoraveragerarray[currentSensorIndex];
-	currentsensoraveragerarray[currentSensorIndex] =  sensorData[3];
-	currectSensorAverage += currentsensoraveragerarray[currentSensorIndex];
-	currentSensorIndex++;
-	if(currentSensorIndex == AVERAGESIZE){
-		currentSensorIndex = 0;
-	}
-
-
-
-}
-
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	ADC_conv_complete = 1;
-}
-
-volatile uint32_t counter_TIM_BUZZER = 0;
-volatile uint32_t counter_RobotBuzzer = 0;
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	if (htim->Instance == TIM_BUZZER->Instance) {
-			counter_TIM_BUZZER++;
-			buzzer_Callback();
-	}
-	else if(htim->Instance == TIM_CONTROL->Instance){
-
-		measuredMotorSpeed = (2*M_PI) /((0.01*2.65*2048*4)*encoder_GetCounter(LF));
-		encoder_ResetCounter(LF);
-	}
-}
 
 
 

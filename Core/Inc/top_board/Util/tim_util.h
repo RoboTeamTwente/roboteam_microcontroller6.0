@@ -56,6 +56,7 @@ extern PWM_struct PWM_Buzzer;
 
 
 inline void start_PWM(PWM_struct PWM){
+    HAL_TIM_Base_Start(PWM.TIM);
     HAL_TIM_PWM_Start(PWM.TIM, PWM.Channel);
 }
 

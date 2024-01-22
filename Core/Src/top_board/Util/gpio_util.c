@@ -38,6 +38,7 @@ GPIO_Pin LED3_pin			= { LED3_GPIO_Port			, LED3_Pin			};
 GPIO_Pin LED4_pin			= { LED4_GPIO_Port			, LED4_Pin			};
 GPIO_Pin LED5_pin			= { LED5_GPIO_Port			, LED5_Pin			};
 GPIO_Pin LED6_pin			= { LED6_GPIO_Port			, LED6_Pin			};
+GPIO_Pin LED7_pin			= { LED7_GPIO_Port			, LED7_Pin			};
 
 // ID select
 DEFINE_PIN(ID0_pin, DIP_SW0)
@@ -71,4 +72,7 @@ GPIO_Pin SX_IRQ_pin			= { SPI4_IRQ_GPIO_Port 		, SPI4_IRQ_Pin		};
 GPIO_Pin SX_RST_pin			= { SPI4_RST_GPIO_Port 		, SPI4_RST_Pin		};
 GPIO_Pin SX_NSS_pin			= { SPI4_NSS_GPIO_Port 		, SPI4_NSS_Pin		};
 GPIO_Pin SX_BUSY_pin		= { SPI4_BUSY_GPIO_Port 	, SPI4_BUSY_Pin		};
+
+// SD
+DEFINE_PIN(SD_CD_pin, SD_MMC1_CD)
 

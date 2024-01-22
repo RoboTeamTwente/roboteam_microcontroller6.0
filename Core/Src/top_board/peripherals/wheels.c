@@ -8,9 +8,12 @@
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t max);
 static void setSlaveSelect(motor_id_t motor, GPIO_PinState state);
-static uint16_t motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits);
+static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits);
 
 
+///////////////////////////////////////////////////// VARIABLES
+static bool wheels_initialized = false;
+static bool wheels_braking = true;
 
 
 
@@ -20,36 +23,68 @@ static uint16_t motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t a
   * @brief Start the PWM timers and set the settings on the motor driver
   * @retval Motor status
   */
-Motor_StatusTypeDef motor_Init(){
+Motor_StatusTypeDef wheels_Init(){
 
-	HAL_TIM_Base_Start(PWM_RF.TIM);//RF
-	HAL_TIM_Base_Start(PWM_RB.TIM);//RB
-	HAL_TIM_Base_Start(PWM_LF.TIM);//LF
-	HAL_TIM_Base_Start(PWM_LB.TIM);//LB
+	wheels_Brake();
 
-	HAL_TIM_PWM_Start(PWM_RF.TIM,PWM_RF.Channel);//RF
-	HAL_TIM_PWM_Start(PWM_RB.TIM,PWM_RB.Channel);//RB
-	HAL_TIM_PWM_Start(PWM_LF.TIM,PWM_LF.Channel);//LF
-	HAL_TIM_PWM_Start(PWM_LB.TIM,PWM_LB.Channel);//LB
+	/* Start the PWM timers */
+	start_PWM(PWM_RF);
+	start_PWM(PWM_RB);
+	start_PWM(PWM_LB);
+	start_PWM(PWM_LF);
 
 	uint16_t commands[2] = {0b00001000000, //set the correct settings(1x PWM mode);
 							0b01011000011};//set voltage sense to 40V/V
 						     //9876543210
 
 	Motor_StatusTypeDef output = MOTOR_OK;
-	for (int motor = 3; motor < 4; motor++){
+	for (int motor = 0; motor < 4; motor++){
 		HAL_Delay(1);
-		if(motor_TransmitCommand(motor, 0, 0x02, commands[0]) != commands[0]) output = MOTOR_NORESPONSE;
+		if(wheels_TransmitCommand(motor, 0, 0x02, commands[0]) != commands[0]) output = MOTOR_NORESPONSE;
 		HAL_Delay(1);
-		if(motor_TransmitCommand(motor, 0, 0x06, commands[1]) != commands[1]) output = MOTOR_NORESPONSE;
-		motor_SetPWM(motor, 0);
+		if(wheels_TransmitCommand(motor, 0, 0x06, commands[1]) != commands[1]) output = MOTOR_NORESPONSE;
+		wheels_SetPWM(motor, 0);
 	}
 
 
+	wheels_initialized = true;
 
-
-	motor_WheelsBrake(0);//brakes are active low, so 0 means brakes are enabled
 	return output;
+}
+
+/**
+  * @brief Turns off encoder timers
+  * @retval Motor status
+  */
+Motor_StatusTypeDef wheels_DeInit(){
+
+	wheels_initialized = false;
+	/* Stop the encoders */
+	HAL_TIM_Base_Stop(ENC_RF);
+	HAL_TIM_Base_Stop(ENC_RB);
+	HAL_TIM_Base_Stop(ENC_LB);
+	HAL_TIM_Base_Stop(ENC_LF);
+	
+	/* Stop the PWM timers */
+	stop_PWM(PWM_RF);
+	stop_PWM(PWM_RB);
+	stop_PWM(PWM_LB);
+	stop_PWM(PWM_LF);
+
+	wheels_Stop();
+	wheels_Brake();
+
+	return MOTOR_OK;
+}
+
+
+/**
+ * @brief Stops the wheels without deinitializing them 
+ */
+void wheels_Stop() {
+	for (int motor = 3; motor < 4; motor++){
+		wheels_Set(motor, 0);
+	}
 }
 
 
@@ -58,9 +93,9 @@ Motor_StatusTypeDef motor_Init(){
   * @param motor Motor id
   * @retval Motor status
   */
-Motor_StatusTypeDef motor_DriverPresent(motor_id_t motor){
+Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor){
 	uint16_t received = 0;
-	received = motor_TransmitCommand(motor, 1, 0x03, 0);//read mode
+	received = wheels_TransmitCommand(motor, 1, 0x03, 0);//read mode
 
 	if(received != 0 && received != 0xFFFF) return MOTOR_OK;
 
@@ -72,36 +107,36 @@ Motor_StatusTypeDef motor_DriverPresent(motor_id_t motor){
   * @param Motor id
   * @retval Motor status
   */
-Motor_StatusTypeDef motor_DriverStatus(motor_id_t motor){
+Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor){
 	//TODO needs to be implemented
 	return MOTOR_OK;
 }
 
 
 /**
-  * @brief Sets the brakes
-  * @param brakeStatus Brake state (0 or 1)
-  * @note Brakes are active LOW, so 1 means braking, 0 means no brakes
-  * @retval Motor status
-  */
-Motor_StatusTypeDef motor_WheelsBrake(bool brakeStatus){
-	HAL_GPIO_WritePin(RB_BRK_GPIO_Port, RB_BRK_Pin, brakeStatus);
-	HAL_GPIO_WritePin(LB_BRK_GPIO_Port, LB_BRK_Pin, brakeStatus);
-	HAL_GPIO_WritePin(RF_BRK_GPIO_Port, RF_BRK_Pin, brakeStatus);
-	HAL_GPIO_WritePin(LF_BRK_GPIO_Port, LF_BRK_Pin, brakeStatus);
-	return MOTOR_OK;
+ * @brief Enable the brakes
+ */
+void wheels_Brake() {
+	// Set pin to LOW to brake
+	set_Pin(RB_Brake_pin, false);
+	set_Pin(LB_Brake_pin, false);
+	set_Pin(RF_Brake_pin, false);
+	set_Pin(LF_Brake_pin, false);
+
+	wheels_braking = true;
 }
 
 /**
-  * @brief Turns off encoder timers
-  * @retval Motor status
-  */
-Motor_StatusTypeDef wheels_DeInit(){
-	HAL_TIM_PWM_Stop(PWM_RF.TIM,PWM_RF.Channel);//RF
-	HAL_TIM_PWM_Stop(PWM_RB.TIM,PWM_RB.Channel);//RB
-	HAL_TIM_PWM_Stop(PWM_LF.TIM,PWM_LF.Channel);//LF
-	HAL_TIM_PWM_Stop(PWM_LB.TIM,PWM_LB.Channel);//LB
-	return MOTOR_OK;
+ * @brief Disable the brakes
+ */
+void wheels_Unbrake(){
+	// Set pin to HIGH to unbrake
+	set_Pin(RB_Brake_pin, true);
+	set_Pin(LB_Brake_pin, true);
+	set_Pin(RF_Brake_pin, true);
+	set_Pin(LF_Brake_pin, true);
+
+	wheels_braking = false;
 }
 
 
@@ -112,7 +147,7 @@ Motor_StatusTypeDef wheels_DeInit(){
   * @note PWM value is between -PWM_MAX and +PWM_MAX, positive is CW and negative is CCW
   * @retval response of the motor driver
   */
-Motor_StatusTypeDef motor_SetPWM(motor_id_t id, int32_t value){
+Motor_StatusTypeDef wheels_SetPWM(motor_id_t id, int32_t value){
 
 
 	bool Direction = (value > 0); // forward if positive, back if neg
@@ -147,9 +182,9 @@ Motor_StatusTypeDef motor_SetPWM(motor_id_t id, int32_t value){
   * @note value is between -1 and +1, positive is CW and negative is CCW
   * @retval response of the motor driver
   */
-Motor_StatusTypeDef motor_Set(motor_id_t id, float value){
+Motor_StatusTypeDef wheels_Set(motor_id_t id, float value){
 	if(value > 1 || value < -1) return MOTOR_ERROR;
-	return motor_SetPWM(id, value * MAX_PWM);
+	return wheels_SetPWM(id, (int32_t) (value * MAX_PWM));
 }
 
 
@@ -245,7 +280,7 @@ static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t m
   * @param data11Bits Data bits (11 bits)
   * @retval response of the motor driver
   */
-static uint16_t motor_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits){ //format: 1 R/W, 4 address, 11 data
+static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits){ //format: 1 R/W, 4 address, 11 data
 	uint16_t command = 0;
 	uint16_t received = 0;
 

@@ -442,11 +442,11 @@ static void motorSelfTest(){
 	for(int motor = 0; motor < 4; motor++){//motors
 
 		HAL_Delay(10);
-		if(motor_DriverPresent(motor) != MOTOR_OK) continue; //check if motor driver is connected
+		if(wheels_DriverPresent(motor) != MOTOR_OK) continue; //check if motor driver is connected
 		working[motor]++;//increment if passes test
 
 		encoder_ResetCounter(motor);
-		motor_SetPWM(motor, 100);
+		wheels_SetPWM(motor, 100);
 
 		for(int i = 0; i < 50; i++){ // max 0.5 sec long
 			if(encoder_GetCounter(motor) > 100){
@@ -455,14 +455,14 @@ static void motorSelfTest(){
 			}
 			HAL_Delay(10);
 		}
-		motor_SetPWM(motor, 0);
+		wheels_SetPWM(motor, 0);
 
 		if(working[motor] != 2) continue;//check if previous test passed
 
 		HAL_Delay(50);
 
 		encoder_ResetCounter(motor);
-		motor_SetPWM(motor, -100);
+		wheels_SetPWM(motor, -100);
 
 		for(int i = 0; i < 50; i++){ // max .5 sec long
 			if(encoder_GetCounter(motor) < -100){
@@ -471,7 +471,7 @@ static void motorSelfTest(){
 			}
 			HAL_Delay(10);
 		}
-		motor_SetPWM(motor, 0);
+		wheels_SetPWM(motor, 0);
 	}
 
 	char tempstr[20];

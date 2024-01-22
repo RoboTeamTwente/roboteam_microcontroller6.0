@@ -14,7 +14,7 @@
 
 
 typedef enum{
-	RF,RB,LB,LF
+	RF,LF,RB,LB
 }motor_id_t;
 
 typedef enum{
@@ -23,14 +23,18 @@ typedef enum{
 	MOTOR_ERROR
 }Motor_StatusTypeDef;
 
-Motor_StatusTypeDef motor_Init();
-Motor_StatusTypeDef motor_DriverStatus(motor_id_t motor);
-Motor_StatusTypeDef motor_DriverPresent(motor_id_t motor);
-Motor_StatusTypeDef motor_WheelsBrake(bool BrakeStatus);
 Motor_StatusTypeDef wheels_Init();
+Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
+Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);
+//Enable the brakes
+void wheels_Brake();
+//Disable the brakes
+void wheels_Unbrake();
+// Stops the wheels without deinitializing them 
+void wheels_Stop();
 Motor_StatusTypeDef wheels_DeInit();
-Motor_StatusTypeDef motor_SetPWM(motor_id_t id, int32_t Value);
-Motor_StatusTypeDef motor_Set(motor_id_t id, float Value);
+Motor_StatusTypeDef wheels_SetPWM(motor_id_t id, int32_t Value);
+Motor_StatusTypeDef wheels_Set(motor_id_t id, float Value);
 
 
 /* Encoders */

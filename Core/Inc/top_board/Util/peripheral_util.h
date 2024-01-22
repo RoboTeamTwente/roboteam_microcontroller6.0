@@ -10,8 +10,8 @@
 
 #include "stm32f7xx_hal.h"
 
-#define UART_PC 	(&huart5)	// PC communication
-#define UART_BACK 	(&huart4)	// UART going to backboard
+#define UART_PC 	(&huart8)	// PC communication
+#define UART_BACK 	(&huart5)	// UART going to backboard
 #define MTi_SPI 	(&hspi1)	// MTi SPI
 #define COMM_SPI 	(&hspi4)	// wireless SPI
 #define MOTOR_SPI 	(&hspi5)	//SPI for the motor drivers
@@ -27,7 +27,7 @@ extern SPI_HandleTypeDef hspi5;
 extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 extern UART_HandleTypeDef huart5;
-extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart8;
 extern SD_HandleTypeDef hsd1;
 
 

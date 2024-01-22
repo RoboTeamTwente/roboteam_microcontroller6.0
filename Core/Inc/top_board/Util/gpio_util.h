@@ -59,6 +59,7 @@ extern GPIO_Pin LED3_pin;
 extern GPIO_Pin LED4_pin;
 extern GPIO_Pin LED5_pin;
 extern GPIO_Pin LED6_pin;
+extern GPIO_Pin LED7_pin;
 
 // ID select
 extern GPIO_Pin ID0_pin;
@@ -106,12 +107,15 @@ inline void toggle_Pin(GPIO_Pin p)
 	HAL_GPIO_TogglePin(p.PORT, p.PIN);
 }
 
+// SD
+extern GPIO_Pin SD_CD_pin;
+
 static inline uint16_t get_Id(){
 	uint16_t ID = 0;
-	ID |= !read_Pin(ID0_pin) <<3;
-	ID |= !read_Pin(ID1_pin) <<2;
-	ID |= !read_Pin(ID2_pin) <<1;
-	ID |= !read_Pin(ID3_pin);
+	ID |= !read_Pin(ID3_pin) <<3;
+	ID |= !read_Pin(ID2_pin) <<2;
+	ID |= !read_Pin(ID1_pin) <<1;
+	ID |= !read_Pin(ID0_pin);
 	return ID;
 }
 
