@@ -87,6 +87,7 @@ void LOG(char *message){
 }
 
 void LOG_send(){
+    if(!log_initialized) return;
     // Can't use HAL_UART_STATE_READY because it clashes with rem.c:HAL_UART_Receive_IT
     // So (for now), just check if it is busy transmitting
     if(HAL_UART_GetState(UART_PC) == HAL_UART_STATE_BUSY_TX) return;
