@@ -217,14 +217,14 @@ bool updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 
 	// Rotate around, slowly
 	rc->angularVelocity = 6 * sin(period_fraction * 2 * M_PI);
-	// Turn on dribbler
-	rc->dribbler = period_fraction;
-	// Kick a little every block
-	if(0.95 < period_fraction){
-		rc->doKick = true;
-		rc->kickChipPower = 1;
-		rc->doForce = true;
-	}
+	// // Turn on dribbler
+	// rc->dribbler = period_fraction;
+	// // Kick a little every block
+	// if(0.95 < period_fraction){
+	// 	rc->doKick = true;
+	// 	rc->kickChipPower = 1;
+	// 	rc->doForce = true;
+	// }
 
 	return true;
 }
