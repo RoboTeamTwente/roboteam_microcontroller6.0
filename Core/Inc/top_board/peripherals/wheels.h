@@ -1,9 +1,23 @@
-/*
- * wheels.h
+/* Description: wheel velocity controls
  *
- *  Created on: Dec 26, 2023
- *      Author: Csongor
- */
+ * Instructions:
+ * 1) Initialize the wheels by calling wheels_Init() and encoder_Init()
+ * 2) Unbrake the wheels by calling wheels_Unbrake()
+ * 3) Set the wheel velocities by calling wheels_SetSpeeds()
+ * 4) Repeatedly call wheels_Update() every 10ms (as dictated by the variable TIME_DIFF) to ensure the wheels reach their speeds
+ * ==== instructions below not needed per se. Turning off the robot will do fine ====
+ * 5) Stop the robot by calling wheels_Stop()
+ * 6) Turn on the brakes by calling wheels_Brake()
+ * 7) Deinitialize the wheels by calling wheels_Deinitialize()
+ * 
+ * Extra functions:
+ * 1) wheels_GetMeasuredSpeeds to get the last measured wheel speeds
+ * 2) wheels_GetPWM to get the current wheel PWM values
+ * 3) wheels_GetWheelsBraking to get the current status of the brakes
+ * 
+ * Notes: 
+ *
+*/
 
 #ifndef INC_WHEELS_H_
 #define INC_WHEELS_H_
@@ -11,10 +25,12 @@
 #include "stm32f7xx_hal.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "control_util.h"
+#include "REM_RobotSetPIDGains.h"
 
 
 typedef enum{
-	RF,LF,RB,LB
+	RF,LF,LB,RB
 }motor_id_t;
 
 typedef enum{
@@ -24,22 +40,26 @@ typedef enum{
 }Motor_StatusTypeDef;
 
 Motor_StatusTypeDef wheels_Init();
-Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
-Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);
+void wheels_DeInit();
+void wheels_SetPWM(motor_id_t id, int32_t Value);
+Motor_StatusTypeDef wheels_SetSpeed(motor_id_t id, float Value);
+void wheels_set_command_speed(const float speeds[4]);
+void wheels_Update();
 //Enable the brakes
 void wheels_Brake();
 //Disable the brakes
 void wheels_Unbrake();
 // Stops the wheels without deinitializing them 
 void wheels_Stop();
-Motor_StatusTypeDef wheels_DeInit();
-Motor_StatusTypeDef wheels_SetPWM(motor_id_t id, int32_t Value);
-Motor_StatusTypeDef wheels_Set(motor_id_t id, float Value);
 
+Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
+Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);
+
+void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains);
 
 /* Encoders */
-Motor_StatusTypeDef encoder_Init();
+void encoder_Init();
 int16_t encoder_GetCounter(motor_id_t id);
-Motor_StatusTypeDef encoder_ResetCounter(motor_id_t id);
+void encoder_ResetCounter(motor_id_t id);
 
 #endif /* INC_WHEELS_H_ */

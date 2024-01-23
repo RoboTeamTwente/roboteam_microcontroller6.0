@@ -241,6 +241,7 @@ void init(void){
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
 	// wheels_Init();
+	// encoders_Init();
 
 { // ====== WATCHDOG TIMER, COMMUNICATION BUFFERS ON TOPBOARD, BATTERY, ROBOT SWITCHES, OUTGOING PACKET HEADERS
 	/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
@@ -327,7 +328,7 @@ void init(void){
 { // ====== SX : PINS, CALLBACKS, CHANNEL, SYNCWORDS
 	/* Initialize the SX1280 wireless chip */
 	SX1280_Settings set = SX1280_DEFAULT_SETTINGS;
-	set.periodBaseCount = 4000; //TODO set back to WIRELESS_RX_COUNT once control_util.h has been added
+	set.periodBaseCount = WIRELESS_RX_COUNT;
 	Wireless_Error err;
 	SX_Interface.BusyPin = SX_BUSY_pin;
 	SX_Interface.CS = SX_NSS_pin;
@@ -439,7 +440,7 @@ void init(void){
 	IWDG_Init(iwdg, 1000);
 
 	/* Turn of all leds. Will now be used to indicate robot status */
-	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0);
+	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	buzzer_Play_ID(ROBOT_ID);
 
 	timestamp_initialized = HAL_GetTick();
@@ -503,41 +504,38 @@ void loop(void){
     //     stateControl_ResetAngleI();
     //     resetRobotCommand(&activeRobotCommand);
     //     initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
-    //     // Quick fix to also stop the dribbler from rotating when the command is reset
-    //     // TODO: maybe move executeCommand to TIMER_7?
-    //     dribbler_SetSpeed(0);
 
     //     REM_last_packet_had_correct_version = true;
     // }
 
-    // // Unbrake wheels when Xsens calibration is done
-    // if (xsens_CalibrationDoneFirst && xsens_CalibrationDone) {
-    //     xsens_CalibrationDoneFirst = false;
-    //     wheels_Unbrake();
-    // }
+    // Unbrake wheels when Xsens calibration is done
+    if (xsens_CalibrationDoneFirst && xsens_CalibrationDone) {
+        xsens_CalibrationDoneFirst = false;
+        wheels_Unbrake();
+    }
 
     // // Update test (if active)
     // // test_Update();
 
     // // Go through all commands if robot is not in HALT state
-    // if (!halt) {
-    //     executeCommands(&activeRobotCommand);
-    // }
+    if (!halt) {
+        executeCommands(&activeRobotCommand);
+    }
 
-    // if(flag_sdcard_write_feedback){
-    //     flag_sdcard_write_feedback = false;
-    //     encodeREM_RobotFeedback( &robotFeedbackPayload, &robotFeedback );
-    //     encodeREM_RobotStateInfo( &robotStateInfoPayload, &robotStateInfo);
+    if(flag_sdcard_write_feedback){
+        flag_sdcard_write_feedback = false;
+        encodeREM_RobotFeedback( &robotFeedbackPayload, &robotFeedback );
+        encodeREM_RobotStateInfo( &robotStateInfoPayload, &robotStateInfo);
 
-    //     // Write to SD card
-    //     SDCard_Write(robotFeedbackPayload.payload, REM_PACKET_SIZE_REM_ROBOT_FEEDBACK, true);
-    //     SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
-    // }
-    // if(flag_sdcard_write_command){
-    //     flag_sdcard_write_command = false;
-    //     encodeREM_RobotCommand( &robotCommandPayload, &activeRobotCommand );
-    //     SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
-    // }
+        // Write to SD card
+        SDCard_Write(robotFeedbackPayload.payload, REM_PACKET_SIZE_REM_ROBOT_FEEDBACK, true);
+        SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
+    }
+    if(flag_sdcard_write_command){
+        flag_sdcard_write_command = false;
+        encodeREM_RobotCommand( &robotCommandPayload, &activeRobotCommand );
+        SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
+    }
 
     // // Heartbeat every 17ms	
     // if(heartbeat_17ms < current_time){
@@ -603,7 +601,7 @@ void loop(void){
      /* LEDs for debugging */
     // LED0 : toggled every second while alive
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
-    //set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
+    set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
     //set_Pin(LED4_pin, dribbler_GetHasBall());       // On when the dribbler detects the ball
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized

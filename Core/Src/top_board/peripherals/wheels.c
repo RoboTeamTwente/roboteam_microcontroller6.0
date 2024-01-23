@@ -10,8 +10,12 @@ static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t m
 static void setSlaveSelect(motor_id_t motor, GPIO_PinState state);
 static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits);
 
+///////////////////////////////////////////////////// STRUCTS
+static PIDvariables wheelsK[4];
 
 ///////////////////////////////////////////////////// VARIABLES
+static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
+
 static bool wheels_initialized = false;
 static bool wheels_braking = true;
 
@@ -38,6 +42,8 @@ Motor_StatusTypeDef wheels_Init(){
 						     //9876543210
 
 	Motor_StatusTypeDef output = MOTOR_OK;
+
+	//TODO make Motor_StatusTypeDef work for 4 wheels
 	for (int motor = 0; motor < 4; motor++){
 		HAL_Delay(1);
 		if(wheels_TransmitCommand(motor, 0, 0x02, commands[0]) != commands[0]) output = MOTOR_NORESPONSE;
@@ -56,14 +62,9 @@ Motor_StatusTypeDef wheels_Init(){
   * @brief Turns off encoder timers
   * @retval Motor status
   */
-Motor_StatusTypeDef wheels_DeInit(){
+void wheels_DeInit(){
 
 	wheels_initialized = false;
-	/* Stop the encoders */
-	HAL_TIM_Base_Stop(ENC_RF);
-	HAL_TIM_Base_Stop(ENC_RB);
-	HAL_TIM_Base_Stop(ENC_LB);
-	HAL_TIM_Base_Stop(ENC_LF);
 	
 	/* Stop the PWM timers */
 	stop_PWM(PWM_RF);
@@ -73,43 +74,127 @@ Motor_StatusTypeDef wheels_DeInit(){
 
 	wheels_Stop();
 	wheels_Brake();
+}
 
+/**
+  * @brief Sets motor PWM
+  * @param id Motor id
+  * @param value PWM value
+  * @note PWM value is between -PWM_MAX and +PWM_MAX, positive is CW and negative is CCW
+  * @retval response of the motor driver
+  */
+void wheels_SetPWM(motor_id_t id, int32_t value){
+
+
+	bool Direction = (value > 0); // forward if positive, back if neg
+
+	uint32_t PWMValue = MAX_PWM - constrain_uint32(abs(value), 0,  MAX_PWM); //limit the pwm to MAX_PWM
+
+	switch(id){
+	case RF:
+		set_PWM(PWM_RF,PWMValue);
+		set_Pin(RF_DIR_pin, Direction);
+		break;
+	case RB:
+		set_PWM(PWM_RB,PWMValue);
+		set_Pin(RB_DIR_pin, Direction);
+		break;
+	case LB:
+		set_PWM(PWM_LB,PWMValue);
+		set_Pin(LB_DIR_pin, Direction);
+		break;
+	case LF:
+		set_PWM(PWM_LF,PWMValue);
+		set_Pin(LF_DIR_pin, Direction);
+		break;
+	}
+}
+
+/**
+  * @brief Sets motor PWM
+  * @param id Motor id
+  * @param value float
+  * @note value is between -1 and +1, positive is CW and negative is CCW
+  * @retval response of the motor driver
+  */
+Motor_StatusTypeDef wheels_SetSpeed(motor_id_t id, float value){
+	if(value > 1 || value < -1) return MOTOR_ERROR;
+	wheels_SetPWM(id, (int32_t) (value * MAX_PWM));
 	return MOTOR_OK;
 }
 
 
 /**
- * @brief Stops the wheels without deinitializing them 
+ * @brief Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
+ * 
+ * @param speeds float[4]{RF, LF, LB, RB} commanded wheels speeds, in rad/s. These values are stored in the file-local
+ * variable 'wheels_commanded_speeds'. This variable will later be used in wheels_Update() to control the wheels.
  */
-void wheels_Stop() {
-	for (int motor = 3; motor < 4; motor++){
-		wheels_Set(motor, 0);
+void wheels_set_command_speed(const float speeds[4]) {
+	for(motor_id_t wheel = RF; wheel <= RB; wheel++){
+		wheels_commanded_speeds[wheel] = speeds[wheel];
 	}
 }
 
 
 /**
-  * @brief Returns whether board can communicate with the motor driver
-  * @param motor Motor id
-  * @retval Motor status
-  */
-Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor){
-	uint16_t received = 0;
-	received = wheels_TransmitCommand(motor, 1, 0x03, 0);//read mode
+ * @brief Updates the wheels towards the commanded wheel speeds using the encoders and a PID controller.
+ * 
+ * This function is resonsible for getting the wheels to the commanded speeds, as stored in the file-local variable
+ * "wheels_commanded_speeds". Wheel speeds, given in rad/s, are converted directly to a PWM value with help of the
+ * conversion variable OMEGAtoPWM. This variable is based on information from the Maxon Motor datasheet. 
+ * 
+ * A PID controller is used to handle any error between the commanded and actual wheel speeds. First, the current wheel
+ * speeds are measured by reading out the encoders and converting these values to rad/s. The commanded wheel speeds are
+ * then subtracted from these measured wheel speeds, giving the error. This error is put through a PID controller, and
+ * the resulting PID value is added to the commanded speeds before being converted to a PWM value. 
+ * 
+ * The resulting PWM values can be both positive and negative. This is split up into a "direction" boolean and a 
+ * "PWN" integer. The "direction" boolean is false for CounterClockWise, and true for ClockWise. Finally both the 
+ * directions and PWMs are sent to the wheels.
+ */
+void wheels_Update() {
+	/* Don't run the wheels if these are not initialized */
+	/* Not that anything would happen anyway, because the PWM timers wouldn't be running, but still .. */
+	if(!wheels_initialized){
+		wheels_Stop();
+		return;
+	}
 
-	if(received != 0 && received != 0xFFFF) return MOTOR_OK;
+	for (motor_id_t motor = RF; motor <= RB; motor++) {
+		int16_t	encoder_value = encoder_GetCounter(motor);
+		encoder_ResetCounter(motor);
+		// TODO Convert encoder values to rad/s
+		float measured_speed = 0;
 
-	return MOTOR_NORESPONSE;
-}
+		// Calculate the velocity error
+		float angular_velocity_error = wheels_commanded_speeds[motor] - measured_speed;
+	
+		// If the error is very small, ignore it (why is this here?)
+		if (fabs(angular_velocity_error) < 0.1) {
+			angular_velocity_error = 0.0f;
+			wheelsK[motor].I = 0;
+		}
 
-/**
-  * @brief Returns whether motor driver has any errors
-  * @param Motor id
-  * @retval Motor status
-  */
-Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor){
-	//TODO needs to be implemented
-	return MOTOR_OK;
+		float feed_forward = 0.0f;
+		float threshold = 0.05f;
+
+		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
+    		feed_forward = 0;
+		} 
+		else if (wheels_commanded_speeds[motor] > 0) {
+			feed_forward = wheels_commanded_speeds[motor] + 13;
+    	}
+		else if (wheels_commanded_speeds[motor] < 0) {
+			feed_forward = wheels_commanded_speeds[motor] - 13;
+    	}
+
+		// TODO Add PID to commanded speed and convert to [-1, 1] range
+		int32_t wheel_speed = 0;
+
+		Motor_StatusTypeDef status = MOTOR_OK;
+		status = wheels_SetSpeed(motor, wheel_speed);
+	}
 }
 
 
@@ -141,60 +226,46 @@ void wheels_Unbrake(){
 
 
 /**
-  * @brief Sets motor PWM
-  * @param id Motor id
-  * @param value PWM value
-  * @note PWM value is between -PWM_MAX and +PWM_MAX, positive is CW and negative is CCW
-  * @retval response of the motor driver
-  */
-Motor_StatusTypeDef wheels_SetPWM(motor_id_t id, int32_t value){
-
-
-	bool Direction = (value > 0); // forward if positive, back if neg
-
-	uint32_t PWMValue = MAX_PWM - constrain_uint32(abs(value), 0,  MAX_PWM); //limit the pwm to MAX_PWM
-
-	switch(id){
-	case RF:
-		set_PWM(PWM_RF,PWMValue);
-		set_Pin(RF_DIR_pin, Direction);
-		break;
-	case RB:
-		set_PWM(PWM_RB,PWMValue);
-		set_Pin(RB_DIR_pin, Direction);
-		break;
-	case LB:
-		set_PWM(PWM_LB,PWMValue);
-		set_Pin(LB_DIR_pin, Direction);
-		break;
-	case LF:
-		set_PWM(PWM_LF,PWMValue);
-		set_Pin(LF_DIR_pin, Direction);
-		break;
+ * @brief Stops the wheels without deinitializing them 
+ */
+void wheels_Stop() {
+	for (int motor = 0; motor < 4; motor++){
+		wheels_SetSpeed(motor, 0);
+		wheels_commanded_speeds[0] = 0;
 	}
-	return MOTOR_OK;
+}
+
+
+/**
+  * @brief Returns whether board can communicate with the motor driver
+  * @param motor Motor id
+  * @retval Motor status
+  */
+Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor){
+	uint16_t received = 0;
+	received = wheels_TransmitCommand(motor, 1, 0x03, 0);//read mode
+
+	if(received != 0 && received != 0xFFFF) return MOTOR_OK;
+
+	return MOTOR_NORESPONSE;
 }
 
 /**
-  * @brief Sets motor PWM
-  * @param id Motor id
-  * @param value float
-  * @note value is between -1 and +1, positive is CW and negative is CCW
-  * @retval response of the motor driver
+  * @brief Returns whether motor driver has any errors
+  * @param Motor id
+  * @retval Motor status
   */
-Motor_StatusTypeDef wheels_Set(motor_id_t id, float value){
-	if(value > 1 || value < -1) return MOTOR_ERROR;
-	return wheels_SetPWM(id, (int32_t) (value * MAX_PWM));
+Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor){
+	//TODO needs to be implemented
+	return MOTOR_OK;
 }
-
-
 
 
 /**
   * @brief Starts the encoder timers
   * @retval Motor state
   */
-Motor_StatusTypeDef encoder_Init(){
+void encoder_Init(){
 	HAL_TIM_Base_Start(ENC_RF);//RF
 	HAL_TIM_Base_Start(ENC_LB);//LB
 	HAL_TIM_Base_Start(ENC_RB);//RB
@@ -202,7 +273,6 @@ Motor_StatusTypeDef encoder_Init(){
 
 
 	set_Pin(Encoder_Enable_pin, 1);// enable encoder chips, active high
-	return MOTOR_OK;
 }
 
 
@@ -212,28 +282,21 @@ Motor_StatusTypeDef encoder_Init(){
   * @retval Returns an int_16_t
   */
 int16_t encoder_GetCounter(motor_id_t id){
-	uint16_t rotationsuint = 0;
 	int16_t rotationsint = 0;
 
 	switch(id){
 		case RF:
-			rotationsuint = __HAL_TIM_GET_COUNTER(ENC_RF);
+			rotationsint = __HAL_TIM_GET_COUNTER(ENC_RF);
 			break;
 		case LB:
-			rotationsuint = __HAL_TIM_GET_COUNTER(ENC_LB);
+			rotationsint = __HAL_TIM_GET_COUNTER(ENC_LB);
 			break;
 		case RB:
-			rotationsuint = __HAL_TIM_GET_COUNTER(ENC_RB);
+			rotationsint = __HAL_TIM_GET_COUNTER(ENC_RB);
 			break;
 		case LF:
-			rotationsuint = __HAL_TIM_GET_COUNTER(ENC_LF);
+			rotationsint = __HAL_TIM_GET_COUNTER(ENC_LF);
 			break;
-	}
-
-	 if (rotationsuint <= 32767) { //convert the uint16_t into signed form
-		 rotationsint = (int)rotationsuint;
-	} else {
-		rotationsint = -1 * (int)(65535 - rotationsuint + 1);
 	}
 
 	 return rotationsint;
@@ -245,7 +308,7 @@ int16_t encoder_GetCounter(motor_id_t id){
   * @param id Motor id
   * @retval Motor state
   */
-Motor_StatusTypeDef encoder_ResetCounter(motor_id_t id){
+void encoder_ResetCounter(motor_id_t id){
 	switch(id){
 		case RF:
 			__HAL_TIM_SET_COUNTER(ENC_RF,0);
@@ -260,7 +323,14 @@ Motor_StatusTypeDef encoder_ResetCounter(motor_id_t id){
 			__HAL_TIM_SET_COUNTER(ENC_LF,0);
 			break;
 	}
-	return MOTOR_OK;
+}
+
+void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
+	for(motor_id_t wheel = RF; wheel <= RB; wheel++){
+		wheelsK[wheel].kP = PIDGains->Pwheels;
+		wheelsK[wheel].kI = PIDGains->Iwheels;
+    	wheelsK[wheel].kD = PIDGains->Dwheels;
+	}
 }
 
 

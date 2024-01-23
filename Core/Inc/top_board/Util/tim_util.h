@@ -61,6 +61,7 @@ inline void start_PWM(PWM_struct PWM){
 }
 
 inline void stop_PWM(PWM_struct PWM){
+    HAL_TIM_Base_Stop(PWM.TIM);
     HAL_TIM_PWM_Stop(PWM.TIM, PWM.Channel);
 }
 
