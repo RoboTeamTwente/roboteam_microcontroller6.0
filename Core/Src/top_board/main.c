@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -185,19 +185,16 @@ int main(void)
   init();
 
   /* USER CODE END 2 */
-  
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    
-	  loop();
+    loop();
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
   }
   /* USER CODE END 3 */
 }
@@ -396,8 +393,6 @@ static void MX_CAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
-
-
 
   /* USER CODE END CAN1_Init 2 */
 
@@ -1364,26 +1359,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LB_FAULT_Pin DIP_SW6_Pin DIP_SW7_Pin */
-  GPIO_InitStruct.Pin = LB_FAULT_Pin|DIP_SW6_Pin|DIP_SW7_Pin;
+  /*Configure GPIO pins : LB_FAULT_Pin DIP_SW1_Pin DIP_SW0_Pin */
+  GPIO_InitStruct.Pin = LB_FAULT_Pin|DIP_SW1_Pin|DIP_SW0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : DIP_SW0_Pin */
-  GPIO_InitStruct.Pin = DIP_SW0_Pin;
+  /*Configure GPIO pin : DIP_SW7_Pin */
+  GPIO_InitStruct.Pin = DIP_SW7_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(DIP_SW0_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(DIP_SW7_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DIP_SW1_Pin DIP_SW2_Pin */
-  GPIO_InitStruct.Pin = DIP_SW1_Pin|DIP_SW2_Pin;
+  /*Configure GPIO pins : DIP_SW6_Pin DIP_SW5_Pin */
+  GPIO_InitStruct.Pin = DIP_SW6_Pin|DIP_SW5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DIP_SW3_Pin DIP_SW4_Pin DIP_SW5_Pin SPI4_BUSY_Pin */
-  GPIO_InitStruct.Pin = DIP_SW3_Pin|DIP_SW4_Pin|DIP_SW5_Pin|SPI4_BUSY_Pin;
+  /*Configure GPIO pins : DIP_SW4_Pin DIP_SW3_Pin DIP_SW2_Pin SPI4_BUSY_Pin */
+  GPIO_InitStruct.Pin = DIP_SW4_Pin|DIP_SW3_Pin|DIP_SW2_Pin|SPI4_BUSY_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -1467,14 +1462,6 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-
-
-
-
-
-
-
-
 /* USER CODE END 4 */
 
 /**
@@ -1488,8 +1475,6 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-
-
   }
   /* USER CODE END Error_Handler_Debug */
 }

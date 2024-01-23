@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -96,26 +96,26 @@ void Error_Handler(void);
 #define LF_CHA_GPIO_Port GPIOA
 #define LF_CHB_Pin GPIO_PIN_1
 #define LF_CHB_GPIO_Port GPIOA
-#define DIP_SW0_Pin GPIO_PIN_5
-#define DIP_SW0_GPIO_Port GPIOA
+#define DIP_SW7_Pin GPIO_PIN_5
+#define DIP_SW7_GPIO_Port GPIOA
 #define LB_CHA_Pin GPIO_PIN_6
 #define LB_CHA_GPIO_Port GPIOA
 #define LB_CHB_Pin GPIO_PIN_7
 #define LB_CHB_GPIO_Port GPIOA
-#define DIP_SW1_Pin GPIO_PIN_4
-#define DIP_SW1_GPIO_Port GPIOC
-#define DIP_SW2_Pin GPIO_PIN_5
-#define DIP_SW2_GPIO_Port GPIOC
-#define DIP_SW3_Pin GPIO_PIN_0
-#define DIP_SW3_GPIO_Port GPIOB
-#define DIP_SW4_Pin GPIO_PIN_1
+#define DIP_SW6_Pin GPIO_PIN_4
+#define DIP_SW6_GPIO_Port GPIOC
+#define DIP_SW5_Pin GPIO_PIN_5
+#define DIP_SW5_GPIO_Port GPIOC
+#define DIP_SW4_Pin GPIO_PIN_0
 #define DIP_SW4_GPIO_Port GPIOB
-#define DIP_SW5_Pin GPIO_PIN_2
-#define DIP_SW5_GPIO_Port GPIOB
-#define DIP_SW6_Pin GPIO_PIN_11
-#define DIP_SW6_GPIO_Port GPIOF
-#define DIP_SW7_Pin GPIO_PIN_12
-#define DIP_SW7_GPIO_Port GPIOF
+#define DIP_SW3_Pin GPIO_PIN_1
+#define DIP_SW3_GPIO_Port GPIOB
+#define DIP_SW2_Pin GPIO_PIN_2
+#define DIP_SW2_GPIO_Port GPIOB
+#define DIP_SW1_Pin GPIO_PIN_11
+#define DIP_SW1_GPIO_Port GPIOF
+#define DIP_SW0_Pin GPIO_PIN_12
+#define DIP_SW0_GPIO_Port GPIOF
 #define LED7_Pin GPIO_PIN_13
 #define LED7_GPIO_Port GPIOF
 #define LED6_Pin GPIO_PIN_14

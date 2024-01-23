@@ -518,9 +518,9 @@ void loop(void){
     // // test_Update();
 
     // // Go through all commands if robot is not in HALT state
-    if (!halt) {
-        executeCommands(&activeRobotCommand);
-    }
+    // if (!halt) {
+    //     executeCommands(&activeRobotCommand);
+    // }
 
     if(flag_sdcard_write_feedback){
         flag_sdcard_write_feedback = false;
@@ -601,7 +601,7 @@ void loop(void){
      /* LEDs for debugging */
     // LED0 : toggled every second while alive
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
-    set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
+    // set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
     //set_Pin(LED4_pin, dribbler_GetHasBall());       // On when the dribbler detects the ball
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
