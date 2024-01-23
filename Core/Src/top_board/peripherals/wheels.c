@@ -28,8 +28,13 @@ static bool wheels_braking = true;
   * @retval Motor status
   */
 Motor_StatusTypeDef wheels_Init(){
-
 	wheels_Brake();
+
+	/* Initialize wheel controllers */
+	for (motor_id_t motor = RF; motor <= RB; motor++){
+		//initPID(&wheelsK[wheel], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
+		continue;
+	}
 
 	/* Start the PWM timers */
 	start_PWM(PWM_RF);
@@ -43,7 +48,6 @@ Motor_StatusTypeDef wheels_Init(){
 
 	Motor_StatusTypeDef output = MOTOR_OK;
 
-	//TODO make Motor_StatusTypeDef work for 4 wheels
 	for (int motor = 0; motor < 4; motor++){
 		HAL_Delay(1);
 		if(wheels_TransmitCommand(motor, 0, 0x02, commands[0]) != commands[0]) output = MOTOR_NORESPONSE;
@@ -81,7 +85,6 @@ void wheels_DeInit(){
   * @param id Motor id
   * @param value PWM value
   * @note PWM value is between -PWM_MAX and +PWM_MAX, positive is CW and negative is CCW
-  * @retval response of the motor driver
   */
 void wheels_SetPWM(motor_id_t id, int32_t value){
 

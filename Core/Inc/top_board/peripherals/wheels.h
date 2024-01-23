@@ -3,7 +3,7 @@
  * Instructions:
  * 1) Initialize the wheels by calling wheels_Init() and encoder_Init()
  * 2) Unbrake the wheels by calling wheels_Unbrake()
- * 3) Set the wheel velocities by calling wheels_SetSpeeds()
+ * 3) Set the wheel velocities by calling wheels_SetSpeed() and wheels_set_command_speed
  * 4) Repeatedly call wheels_Update() every 10ms (as dictated by the variable TIME_DIFF) to ensure the wheels reach their speeds
  * ==== instructions below not needed per se. Turning off the robot will do fine ====
  * 5) Stop the robot by calling wheels_Stop()
@@ -11,9 +11,10 @@
  * 7) Deinitialize the wheels by calling wheels_Deinitialize()
  * 
  * Extra functions:
- * 1) wheels_GetMeasuredSpeeds to get the last measured wheel speeds
- * 2) wheels_GetPWM to get the current wheel PWM values
- * 3) wheels_GetWheelsBraking to get the current status of the brakes
+ * 1) encoder_getCounter to get the last measured wheel speeds
+ * 2) wheels_DriverStatus returns whether board can communicate with the motor driver
+ * 3) wheels_DriverPresent returns whether motor driver has any errors
+ * 4) wheels_SetPWM set PWM of the motor, preferably use wheels_SetSpeed()
  * 
  * Notes: 
  *
