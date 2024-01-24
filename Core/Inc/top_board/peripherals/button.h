@@ -15,6 +15,7 @@ typedef enum{
 #include "main.h"
 
 void calculateButtonTime(button_id_t buttonId);
+button_id_t getRecentlyPressedButton();
 uint32_t getButtonState(button_id_t buttonId);
 void resetButtonState(button_id_t buttonId);
 

@@ -20,6 +20,15 @@ void calculateButtonTime(button_id_t buttonId){
 	}
 }
 
+button_id_t getRecentlyPressedButton(){
+	for(button_id_t button = BUTTON_LEFT; button <= BUTTON_UP; button++) {
+		if(ButtonHoldTime[button]>50) {
+			return button;
+		}
+	}
+	return NULL;
+}
+
 uint32_t getButtonState(button_id_t buttonId){
 	return ButtonHoldTime[buttonId];
 }
