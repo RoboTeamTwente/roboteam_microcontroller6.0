@@ -10,7 +10,8 @@
 
 #include "main.h"
 
-uint32_t getButtonState(uint8_t LedId);
-void resetButtonState(uint8_t LedId);
+void calculateButtonTime(uint8_t buttonId);
+uint32_t getButtonState(uint8_t buttonId);
+void resetButtonState(uint8_t buttonId);
 
 #endif /* INC_DRIVERS_BUTTON_H_ */

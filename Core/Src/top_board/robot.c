@@ -754,7 +754,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		Wireless_IRQ_Handler(SX);
 	}else if(GPIO_Pin == MTi_IRQ_pin.PIN){
 		MTi_IRQ_Handler(MTi);
-	}
+	}else if(GPIO_Pin == BTN_SW0_Pin) {
+		calculateButtonTime(0);
+	}else if(GPIO_Pin == BTN_SW1_Pin) {
+		calculateButtonTime(1);
+	}else if(GPIO_Pin == BTN_SW2_Pin) {
+		calculateButtonTime(2);
+	}else if(GPIO_Pin == BTN_SW3_Pin) {
+		calculateButtonTime(3);
+	}/*else if(GPIO_Pin == BTN_SW4_Pin) {
+		calculateButtonTime(4);
+	}*/
 }
 
 // Handles the interrupts of the different timers.

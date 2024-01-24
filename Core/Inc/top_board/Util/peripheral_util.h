@@ -14,7 +14,7 @@
 #define UART_BACK 	(&huart5)	// UART going to backboard
 #define MTi_SPI 	(&hspi1)	// MTi SPI
 #define COMM_SPI 	(&hspi4)	// wireless SPI
-#define MOTOR_SPI 	(&hspi5)	//SPI for the motor drivers
+#define MOTOR_SPI 	(&hspi5)	// SPI for the motor drivers
 #define BS_I2C 		(&hi2c2)	// Ball Sensor I2C
 #define BATT_I2C    (&hi2c1)	// Batt monitor I2C
 #define SD          (&hsd1)     // SD SDMMC interface
