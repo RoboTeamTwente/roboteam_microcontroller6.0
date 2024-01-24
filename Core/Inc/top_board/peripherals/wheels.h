@@ -15,6 +15,7 @@
  * 2) wheels_DriverStatus returns whether board can communicate with the motor driver
  * 3) wheels_DriverPresent returns whether motor driver has any errors
  * 4) wheels_SetPWM set PWM of the motor, preferably use wheels_SetSpeed()
+ * 5) wheels_GetWheelsBraking returns whether the wheels are braking
  * 
  * Notes: 
  *
@@ -52,6 +53,8 @@ void wheels_Brake();
 void wheels_Unbrake();
 // Stops the wheels without deinitializing them 
 void wheels_Stop();
+
+bool wheels_GetWheelsBraking();
 
 Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
 Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);

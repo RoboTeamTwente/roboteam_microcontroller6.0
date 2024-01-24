@@ -238,6 +238,13 @@ void wheels_Stop() {
 	}
 }
 
+/**
+ * @brief returns whether the wheels are braking
+*/
+bool wheels_GetWheelsBraking() {
+	return wheels_braking;
+}
+
 
 /**
   * @brief Returns whether board can communicate with the motor driver
