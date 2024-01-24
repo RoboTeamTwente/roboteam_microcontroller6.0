@@ -195,8 +195,7 @@ void wheels_Update() {
 		// TODO Add PID to commanded speed and convert to [-1, 1] range
 		int32_t wheel_speed = 0;
 
-		Motor_StatusTypeDef status = MOTOR_OK;
-		status = wheels_SetSpeed(motor, wheel_speed);
+		wheels_SetSpeed(motor, wheel_speed);
 	}
 }
 

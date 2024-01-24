@@ -755,15 +755,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}else if(GPIO_Pin == MTi_IRQ_pin.PIN){
 		MTi_IRQ_Handler(MTi);
 	}else if(GPIO_Pin == BTN_SW0_Pin) {
-		calculateButtonTime(0);
+		calculateButtonTime(BUTTON_LEFT);
 	}else if(GPIO_Pin == BTN_SW1_Pin) {
-		calculateButtonTime(1);
+		calculateButtonTime(BUTTON_RIGHT);
 	}else if(GPIO_Pin == BTN_SW2_Pin) {
-		calculateButtonTime(2);
+		calculateButtonTime(BUTTON_DOWN);
 	}else if(GPIO_Pin == BTN_SW3_Pin) {
-		calculateButtonTime(3);
+		calculateButtonTime(BUTTON_OK);
 	}/*else if(GPIO_Pin == BTN_SW4_Pin) {
-		calculateButtonTime(4);
+		calculateButtonTime(BUTTON_UP);
 	}*/
 }
 
