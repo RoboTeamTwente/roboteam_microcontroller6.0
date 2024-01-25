@@ -26,7 +26,7 @@ button_id_t getRecentlyPressedButton(){
 			return button;
 		}
 	}
-	return NULL;
+	return BUTTON_NONE;
 }
 
 uint32_t getButtonState(button_id_t buttonId){
