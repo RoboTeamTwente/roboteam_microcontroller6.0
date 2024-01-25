@@ -71,10 +71,6 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint8_t TxData[8];
-uint8_t a;
-uint8_t counter = 0;
-
 /* USER CODE END 0 */
 
 /**
@@ -110,23 +106,12 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  CAN_Init(&hcan);
-  CAN_SetRxCallback(DecodeCommand);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-
-	  TxData[0] = counter++;
-	  TxData[1] = counter;
-	  CAN_SendMessage(&hcan, 1, TxData, 2);
-	  HAL_Delay(50);
-
-
 
     /* USER CODE END WHILE */
 
@@ -350,8 +335,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-void testfun(uint8_t RxData[8], uint8_t MessageId, uint8_t MessageLength){
 
 }
 
