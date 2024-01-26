@@ -41,6 +41,7 @@ void buzzer_Play_BridgeBattle();
 void buzzer_Play_ImperialMarch();
 void buzzer_Play_Flatline();
 void buzzer_Play_HBD();
+void buzzer_Play_RickRoll();
 
 void buzzer_Play_ID(uint8_t id);
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS

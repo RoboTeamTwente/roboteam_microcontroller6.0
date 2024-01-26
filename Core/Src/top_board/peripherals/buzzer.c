@@ -157,9 +157,13 @@ void buzzer_Play_Flatline() {
 	buzzer_Play(song);
 }
 
-
 void buzzer_Play_HBD() {
 	song = HBD;
+	buzzer_Play(song);
+}
+
+void buzzer_Play_RickRoll() {
+	song = RickRoll;
 	buzzer_Play(song);
 }
 
