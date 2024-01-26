@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "ssd1306/bitmap.h"
+#include "pages.h"
+#include "selftests.h"
 
-#include "wheels.h"
 
 #endif /* INC_OLED_H_ */

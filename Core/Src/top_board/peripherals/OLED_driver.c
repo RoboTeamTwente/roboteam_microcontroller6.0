@@ -1,4 +1,4 @@
-#include "OLED.h"
+#include "OLED_driver.h"
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 static void boot_screen();
@@ -17,7 +17,7 @@ void OLED_Init(){
     oled_initialized = true;
 }
 
-void OLED_Init(){
+void OLED_DeInit(){
     oled_initialized = false;
 }
 
