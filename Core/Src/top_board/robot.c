@@ -12,6 +12,7 @@ volatile bool ENABLE_UART_PC = true;
 volatile bool IS_RUNNING_TEST = false;
 volatile bool ROBOT_INITIALIZED = false;
 volatile bool DRAIN_BATTERY = false;
+volatile bool DEBUG_MODE = false;
 
 MTi_data* MTi;
 
@@ -244,10 +245,6 @@ void init(void){
 	encoder_Init();
 
 { // ====== WATCHDOG TIMER, COMMUNICATION BUFFERS ON TOPBOARD, BATTERY, ROBOT SWITCHES, OUTGOING PACKET HEADERS
-	/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
-	 sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
-	 but its better than suddenly having non-responding robots in a match */
-	IWDG_Init(iwdg, 7500);
 	
     /* Read robot ID (d), wireless channel (c), and if we're running a test (t), from the switches on the topboard
 	* t c x x    d d d d 		<= swtiches
@@ -256,8 +253,15 @@ void init(void){
 	ROBOT_ID = get_Id();
 	ROBOT_CHANNEL = read_Pin(FT1_pin) == GPIO_PIN_SET ? BLUE_CHANNEL : YELLOW_CHANNEL;
 	IS_RUNNING_TEST = read_Pin(FT0_pin);
-	ENABLE_UART_PC = read_Pin(FT2_pin);
+	DEBUG_MODE = read_Pin(FT2_pin);
 	DRAIN_BATTERY = read_Pin(FT3_pin);
+
+	if (!DEBUG_MODE) {
+		/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
+		sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
+		but its better than suddenly having non-responding robots in a match */
+		IWDG_Init(iwdg, 7500);
+	}
 	
 	
 	initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
@@ -367,26 +371,26 @@ void init(void){
 	Check whether the MTi is already intialized.
 	If the 3rd and 4th bit of the statusword are non-zero, then the initializion hasn't completed yet.
 	*/
-	while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
-		MTi = MTi_Init(1, XFP_VRU_general);
-		IWDG_Refresh(iwdg);
+	// while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
+	// 	MTi = MTi_Init(1, XFP_VRU_general);
+	// 	if (!DEBUG_MODE) {IWDG_Refresh(iwdg)};
 
-		if (MTi_made_init_attempts > 0) {
-			LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
-		}
-		MTi_made_init_attempts += 1;
-		LOG_sendAll();
+	// 	if (MTi_made_init_attempts > 0) {
+	// 		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
+	// 	}
+	// 	MTi_made_init_attempts += 1;
+	// 	LOG_sendAll();
 
-		// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
-		HAL_Delay(1100);
-	}
+	// 	// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
+	// 	HAL_Delay(1100);
+	// }
 
-	// If after the maximum number of attempts the calibration still failed, play a warning sound... :(
-	if (MTi == NULL || (MTi->statusword & (0x18)) != 0) {
-		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
-		buzzer_Play_WarningOne();
-		HAL_Delay(1500); // The duration of the sound
-	}
+	// // If after the maximum number of attempts the calibration still failed, play a warning sound... :(
+	// if (MTi == NULL || (MTi->statusword & (0x18)) != 0) {
+	// 	LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
+	// 	buzzer_Play_WarningOne();
+	// 	HAL_Delay(1500); // The duration of the sound
+	// }
 	LOG_sendAll();
 }
 	
@@ -425,7 +429,7 @@ void init(void){
 
 }
 	if (all_wheels_initialized != MOTOR_OK) {
-		// buzzer_Play_WarningThree();
+		buzzer_Play_WarningThree();
 		HAL_Delay(1000);
 	}
 	set_Pin(LED6_pin, 1);
@@ -440,8 +444,10 @@ void init(void){
 	HAL_TIM_Base_Start_IT(TIM_1us);
 
 	/* Reset the watchdog timer and set the threshold at 200ms */
-	IWDG_Refresh(iwdg);
-	IWDG_Init(iwdg, 1000);
+	if (!DEBUG_MODE) {
+		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 1000);
+	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
@@ -476,6 +482,8 @@ void loop(void){
     /* Send anything in the log buffer over UART */
     LOG_send();
 
+	menu_Loop();
+
     // Play a warning if a REM packet with an incorrect version was received
     if(!REM_last_packet_had_correct_version)
         if(!buzzer_IsPlaying())
@@ -489,7 +497,9 @@ void loop(void){
     is_connected_xsens    = (int32_t)(current_time - timestamp_last_packet_xsens)    < 250;
 
     // Refresh Watchdog timer
-    IWDG_Refresh(iwdg);
+	if (!DEBUG_MODE) {
+    	IWDG_Refresh(iwdg);
+	}
 
     /** MUSIC TEST CODE **/
     if(RobotMusicCommand_received_flag){
