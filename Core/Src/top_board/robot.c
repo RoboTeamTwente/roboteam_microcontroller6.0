@@ -271,12 +271,12 @@ void init(void){
 
 { // ====== USER FEEDBACK (LOGGING, SDCARD, BUZZER, GIT BRANCH)
 	//TODO double check
-	// LOG_init();
-	// LOG("[init:"STRINGIZE(__LINE__)"] Last programmed on " __DATE__ "\n");
-	// LOG("[init:"STRINGIZE(__LINE__)"] GIT: " STRINGIZE(__GIT_STRING__) "\n");
-	// LOG_printf("[init:"STRINGIZE(__LINE__)"] REM_LOCAL_VERSION: %d\n", REM_LOCAL_VERSION);
-	// LOG_printf("[init:"STRINGIZE(__LINE__)"] ROBOT_ID: %d\n", ROBOT_ID);
-	// LOG_sendAll();
+	LOG_init();
+	LOG("[init:"STRINGIZE(__LINE__)"] Last programmed on " __DATE__ "\n");
+	LOG("[init:"STRINGIZE(__LINE__)"] GIT: " STRINGIZE(__GIT_STRING__) "\n");
+	LOG_printf("[init:"STRINGIZE(__LINE__)"] REM_LOCAL_VERSION: %d\n", REM_LOCAL_VERSION);
+	LOG_printf("[init:"STRINGIZE(__LINE__)"] ROBOT_ID: %d\n", ROBOT_ID);
+	LOG_sendAll();
 
 	/* Initialize SD card */
 	if(SDCard_Init()){
@@ -338,7 +338,7 @@ void init(void){
     if(err != WIRELESS_OK){ LOG("[init:"STRINGIZE(__LINE__)"] SX1280 error\n"); LOG_sendAll(); while(1); }
 	err = Wireless_setIRQ_Callbacks(SX, &SX_IRQcallbacks);
     if(err != WIRELESS_OK){ LOG("[init:"STRINGIZE(__LINE__)"] SX1280 error\n"); LOG_sendAll(); while(1); }
-	// LOG_sendAll();
+	LOG_sendAll();
 	// Use the pins on the topboard to determine the wireless frequency 
 	if(ROBOT_CHANNEL == BLUE_CHANNEL){
 		Wireless_setChannel(SX, BLUE_CHANNEL);
@@ -349,7 +349,7 @@ void init(void){
 		LOG("[init:"STRINGIZE(__LINE__)"] YELLOW CHANNEL\n");
 		buzzer_Play(beep_yellow); HAL_Delay(350);
 	}
-	// LOG_sendAll();
+	LOG_sendAll();
     // SX1280 section 7.3 FLRC : Syncword is 4 bytes at the beginning of each transmission, that ensures that only the right robot / basestation listens to that transmission.
 	Wireless_setTXSyncword(SX, robot_syncWord[16]); // TX syncword is set to the basestation its syncword
 	uint32_t syncwords[2] = {robot_syncWord[ROBOT_ID],0};
@@ -375,7 +375,7 @@ void init(void){
 			LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
 		}
 		MTi_made_init_attempts += 1;
-		// LOG_sendAll();
+		LOG_sendAll();
 
 		// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
 		HAL_Delay(1100);
@@ -398,7 +398,7 @@ void init(void){
 	// Check if we are running a test. If so, sound an alarm
 	if(IS_RUNNING_TEST){
 		LOG("[init:"STRINGIZE(__LINE__)"] In test-mode! Flip pin FT0 and reboot to disable test-mode\n");
-		// LOG_sendAll();
+		LOG_sendAll();
 		for(uint8_t t = 0; t < 5; t++){
 			buzzer_Play(warningRunningTest);
 			HAL_Delay(400);
@@ -409,7 +409,7 @@ void init(void){
 	// Check if we are draining the battery. If so, sound an alarm
 	if(DRAIN_BATTERY) {
 		LOG("[init:"STRINGIZE(__LINE__)"] In drain mode! Flip pin FT3 and reboot to disable.");
-		// LOG_sendAll();
+		LOG_sendAll();
 		buzzer_Play_BatteryDrainWarning();
 		HAL_Delay(1000);
 	}
