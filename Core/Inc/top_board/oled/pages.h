@@ -31,6 +31,7 @@ struct page_struct
 };
 
 void pages_init();
+page_struct* getRootPage();
 
 
 

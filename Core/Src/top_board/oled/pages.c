@@ -1,15 +1,19 @@
 #include "pages.h"
 
+///////////////////////////////////////////////////////////// Variables
+struct page_struct page_root;
+
+///////////////////////////////////////////////////////////// Private functions declarations
+
 void add_child_to_parent(page_struct *current);
 
-///////////////////////////////////////////////////////////// Public functions
+///////////////////////////////////////////////////////////// Public functions implementations
 
 void pages_init() {
     //ROOT
-    struct page_struct page_root;
     page_root.id = 0;
     strcpy(page_root.page_name, "Root");
-    page_root.n_of_childeren = 1; //hard coded exception. Should normally be set to 0
+    page_root.n_of_childeren = 4;
     page_root.parent = NULL;
     page_root.is_menu = false;
     page_root.is_test = false;
@@ -19,10 +23,10 @@ void pages_init() {
     main_menu.id = 1;
     strcpy(main_menu.page_name, "Main menu");
     main_menu.n_of_childeren = 0;
-    main_menu.parent = NULL;
+    main_menu.parent = &page_root;
     main_menu.is_menu = true;
     main_menu.is_test = false;
-    page_root.childeren[0] = &main_menu; //hard coded exception. Use add_child_to_parent for all other pages
+    add_child_to_parent(&main_menu);
     
 
     //LEVEL 1 MENU'S
@@ -86,6 +90,10 @@ void pages_init() {
 
     //MOTOR TEST
 
+}
+
+page_struct* getRootPage() {
+    return &page_root;
 }
 
 ///////////////////////////////////////////////////////////// Private functions
