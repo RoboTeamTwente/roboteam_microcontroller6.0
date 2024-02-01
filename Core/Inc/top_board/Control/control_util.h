@@ -23,11 +23,12 @@
 #define sinBack sinf(BACK_ANGLE * M_PI/180)
 
 // Wheels
+///////////// CHECK AGAIN !
 #define WHEEL_GEAR_RATIO 1.0F 	// gear ratio between motor and wheel
 #define PWM_LIMIT MAX_PWM 		// should be equal to MAX_PWM by default
-#define MAX_VOLTAGE_50W 24.0	// [V] see datasheet NEW MOTOR: ECXFL32L 48V (we use the 24V version)
-#define SPEED_CONSTANT_50W 285.0 //[(rad/s)/V] see datasheet
-#define WHEEL_PULSES_PER_ROTATION (float)4*1024 // number of pulses of the encoder per rotation of the motor (see datasheet)
+#define MAX_VOLTAGE_50W 24.0	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
+#define SPEED_CONSTANT_50W 448.0 //[(rpm/V] see datasheet ////// unit is rpm/V -> not rad/s/V (check that in the code later !!!)
+#define WHEEL_PULSES_PER_ROTATION (float)4*2048 // number of pulses of the encoder per rotation of the motor. New encoder: ENX 32 MILE // should we delete the multiplication by 4?
 
 struct PIDstruct{
 	float kP;			// The gain of the proportional action 
