@@ -11,5 +11,8 @@
 #include "pages.h"
 #include "selftests.h"
 
+void OLED_Init();
+void OLED_DeInit();
+void OLED_Update(button_id_t button);
 
 #endif /* INC_OLED_H_ */

@@ -6,12 +6,8 @@ WIRELESS_CHANNEL ROBOT_CHANNEL;
 /* How often should the IMU try to calibrate before the robot gives up? */
 uint16_t MTi_MAX_INIT_ATTEMPTS = 5;
 
-/* Whether the robot should accept an uart connection from the PC */
-volatile bool ENABLE_UART_PC = true;
-
-volatile bool IS_RUNNING_TEST = false;
 volatile bool ROBOT_INITIALIZED = false;
-volatile bool DRAIN_BATTERY = false;
+volatile bool TEST_MODE = false;
 
 MTi_data* MTi;
 
@@ -250,14 +246,14 @@ void init(void){
 	IWDG_Init(iwdg, 7500);
 	
     /* Read robot ID (d), wireless channel (c), and if we're running a test (t), from the switches on the topboard
-	* t c x x    d d d d 		<= swtiches
+	* t x x c    d d d d 		<= swtiches
 	* 7 6 5 4    3 2 1 0   		<= numbers below the switches
 	*/
 	ROBOT_ID = get_Id();
-	ROBOT_CHANNEL = read_Pin(FT1_pin) == GPIO_PIN_SET ? BLUE_CHANNEL : YELLOW_CHANNEL;
-	IS_RUNNING_TEST = read_Pin(FT0_pin);
-	ENABLE_UART_PC = read_Pin(FT2_pin);
-	DRAIN_BATTERY = read_Pin(FT3_pin);
+	ROBOT_CHANNEL = read_Pin(SW4_pin) == GPIO_PIN_SET ? BLUE_CHANNEL : YELLOW_CHANNEL;
+	//UNDEFINED = read_Pin(SW5_pin);
+	//UNDEFINED = read_Pin(SW6_pin);
+	TEST_MODE = read_Pin(SW7_pin);
 	
 	
 	initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
@@ -298,13 +294,8 @@ void init(void){
 	}
 	#endif
 
-	// Sometimes the UART pin for the programmer is floating, causing the robot to not boot. 
-	// As a temporary fix one can disable the uart initialization with the FT_2 switch on the robot.
-	// TODO: This will need a proper fix later on.
-	if (ENABLE_UART_PC) {
-		/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-		REM_UARTinit(UART_PC);
-	}
+	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
+	REM_UARTinit(UART_PC);
 }
 	
 	set_Pin(LED1_pin, 1);
@@ -316,7 +307,7 @@ void init(void){
     // stateEstimation_Init();
 
 	SSD1306_Init(); // init oled
-	menu_Init();//start the menu
+	OLED_Init();//start the menu
 
 	HAL_Delay(300);
 
@@ -394,21 +385,10 @@ void init(void){
 
 {
 	LOG("[init:"STRINGIZE(__LINE__)"] Initialized\n");
-	
-	// Check if we are running a test. If so, sound an alarm
-	if(IS_RUNNING_TEST){
-		LOG("[init:"STRINGIZE(__LINE__)"] In test-mode! Flip pin FT0 and reboot to disable test-mode\n");
-		// LOG_sendAll();
-		for(uint8_t t = 0; t < 5; t++){
-			buzzer_Play(warningRunningTest);
-			HAL_Delay(400);
-		}
-		HAL_Delay(100);
-	}
 
-	// Check if we are draining the battery. If so, sound an alarm
-	if(DRAIN_BATTERY) {
-		LOG("[init:"STRINGIZE(__LINE__)"] In drain mode! Flip pin FT3 and reboot to disable.");
+	// Check if we are in test mode. If so, sound an alarm
+	if(TEST_MODE) {
+		LOG("[init:"STRINGIZE(__LINE__)"] In drain mode! Flip pin SW7 and reboot to disable.");
 		// LOG_sendAll();
 		buzzer_Play_BatteryDrainWarning();
 		HAL_Delay(1000);
@@ -500,7 +480,7 @@ void loop(void){
     /* === Determine HALT state === */
     xsens_CalibrationDone = (MTi->statusword & (0x18)) == 0; // if bits 3 and 4 of status word are zero, calibration is done
     halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
-    if(IS_RUNNING_TEST || DRAIN_BATTERY) halt = false;
+    if(TEST_MODE) halt = false;
 
     // if (halt) {
     //     // LOG_printf("HALT %d %d %d\n", xsens_CalibrationDone, checkWirelessConnection(), isSerialConnected);

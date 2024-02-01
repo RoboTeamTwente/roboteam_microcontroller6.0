@@ -94,7 +94,7 @@ void pages_init() {
 void add_child_to_parent(page_struct *current) {
     page_struct *parent = current->parent;
     if(parent->n_of_childeren < MAX_CHILDEREN) {
-        parent->childeren[parent->n_of_childeren] = &current;
+        parent->childeren[parent->n_of_childeren] = current;
         parent->n_of_childeren++;
     } else {
         //TODO some kind of error
