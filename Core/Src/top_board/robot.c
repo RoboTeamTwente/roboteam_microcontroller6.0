@@ -240,10 +240,12 @@ void init(void){
 	encoder_Init();
 
 { // ====== WATCHDOG TIMER, COMMUNICATION BUFFERS ON TOPBOARD, BATTERY, ROBOT SWITCHES, OUTGOING PACKET HEADERS
-	/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
+	/* Enable the watchdog timer if not in test mode and set the threshold at 5 seconds. It should not be needed in the initialization but
 	 sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
-	 but its better than suddenly having non-responding robots in a match */
-	IWDG_Init(iwdg, 7500);
+	 but its better than suddenly having non-responding robots in a match. 
+	 It is disabled during test mode to allow for longer tests without the need to run the main loop or manually refresh during the test.
+	 In this mode the robot is not allowed to drive around autonomously*/
+	if (!TEST_MODE) IWDG_Init(iwdg, 7500);
 	
     /* Read robot ID (d), wireless channel (c), and if we're running a test (t), from the switches on the topboard
 	* t x x c    d d d d 		<= swtiches
@@ -360,7 +362,8 @@ void init(void){
 	*/
 	while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
 		MTi = MTi_Init(1, XFP_VRU_general);
-		IWDG_Refresh(iwdg);
+		if (!TEST_MODE) IWDG_Refresh(iwdg);
+
 
 		if (MTi_made_init_attempts > 0) {
 			LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
@@ -420,8 +423,10 @@ void init(void){
 	HAL_TIM_Base_Start_IT(TIM_1us);
 
 	/* Reset the watchdog timer and set the threshold at 200ms */
-	IWDG_Refresh(iwdg);
-	IWDG_Init(iwdg, 1000);
+	if (!TEST_MODE) {
+		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 1000);
+	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
@@ -469,7 +474,7 @@ void loop(void){
     is_connected_xsens    = (int32_t)(current_time - timestamp_last_packet_xsens)    < 250;
 
     // Refresh Watchdog timer
-    IWDG_Refresh(iwdg);
+    if (!TEST_MODE) IWDG_Refresh(iwdg);
 
     /** MUSIC TEST CODE **/
     if(RobotMusicCommand_received_flag){
