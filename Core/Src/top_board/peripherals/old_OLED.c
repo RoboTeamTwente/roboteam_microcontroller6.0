@@ -126,18 +126,18 @@ Menu_StatusTypeDef menu_Init(){
 
 
 void menu_Loop(){
-	if(getButtonState(4)>50){//up
+	if(getButtonState(BUTTON_UP)>50){//up
 		resetButtonState(4);
 		menu_PreviousItem();
 
 	}
-	if(getButtonState(2)>50){//down
+	if(getButtonState(BUTTON_DOWN)>50){//down
 		resetButtonState(2);
 		menu_NextItem();
 
 	}
 
-	if(getButtonState(3)){//ok
+	if(getButtonState(BUTTON_OK)){//ok
 		if(getButtonState(3)>500){//long press
 			resetButtonState(3);
 			menu_PreviousPage();
@@ -148,7 +148,7 @@ void menu_Loop(){
 
 	}
 
-	if(getButtonState(1)){//right
+	if(getButtonState(BUTTON_RIGHT)){//right
 		if(getButtonState(1)>1500){//very very long press
 			increment +=1000;
 		}else if(getButtonState(1)>800){//very long press
@@ -162,7 +162,7 @@ void menu_Loop(){
 		resetButtonState(1);
 	}
 
-	if(getButtonState(0)){//left
+	if(getButtonState(BUTTON_LEFT)){//left
 
 		if(getButtonState(0)>1500){//very very long press
 			increment -=1000;
@@ -438,15 +438,15 @@ static void motorSelfTest(){
 	SSD1306_UpdateScreen();
 
 	uint8_t working[4] = {0};
+	wheels_Unbrake();
 
 	for(int motor = 0; motor < 4; motor++){//motors
-
 		HAL_Delay(10);
 		if(wheels_DriverPresent(motor) != MOTOR_OK) continue; //check if motor driver is connected
 		working[motor]++;//increment if passes test
 
 		encoder_ResetCounter(motor);
-		wheels_SetPWM(motor, 100);
+		wheels_SetSpeed(motor, 0.1);
 
 		for(int i = 0; i < 50; i++){ // max 0.5 sec long
 			if(encoder_GetCounter(motor) > 100){
@@ -455,14 +455,14 @@ static void motorSelfTest(){
 			}
 			HAL_Delay(10);
 		}
-		wheels_SetPWM(motor, 0);
+		wheels_SetSpeed(motor, 0);
 
 		if(working[motor] != 2) continue;//check if previous test passed
 
 		HAL_Delay(50);
 
 		encoder_ResetCounter(motor);
-		wheels_SetPWM(motor, -100);
+		wheels_SetSpeed(motor, -0.1);
 
 		for(int i = 0; i < 50; i++){ // max .5 sec long
 			if(encoder_GetCounter(motor) < -100){
@@ -471,8 +471,10 @@ static void motorSelfTest(){
 			}
 			HAL_Delay(10);
 		}
-		wheels_SetPWM(motor, 0);
+		wheels_SetSpeed(motor, 0);
 	}
+
+	wheels_Brake();
 
 	char tempstr[20];
 
