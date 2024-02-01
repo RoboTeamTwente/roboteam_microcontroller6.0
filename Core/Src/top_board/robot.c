@@ -501,8 +501,8 @@ void loop(void){
     // // Update test (if active)
     // // test_Update();
 
-    // // Go through all commands if robot is not in HALT state
-    // if (!halt) {
+    // // Go through all commands if robot is not in HALT state or TEST_MODE
+    // if (!halt && !TEST_MODE) {
     //     executeCommands(&activeRobotCommand);
     // }
 
@@ -751,7 +751,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED) return;
+		if(!ROBOT_INITIALIZED || TEST_MODE) return;
 
 		if (!unix_initalized && activeRobotCommand.timestamp != 0){
 			unix_timestamp = activeRobotCommand.timestamp;
@@ -771,7 +771,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		// stateInfo.rateOfTurn = MTi->gyr[2];
 		// stateEstimation_Update(&stateInfo);
 
-		//TODO check for test_isTestRunning
 		if(halt){
 			wheels_Stop();
 			return;
