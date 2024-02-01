@@ -2,6 +2,7 @@
 
 #include "rem.h"
 
+///////////// They are already included in robot.h but it seems that there is an error between REM music command and robot.h
 #include "REM_Packet.h"
 #include "REM_RobotCommand.h"
 #include "REM_RobotFeedback.h"
