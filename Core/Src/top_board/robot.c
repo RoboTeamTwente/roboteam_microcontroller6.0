@@ -1,5 +1,20 @@
 #include "robot.h"
 
+#include "rem.h"
+
+#include "REM_Packet.h"
+#include "REM_RobotCommand.h"
+#include "REM_RobotFeedback.h"
+#include "REM_RobotBuzzer.h"
+#include "REM_RobotStateInfo.h"
+#include "REM_RobotGetPIDGains.h"
+#include "REM_RobotSetPIDGains.h"
+#include "REM_RobotPIDGains.h"
+#include "REM_SX1280Filler.h"
+#include "REM_RobotMusicCommand.h"
+#include "REM_Log.h"
+#include "REM_RobotKillCommand.h"
+
 uint8_t ROBOT_ID;
 WIRELESS_CHANNEL ROBOT_CHANNEL;
 
@@ -315,7 +330,8 @@ void init(void){
 
 { // ====== INITIALIZE CONTROL CONSTANTS, STATE CONTROL, STATE ESTIMATION, OLED SCREEN
     // Initialize control constants
-    // control_util_Init();
+    control_util_Init();
+	LOG("[init:"STRINGIZE(__LINE__)"] control_utils_Init step passed!\n");
     // stateControl_Init();
     // stateEstimation_Init();
 
