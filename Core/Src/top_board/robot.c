@@ -416,7 +416,7 @@ void init(void){
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
 	// SX1280 section 10.7 Transceiver Circuit Modes Graphical Illustration
 	// Ignore packets when we're in test- or battery drain mode by simply never entering this receive-respond loop
-	// if(!(IS_RUNNING_TEST || DRAIN_BATTERY)) WaitForPacket(SX);
+	// if(!TEST_MODE)) WaitForPacket(SX);
 
 
 	// Start timer TIM_1us
