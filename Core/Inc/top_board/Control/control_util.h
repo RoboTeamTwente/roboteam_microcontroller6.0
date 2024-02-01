@@ -11,6 +11,23 @@
 #define TIME_DIFF 0.01F 		// time difference due to 100Hz frequency
 #define WIRELESS_RX_COUNT 4000  // count after which wireless should go to timeout after last packet. Multiply with period base (62.5 us) to get to the time in seconds.
 
+// Robot
+#define rad_robot 0.081F	// robot radius (m) (from center to wheel contact point) /////// to check with Chris !
+#define rad_wheel 0.028F 	// wheel radius (m) // This has been checked with Chris !!!!!
+
+#define FRONT_ANGLE 45		// angle of front wheels (deg)
+#define BACK_ANGLE 45		// angle of back wheels (deg)
+#define cosFront cosf(FRONT_ANGLE * M_PI/180)
+#define sinFront sinf(FRONT_ANGLE * M_PI/180)
+#define cosBack cosf(BACK_ANGLE * M_PI/180)
+#define sinBack sinf(BACK_ANGLE * M_PI/180)
+
+// Wheels
+#define WHEEL_GEAR_RATIO 1.0F 	// gear ratio between motor and wheel
+#define PWM_LIMIT MAX_PWM 		// should be equal to MAX_PWM by default
+#define MAX_VOLTAGE_50W 24.0	// [V] see datasheet NEW MOTOR: ECXFL32L 48V (we use the 24V version)
+#define SPEED_CONSTANT_50W 285.0 //[(rad/s)/V] see datasheet
+#define WHEEL_PULSES_PER_ROTATION (float)4*1024 // number of pulses of the encoder per rotation of the motor (see datasheet)
 
 struct PIDstruct{
 	float kP;			// The gain of the proportional action 
