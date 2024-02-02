@@ -73,7 +73,7 @@ static void refresh(){
 
     //Set pagename
     char tempString[MAX_STRING_LENGTH];
-    sprintf(tempString, "%s <==", "Test");
+    sprintf(tempString, "%s", current_page->page_name);
     SSD1306_GotoXY (0,0);
 	SSD1306_Puts(tempString, &Font_11x18, 1);
 

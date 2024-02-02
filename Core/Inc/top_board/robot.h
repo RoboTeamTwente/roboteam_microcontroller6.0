@@ -21,6 +21,7 @@
 #include "SX1280_Constants.h"
 #include "AssuredPacketManager.h"
 #include "drivers.h"
+#include "pages.h"
 
 #include "rem.h"
 

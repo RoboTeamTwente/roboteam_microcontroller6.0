@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "logging.h"
 
 #define MAX_CHILDEREN 8
 #define MAX_VAR_NAME_LENGTH 9
