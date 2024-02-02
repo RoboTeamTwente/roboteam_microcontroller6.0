@@ -12,7 +12,7 @@
 #define WIRELESS_RX_COUNT 4000  // count after which wireless should go to timeout after last packet. Multiply with period base (62.5 us) to get to the time in seconds.
 
 // Robot
-#define rad_robot 0.081F	// robot radius (m) (from center to wheel contact point) /////// to check with Chris !
+#define rad_robot 0.0804F	// robot radius (m) (from center to wheel contact point)
 #define rad_wheel 0.028F 	// wheel radius (m) // This has been checked with Chris !!!!!
 
 #define FRONT_ANGLE 45		// angle of front wheels (deg)
