@@ -1,21 +1,5 @@
 #include "robot.h"
 
-#include "rem.h"
-
-///////////// They are already included in robot.h but it seems that there is an error between REM music command and robot.h
-#include "REM_Packet.h"
-#include "REM_RobotCommand.h"
-#include "REM_RobotFeedback.h"
-#include "REM_RobotBuzzer.h"
-#include "REM_RobotStateInfo.h"
-#include "REM_RobotGetPIDGains.h"
-#include "REM_RobotSetPIDGains.h"
-#include "REM_RobotPIDGains.h"
-#include "REM_SX1280Filler.h"
-#include "REM_RobotMusicCommand.h"
-#include "REM_Log.h"
-#include "REM_RobotKillCommand.h"
-
 uint8_t ROBOT_ID;
 WIRELESS_CHANNEL ROBOT_CHANNEL;
 
