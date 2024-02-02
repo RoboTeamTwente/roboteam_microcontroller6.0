@@ -13,7 +13,7 @@ void pages_init() {
     //ROOT
     page_root.id = 0;
     strcpy(page_root.page_name, "Root");
-    page_root.n_of_childeren = 4;
+    page_root.n_of_childeren = 0;
     page_root.parent = NULL;
     page_root.is_menu = false;
     page_root.is_test = false;
