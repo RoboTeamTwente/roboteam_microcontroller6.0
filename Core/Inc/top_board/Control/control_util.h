@@ -13,7 +13,7 @@
 
 // Robot
 #define rad_robot 0.0804F	// robot radius (m) (from center to wheel contact point)
-#define rad_wheel 0.028F 	// wheel radius (m) // This has been checked with Chris !!!!!
+#define rad_wheel 0.0274F 	// wheel radius (m)
 
 #define FRONT_ANGLE 45		// angle of front wheels (deg)
 #define BACK_ANGLE 45		// angle of back wheels (deg)
