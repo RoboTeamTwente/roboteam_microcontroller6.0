@@ -38,6 +38,7 @@ float OMEGAtoPWM; // conversion factor from wheel speed [rad/s] to required PWM 
 
 // Control 
 // To check !!!
+#define YAW_MARGIN (0.5F/180.0F)*(float)M_PI 	// margin at which the I-value of the PID is reset to 0
 float WHEEL_REF_LIMIT; 							// [rad/s] Limit the maximum wheel reference to leave room for the wheels PID
 #define WHEEL_REF_LIMIT_PWM 2200 				// [pwm] /// where does that come from??
 
