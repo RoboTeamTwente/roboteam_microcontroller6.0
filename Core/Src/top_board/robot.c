@@ -317,8 +317,8 @@ void init(void){
     // Initialize control constants
     control_util_Init();
 	LOG("[init:"STRINGIZE(__LINE__)"] control_utils_Init step passed!\n");
-    // stateControl_Init();
-    // stateEstimation_Init();
+    stateControl_Init();
+    stateEstimation_Init();
 
 	SSD1306_Init(); // init oled
 	menu_Init();//start the menu
