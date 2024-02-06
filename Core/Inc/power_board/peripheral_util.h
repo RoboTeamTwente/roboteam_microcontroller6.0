@@ -10,10 +10,8 @@
 
 #include "stm32f3xx_hal.h"
 
-extern UART_HandleTypeDef huart5;
-extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart1;
 
-#define UART_PC 	(&huart5)	// PC communication
-#define UART_BACK 	(&huart4)	// UART going to backboard
+#define UART_PC 	(&huart1)	// PC communication
 
 #endif /* PERIPHERAL_UTIL_H_ */

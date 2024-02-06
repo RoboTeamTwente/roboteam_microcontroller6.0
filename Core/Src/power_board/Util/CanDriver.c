@@ -319,6 +319,7 @@ void process_Message(mailbox_buffer *to_Process){
 		case KILL_REQUEST_VOLTAGE_MESSAGE: ;
 			bool kill_state = get_kill_state(to_Process->data_Frame[0]);
 			bool voltage_request = get_request_power_state(to_Process->data_Frame[0]);
+			sprintf(str,"Kill State :: %d || Voltage request :: %d", kill_state, voltage_request);
 			break;
 		case ARE_YOU_ALIVE: ;
 			uint8_t recieved_version = get_MCP_version(to_Process->data_Frame);

@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 // Buffer used by vsprintf. Static to make it private to this file
-static char printf_buffer[100];
+static char printf_buffer[50];
 
 typedef struct _MessageContainer {
     uint8_t length;
