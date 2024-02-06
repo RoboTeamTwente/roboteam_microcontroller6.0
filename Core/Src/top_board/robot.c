@@ -464,8 +464,6 @@ void loop(void){
     /* Send anything in the log buffer over UART */
     LOG_send();
 
-	menu_Loop();
-
     // Play a warning if a REM packet with an incorrect version was received
     if(!REM_last_packet_had_correct_version)
         if(!buzzer_IsPlaying())
