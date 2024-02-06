@@ -352,21 +352,55 @@ void send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTyp
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.TransmitGlobalTime = DISABLE;
 
-	if (reciever_ID == POWER_ID)
+	if (sending_message_ID == ARE_YOU_ALIVE)
 	{
-		if (sending_message_ID == VOLTAGE_RESPONSE)
+		set_are_you_alive_message_header(&TxHeader, reciever_ID);
+		set_MCP_version(payload);
+	}
+	else if (reciever_ID == POWER_ID)
+	{
+		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE)
 		{
-			set_voltage_response_header(&TxHeader);
-			uint16_t reading = 0x0F0F;
-			set_voltage_response(reading, &payload);
-		}
-		else if (sending_message_ID == IM_ALIVE_VOLTAGE)
-		{
-			set_powerBoard_im_alive_header(&TxHeader);
-			set_MCP_version(payload);
-			set_powerBoard_sensor_state(payload, true);
+			set_kill_voltage_message_header(&TxHeader);
+			set_kill_state(payload, false);
+			set_request_power_state(payload, true);
 		}
 	}
+	else if (reciever_ID == DRIBBLER_ID)
+	{
+		if (sending_message_ID == DRIBBLER_SPEED)
+		{
+			set_request_dribbler_speed_header(&TxHeader);
+			float dribbler_speed = 0xF0;
+			set_dribbler_speed(&payload, dribbler_speed);
+		}
+	}
+	else if (KICK_CHIP_ID)
+	{
+		if (sending_message_ID == KICK_MESSAGE)
+		{
+			set_header_kick(&TxHeader);
+			set_kick_state(payload, true);
+			set_do_Force(payload, false);
+			set_shoot_power(payload, 2);
+		}
+		else if (sending_message_ID == CHIP_MESSAGE)
+		{
+			set_header_chip(&TxHeader);
+			set_chip_state(payload, true);
+			set_do_Force(payload, false);
+			set_shoot_power(payload, 2);
+		}
+		else if (sending_message_ID == DISCHARGE_MESSAGE)
+		{
+			set_header_discharge(&TxHeader);
+		}
+		else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE)
+		{
+			set_request_capacitor_voltage_header(&TxHeader);
+		}
+	}
+
 	if (HAL_CAN_AddTxMessage(hcan, &TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
 		CAN_error_LOG(&TxHeader);
 
