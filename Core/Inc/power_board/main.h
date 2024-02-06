@@ -52,6 +52,10 @@ extern "C" {
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
+uint8_t robot_get_ID();
+
+uint8_t robot_get_Channel();
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

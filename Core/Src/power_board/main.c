@@ -21,8 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "logging.h"
 #include "CanDriver.h"
-#include "PowerBoardDriver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-void testfun(uint8_t RxData[8], uint8_t MessageId, uint8_t MessageLength);
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -104,6 +104,8 @@ int main(void)
   MX_CAN_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
+  LOG_init();
+
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -112,12 +114,29 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
     /* USER CODE END WHILE */
+
+    if (CAN_to_process){
+		  if (!MailBox_one.empty)
+			  process_Message(&MailBox_one);
+		  if (!MailBox_two.empty)
+			  process_Message(&MailBox_two);
+		  if (!MailBox_three.empty)
+			  process_Message(&MailBox_three);
+		  CAN_to_process = false;
+	  }
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
+}
+
+uint8_t robot_get_ID(){
+	return 0;
+}
+
+uint8_t robot_get_Channel(){
+	return true == true ? 0 : 1;
 }
 
 /**
