@@ -86,23 +86,26 @@ static void refresh(){
         boot_screen();
     }
     else if (current_page->is_menu) {
-        SSD1306_GotoXY (0,0);
+        SSD1306_GotoXY (5,0);
 	    SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
         int middle_index = item_selector;
         if (middle_index == 0) middle_index = 1;
         if (middle_index > 2 && middle_index == current_page->n_of_childeren - 1) {
             middle_index = current_page->n_of_childeren - 3;
         }
-        SSD1306_GotoXY (0,20);
+        SSD1306_GotoXY (5,20);
         SSD1306_Puts(current_page->childeren[middle_index-1]->page_name, &Font_7x10, 1);
         if (current_page->n_of_childeren >= 2) {
-            SSD1306_GotoXY (0,31);
+            SSD1306_GotoXY (5,31);
             SSD1306_Puts(current_page->childeren[middle_index]->page_name, &Font_7x10, 1);
         }
         if (current_page->n_of_childeren >= 3) {
-            SSD1306_GotoXY (0,43);
+            SSD1306_GotoXY (5,42);
             SSD1306_Puts(current_page->childeren[middle_index + 1]->page_name, &Font_7x10, 1);
         }
+        //selected item background
+        SSD1306_DrawBitmap(0, 29, bitmap_item_sel_outline , 128, 12, 1); 
+        
     }
 
 
