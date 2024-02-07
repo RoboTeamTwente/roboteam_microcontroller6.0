@@ -324,7 +324,7 @@ void init(void){
 
 	HAL_Delay(300);
 
-	// LOG_sendAll();
+	LOG_sendAll();
 }
 
 	set_Pin(LED2_pin, 1);
@@ -429,15 +429,15 @@ void init(void){
 
 }
 	if (all_wheels_initialized != MOTOR_OK) {
-		buzzer_Play_WarningThree();
+		//buzzer_Play_WarningThree();
 		HAL_Delay(1000);
 	}
 	set_Pin(LED6_pin, 1);
 
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
 	// SX1280 section 10.7 Transceiver Circuit Modes Graphical Illustration
-	// Ignore packets when we're in test- or battery drain mode by simply never entering this receive-respond loop
-	// if(!(IS_RUNNING_TEST || DRAIN_BATTERY)) WaitForPacket(SX);
+	// Ignore packets when we're in debug mode
+	if(!DEBUG_MODE) WaitForPacket(SX);
 
 
 	// Start timer TIM_1us
@@ -451,6 +451,7 @@ void init(void){
 
 	/* Turn of all leds. Will now be used to indicate robot status */
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
+	HAL_Delay(50);
 	buzzer_Play_ID(ROBOT_ID);
 
 	timestamp_initialized = HAL_GetTick();
