@@ -64,8 +64,6 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
 	for (int i=0; i<Header->DLC; i++)
 		data[i] = RxData[i];
 
-
-
 	if(MailBox_one.empty){
 		MailBox_one.empty = false;
 		MailBox_one.message_id = message_ID;
@@ -74,12 +72,12 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
 	}else if (MailBox_two.empty){
 		MailBox_two.empty = false;
 		MailBox_two.message_id = message_ID;
-		memcpy(MailBox_two.data_Frame, RxData, sizeof(*RxData));
+		memcpy(MailBox_two.data_Frame, RxData, sizeof(data));
 		return true;
 	}else if (MailBox_three.empty){
 		MailBox_three.empty = false;
 		MailBox_three.message_id = message_ID;
-		memcpy(MailBox_three.data_Frame, RxData, sizeof(*RxData));
+		memcpy(MailBox_three.data_Frame, RxData, sizeof(data));
 		return true;
 	}
 	free(data);
@@ -152,11 +150,11 @@ bool get_powerBoard_sensor_state(uint8_t payload[8]){
 	return (bool) (payload[0] >> POWER_SENSOR_STATE_INDEX);
 }
 
-void set_request_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){ // sent by TOP to DRIBBLER
+void set_request_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){ 
 	TxHeader->StdId = (DRIBBLER_ID << RECEIVER_ID_LOCATION) | DRIBBLER_SPEED;
 }
 
-void set_response_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){// sent by DRIBBLER to TOP
+void set_response_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){
 	TxHeader->StdId = (TOP_ID << RECEIVER_ID_LOCATION) | DRIBBLER_SPEED;
 }
 
@@ -212,7 +210,7 @@ bool get_ball_sensor_state(uint8_t payload[8]){
 	return (bool) ((payload[0] & bit_shiftMask(BALLSENSOR_STATE_INDEX, 1)) >> BALLSENSOR_STATE_INDEX);
 }
 
-void set_header_kick(CAN_TxHeaderTypeDef *TxHeader){// sent by TOP to DRIBBLER
+void set_header_kick(CAN_TxHeaderTypeDef *TxHeader){
 	TxHeader->StdId = (KICK_CHIP_ID << RECEIVER_ID_LOCATION) | KICK_MESSAGE;
 }
 
@@ -327,7 +325,7 @@ void process_Message(mailbox_buffer *to_Process){
 				LOG("MCP version are equal");
 			break;
 		default:
-			//Throw an error
+			//Throw an error,
 			break;
 	}
 
