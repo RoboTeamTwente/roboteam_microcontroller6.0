@@ -290,7 +290,7 @@ Xsens_Status MTi_IRQ_Handler(MTi_data* MTi){
 	if(pipe_status->measurement_size && !MTi->init_phase){
 
 
-		HAL_Delay(1);
+		//HAL_Delay(1);
 		while(MTi->SPI_busy){}
 		MTi->SPI_busy = true;
 
