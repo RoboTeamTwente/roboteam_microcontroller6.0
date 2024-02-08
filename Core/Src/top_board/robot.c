@@ -782,102 +782,102 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED)
-			return;
+		if(!ROBOT_INITIALIZED){
 
-		if (!unix_initalized && activeRobotCommand.timestamp != 0){
-			unix_timestamp = activeRobotCommand.timestamp;
-			unix_initalized = true;
-		}
-
-		counter_TIM_CONTROL++;
-
-		//state estimation
-		stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
-		stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
-		
-		wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
-		stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
-		stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
-		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
-		stateInfo.rateOfTurn = MTi->gyr[2];
-		stateEstimation_Update(&stateInfo);
-
-		//TODO check for test_isTestRunning
-		if(halt){
-			wheels_Stop();
-			return;
-		}
-
-		// State control
-		float stateLocal[4] = {0.0f};
-		stateEstimation_GetState(stateLocal);
-		stateControl_SetState(stateLocal);
-		stateControl_Update();
-
-		wheels_SetSpeeds( stateControl_GetWheelRef() );
-
-		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
-		// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
-		// only want to execute this on a roll of tape.
-		//
-		// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
-		//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
-		if(DRAIN_BATTERY){
-
-			// Instruct each wheel to go 30 rad/s
-			float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
-			wheels_SetSpeeds(wheel_speeds);
-
-			// If the gyroscope detects some rotational movement, we stop the drainage program.
-			if (fabs(MTi->gyr[2]) > 0.3f) {
-				DRAIN_BATTERY = false;
+			if (!unix_initalized && activeRobotCommand.timestamp != 0){
+				unix_timestamp = activeRobotCommand.timestamp;
+				unix_initalized = true;
 			}
+
+			counter_TIM_CONTROL++;
+
+			//state estimation
+			stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
+			stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
+			
+			wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
+			stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
+			stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
+			stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
+			stateInfo.rateOfTurn = MTi->gyr[2];
+			stateEstimation_Update(&stateInfo);
+
+			//TODO check for test_isTestRunning
+			if(halt){
+				wheels_Stop();
+				return;
+			}
+
+			// State control
+			float stateLocal[4] = {0.0f};
+			stateEstimation_GetState(stateLocal);
+			stateControl_SetState(stateLocal);
+			stateControl_Update();
+
+			wheels_SetSpeeds( stateControl_GetWheelRef() );
+
+			// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
+			// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
+			// only want to execute this on a roll of tape.
+			//
+			// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
+			//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
+			if(DRAIN_BATTERY){
+
+				// Instruct each wheel to go 30 rad/s
+				float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
+				wheels_SetSpeeds(wheel_speeds);
+
+				// If the gyroscope detects some rotational movement, we stop the drainage program.
+				if (fabs(MTi->gyr[2]) > 0.3f) {
+					DRAIN_BATTERY = false;
+				}
+			}
+			wheels_Update();
+
+			/* == Fill robotFeedback packet == */ {
+				robotFeedback.timestamp = unix_timestamp;
+				robotFeedback.XsensCalibrated = xsens_CalibrationDone;
+				// robotFeedback.batteryLevel = (batCounter > 1000);
+				// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
+				// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
+				// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
+
+				float localState[4] = {0.0f};
+				stateEstimation_GetState(localState);
+				float vu = localState[vel_u];
+				float vv = localState[vel_v];
+				robotFeedback.rho = sqrt(vu*vu + vv*vv);
+				robotFeedback.angle = localState[yaw];
+				robotFeedback.theta = atan2(vu, vv);
+				robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
+				robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
+				// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
+			}
+			
+			/* == Fill robotStateInfo packet == */ {	
+				robotStateInfo.timestamp = unix_timestamp;
+				robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
+				robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
+				robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
+				robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
+				robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
+				robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
+				robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
+				robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
+				// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
+				// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
+				// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
+				robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
+				robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
+				robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
+				robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
+			}
+
+
+			// flag_sdcard_write_feedback = true;
+			unix_timestamp += 1	;
 		}
-		wheels_Update();
-
-		/* == Fill robotFeedback packet == */ {
-			robotFeedback.timestamp = unix_timestamp;
-			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			// robotFeedback.batteryLevel = (batCounter > 1000);
-			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
-			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
-			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
-
-			float localState[4] = {0.0f};
-			stateEstimation_GetState(localState);
-			float vu = localState[vel_u];
-			float vv = localState[vel_v];
-			robotFeedback.rho = sqrt(vu*vu + vv*vv);
-			robotFeedback.angle = localState[yaw];
-			robotFeedback.theta = atan2(vu, vv);
-			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
-			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-			// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
-		}
-		
-		// /* == Fill robotStateInfo packet == */ {	
-			robotStateInfo.timestamp = unix_timestamp;
-			robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
-			robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
-			robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
-			robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
-			robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
-			robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
-			robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
-			robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
-			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
-			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
-			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
-			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
-			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
-			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
-			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
-		}
-
-
-		// flag_sdcard_write_feedback = true;
-        unix_timestamp += 1	;
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;
