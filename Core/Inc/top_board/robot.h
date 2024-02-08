@@ -8,6 +8,7 @@
 #include "gpio_util.h"
 #include "tim_util.h"
 #include "peripheral_util.h"
+#include "wheels.h"
 #include "stateControl.h"
 #include "stateEstimation.h"
 #include "sdcard.h"

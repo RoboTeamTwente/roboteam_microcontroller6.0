@@ -167,9 +167,11 @@ void wheels_Update() {
 	for (motor_id_t motor = RF; motor <= RB; motor++) {
 		int16_t	encoder_value = encoder_GetCounter(motor);
 		encoder_ResetCounter(motor);
+		// TODO Convert encoder values to rad/s
+		wheels_measured_speeds[motor] = WHEEL_ENCODER_TO_OMEGA * encoder_value[motor];
 
 		// Calculate the velocity error
-		float angular_velocity_error = wheels_commanded_speeds[motor] - wheels_measured_speeds[motor]; 		// TODO Convert encoder values to rad/s
+		float angular_velocity_error = wheels_commanded_speeds[motor] - wheels_measured_speeds[motor]; 		
 	
 		// If the error is very small, ignore it (why is this here?)
 		if (fabs(angular_velocity_error) < 0.1) {
