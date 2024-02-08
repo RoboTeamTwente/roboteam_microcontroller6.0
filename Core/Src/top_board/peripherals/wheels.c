@@ -20,7 +20,6 @@ static bool wheels_braking = true;
 
 static float wheels_measured_speeds[4] = {};      // Stores most recent measurement of wheel speeds in rad/s
 static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
-static uint32_t wheel_pwms[4] = {0};              // Holds the most recent wheel PWMs
 
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
