@@ -148,8 +148,8 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->angle;
 	stateControl_SetRef(stateReference);
-	dribbler_SetSpeed(robotCommand->dribbler);
-	shoot_SetPower(robotCommand->kickChipPower);
+	// dribbler_SetSpeed(robotCommand->dribbler);
+	// shoot_SetPower(robotCommand->kickChipPower);
 
 // 	if (robotCommand->doKick) {
 // 		if (ballPosition.canKickBall || robotCommand->doForce){
@@ -839,10 +839,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
 			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			robotFeedback.batteryLevel = (batCounter > 1000);
-			robotFeedback.ballSensorWorking = ballSensor_isInitialized();
-			robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
-			robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
+			// robotFeedback.batteryLevel = (batCounter > 1000);
+			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
+			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
+			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
 
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
@@ -853,7 +853,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.theta = atan2(vu, vv);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-			robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
+			// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
 		}
 		
 		// /* == Fill robotStateInfo packet == */ {	
@@ -866,9 +866,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
 			robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
 			robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
-			robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
-			robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
-			robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
+			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
+			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
+			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
 			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
 			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
 			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
