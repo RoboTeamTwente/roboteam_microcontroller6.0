@@ -38,6 +38,7 @@ env.Append(
     # "-Wconversion",
     # "-pedantic",
     "-mcpu=cortex-m7",
+    "-mcpu=cortex-m4",
     "-mfloat-abi=hard",
     "-mfpu=fpv5-sp-d16",
     "-D ARM_MATH_CM7",
@@ -52,6 +53,7 @@ env.Append(
     "-specs=nano.specs",
     "-DUSE_HAL_DRIVER",
     "-DSTM32F767xx",
+    "-DSTM32F303xx"
   ]
 
 )

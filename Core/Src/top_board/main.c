@@ -20,6 +20,8 @@
 #include "main.h"
 #include "fatfs.h"
 #include "CanDriver.h"
+#include "buzzer.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -181,6 +183,7 @@ int main(void)
   MX_CAN1_Init();
   MX_ADC1_Init();
   MX_UART8_Init();
+  buzzer_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
