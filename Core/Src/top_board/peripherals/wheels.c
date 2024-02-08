@@ -3,22 +3,24 @@
 #include "gpio_util.h"
 #include "peripheral_util.h"
 
-
-
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
+
 static inline uint32_t constrain_uint32(uint32_t value, uint32_t min, uint32_t max);
 static void setSlaveSelect(motor_id_t motor, GPIO_PinState state);
 static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t address4Bits, uint16_t data11Bits);
 
 ///////////////////////////////////////////////////// STRUCTS
+
 static PIDvariables wheelsK[4];
 
 ///////////////////////////////////////////////////// VARIABLES
-static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
 
 static bool wheels_initialized = false;
 static bool wheels_braking = true;
 
+static float wheels_measured_speeds[4] = {};      // Stores most recent measurement of wheel speeds in rad/s
+static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
+static uint32_t wheel_pwms[4] = {0};              // Holds the most recent wheel PWMs
 
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
@@ -143,6 +145,7 @@ void wheels_set_command_speed(const float speeds[4]) {
 /**
  * @brief Updates the wheels towards the commanded wheel speeds using the encoders and a PID controller.
  * 
+ * TODO : check OMEGAtoPWM values for new motor!!!
  * This function is resonsible for getting the wheels to the commanded speeds, as stored in the file-local variable
  * "wheels_commanded_speeds". Wheel speeds, given in rad/s, are converted directly to a PWM value with help of the
  * conversion variable OMEGAtoPWM. This variable is based on information from the Maxon Motor datasheet. 
@@ -152,9 +155,7 @@ void wheels_set_command_speed(const float speeds[4]) {
  * then subtracted from these measured wheel speeds, giving the error. This error is put through a PID controller, and
  * the resulting PID value is added to the commanded speeds before being converted to a PWM value. 
  * 
- * The resulting PWM values can be both positive and negative. This is split up into a "direction" boolean and a 
- * "PWN" integer. The "direction" boolean is false for CounterClockWise, and true for ClockWise. Finally both the 
- * directions and PWMs are sent to the wheels.
+ * The resulting PWM values have a range between -1 and 1. Positive values mean clockwise and negative values mean counter-clockwise direction. 
  */
 void wheels_Update() {
 	/* Don't run the wheels if these are not initialized */
@@ -199,6 +200,38 @@ void wheels_Update() {
 	}
 }
 
+/**
+ * @brief Get the last measured wheel speeds in rad/s
+ * 
+ * @param speeds float[4]{RF, LF, LB, RB} output array in which the measured speeds will be stored
+ */
+void wheels_GetMeasuredSpeeds(float speeds[4]) {
+	// Copy into "speeds", so that the file-local variable "wheels_measured_speeds" doesn't escape
+	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
+		speeds[wheel] = wheels_measured_speeds[wheel];
+	}
+}
+
+
+/**
+ * @brief Get the current wheel PWMs
+ * 
+ * @param pwms uint32_t[4]{RF, LF, LB, RB} output array in which the wheel PWMs will be stored
+ */
+void wheels_GetPWM(uint32_t pwms[4]) {
+	pwms[wheels_RF] = get_PWM(PWM_RF);
+	pwms[wheels_RB] = get_PWM(PWM_RB);
+	pwms[wheels_LB] = get_PWM(PWM_LB);
+	pwms[wheels_LF] = get_PWM(PWM_LF);
+}
+
+void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
+	for(wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++){
+		wheelsK[wheel].kP = PIDGains->Pwheels;
+		wheelsK[wheel].kI = PIDGains->Iwheels;
+    	wheelsK[wheel].kD = PIDGains->Dwheels;
+	}
+}
 
 /**
  * @brief Enable the brakes
@@ -334,13 +367,6 @@ void encoder_ResetCounter(motor_id_t id){
 	}
 }
 
-void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
-	for(motor_id_t wheel = RF; wheel <= RB; wheel++){
-		wheelsK[wheel].kP = PIDGains->Pwheels;
-		wheelsK[wheel].kI = PIDGains->Iwheels;
-    	wheelsK[wheel].kD = PIDGains->Dwheels;
-	}
-}
 
 
 
