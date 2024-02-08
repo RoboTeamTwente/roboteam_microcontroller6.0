@@ -115,7 +115,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    LOG("Working");
     if (CAN_to_process){
 		  if (!MailBox_one.empty)
 			  process_Message(&MailBox_one);
