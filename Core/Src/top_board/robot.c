@@ -34,7 +34,7 @@ REM_LogPayload robotLogPayload = {0};
 REM_RobotCommand activeRobotCommand = {0};
 float activeStateReference[3];
 
-//StateInfo stateInfo = {0.0f, false, {0.0}, 0.0f, 0.0f, {0.0}};
+StateInfo stateInfo = {0.0f, false, {0.0}, 0.0f, 0.0f, {0.0}};
 bool halt = true;
 bool xsens_CalibrationDone = false;
 bool xsens_CalibrationDoneFirst = true;
