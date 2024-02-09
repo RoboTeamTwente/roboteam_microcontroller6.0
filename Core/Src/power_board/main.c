@@ -105,7 +105,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   LOG_init();
-
+  LOG("Working");
   /* USER CODE BEGIN 2 */
   
   /* USER CODE END 2 */
@@ -115,7 +115,6 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    LOG("Working");
     if (CAN_to_process){
 		  if (!MailBox_one.empty)
 			  process_Message(&MailBox_one);
