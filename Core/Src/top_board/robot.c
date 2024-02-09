@@ -282,6 +282,8 @@ void init(void){
 	LOG_printf("[init:"STRINGIZE(__LINE__)"] ROBOT_ID: %d\n", ROBOT_ID);
 	LOG_sendAll();
 
+	
+
 	/* Initialize SD card */
 	if(SDCard_Init()){
 		LOG("[init:"STRINGIZE(__LINE__)"] SD card initialized\n");

@@ -1,28 +1,29 @@
 /* USER CODE BEGIN Header */
 /**
-  **************************
+  ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
-  **************************
+  ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
   *
-  **************************
+  ******************************************************************************
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "logging.h"
+#include "peripheral_util.h"
+#include "CanDriver.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "logging.h"
-#include "CanDriver.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,7 @@ CAN_HandleTypeDef hcan;
 I2C_HandleTypeDef hi2c1;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -54,17 +56,11 @@ UART_HandleTypeDef huart1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* Private variables ---------------------------------------------------------*/
 
 /* USER CODE END PFP */
 
@@ -101,13 +97,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_CAN_Init();
+  CAN_Init(&hcan);
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-  LOG_init();
-  LOG("Working");
-  /* USER CODE BEGIN 2 */
-  
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,26 +111,20 @@ int main(void)
   {
     /* USER CODE END WHILE */
     if (CAN_to_process){
-		  if (!MailBox_one.empty)
-			  process_Message(&MailBox_one);
-		  if (!MailBox_two.empty)
-			  process_Message(&MailBox_two);
-		  if (!MailBox_three.empty)
-			  process_Message(&MailBox_three);
+			process_Message(&MailBox_one);
 		  CAN_to_process = false;
 	  }
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
 
 uint8_t robot_get_ID(){
-	return 0;
+  return 0;
 }
 
 uint8_t robot_get_Channel(){
-	return true == true ? 0 : 1;
+  return 0;
 }
 
 /**
@@ -214,20 +203,6 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
-
-  CAN_FilterTypeDef canfilterconfig;
-  canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
-  canfilterconfig.FilterBank = 10;
-  canfilterconfig.FilterFIFOAssignment = CAN_RX_FIFO0;
-  canfilterconfig.FilterIdHigh = 0x001<<5;
-  canfilterconfig.FilterIdLow = 0x000<<5;
-  canfilterconfig.FilterMaskIdHigh = 0x000<<5;
-  canfilterconfig.FilterMaskIdLow = 0x000<<5;
-  canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
-  canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
-  canfilterconfig.SlaveStartFilterBank = 0;
-
-  HAL_CAN_ConfigFilter(&hcan, &canfilterconfig);
 
   /* USER CODE END CAN_Init 2 */
 
@@ -313,6 +288,22 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
 
 }
 

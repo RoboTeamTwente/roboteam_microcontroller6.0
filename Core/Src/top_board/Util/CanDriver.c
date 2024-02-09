@@ -37,6 +37,8 @@ void CAN_Init(CAN_HandleTypeDef *hcan){
 }
 
 void CAN_error_LOG(CAN_TxHeaderTypeDef *Header){
+	LOG("Failed to transmit message");
+	LOG_send();
 	return;
 }
 

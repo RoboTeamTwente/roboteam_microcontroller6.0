@@ -11,7 +11,7 @@
 mailbox_buffer MailBox_one	 = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_two 	 = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};;
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-uint64_t TxMailbox[3];
+uint64_t TxMailbox[0];
 char str[75];
 bool CAN_to_process = false;
 
@@ -63,7 +63,6 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
 
 	for (int i=0; i<Header->DLC; i++)
 		data[i] = RxData[i];
-
 
 
 	if(MailBox_one.empty){
