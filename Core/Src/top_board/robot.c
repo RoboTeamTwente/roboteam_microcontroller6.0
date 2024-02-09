@@ -240,14 +240,7 @@ void init(void){
 	encoder_Init();
 
 { // ====== WATCHDOG TIMER, COMMUNICATION BUFFERS ON TOPBOARD, BATTERY, ROBOT SWITCHES, OUTGOING PACKET HEADERS
-	/* Enable the watchdog timer if not in test mode and set the threshold at 5 seconds. It should not be needed in the initialization but
-	 sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
-	 but its better than suddenly having non-responding robots in a match. 
-	 It is disabled during test mode to allow for longer tests without the need to run the main loop or manually refresh during the test.
-	 In this mode the robot is not allowed to drive around autonomously*/
-	if (!TEST_MODE) IWDG_Init(iwdg, 7500);
-	
-    /* Read robot ID (d), wireless channel (c), and if we're running a test (t), from the switches on the topboard
+	/* Read robot ID (d), wireless channel (c), and if we're running a test (t), from the switches on the topboard
 	* t x x c    d d d d 		<= swtiches
 	* 7 6 5 4    3 2 1 0   		<= numbers below the switches
 	*/
@@ -256,7 +249,13 @@ void init(void){
 	//UNDEFINED = read_Pin(SW5_pin);
 	//UNDEFINED = read_Pin(SW6_pin);
 	TEST_MODE = read_Pin(SW7_pin);
-	
+
+	/* Enable the watchdog timer if not in test mode and set the threshold at 5 seconds. It should not be needed in the initialization but
+	 sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
+	 but its better than suddenly having non-responding robots in a match. 
+	 It is disabled during test mode to allow for longer tests without the need to run the main loop or manually refresh during the test.
+	 In this mode the robot is not allowed to drive around autonomously*/
+	if (!TEST_MODE) IWDG_Init(iwdg, 7500);
 	
 	initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
 	initPacketHeader((REM_Packet*) &robotFeedback, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_FEEDBACK);
@@ -459,7 +458,7 @@ void loop(void){
     uint32_t current_time = HAL_GetTick();
     counter_loop++;
 
-	OLED_Update(getRecentlyPressedButton());
+	OLED_Update(getRecentlyPressedButton(), TEST_MODE);
 
     /* Send anything in the log buffer over UART */
     LOG_send();

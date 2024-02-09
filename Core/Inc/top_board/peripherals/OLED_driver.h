@@ -10,9 +10,10 @@
 #include "ssd1306/bitmap.h"
 #include "pages.h"
 #include "selftests.h"
+#include "robot.h"
 
 void OLED_Init();
 void OLED_DeInit();
-void OLED_Update(button_id_t button);
+void OLED_Update(button_id_t button, bool test_mode);
 
 #endif /* INC_OLED_H_ */

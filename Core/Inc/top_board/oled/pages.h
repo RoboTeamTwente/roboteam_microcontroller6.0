@@ -22,9 +22,9 @@ struct page_struct
     page_struct *parent;
     page_struct *childeren[MAX_CHILDEREN]; 
     int n_of_childeren;
-    //char* icon;
     bool is_menu;
     bool is_test;
+    bool has_variables;
     char line0[MAX_STRING_LENGTH];
     char line1[MAX_STRING_LENGTH];
     char line2[MAX_STRING_LENGTH];
@@ -33,7 +33,8 @@ struct page_struct
 
 void pages_init();
 page_struct* getRootPage();
-
+page_struct* getNotInTestMode();
+int getSelfTestMenuID();
 
 
 #endif /* INC_PAGES_H_ */

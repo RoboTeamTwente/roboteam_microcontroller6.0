@@ -10,6 +10,7 @@ struct page_struct self_test_power_menu;
 struct page_struct self_test_kicker_menu;
 struct page_struct self_test_dribbler_menu;
 struct page_struct buzzer_test;
+struct page_struct not_in_test_mode;
 
 ///////////////////////////////////////////////////////////// Private functions declarations
 
@@ -25,6 +26,7 @@ void pages_init() {
     page_root.parent = NULL;
     page_root.is_menu = false;
     page_root.is_test = false;
+    page_root.has_variables = false;
     
     //MAIN MENU
     main_menu.id = 1;
@@ -33,9 +35,22 @@ void pages_init() {
     main_menu.parent = &page_root;
     main_menu.is_menu = true;
     main_menu.is_test = false;
+    main_menu.has_variables = false;
     add_child_to_parent(&main_menu);
-    
 
+    //REDIRECTS
+    not_in_test_mode.id = 10;
+    strcpy(not_in_test_mode.page_name, "WARNING");
+    not_in_test_mode.n_of_childeren = 0;
+    not_in_test_mode.parent = NULL;
+    not_in_test_mode.is_menu = false;
+    not_in_test_mode.is_test = false;
+    not_in_test_mode.has_variables = false;
+    strcpy(not_in_test_mode.line0, "Robot is not");
+    strcpy(not_in_test_mode.line1, "test-mode. Flip");
+    strcpy(not_in_test_mode.line2, "switch 7 and");
+    strcpy(not_in_test_mode.line3, "reboot the robot");
+    
     //LEVEL 1 MENU'S
     //1 < ID < 10
     self_test_menu.id = 2;
@@ -44,6 +59,7 @@ void pages_init() {
     self_test_menu.n_of_childeren = 0;
     self_test_menu.is_menu = true;
     self_test_menu.is_test = false;
+    self_test_menu.has_variables = false;
     add_child_to_parent(&self_test_menu);
 
     info_menu.id = 3;
@@ -52,6 +68,7 @@ void pages_init() {
     info_menu.n_of_childeren = 0;
     info_menu.is_menu = true;
     info_menu.is_test = false;
+    info_menu.has_variables = false;
     add_child_to_parent(&info_menu);
 
     //LEVEL 2 MENU'S
@@ -63,6 +80,7 @@ void pages_init() {
     self_test_top_menu.n_of_childeren = 0;
     self_test_top_menu.is_menu = true;
     self_test_top_menu.is_test = false;
+    self_test_top_menu.has_variables = false;
     add_child_to_parent(&self_test_top_menu);
 
     self_test_power_menu.id = 22;
@@ -71,6 +89,7 @@ void pages_init() {
     self_test_power_menu.n_of_childeren = 0;
     self_test_power_menu.is_menu = true;
     self_test_power_menu.is_test = false;
+    self_test_power_menu.has_variables = false;
     add_child_to_parent(&self_test_power_menu);
 
     self_test_kicker_menu.id = 23;
@@ -79,6 +98,7 @@ void pages_init() {
     self_test_kicker_menu.n_of_childeren = 0;
     self_test_kicker_menu.is_menu = true;
     self_test_kicker_menu.is_test = false;
+    self_test_kicker_menu.has_variables = false;
     add_child_to_parent(&self_test_kicker_menu);
 
     self_test_dribbler_menu.id = 24;
@@ -87,6 +107,7 @@ void pages_init() {
     self_test_dribbler_menu.n_of_childeren = 0;
     self_test_dribbler_menu.is_menu = true;
     self_test_dribbler_menu.is_test = false;
+    self_test_dribbler_menu.has_variables = false;
     add_child_to_parent(&self_test_dribbler_menu);
 
     //LEVEL 3 MENU'S
@@ -100,6 +121,7 @@ void pages_init() {
     buzzer_test.n_of_childeren = 0;
     buzzer_test.is_menu = false;
     buzzer_test.is_test = true;
+    buzzer_test.has_variables = false;
     strcpy(buzzer_test.line0, "Robot is");
     strcpy(buzzer_test.line1, "Rick Rolling you");
     strcpy(buzzer_test.line2, "Press any button");
@@ -112,6 +134,14 @@ void pages_init() {
 
 page_struct* getRootPage() {
     return &page_root;
+}
+
+page_struct* getNotInTestMode() {
+    return &not_in_test_mode;
+}
+
+int getSelfTestMenuID() {
+    return self_test_menu.id;
 }
 
 ///////////////////////////////////////////////////////////// Private functions
