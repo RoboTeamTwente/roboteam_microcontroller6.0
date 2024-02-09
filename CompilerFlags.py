@@ -13,7 +13,8 @@ Import("env")
 # read settings from platform.ini to also include
 conf = configparser.ConfigParser()
 conf.read("platformio.ini")
-opt = conf.get("env:top_board", "optimization") #TODO use the enviornment which is build
+env_name = "env:" + env.subst("$PIOENV")
+opt = conf.get(env_name, "optimization") #TODO use the enviornment which is build
 
 git_branch_name = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('ascii').strip()
 git_commit_date = subprocess.check_output(['git', 'show', '-s', '--date=format:%d/%m/%Y', '--format=%cd', 'HEAD']).decode('ascii').strip()
@@ -25,45 +26,88 @@ git_string = re.sub('-', '_', git_string)
 git_string = re.sub(r'[^a-zA-Z0-9 /_.]', '', git_string)
 l(git_string)
 
-# compiler settings
-env.Append(
-  CCFLAGS=[
-    f"-D__GIT_STRING__={git_string}",
-    f"-D__GIT_DEVELOPMENT__=\"{[0, 1][git_branch_name == 'main']}\"",
-    opt,
-    # "-std=c11",
-    # "-g3",
-    "-Wall",
-    # "-Wextra",
-    # "-Wconversion",
-    # "-pedantic",
-    "-mcpu=cortex-m7",
-    "-mfloat-abi=hard",
-    "-mfpu=fpv5-sp-d16",
-    "-D ARM_MATH_CM7",
-    "-DARM_MATH_MATRIX_CHECK",
-    "-D __FPU_PRESENT",
-    "-mthumb",
-    "-mthumb-interwork",
-    "-ffunction-sections",
-    "-fdata-sections",
-    "-fmessage-length=0",
-    "-specs=nosys.specs",
-    "-specs=nano.specs",
-    "-DUSE_HAL_DRIVER",
-    "-DSTM32F767xx",
-  ]
+#STMF767 microcontroller
+if (env_name == "env:top_board"): 
+  # compiler settings
+  env.Append(
+    CCFLAGS=[
+      f"-D__GIT_STRING__={git_string}",
+      f"-D__GIT_DEVELOPMENT__=\"{[0, 1][git_branch_name == 'main']}\"",
+      opt,
+      # "-std=c11",
+      # "-g3",
+      "-Wall",
+      # "-Wextra",
+      # "-Wconversion",
+      # "-pedantic",
+      "-mcpu=cortex-m7",
+      "-mfloat-abi=hard",
+      "-mfpu=fpv5-sp-d16",
+      "-D ARM_MATH_CM7",
+      "-DARM_MATH_MATRIX_CHECK",
+      "-D __FPU_PRESENT",
+      "-mthumb",
+      "-mthumb-interwork",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-fmessage-length=0",
+      "-specs=nosys.specs",
+      "-specs=nano.specs",
+      "-DUSE_HAL_DRIVER",
+      "-DSTM32F767xx",
+    ]
+  )
 
-)
+  # linker settings
+  env.Append(
+    LINKFLAGS=[
+      opt,
+      "-mfloat-abi=hard",
+      "-mfpu=fpv5-sp-d16",
+      "-Wl,-u,_printf_float,-u,_scanf_float"
+    ]
+  )
+#STMF303 microcontroller
+else: 
+  # compiler settings
+  env.Append(
+    CCFLAGS=[
+      f"-D__GIT_STRING__={git_string}",
+      f"-D__GIT_DEVELOPMENT__=\"{[0, 1][git_branch_name == 'main']}\"",
+      opt,
+      # "-std=c11",
+      # "-g3",
+      "-Wall",
+      # "-Wextra",
+      # "-Wconversion",
+      # "-pedantic",
+      "-mcpu=cortex-m4",
+      "-mfloat-abi=hard",
+      "-mfpu=fpv4-sp-d16",
+      "-D __FPU_PRESENT",
+      "-D ARM_MATH_CM4",
+      "-DARM_MATH_MATRIX_CHECK",
+      "-mthumb",
+      "-mthumb-interwork",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-fmessage-length=0",
+      "-specs=nosys.specs",
+      "-specs=nano.specs",
+      "-DUSE_HAL_DRIVER",
+      "-DSTM32F303x8",
+    ]
 
-# linker settings
-env.Append(
-  LINKFLAGS=[
-    opt,
-    "-mfloat-abi=hard",
-	  "-mfpu=fpv5-sp-d16",
-    "-Wl,-u,_printf_float,-u,_scanf_float"
-  ]
-)
+  )
+
+  # linker settings
+  env.Append(
+    LINKFLAGS=[
+      opt,
+      "-mfloat-abi=hard",
+      "-mfpu=fpv4-sp-d16",
+      #"-Wl,-u,_printf_float,-u,_scanf_float"
+    ]
+  )
 
 print("\n")
