@@ -5,6 +5,7 @@ static void boot_screen();
 static void clear_screen();
 static void refresh();
 static void static_page();
+static void scrollable_page();
 
 ///////////////////////////////////////////////////// VARIABLES
 static bool oled_initialized = false;
@@ -101,6 +102,8 @@ static void refresh(){
 
         if (current_page->n_of_childeren <= 3) {
             static_page();
+        } else {
+            scrollable_page();
         }
     }
 
@@ -123,7 +126,42 @@ static void static_page() {
     SSD1306_Puts("Back", &Font_7x10, 1);
 
     //selected item background
-    SSD1306_DrawBitmap(0, 18+11*item_selector, bitmap_item_sel_outline , 128, 12, 1); 
-    
+    SSD1306_DrawBitmap(0, 18+11*item_selector, bitmap_item_sel_outline_12, 128, 12, 1); 
+}
+
+static void scrollable_page() {
+    int back_index = current_page->n_of_childeren;
+    //first item
+    SSD1306_GotoXY (5,20);
+    char* line0 = "Back";
+    if (item_selector > 0) {
+        line0 = current_page->childeren[item_selector-1]->page_name;
+    }
+    SSD1306_Puts(line0, &Font_7x10, 1);
+
+    //second item
+    SSD1306_GotoXY (5,31);
+    SSD1306_DrawBitmap(0, 29, bitmap_item_sel_outline_13, 128, 13, 1);
+    char* line1 = "Back";
+    if (item_selector != back_index) {
+        line1 = current_page->childeren[item_selector]->page_name;
+    }
+    SSD1306_Puts(line1, &Font_7x10, 1);
+
+    //third item
+    SSD1306_GotoXY (5,42);
+    char* line2 = "Back";
+    if (item_selector + 1 != back_index) {
+        line2 = current_page->childeren[(item_selector + 1) % back_index]->page_name;
+    }
+    SSD1306_Puts(line2, &Font_7x10, 1);
+
+    //fourth item
+    SSD1306_GotoXY (5,53);
+    char* line3 = "Back";
+    if (item_selector + 2 != back_index) {
+        line3 = current_page->childeren[(item_selector + 2) % back_index]->page_name;
+    }
+    SSD1306_Puts(line3, &Font_7x10, 1);
 }
 

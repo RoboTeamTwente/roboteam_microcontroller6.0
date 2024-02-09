@@ -7,6 +7,8 @@ struct page_struct self_test_menu;
 struct page_struct info_menu;
 struct page_struct self_test_top_menu;
 struct page_struct self_test_power_menu;
+struct page_struct self_test_kicker_menu;
+struct page_struct self_test_dribbler_menu;
 struct page_struct buzzer_test;
 
 ///////////////////////////////////////////////////////////// Private functions declarations
@@ -70,6 +72,22 @@ void pages_init() {
     self_test_power_menu.is_menu = true;
     self_test_power_menu.is_test = false;
     add_child_to_parent(&self_test_power_menu);
+
+    self_test_kicker_menu.id = 23;
+    strcpy(self_test_kicker_menu.page_name, "Kicker board");
+    self_test_kicker_menu.parent = &self_test_menu;
+    self_test_kicker_menu.n_of_childeren = 0;
+    self_test_kicker_menu.is_menu = true;
+    self_test_kicker_menu.is_test = false;
+    add_child_to_parent(&self_test_kicker_menu);
+
+    self_test_dribbler_menu.id = 24;
+    strcpy(self_test_dribbler_menu.page_name, "Dribbler board");
+    self_test_dribbler_menu.parent = &self_test_menu;
+    self_test_dribbler_menu.n_of_childeren = 0;
+    self_test_dribbler_menu.is_menu = true;
+    self_test_dribbler_menu.is_test = false;
+    add_child_to_parent(&self_test_dribbler_menu);
 
     //LEVEL 3 MENU'S
     

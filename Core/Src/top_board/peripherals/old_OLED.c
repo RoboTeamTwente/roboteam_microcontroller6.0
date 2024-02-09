@@ -580,7 +580,7 @@ static void mainMenu(char itemNames[][MAX_MENU_NAME_LENGTH], const unsigned char
 	SSD1306_Puts (itemNames[item_sel_next], &Font_7x10, 1); //next item
 	SSD1306_DrawBitmap(4, 46, bitmaps[item_sel_next], 16, 16, 1);
 
-	SSD1306_DrawBitmap(0, 22, bitmap_item_sel_outline , 128, 21, 1); //selected item background
+	SSD1306_DrawBitmap(0, 22, bitmap_item_sel_outline_12 , 128, 21, 1); //selected item background
 
 	SSD1306_DrawBitmap(115, 0, bitmap_scrollbar_background , 8, 64, 1); //scrollbar background
 	SSD1306_DrawFilledRectangle(119, 64/length*(*scrollwheel), 3, 64/length, 1); //scrollbar
