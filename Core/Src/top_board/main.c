@@ -19,12 +19,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
-#include "CanDriver.h"
-#include "buzzer.h"
-
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "robot.h"
 
 /* USER CODE END Includes */
 
@@ -135,9 +133,6 @@ int main(void)
   /* Enable I-Cache---------------------------------------------------------*/
   SCB_EnableICache();
 
-  /* Enable D-Cache---------------------------------------------------------*/
-  SCB_EnableDCache();
-
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -183,17 +178,18 @@ int main(void)
   MX_CAN1_Init();
   MX_ADC1_Init();
   MX_UART8_Init();
-  buzzer_Init();
   /* USER CODE BEGIN 2 */
 
+  init();
+
   /* USER CODE END 2 */
-  HAL_Delay(8000);
-  send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    loop();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
