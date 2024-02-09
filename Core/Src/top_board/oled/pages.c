@@ -2,6 +2,12 @@
 
 ///////////////////////////////////////////////////////////// Variables
 struct page_struct page_root;
+struct page_struct main_menu;
+struct page_struct self_test_menu;
+struct page_struct info_menu;
+struct page_struct self_test_top_menu;
+struct page_struct self_test_power_menu;
+struct page_struct buzzer_test;
 
 ///////////////////////////////////////////////////////////// Private functions declarations
 
@@ -19,7 +25,6 @@ void pages_init() {
     page_root.is_test = false;
     
     //MAIN MENU
-    struct page_struct main_menu;
     main_menu.id = 1;
     strcpy(main_menu.page_name, "Main menu");
     main_menu.n_of_childeren = 0;
@@ -31,7 +36,6 @@ void pages_init() {
 
     //LEVEL 1 MENU'S
     //1 < ID < 10
-    struct page_struct self_test_menu;
     self_test_menu.id = 2;
     strcpy(self_test_menu.page_name, "Self Tests");
     self_test_menu.parent = &main_menu;   
@@ -40,7 +44,6 @@ void pages_init() {
     self_test_menu.is_test = false;
     add_child_to_parent(&self_test_menu);
 
-    struct page_struct info_menu;
     info_menu.id = 3;
     strcpy(info_menu.page_name, "Info Menu");
     info_menu.parent = &main_menu;
@@ -52,7 +55,6 @@ void pages_init() {
     //LEVEL 2 MENU'S
 
     //LEVEL 2 MENU'S FOR SELF TESTS
-    struct page_struct self_test_top_menu;
     self_test_top_menu.id = 21;
     strcpy(self_test_top_menu.page_name, "Top board");
     self_test_top_menu.parent = &self_test_menu;
@@ -61,7 +63,6 @@ void pages_init() {
     self_test_top_menu.is_test = false;
     add_child_to_parent(&self_test_top_menu);
 
-    struct page_struct self_test_power_menu;
     self_test_power_menu.id = 22;
     strcpy(self_test_power_menu.page_name, "Power board");
     self_test_power_menu.parent = &self_test_menu;
@@ -75,7 +76,6 @@ void pages_init() {
     //LEVEL 3 MENU'S TOP BOARD SELF TESTS
     
     //BUZZER TEST
-    struct page_struct buzzer_test;
     buzzer_test.id = 211;
     strcpy(buzzer_test.page_name, "Buzzer test");
     buzzer_test.parent = &self_test_top_menu;
