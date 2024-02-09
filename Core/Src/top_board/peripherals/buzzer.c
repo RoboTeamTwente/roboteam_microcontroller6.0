@@ -70,8 +70,8 @@ void buzzer_Play(song_struct* tone) {
 	
 	song = tone;
 
-	uint16_t tone_period = (tone->period == 0) ? 0xFFFF : ((1e6 / tone->period)-1);
-	buzzer_Duration = (0.9e6F / tone_period) * (tone->duration);
+	uint16_t tone_period = (tone->period == 0) ? 0xFFFF : ((1e6f / tone->period)-1);
+	buzzer_Duration = (0.9e6F / tone_period) * (tone->duration); 
 
 	__HAL_TIM_SET_COUNTER(PWM_Buzzer.TIM, 0);
 	buzzer_SetPWM_Period(tone_period);

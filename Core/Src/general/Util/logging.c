@@ -1,5 +1,6 @@
-#include "robot.h"
+//#include "robot.h"
 #include "logging.h"
+#include "main.h"
 #include "REM_BaseTypes.h"
 #include "REM_Log.h"
 #include "peripheral_util.h"
@@ -11,7 +12,7 @@
 #include <stdio.h>
 
 // Buffer used by vsprintf. Static to make it private to this file
-static char printf_buffer[1024];
+static char printf_buffer[50];
 
 typedef struct _MessageContainer {
     uint8_t length;

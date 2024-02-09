@@ -214,10 +214,10 @@ bool updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	time -= 1000;
 
 	// Split up testing window into blocks of two seconds
-	float period_fraction = (time%2000)/2000.;
+	float period_fraction = (time%2000)/2000.f;
 
 	// Rotate around, slowly
-	rc->angularVelocity = 6 * sin(period_fraction * 2 * M_PI);
+	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
 	// // Turn on dribbler
 	// rc->dribbler = period_fraction;
 	// // Kick a little every block
@@ -281,6 +281,8 @@ void init(void){
 	LOG_printf("[init:"STRINGIZE(__LINE__)"] REM_LOCAL_VERSION: %d\n", REM_LOCAL_VERSION);
 	LOG_printf("[init:"STRINGIZE(__LINE__)"] ROBOT_ID: %d\n", ROBOT_ID);
 	LOG_sendAll();
+
+	
 
 	/* Initialize SD card */
 	if(SDCard_Init()){

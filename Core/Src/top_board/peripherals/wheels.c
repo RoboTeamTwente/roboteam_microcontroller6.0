@@ -174,7 +174,7 @@ void wheels_Update() {
 		float angular_velocity_error = wheels_commanded_speeds[motor] - measured_speed;
 	
 		// If the error is very small, ignore it (why is this here?)
-		if (fabs(angular_velocity_error) < 0.1) {
+		if (fabs(angular_velocity_error) < (double) 0.1f) {
 			angular_velocity_error = 0.0f;
 			wheelsK[motor].I = 0;
 		}
@@ -182,7 +182,7 @@ void wheels_Update() {
 		float feed_forward = 0.0f;
 		float threshold = 0.05f;
 
-		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
+		if (fabs(wheels_commanded_speeds[motor]) < (double) threshold) {
     		feed_forward = 0;
 		} 
 		else if (wheels_commanded_speeds[motor] > 0) {
