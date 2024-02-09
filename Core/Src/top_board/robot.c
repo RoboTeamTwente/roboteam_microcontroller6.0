@@ -214,10 +214,10 @@ bool updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	time -= 1000;
 
 	// Split up testing window into blocks of two seconds
-	float period_fraction = (time%2000)/2000.;
+	float period_fraction = (time%2000)/2000.f;
 
 	// Rotate around, slowly
-	rc->angularVelocity = 6 * sin(period_fraction * 2 * M_PI);
+	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
 	// // Turn on dribbler
 	// rc->dribbler = period_fraction;
 	// // Kick a little every block

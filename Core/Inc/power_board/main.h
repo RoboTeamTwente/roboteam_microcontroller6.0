@@ -28,10 +28,12 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
+#include <stdbool.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+extern bool kill_flag;
+extern bool voltage_request;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

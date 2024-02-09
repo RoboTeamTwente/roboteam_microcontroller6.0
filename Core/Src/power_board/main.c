@@ -43,12 +43,12 @@
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
-
 I2C_HandleTypeDef hi2c1;
-
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_tx;
 
+bool kill_flag = false;
+bool voltage_request = false;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -104,14 +104,19 @@ int main(void)
   MX_USART1_UART_Init();
 
   /* USER CODE END 2 */
-
+  
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
     if (CAN_to_process){
-			process_Message(&MailBox_one);
+		  if (!MailBox_one.empty)
+			  process_Message(&MailBox_one);
+		  if (!MailBox_two.empty)
+			  process_Message(&MailBox_two);
+		  if (!MailBox_three.empty)
+			  process_Message(&MailBox_three);
 		  CAN_to_process = false;
 	  }
     /* USER CODE BEGIN 3 */

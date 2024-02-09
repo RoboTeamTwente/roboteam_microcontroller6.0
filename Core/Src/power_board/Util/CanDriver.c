@@ -310,27 +310,21 @@ void kill(){
  */
 void process_Message(mailbox_buffer *to_Process){
 
-	bool kill_state;
-	bool voltage_request;
-	uint8_t recieved_version;
 
-	switch(to_Process->message_id){
-		case KILL_REQUEST_VOLTAGE_MESSAGE: ;
-			bool kill_state = get_kill_state(to_Process->data_Frame[0]);
-			bool voltage_request = get_request_power_state(to_Process->data_Frame[0]);
-			sprintf(str,"Kill State :: %d || Voltage request :: %d", kill_state, voltage_request);
-			break;
-		case ARE_YOU_ALIVE: ;
-			uint8_t recieved_version = get_MCP_version(to_Process->data_Frame);
-			if (recieved_version == MCP_VERSION)
-				LOG("MCP version are equal");
-			break;
-		default:
-			//Throw an error
-			break;
+	if (to_Process->message_id == KILL_REQUEST_VOLTAGE_MESSAGE)
+	{
+		kill_flag = get_kill_state(to_Process->data_Frame[0]);
+		voltage_request = get_request_power_state(to_Process->data_Frame[0]);
 	}
-
-	to_Process->empty = true; // reset the mailbox to the empty state
+	else if (to_Process->message_id == ARE_YOU_ALIVE)
+	{
+		if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
+		{
+			// Do something
+		}
+	}
+	
+	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;
 
