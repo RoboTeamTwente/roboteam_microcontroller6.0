@@ -30,6 +30,7 @@ REM_RobotPIDGains robotPIDGains = {0};
 REM_RobotSetPIDGains robotSetPIDGains = {0};
 REM_Log robotLog = {0};
 REM_LogPayload robotLogPayload = {0};
+REM_SX1280Filler sx1280filler = {0};
 
 REM_RobotCommand activeRobotCommand = {0};
 float activeStateReference[3];
@@ -69,7 +70,6 @@ uint32_t heartbeat_100ms = 0;
 uint32_t heartbeat_1000ms = 0;
 
 /* SX data */
-// TODO: Maybe move all configs to its own file? (basestation_config.c/h???)
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
 static Wireless SX1280 = {0};
 static Wireless* SX = &SX1280;
@@ -118,7 +118,10 @@ void Wireless_Readpacket_Cplt(void){
 		flag_send_PID_gains = false;
 	}
 
-	// TODO insert REM_SX1280Filler packet if total_packet_length < 6. Fine for now since feedback is already more than 6 bytes
+	if (txPacket.payloadLength < 6) {
+		encodeREM_SX1280Filler( (REM_SX1280FillerPayload*) (txPacket.message + txPacket.payloadLength), &sx1280filler);
+	}
+
 	WritePacket_DMA(SX, &txPacket, &Wireless_Writepacket_Cplt);
 }
 
@@ -263,18 +266,20 @@ void init(void){
 		IWDG_Init(iwdg, 7500);
 	}
 	
-	
+	/* Init outgoing packet headers*/
 	initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
 	initPacketHeader((REM_Packet*) &robotFeedback, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_FEEDBACK);
 	initPacketHeader((REM_Packet*) &robotStateInfo, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_STATE_INFO);
  	initPacketHeader((REM_Packet*) &robotPIDGains, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_PIDGAINS);
 	initPacketHeader((REM_Packet*) &robotLog, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_LOG);
-	}
+	sx1280filler.header = REM_PACKET_INDEX_REM_SX1280FILLER;
+	sx1280filler.remVersion = REM_LOCAL_VERSION;
+	sx1280filler.fillerBits = 0;
+}
 
 	set_Pin(LED0_pin, 1);
 
 { // ====== USER FEEDBACK (LOGGING, SDCARD, BUZZER, GIT BRANCH)
-	//TODO double check
 	LOG_init();
 	LOG("[init:"STRINGIZE(__LINE__)"] Last programmed on " __DATE__ "\n");
 	LOG("[init:"STRINGIZE(__LINE__)"] GIT: " STRINGIZE(__GIT_STRING__) "\n");
@@ -302,13 +307,8 @@ void init(void){
 	}
 	#endif
 
-	// Sometimes the UART pin for the programmer is floating, causing the robot to not boot. 
-	// As a temporary fix one can disable the uart initialization with the FT_2 switch on the robot.
-	// TODO: This will need a proper fix later on.
-	if (ENABLE_UART_PC) {
-		/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-		REM_UARTinit(UART_PC);
-	}
+	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
+	REM_UARTinit(UART_PC);
 }
 	
 	set_Pin(LED1_pin, 1);
@@ -850,7 +850,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		// 	robotFeedback.rho = sqrt(vu*vu + vv*vv);
 		// 	robotFeedback.angle = localState[yaw];
 		// 	robotFeedback.theta = atan2(vu, vv);
-		// 	robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
+		// 	robotFeedback.wheelBraking = wheels_GetWheelsBraking();
 		// 	robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
 		// 	robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
 		// }
