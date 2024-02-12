@@ -167,8 +167,8 @@ void wheels_Update() {
 	for (motor_id_t motor = RF; motor <= RB; motor++) {
 		int16_t	encoder_value = encoder_GetCounter(motor);
 		encoder_ResetCounter(motor);
-		// TODO Convert encoder values to rad/s
-		wheels_measured_speeds[motor] = encoder_value[motor];
+		// TODO Convert encoder values to rad/s - NEEDS TO ADD FACTOR
+		wheels_measured_speeds[motor] = encoder_value;
 
 		// Calculate the velocity error
 		float angular_velocity_error = wheels_commanded_speeds[motor] - wheels_measured_speeds[motor]; 		
@@ -322,7 +322,7 @@ void encoder_Init(){
   * @param id Motor id
   * @retval Returns an int_16_t
   */
-int16_t encoder_GetCounter(motor_id_t id){ // TODO: Check if it return an array or one variable -> needs to be used later on for Control
+int16_t encoder_GetCounter(motor_id_t id){
 	int16_t rotationsint = 0;
 
 	switch(id){
