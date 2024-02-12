@@ -7,7 +7,7 @@
 #include <string.h>
 #include "logging.h"
 
-#define MAX_CHILDEREN 8
+#define MAX_CHILDEREN 9
 #define MAX_VAR_NAME_LENGTH 9
 #define MAX_MENU_NAME_LENGTH 15
 #define MAX_SUBMENU_NAME_LENGTH 23

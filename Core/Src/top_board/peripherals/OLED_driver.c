@@ -155,6 +155,7 @@ static void static_page() {
 }
 
 static void scrollable_page() {
+    //TODO add scrollbar
     int back_index = current_page->n_of_childeren;
     //first item
     SSD1306_GotoXY (5,20);
