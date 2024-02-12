@@ -2,6 +2,7 @@
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 static void onButtonPressMenu(button_id_t button);
+static void onButtonPressSelfTest(button_id_t button);
 static void boot_screen();
 static void clear_screen();
 static void refresh();
@@ -22,7 +23,9 @@ static int id_root_page;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
-
+/**
+ * @brief initialize the OLED screen
+*/
 void OLED_Init() {
     clear_screen();
     boot_screen();
@@ -35,11 +38,18 @@ void OLED_Init() {
     id_root_page = current_page->id;
 }
 
+/**
+ * @brief deinitialize the OLED screen
+*/
 void OLED_DeInit() {
     oled_initialized = false;
 }
 
+/**
+ * @brief update what is displayed on the OLED screen
+*/
 void OLED_Update(button_id_t button, bool test_mode) {
+    //TODO maybe do something else on button none? like refreshing variable data
     if(!oled_initialized || button == BUTTON_NONE) {
         return;
     }
@@ -49,6 +59,8 @@ void OLED_Update(button_id_t button, bool test_mode) {
         item_selector = 0;
     } else if (current_page->is_menu) {
         onButtonPressMenu(button);
+    } else if (current_page->is_test) {
+        onButtonPressSelfTest(button);
     }
 
     /* Prevent user from going into test menu if robot not in test mode*/
@@ -67,6 +79,9 @@ void OLED_Update(button_id_t button, bool test_mode) {
 
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
+/**
+ * @brief actions after button press for menu page
+*/
 static void onButtonPressMenu(button_id_t button) {
     switch(button){
         case BUTTON_UP:
@@ -93,6 +108,22 @@ static void onButtonPressMenu(button_id_t button) {
             break;
         default:
             break;
+    }
+}
+
+/**
+ * @brief actions after button press for test page
+ * If it has a child and OK is pressed, then go to the next page
+ * Otherwise return to the menu where test was called from
+*/
+static void onButtonPressSelfTest(button_id_t button) {
+    if (current_page->n_of_childeren == 0 || button != BUTTON_OK) {
+        //move up until back in a menu
+        while(!current_page->is_menu) {
+            current_page = current_page->parent;
+        }
+    } else {
+        current_page = current_page->childeren[0];
     }
 }
 
@@ -142,6 +173,9 @@ static void refresh(){
     SSD1306_UpdateScreen(); // update screen
 }
 
+/**
+ * @brief display up to 4 menu items (including back item)
+*/
 static void static_page() {
     //fill menu
     SSD1306_GotoXY (5,20);
@@ -161,6 +195,9 @@ static void static_page() {
     SSD1306_DrawBitmap(0, 18+11*item_selector, bitmap_item_sel_outline_12, 128, 12, 1); 
 }
 
+/**
+ * @brief display menu with 4+ items 
+*/
 static void scrollable_page() {
     //TODO add scrollbar
     int back_index = current_page->n_of_childeren;
@@ -198,6 +235,9 @@ static void scrollable_page() {
     SSD1306_Puts(line3, &Font_7x10, 1);
 }
 
+/**
+ * @brief move to the next or previous menu which shares the same parent as the current menu
+*/
 static void menu_move_sideways(int direction) {
     if (current_page->parent == NULL) {
         return;
@@ -220,6 +260,9 @@ static void menu_move_sideways(int direction) {
     current_page = parent->childeren[(index + parent->n_of_childeren + direction) % parent->n_of_childeren];
 }
 
+/**
+ * @brief Display 4 hard coded lines of text
+*/
 static void display_text() {
     SSD1306_GotoXY (5,20);
     SSD1306_Puts(current_page->line0, &Font_7x10, 1);
@@ -231,6 +274,9 @@ static void display_text() {
     SSD1306_Puts(current_page->line3, &Font_7x10, 1);
 }
 
+/**
+ * @brief display exception if a menu has been accessed that has no children
+*/
 static void menuHasNoChildrenException() {
     clear_screen();
     page_struct* page = current_page;
