@@ -244,7 +244,13 @@ void init(void){
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
-	Motor_StatusTypeDef all_wheels_initialized = wheels_Init();
+	int wheels_init_attemps = 0;
+	Motor_StatusTypeDef all_wheels_initialized = MOTOR_NORESPONSE;
+	while (all_wheels_initialized != MOTOR_OK &&wheels_init_attemps < 3) {
+		all_wheels_initialized = wheels_Init();
+		wheels_init_attemps++;
+		HAL_Delay(10);
+	}
 	encoder_Init();
 
 { // ====== WATCHDOG TIMER, COMMUNICATION BUFFERS ON TOPBOARD, BATTERY, ROBOT SWITCHES, OUTGOING PACKET HEADERS
