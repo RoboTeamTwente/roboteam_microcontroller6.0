@@ -130,6 +130,7 @@ Motor_StatusTypeDef wheels_SetSpeed_PWM(motor_id_t id, float value){
 
 /**
  * @brief Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
+ * This function is the same as wheels_SetSpeeds from Microcontroller 5.0!!!
  * 
  * @param speeds float[4]{RF, LF, LB, RB} commanded wheels speeds, in rad/s. These values are stored in the file-local
  * variable 'wheels_commanded_speeds'. This variable will later be used in wheels_Update() to control the wheels.
