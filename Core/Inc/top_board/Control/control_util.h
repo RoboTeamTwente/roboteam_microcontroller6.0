@@ -11,6 +11,69 @@
 #define TIME_DIFF 0.01F 		// time difference due to 100Hz frequency
 #define WIRELESS_RX_COUNT 4000  // count after which wireless should go to timeout after last packet. Multiply with period base (62.5 us) to get to the time in seconds.
 
+// Robot
+#define rad_robot 0.0804F	// robot radius (m) (from center to wheel contact point)
+#define rad_wheel 0.0274F 	// wheel radius (m)
+
+#define FRONT_ANGLE 45		// angle of front wheels (deg)
+#define BACK_ANGLE 45		// angle of back wheels (deg)
+#define cosFront cosf(FRONT_ANGLE * M_PI/180)
+#define sinFront sinf(FRONT_ANGLE * M_PI/180)
+#define cosBack cosf(BACK_ANGLE * M_PI/180)
+#define sinBack sinf(BACK_ANGLE * M_PI/180)
+
+// Wheels
+///////////// CHECK AGAIN !
+#define PWM_CUTOFF 200.0F 		// arbitrary threshold to avoid motor shutdown /// where does that number come from?
+#define WHEEL_GEAR_RATIO 1.0F 	// gear ratio between motor and wheel
+#define PWM_LIMIT MAX_PWM 		// should be equal to MAX_PWM by default
+#define MAX_VOLTAGE 24.0	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
+float SPEED_CONSTANT; 	
+#define SPEED_CONSTANT_50W 291.0 //[(rpm/V] see datasheet ////// unit is rpm/V -> not rad/s/V /// check again 
+#define WHEEL_PULSES_PER_ROTATION (float)4*2048 // number of pulses of the encoder per rotation of the motor. New encoder: ENX 32 MILE // should we delete the multiplication by 4?
+
+/// To check !!!
+float OMEGAtoPWM; // conversion factor from wheel speed [rad/s] to required PWM on the motor
+#define WHEEL_ENCODER_TO_OMEGA (float)2*M_PI/(TIME_DIFF*WHEEL_GEAR_RATIO*WHEEL_PULSES_PER_ROTATION) // conversion factor from number of encoder pulses to wheel speed [rad/s]
+
+// Control 
+// To check !!!
+#define YAW_MARGIN (0.5F/180.0F)*(float)M_PI 	// margin at which the I-value of the PID is reset to 0
+float WHEEL_REF_LIMIT; 							// [rad/s] Limit the maximum wheel reference to leave room for the wheels PID
+#define WHEEL_REF_LIMIT_PWM 2200 				// [pwm] /// where does that come from??
+
+///////////////////////////////////////////////////// STRUCTS
+
+/*
+* @brief The axis on which a robot is being controlled.
+* 
+* @note The x, y and u, v velocities can technically be used interchangeably. 
+*	However, in order to stick to the conventions one should use x and y when
+*   they refer to the global frame and u and v for the local frame.
+*/
+typedef enum {
+	vel_x = 0,		// The global velocity in the sideways direction
+	vel_y = 1,		// The global velocity in the forward/backward direction
+	vel_w = 2,		// The angular velocity
+	vel_u = 0,      // The local velocity in the sideways direction
+	vel_v = 1,      // The local velocity in the forward/backward direction
+	yaw = 3,		// The angle
+}robot_axes;
+
+typedef enum {
+	wheels_RF,	// The right front wheel
+	wheels_LF,	// The left front wheel
+	wheels_LB,	// The left back wheel
+	wheels_RB,	// The right back wheel
+}wheel_names;
+
+typedef enum {
+	off,		// The PID controller is inactive
+	setup,		// Not used at this moment
+	on,			// The PID controller is active
+	turning,	// Not used at this moment
+	idle		// Not used at this moment
+}PID_states;// keeps track of the state of the system
 
 struct PIDstruct{
 	float kP;			// The gain of the proportional action 
@@ -27,5 +90,45 @@ struct PIDstruct{
 
 typedef struct PIDstruct PIDvariables;
 
-#endif /* UTILS_CONTROL_UTIL_H_ */
+///////////////////////////////////////////////////// FUNCTIONS
+/**
+ * Initializes motor wattage dependent constants
+ */
+void control_util_Init();
 
+/**
+ * Initializes the PID values.
+ * 
+ * Loads the constants into the struct and sets up the default PID parameters.
+ */
+void initPID(PIDvariables* PID, float kP, float kI, float kD);
+
+//clamps the input
+//static float clamp(float input, float min, float max){
+//	if (input<min){
+//		return min;
+//	} else if (input>max) {
+//		return max;
+//	} else {
+//		return input;
+//	}
+//}
+
+//limits the change in PID value
+//static float ramp(float new_PID, float ramp, float prev_PID){
+//	if (new_PID-prev_PID>ramp){
+//		return (prev_PID+ramp);
+//	} else if (new_PID-prev_PID<-ramp){
+//		return (prev_PID-ramp);
+//	} else {
+//		return new_PID;
+//	}
+//}
+
+//PID control, inline to not have multiple implementation error
+float PID(float err, PIDvariables* K);
+
+//Scales the angle to the range Pi to -Pi in radians
+float constrainAngle(float x);
+
+#endif /* UTILS_CONTROL_UTIL_H_ */
