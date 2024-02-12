@@ -49,6 +49,8 @@ DMA_HandleTypeDef hdma_usart1_tx;
 
 bool kill_flag = false;
 bool voltage_request = false;
+uint64_t TxMailbox[0];  // Declaration of an array used in CAN
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -112,11 +114,11 @@ int main(void)
     /* USER CODE END WHILE */
     if (CAN_to_process){
 		  if (!MailBox_one.empty)
-			  process_Message(&MailBox_one);
+			  CAN_Process_Message(&MailBox_one);
 		  if (!MailBox_two.empty)
-			  process_Message(&MailBox_two);
+			  CAN_Process_Message(&MailBox_two);
 		  if (!MailBox_three.empty)
-			  process_Message(&MailBox_three);
+			  CAN_Process_Message(&MailBox_three);
 		  CAN_to_process = false;
 	  }
     /* USER CODE BEGIN 3 */
@@ -131,6 +133,67 @@ uint8_t robot_get_ID(){
 uint8_t robot_get_Channel(){
   return 0;
 }
+
+/*
+ * Generate the message we want to transmit based on
+ * ID arguments passed
+ */
+void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
+
+  uint8_t payload[8];
+  memset(payload, 0, sizeof(payload));
+	CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
+
+	if (reciever_ID == POWER_ID)
+	{
+		if (sending_message_ID == VOLTAGE_RESPONSE)
+		{
+			set_voltage_response_header(&CAN_TxHeader);
+			uint16_t reading = 0x0F0F;
+			set_voltage_response(reading, &payload);
+		}
+		else if (sending_message_ID == IM_ALIVE_VOLTAGE)
+		{
+			set_powerBoard_im_alive_header(&CAN_TxHeader);
+			set_MCP_version(payload);
+			set_powerBoard_sensor_state(payload, true);
+		}
+	}
+	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
+		CAN_error_LOG(&CAN_TxHeader);
+
+	return;
+}
+
+/*
+ * The header is 13 bits
+ * The first two bits are for the IDE and RTR
+ * After that, the first 7 bits is the message ID
+ * While the left most 4 bits is used as the ID of the receiver
+ * The pay load will be a list of length 8 with 8 bit numbers, for a total of 64 bits or 8 bytes
+ */
+void CAN_Process_Message(mailbox_buffer *to_Process){
+
+	if (to_Process->message_id == KILL_REQUEST_VOLTAGE_MESSAGE)
+	{
+		kill_flag = get_kill_state(to_Process->data_Frame[0]);
+		voltage_request = get_request_power_state(to_Process->data_Frame[0]);
+	}
+	else if (to_Process->message_id == ARE_YOU_ALIVE)
+	{
+		if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
+		{
+			// Do something
+		}
+	}
+	
+	to_Process->empty = true;
+	*to_Process->data_Frame  = 0;
+	to_Process->message_id = 0;
+
+	return;
+}
+ 
 
 /**
   * @brief System Clock Configuration
