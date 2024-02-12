@@ -53,13 +53,12 @@ void pages_init() {
     strcpy(not_in_test_mode.line3, "reboot the robot");
 
     error_no_children.id = 30;
-    strcpy(error_no_children.page_name, "404 Not found");
+    strcpy(error_no_children.page_name, "Exception");
     error_no_children.n_of_childeren = 0;
     error_no_children.parent = NULL;
     error_no_children.is_menu = false;
     error_no_children.is_test = false;
-    error_no_children.has_variables = false;
-
+    error_no_children.has_variables = true;
     
     //LEVEL 1 MENU'S
     //1 < ID < 10
@@ -152,6 +151,10 @@ page_struct* getNotInTestMode() {
 
 int getSelfTestMenuID() {
     return self_test_menu.id;
+}
+
+page_struct* getErrorNoChildren() {
+    return &error_no_children;
 }
 
 ///////////////////////////////////////////////////////////// Private functions

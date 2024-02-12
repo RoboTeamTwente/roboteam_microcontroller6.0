@@ -31,10 +31,12 @@ struct page_struct
     char line3[MAX_STRING_LENGTH];
 };
 
+/* Public functions */
 void pages_init();
 page_struct* getRootPage();
 page_struct* getNotInTestMode();
 int getSelfTestMenuID();
+page_struct* getErrorNoChildren();
 
 
 #endif /* INC_PAGES_H_ */
