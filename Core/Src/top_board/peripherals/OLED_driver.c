@@ -231,7 +231,7 @@ static void display_text() {
     SSD1306_Puts(current_page->line3, &Font_7x10, 1);
 }
 
-void menuHasNoChildrenException() {
+static void menuHasNoChildrenException() {
     clear_screen();
     page_struct* page = current_page;
     current_page = getErrorNoChildren();
@@ -242,11 +242,11 @@ void menuHasNoChildrenException() {
     sprintf(tempstr, "%s", page->page_name);
     SSD1306_Puts(tempstr, &Font_7x10, 1);
     SSD1306_GotoXY (5,31);
-    SSD1306_Puts("has no children", &Font_7x10, 1);
+    SSD1306_Puts("has no menu items", &Font_7x10, 1);
     SSD1306_GotoXY (5,42);
-    SSD1306_Puts("press any button to", &Font_7x10, 1);
+    SSD1306_Puts("press any button", &Font_7x10, 1);
     SSD1306_GotoXY (5,53);
-    SSD1306_Puts("return to main menu", &Font_7x10, 1);
+    SSD1306_Puts("for main menu", &Font_7x10, 1);
     SSD1306_UpdateScreen();
 }
 
