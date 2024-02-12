@@ -121,7 +121,7 @@ void wheels_SetPWM(motor_id_t id, int32_t value){
   * @note value is between -1 and +1, positive is CW and negative is CCW
   * @retval response of the motor driver
   */
-Motor_StatusTypeDef wheels_SetSpeed(motor_id_t id, float value){
+Motor_StatusTypeDef wheels_SetSpeed_PWM(motor_id_t id, float value){
 	if(value > 1 || value < -1) return MOTOR_ERROR;
 	wheels_SetPWM(id, (int32_t) (value * MAX_PWM));
 	return MOTOR_OK;
@@ -195,7 +195,7 @@ void wheels_Update() {
 		// TODO Add PID to commanded speed and convert to [-1, 1] range + ADD FEEDFOWARD !
 		int32_t wheel_speed = 0;
 
-		wheels_SetSpeed(motor, wheel_speed);
+		wheels_SetSpeed_PWM(motor, wheel_speed);
 	}
 }
 
@@ -264,7 +264,7 @@ void wheels_Unbrake(){
  */
 void wheels_Stop() {
 	for (int motor = 0; motor < 4; motor++){
-		wheels_SetSpeed(motor, 0);
+		wheels_SetSpeed_PWM(motor, 0);
 		wheels_commanded_speeds[0] = 0;
 	}
 }

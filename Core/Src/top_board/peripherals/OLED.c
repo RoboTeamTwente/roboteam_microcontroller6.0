@@ -446,7 +446,7 @@ static void motorSelfTest(){
 		working[motor]++;//increment if passes test
 
 		encoder_ResetCounter(motor);
-		wheels_SetSpeed(motor, 0.1);
+		wheels_SetSpeed_PWM(motor, 0.1);
 
 		for(int i = 0; i < 50; i++){ // max 0.5 sec long
 			if(encoder_GetCounter(motor) > 100){
@@ -455,14 +455,14 @@ static void motorSelfTest(){
 			}
 			HAL_Delay(10);
 		}
-		wheels_SetSpeed(motor, 0);
+		wheels_SetSpeed_PWM(motor, 0);
 
 		if(working[motor] != 2) continue;//check if previous test passed
 
 		HAL_Delay(50);
 
 		encoder_ResetCounter(motor);
-		wheels_SetSpeed(motor, -0.1);
+		wheels_SetSpeed_PWM(motor, -0.1);
 
 		for(int i = 0; i < 50; i++){ // max .5 sec long
 			if(encoder_GetCounter(motor) < -100){
@@ -471,7 +471,7 @@ static void motorSelfTest(){
 			}
 			HAL_Delay(10);
 		}
-		wheels_SetSpeed(motor, 0);
+		wheels_SetSpeed_PWM(motor, 0);
 	}
 
 	wheels_Brake();
