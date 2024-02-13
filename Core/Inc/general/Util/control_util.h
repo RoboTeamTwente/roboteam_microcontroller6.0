@@ -25,10 +25,10 @@
 // Wheels
 #define PWM_CUTOFF 200.0F 		// arbitrary threshold to avoid motor shutdown /// where does that number come from?
 #define WHEEL_GEAR_RATIO 1.0F 	// gear ratio between motor and wheel
-#define PWM_LIMIT MAX_PWM 		// should be equal to MAX_PWM by default
-#define MAX_VOLTAGE 24.0	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
+#define MAX_PWM_MOTOR_DRIVER 1.0F // MAX_PWM is 6000 but the new PWM range sent to the motor driver is between -1 and 1. 
+#define MAX_VOLTAGE 24.0F	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
 float SPEED_CONSTANT; 	
-#define SPEED_CONSTANT_MOTOR 291.0 //[(rpm/V] see datasheet // translation from rpm/V to rad/s/V is done later.
+#define SPEED_CONSTANT_MOTOR 291.0F //[(rpm/V] see datasheet // translation from rpm/V to rad/s/V is done later.
 #define WHEEL_PULSES_PER_ROTATION (float)4*2048 // number of pulses of the encoder per rotation of the motor. New encoder: ENX 32 MILE // Multiplication by 4 is unsure but datahseet from Maxon is dfferent than some sources.
 
 float OMEGAtoPWM; // conversion factor from wheel speed [rad/s] to required PWM on the motor
