@@ -2,6 +2,7 @@
 #include "tim_util.h"
 #include "gpio_util.h"
 #include "peripheral_util.h"
+#include "stateControl.h"
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -33,8 +34,7 @@ Motor_StatusTypeDef wheels_Init(){
 
 	/* Initialize wheel controllers */
 	for (motor_id_t motor = RF; motor <= RB; motor++){
-		//initPID(&wheelsK[wheel], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
-		continue;
+		initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
 	}
 
 	/* Start the PWM timers */
@@ -193,7 +193,7 @@ void wheels_Update() {
     	}
 
 		// Add PID to commanded speed and convert to PWM
-		int32_t wheel_speed_PWM = OMEGAtoPWM * (feed_forward*0 + PID(angular_velocity_error, &wheelsK[motor])); 
+		float wheel_speed_PWM = OMEGAtoPWM * (feed_forward*0 + PID(angular_velocity_error, &wheelsK[motor])); 
 
 		wheels_SetSpeed_PWM(motor, wheel_speed_PWM);
 	}
