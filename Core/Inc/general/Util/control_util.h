@@ -29,7 +29,7 @@
 #define PWM_LIMIT MAX_PWM 		// should be equal to MAX_PWM by default
 #define MAX_VOLTAGE 24.0	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
 float SPEED_CONSTANT; 	
-#define SPEED_CONSTANT_50W 291.0 //[(rpm/V] see datasheet ////// unit is rpm/V -> not rad/s/V /// check again 
+#define SPEED_CONSTANT_MOTOR 291.0 //[(rpm/V] see datasheet // translation from rpm/V to rad/s/V is done later.
 #define WHEEL_PULSES_PER_ROTATION (float)4*2048 // number of pulses of the encoder per rotation of the motor. New encoder: ENX 32 MILE // should we delete the multiplication by 4?
 
 /// To check !!!
