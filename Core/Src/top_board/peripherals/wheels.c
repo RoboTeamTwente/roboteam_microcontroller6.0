@@ -168,8 +168,7 @@ void wheels_Update() {
 	for (motor_id_t motor = RF; motor <= RB; motor++) {
 		int16_t	encoder_value = encoder_GetCounter(motor);
 		encoder_ResetCounter(motor);
-		// TODO Convert encoder values to rad/s - NEEDS TO ADD FACTOR
-		wheels_measured_speeds[motor] = encoder_value;
+		wheels_measured_speeds[motor] =  WHEEL_ENCODER_TO_OMEGA * encoder_value; // if it doesn't work, get out the calculation of the measured speeds of the if loop.
 
 		// Calculate the velocity error
 		float angular_velocity_error = wheels_commanded_speeds[motor] - wheels_measured_speeds[motor]; 		
@@ -193,11 +192,10 @@ void wheels_Update() {
 			feed_forward = wheels_commanded_speeds[motor] - 13;
     	}
 
-		// TODO Add PID to commanded speed and convert to [-1, 1] range + ADD FEEDFOWARD !
 		// Add PID to commanded speed and convert to PWM
-		int32_t wheel_speed_PWM = OMEGAtoPWM * (feed_forward[wheel]*0 + PID(angular_velocity_error, &wheelsK[wheel])); 
+		int32_t wheel_speed_PWM = OMEGAtoPWM * (feed_forward[motor]*0 + PID(angular_velocity_error, &wheelsK[motor])); 
 
-		wheels_SetSpeed_PWM(motor, wheel_speed);
+		wheels_SetSpeed_PWM(motor, wheel_speed_PWM);
 	}
 }
 
