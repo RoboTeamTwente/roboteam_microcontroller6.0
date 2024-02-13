@@ -43,9 +43,13 @@ typedef enum{
 
 Motor_StatusTypeDef wheels_Init();
 void wheels_DeInit();
+
 void wheels_SetPWM(motor_id_t id, int32_t Value);
 Motor_StatusTypeDef wheels_SetSpeed_PWM(motor_id_t id, float Value); // To set directly a PWM value to the motor (Value has a range between -1 and 1), for testing
-void wheels_set_command_speed(const float speeds[4]);
+
+void wheels_set_command_speed(const float speeds[4]); // Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
+void wheels_GetMeasuredSpeeds(float speeds[4]); // Get the last measured wheel speeds in rad/s
+
 void wheels_Update();
 //Enable the brakes
 void wheels_Brake();
