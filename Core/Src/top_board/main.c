@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
-#include "CanDriver.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -183,8 +182,6 @@ int main(void)
   
   /* USER CODE BEGIN 2 */
   init();
-  send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */

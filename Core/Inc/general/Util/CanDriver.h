@@ -6,8 +6,11 @@
 #define INC_DRIVERS_CANDRIVER_H_
 
 #include "main.h"
+#include "logging.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+
 
 
 typedef struct _mailbox_buffer{
@@ -258,8 +261,11 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 
 	bool get_capacitor_charging_state(uint8_t payload[8]);
 
-	void process_Message(mailbox_buffer *to_Process);
-	void send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan);
+	CAN_TxHeaderTypeDef CAN_Initalize_Header();
+
+	void CAN_Process_Message(mailbox_buffer *to_Process);
+	
+	void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan);
 
 
 #endif /* INC_DRIVERS_CANDRIVER_H_ */

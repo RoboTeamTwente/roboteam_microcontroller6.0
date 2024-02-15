@@ -14,6 +14,9 @@ volatile bool ROBOT_INITIALIZED = false;
 volatile bool DRAIN_BATTERY = false;
 volatile bool DEBUG_MODE = false;
 
+/*These array are used only for the CAN bus, the 'mailboxes' which we use to transmit the  messages*/
+uint64_t TxMailbox[3];
+
 MTi_data* MTi;
 
 // Incoming packets
@@ -82,6 +85,95 @@ static volatile Wireless_Packet rxPacket;
 // The pins cannot be set at this point as they are not "const" enough for the compiler, so set them in the init
 SX1280_Interface SX_Interface = {.SPI= COMM_SPI, .TXbuf= SX_TX_buffer, .RXbuf= SX_RX_buffer /*, .logger=LOG_printf*/,};
 
+
+/* ============================================================ */
+/* ==================== CAN_BUS METHODS ======================= */
+/* ============================================================ */
+
+/*
+ * Generate the message we want to transmit based on
+ * ID arguments passed
+ */
+void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
+
+  	uint8_t payload[8];
+  	memset(payload, 0, sizeof(payload));
+	CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
+
+	if (sending_message_ID == ARE_YOU_ALIVE)
+	{
+		set_are_you_alive_message_header(&CAN_TxHeader, reciever_ID);
+		set_MCP_version(payload);
+	}
+	else if (reciever_ID == POWER_ID)
+	{
+		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE)
+		{
+			set_kill_voltage_message_header(&CAN_TxHeader);
+			set_kill_state(payload, false);
+			set_request_power_state(payload, true);
+		}
+	}
+	else if (reciever_ID == DRIBBLER_ID)
+	{
+		if (sending_message_ID == DRIBBLER_SPEED)
+		{
+			set_request_dribbler_speed_header(&CAN_TxHeader);
+			float dribbler_speed = 0xF0;
+			set_dribbler_speed(&payload, dribbler_speed);
+		}
+	}
+	else if (KICK_CHIP_ID)
+	{
+		if (sending_message_ID == KICK_MESSAGE)
+		{
+			set_header_kick(&CAN_TxHeader);
+			set_kick_state(payload, true);
+			set_do_Force(payload, false);
+			set_shoot_power(payload, 2);
+		}
+		else if (sending_message_ID == CHIP_MESSAGE)
+		{
+			set_header_chip(&CAN_TxHeader);
+			set_chip_state(payload, true);
+			set_do_Force(payload, false);
+			set_shoot_power(payload, 2);
+		}
+		else if (sending_message_ID == DISCHARGE_MESSAGE)
+		{
+			set_header_discharge(&CAN_TxHeader);
+		}
+		else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE)
+		{
+			set_request_capacitor_voltage_header(&CAN_TxHeader);
+		}
+	}
+
+	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
+		CAN_error_LOG(&CAN_TxHeader);
+
+	return;
+}
+
+/*
+ * The header is 13 bits
+ * The first two bits are for the IDE and RTR
+ * After that, the first 7 bits is the message ID
+ * While the left most 4 bits is used as the ID of the receiver
+ * The pay load will be a list of length 8 with 8 bit numbers, for a total of 64 bits or 8 bytes
+ */
+void process_Message(mailbox_buffer *to_Process){
+
+	bool kill_state;
+	bool voltage_request;
+	uint8_t recieved_version;
+
+	to_Process->empty = true; // reset the mailbox to the empty state
+	*to_Process->data_Frame  = 0;
+	to_Process->message_id = 0;
+
+	return;
+}
 
 /* ============================================================ */
 /* ==================== WIRELESS CALLBACKS ==================== */

@@ -22,6 +22,8 @@
 #include "AssuredPacketManager.h"
 #include "drivers.h"
 
+#include "CanDriver.h"
+
 #include "rem.h"
 
 #include "REM_Packet.h"

@@ -2,16 +2,10 @@
  * CanDriver.c
  */
 #include "CanDriver.h"
-#include "logging.h"
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 
 mailbox_buffer MailBox_one	 = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_two 	 = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};;
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-uint64_t TxMailbox[3];
 char str[75];
 bool CAN_to_process = false;
 
@@ -297,112 +291,6 @@ bool get_capacitor_charging_state(uint8_t payload[8]){
 	return (bool) ((payload[0] & bit_shiftMask(CAPACITOR_CHARGING_INDEX, 1)) >> CAPACITOR_CHARGING_INDEX);
 }
 
-
 void kill(){
  //HAL_GPIO_WritePin(Kill_GPIO_Port, Kill_Pin, GPIO_PIN_RESET);
-}
-
-/*
- * The header is 13 bits
- * The first two bits are for the IDE and RTR
- * After that, the first 7 bits is the message ID
- * While the left most 4 bits is used as the ID of the receiver
- * The pay load will be a list of length 8 with 8 bit numbers, for a total of 64 bits or 8 bytes
- */
-void process_Message(mailbox_buffer *to_Process){
-
-	bool kill_state;
-	bool voltage_request;
-	uint8_t recieved_version;
-
-	switch(to_Process->message_id){
-		case KILL_REQUEST_VOLTAGE_MESSAGE: ;
-			bool kill_state = get_kill_state(to_Process->data_Frame[0]);
-			bool voltage_request = get_request_power_state(to_Process->data_Frame[0]);
-			sprintf(str,"Kill State :: %d || Voltage request :: %d", kill_state, voltage_request);
-			break;
-		case ARE_YOU_ALIVE: ;
-			uint8_t recieved_version = get_MCP_version(to_Process->data_Frame);
-			if (recieved_version == MCP_VERSION)
-				LOG("MCP version are equal");
-			break;
-		default:
-			//Throw an error,
-			break;
-	}
-
-	to_Process->empty = true; // reset the mailbox to the empty state
-	*to_Process->data_Frame  = 0;
-	to_Process->message_id = 0;
-
-	return;
-}
-
-/*
- * Here we generate the basic message structure before sending it
- */
-void send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
-	uint8_t payload[8];
-    memset(payload, 0, sizeof(payload));
-	CAN_TxHeaderTypeDef TxHeader;
-
-	TxHeader.DLC = 1;
-	TxHeader.ExtId = 0;
-	TxHeader.IDE = CAN_ID_STD;
-	TxHeader.RTR = CAN_RTR_DATA;
-	TxHeader.TransmitGlobalTime = DISABLE;
-
-	if (sending_message_ID == ARE_YOU_ALIVE)
-	{
-		set_are_you_alive_message_header(&TxHeader, reciever_ID);
-		set_MCP_version(payload);
-	}
-	else if (reciever_ID == POWER_ID)
-	{
-		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE)
-		{
-			set_kill_voltage_message_header(&TxHeader);
-			set_kill_state(payload, false);
-			set_request_power_state(payload, true);
-		}
-	}
-	else if (reciever_ID == DRIBBLER_ID)
-	{
-		if (sending_message_ID == DRIBBLER_SPEED)
-		{
-			set_request_dribbler_speed_header(&TxHeader);
-			float dribbler_speed = 0xF0;
-			set_dribbler_speed(&payload, dribbler_speed);
-		}
-	}
-	else if (KICK_CHIP_ID)
-	{
-		if (sending_message_ID == KICK_MESSAGE)
-		{
-			set_header_kick(&TxHeader);
-			set_kick_state(payload, true);
-			set_do_Force(payload, false);
-			set_shoot_power(payload, 2);
-		}
-		else if (sending_message_ID == CHIP_MESSAGE)
-		{
-			set_header_chip(&TxHeader);
-			set_chip_state(payload, true);
-			set_do_Force(payload, false);
-			set_shoot_power(payload, 2);
-		}
-		else if (sending_message_ID == DISCHARGE_MESSAGE)
-		{
-			set_header_discharge(&TxHeader);
-		}
-		else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE)
-		{
-			set_request_capacitor_voltage_header(&TxHeader);
-		}
-	}
-
-	if (HAL_CAN_AddTxMessage(hcan, &TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
-		CAN_error_LOG(&TxHeader);
-
-	return;
 }
