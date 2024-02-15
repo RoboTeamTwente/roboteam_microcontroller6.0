@@ -192,10 +192,10 @@ void wheels_Update() {
 			feed_forward = wheels_commanded_speeds[motor] - 13;
     	}
 
-		// Add PID to commanded speed and convert to PWM
-		int32_t wheel_speed_PWM = OMEGAtoPWM * (feed_forward*0 + PID(angular_velocity_error, &wheelsK[motor])); 
+		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
+		int32_t wheel_speed_percentage = OMEGAtoPWM * (feed_forward + PID(angular_velocity_error, &wheelsK[motor])); 
 
-		wheels_SetSpeed_PWM(motor, wheel_speed_PWM);
+		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
 	}
 }
 
