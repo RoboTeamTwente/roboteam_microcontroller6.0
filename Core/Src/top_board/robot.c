@@ -44,11 +44,12 @@ REM_RobotPIDGains robotPIDGains = {0};
 REM_RobotSetPIDGains robotSetPIDGains = {0};
 REM_Log robotLog = {0};
 REM_LogPayload robotLogPayload = {0};
+REM_SX1280Filler sx1280filler = {0};
 
 REM_RobotCommand activeRobotCommand = {0};
 float activeStateReference[3];
 
-//StateInfo stateInfo = {0.0f, false, {0.0}, 0.0f, 0.0f, {0.0}};
+StateInfo stateInfo = {0.0f, false, {0.0}, 0.0f, 0.0f, {0.0}};
 bool halt = true;
 bool xsens_CalibrationDone = false;
 bool xsens_CalibrationDoneFirst = true;
@@ -83,7 +84,6 @@ uint32_t heartbeat_100ms = 0;
 uint32_t heartbeat_1000ms = 0;
 
 /* SX data */
-// TODO: Maybe move all configs to its own file? (basestation_config.c/h???)
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
 static Wireless SX1280 = {0};
 static Wireless* SX = &SX1280;
@@ -298,7 +298,10 @@ void Wireless_Readpacket_Cplt(void){
 		flag_send_PID_gains = false;
 	}
 
-	// TODO insert REM_SX1280Filler packet if total_packet_length < 6. Fine for now since feedback is already more than 6 bytes
+	if (txPacket.payloadLength < 6) {
+		encodeREM_SX1280Filler( (REM_SX1280FillerPayload*) (txPacket.message + txPacket.payloadLength), &sx1280filler);
+	}
+
 	WritePacket_DMA(SX, &txPacket, &Wireless_Writepacket_Cplt);
 }
 
@@ -320,7 +323,37 @@ void Wireless_RXDone(SX1280_Packet_Status *status){
 
 Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_callback = &Wireless_Default };
 
-// 
+void executeCommands(REM_RobotCommand* robotCommand){
+	stateControl_useAbsoluteAngle(robotCommand->useAbsoluteAngle);
+	float stateReference[4];
+	stateReference[vel_x] = (robotCommand->rho) * sinf(robotCommand->theta);
+	stateReference[vel_y] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_w] = robotCommand->angularVelocity;
+	stateReference[yaw] = robotCommand->angle;
+	stateControl_SetRef(stateReference);
+	// dribbler_SetSpeed(robotCommand->dribbler);
+	// shoot_SetPower(robotCommand->kickChipPower);
+
+// 	if (robotCommand->doKick) {
+// 		if (ballPosition.canKickBall || robotCommand->doForce){
+// 			shoot_Shoot(shoot_Kick);
+// 		}
+// 	}
+// 	else if (robotCommand->doChip) {
+// 		if (ballPosition.canKickBall || robotCommand->doForce) {
+// 			shoot_Shoot(shoot_Chip);
+// 		}
+// 	}
+// 	else if (robotCommand->kickAtAngle) {
+// 		float localState[4] = {0.0f};
+// 		stateEstimation_GetState(localState);
+// 		if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+// 			if (ballPosition.canKickBall || robotCommand->doForce) {
+// 				shoot_Shoot(shoot_Kick);
+// 			}
+// 		}
+// 	}
+}
 
 void resetRobotCommand(REM_RobotCommand* robotCommand){
 	memset(robotCommand, 0, sizeof(REM_RobotCommand));
@@ -391,7 +424,13 @@ void init(void){
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
-	Motor_StatusTypeDef all_wheels_initialized = wheels_Init();
+	int wheels_init_attemps = 0;
+	Motor_StatusTypeDef all_wheels_initialized = MOTOR_NORESPONSE;
+	while (all_wheels_initialized != MOTOR_OK &&wheels_init_attemps < 3) {
+		all_wheels_initialized = wheels_Init();
+		wheels_init_attemps++;
+		HAL_Delay(10);
+	}
 	encoder_Init();
 
 { // ====== WATCHDOG TIMER, COMMUNICATION BUFFERS ON TOPBOARD, BATTERY, ROBOT SWITCHES, OUTGOING PACKET HEADERS
@@ -413,18 +452,20 @@ void init(void){
 		IWDG_Init(iwdg, 7500);
 	}
 	
-	
+	/* Init outgoing packet headers*/
 	initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
 	initPacketHeader((REM_Packet*) &robotFeedback, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_FEEDBACK);
 	initPacketHeader((REM_Packet*) &robotStateInfo, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_STATE_INFO);
  	initPacketHeader((REM_Packet*) &robotPIDGains, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_PIDGAINS);
 	initPacketHeader((REM_Packet*) &robotLog, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_LOG);
-	}
+	sx1280filler.header = REM_PACKET_INDEX_REM_SX1280FILLER;
+	sx1280filler.remVersion = REM_LOCAL_VERSION;
+	sx1280filler.fillerBits = 0;
+}
 
 	set_Pin(LED0_pin, 1);
 
 { // ====== USER FEEDBACK (LOGGING, SDCARD, BUZZER, GIT BRANCH)
-	//TODO double check
 	LOG_init();
 	LOG("[init:"STRINGIZE(__LINE__)"] Last programmed on " __DATE__ "\n");
 	LOG("[init:"STRINGIZE(__LINE__)"] GIT: " STRINGIZE(__GIT_STRING__) "\n");
@@ -454,22 +495,18 @@ void init(void){
 	}
 	#endif
 
-	// Sometimes the UART pin for the programmer is floating, causing the robot to not boot. 
-	// As a temporary fix one can disable the uart initialization with the FT_2 switch on the robot.
-	// TODO: This will need a proper fix later on.
-	if (ENABLE_UART_PC) {
-		/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-		REM_UARTinit(UART_PC);
-	}
+	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
+	REM_UARTinit(UART_PC);
 }
 	
 	set_Pin(LED1_pin, 1);
 
 { // ====== INITIALIZE CONTROL CONSTANTS, STATE CONTROL, STATE ESTIMATION, OLED SCREEN
     // Initialize control constants
-    // control_util_Init();
-    // stateControl_Init();
-    // stateEstimation_Init();
+    control_util_Init();
+	LOG("[init:"STRINGIZE(__LINE__)"] control_utils_Init step passed!\n");
+    stateControl_Init();
+    stateEstimation_Init();
 
 	SSD1306_Init(); // init oled
 	menu_Init();//start the menu
@@ -665,15 +702,15 @@ void loop(void){
     halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
     if(IS_RUNNING_TEST || DRAIN_BATTERY) halt = false;
 
-    // if (halt) {
-    //     // LOG_printf("HALT %d %d %d\n", xsens_CalibrationDone, checkWirelessConnection(), isSerialConnected);
-    //     // toggle_Pin(LED5_pin);
-    //     stateControl_ResetAngleI();
-    //     resetRobotCommand(&activeRobotCommand);
-    //     initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
+    if (halt) {
+        // LOG_printf("HALT %d %d %d\n", xsens_CalibrationDone, checkWirelessConnection(), isSerialConnected);
+        // toggle_Pin(LED5_pin);
+        stateControl_ResetAngleI();
+        resetRobotCommand(&activeRobotCommand);
+        initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
 
-    //     REM_last_packet_had_correct_version = true;
-    // }
+        REM_last_packet_had_correct_version = true;
+    }
 
     // Unbrake wheels when Xsens calibration is done
     if (xsens_CalibrationDoneFirst && xsens_CalibrationDone) {
@@ -681,13 +718,13 @@ void loop(void){
         wheels_Unbrake();
     }
 
-    // // Update test (if active)
-    // // test_Update();
+    // Update test (if active)
+    // test_Update();
 
-    // // Go through all commands if robot is not in HALT state
-    // if (!halt) {
-    //     executeCommands(&activeRobotCommand);
-    // }
+    // Go through all commands if robot is not in HALT state
+    if (!halt) {
+        executeCommands(&activeRobotCommand);
+    }
 
     if(flag_sdcard_write_feedback){
         flag_sdcard_write_feedback = false;
@@ -704,15 +741,15 @@ void loop(void){
         SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
     }
 
-    // // Heartbeat every 17ms	
-    // if(heartbeat_17ms < current_time){
-    //     while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
+    // Heartbeat every 17ms	
+    if(heartbeat_17ms < current_time){
+        while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
 
-    //     if(IS_RUNNING_TEST){
-    //         IS_RUNNING_TEST = updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
-    //         flag_sdcard_write_command = true;
-    //     }
-    // }	
+        if(IS_RUNNING_TEST){
+            IS_RUNNING_TEST = updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
+            flag_sdcard_write_command = true;
+        }
+    }	
 
     // Heartbeat every 100ms	
     if(heartbeat_100ms < current_time){
@@ -944,29 +981,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		counter_TIM_CONTROL++;
 
 		//state estimation
-		// stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
-		// stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
+		stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
+		stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
 		
-		// wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
-		// stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
-		// stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
-		// stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
-		// stateInfo.rateOfTurn = MTi->gyr[2];
-		// stateEstimation_Update(&stateInfo);
+		wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
+		stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
+		stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
+		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
+		stateInfo.rateOfTurn = MTi->gyr[2];
+		stateEstimation_Update(&stateInfo);
 
 		//TODO check for test_isTestRunning
 		if(halt){
+			unix_initalized = false;
 			wheels_Stop();
 			return;
 		}
 
 		// State control
-		// float stateLocal[4] = {0.0f};
-		// stateEstimation_GetState(stateLocal);
-		// stateControl_SetState(stateLocal);
-		// stateControl_Update();
+		float stateLocal[4] = {0.0f};
+		stateEstimation_GetState(stateLocal);
+		stateControl_SetState(stateLocal);
+		stateControl_Update();
 
-		// wheels_SetSpeeds( stateControl_GetWheelRef() );
+		wheels_set_command_speed( stateControl_GetWheelRef() );
 
 		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
 		// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
@@ -974,61 +1012,61 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		//
 		// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
 		//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
-		// if(DRAIN_BATTERY){
+		if(DRAIN_BATTERY){
 
-		// 	// Instruct each wheel to go 30 rad/s
-		// 	float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
-		// 	wheels_SetSpeeds(wheel_speeds);
+			// Instruct each wheel to go 30 rad/s
+			float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
+			wheels_set_command_speed(wheel_speeds);
 
-		// 	// If the gyroscope detects some rotational movement, we stop the drainage program.
-		// 	if (fabs(MTi->gyr[2]) > 0.3f) {
-		// 		DRAIN_BATTERY = false;
-		// 	}
-		// }
+			// If the gyroscope detects some rotational movement, we stop the drainage program.
+			if (fabs(MTi->gyr[2]) > 0.3f) {
+				DRAIN_BATTERY = false;
+			}
+		}
 		wheels_Update();
 
-		// /* == Fill robotFeedback packet == */ {
-		// 	robotFeedback.timestamp = unix_timestamp;
-		// 	robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-		// 	robotFeedback.batteryLevel = (batCounter > 1000);
-		// 	robotFeedback.ballSensorWorking = ballSensor_isInitialized();
-		//	robotFeedback.ballSensorSeesBall = ballsensor_sees_ball;
-		// 	robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
+		/* == Fill robotFeedback packet == */ {
+			robotFeedback.timestamp = unix_timestamp;
+			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
+			// robotFeedback.batteryLevel = (batCounter > 1000);
+			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
+			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
+			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
 
-		// 	float localState[4] = {0.0f};
-		// 	stateEstimation_GetState(localState);
-		// 	float vu = localState[vel_u];
-		// 	float vv = localState[vel_v];
-		// 	robotFeedback.rho = sqrt(vu*vu + vv*vv);
-		// 	robotFeedback.angle = localState[yaw];
-		// 	robotFeedback.theta = atan2(vu, vv);
-		// 	robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
-		// 	robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-		//  robotFeedback.dribblerSeesBall = dribbler_sees_ball;
-		// }
+			float localState[4] = {0.0f};
+			stateEstimation_GetState(localState);
+			float vu = localState[vel_u];
+			float vv = localState[vel_v];
+			robotFeedback.rho = sqrt(vu*vu + vv*vv);
+			robotFeedback.angle = localState[yaw];
+			robotFeedback.theta = atan2(vu, vv);
+			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
+			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
+			// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
+		}
 		
-		// /* == Fill robotStateInfo packet == */ {	
-		// 	robotStateInfo.timestamp = unix_timestamp;
-		// 	robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
-		// 	robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
-		// 	robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
-		// 	robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
-		// 	robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
-		// 	robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
-		// 	robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
-		// 	robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
-		// 	robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
-		// 	robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
-		// 	robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
-		// 	robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
-		// 	robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
-		// 	robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
-		// 	robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
-		// }
+		/* == Fill robotStateInfo packet == */ {	
+			robotStateInfo.timestamp = unix_timestamp;
+			robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
+			robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
+			robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
+			robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
+			robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
+			robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
+			robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
+			robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
+			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
+			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
+			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
+			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
+			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
+			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
+			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
 
 
-		// flag_sdcard_write_feedback = true;
-        unix_timestamp += 1	;
+			// flag_sdcard_write_feedback = true;
+			unix_timestamp += 1	;
+		}
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;
