@@ -32,8 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-extern bool kill_flag;
-extern bool voltage_request;
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
