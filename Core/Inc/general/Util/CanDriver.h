@@ -261,7 +261,6 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 	CAN_TxHeaderTypeDef CAN_Initalize_Header();
 
 	void CAN_Process_Message(mailbox_buffer *to_Process);
-	
 	void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan);
 
 

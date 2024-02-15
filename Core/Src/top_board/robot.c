@@ -21,12 +21,22 @@ volatile bool DEBUG_MODE = false;
 	- powerboard_voltage is used when we recieve the current voltage reading by the powerboard
 	- kicker_capacitor_voltage is used when we recieve the voltage from the kicker of the capacitor
 	- dribbler_sees_ball, ballsensor_sees_ball are used 
+	- dribbler_speed:
+		-- Used in transmitting to the dribbler board
+		-- We only want to transmit if there is an actual difference in the value, otherwise we are waisting time
+	- shoot_Power and doForce_CAN are for kicker
+	- doForce_CAN
+	- kill_robot, powerboard_request 
 */
 uint64_t TxMailbox[1];
 bool powerBoard_alive, dribbler_alive, kicker_alive;
 bool dribbler_sees_ball, ballsensor_sees_ball;
 uint16_t powerboard_voltage, kicker_capacitor_voltage;
-
+float dribbler_speed = 0;
+uint8_t shoot_power = 0;
+bool doForce_CAN;
+bool kill_robot = false; 
+bool powerboard_request = false;
 
 MTi_data* MTi;
 
@@ -82,6 +92,7 @@ uint32_t heartbeat_17ms_counter = 0;
 uint32_t heartbeat_17ms = 0;
 uint32_t heartbeat_100ms = 0;
 uint32_t heartbeat_1000ms = 0;
+uint32_t heartbeat_10000ms = 0; // used for sending request to powerboard every 10 seconds
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -121,8 +132,8 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE)
 		{
 			set_kill_voltage_message_header(&CAN_TxHeader);
-			set_kill_state(payload, false);
-			set_request_power_state(payload, true);
+			set_kill_state(payload, kill_robot);
+			set_request_power_state(payload, powerboard_request);
 		}
 	}
 	else if (reciever_ID == DRIBBLER_ID)
@@ -170,7 +181,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 	Here we process the messages we have recieved
 	This is done via the 
  */
-void process_Message(mailbox_buffer *to_Process){
+void CAN_Process_Message(mailbox_buffer *to_Process){
 
 	if (to_Process->message_id == IM_ALIVE_VOLTAGE)
 	{
@@ -178,13 +189,11 @@ void process_Message(mailbox_buffer *to_Process){
 		{
 			LOG_printf("CAN_ERROR :: Mismatch version between TOP and POWER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			powerBoard_alive = false;
-			return;
 		}
-		if( (get_powerBoard_sensor_state(to_Process->data_Frame) == POWER_SENSOR_NOT_WORKING) )
+		else if( (get_powerBoard_sensor_state(to_Process->data_Frame) == POWER_SENSOR_NOT_WORKING) )
 		{
 			LOG_printf("CAN_ERROR :: Powerboard voltage meter is not working");
 			powerBoard_alive = false;
-			return;
 		}
 		LOG_printf("CAN_INIT :: Powerboard is initalized correctly!");
 		powerBoard_alive = true;
@@ -195,19 +204,16 @@ void process_Message(mailbox_buffer *to_Process){
 		{
 			LOG_printf("CAN_ERROR :: Mismatch version between TOP and KICKER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			kicker_alive = false;
-			return;
 		}
-		if( (get_capacitor_charging_state(to_Process->data_Frame) == CAPACITOR_SENSOR_NOT_WORKING)  )
+		else if ( (get_capacitor_charging_state(to_Process->data_Frame) == CAPACITOR_SENSOR_NOT_WORKING)  )
 		{
-			LOG_printf("CAN_ERROR :: Kicker is nor charging");
+			LOG_printf("CAN_ERROR :: Kicker is not charging");
 			kicker_alive = false;
-			return;
 		}
-		if( (get_capacitor_sensor_state(to_Process->data_Frame) == CAPACITOR_NOT_CHARGING)  )
+		else if( (get_capacitor_sensor_state(to_Process->data_Frame) == CAPACITOR_NOT_CHARGING)  )
 		{
 			LOG_printf("CAN_ERROR :: Kicker voltage meter is not working");
 			kicker_alive = false;
-			return;
 		}
 		LOG_printf("CAN_INIT :: Kicker is initalized correctly!");
 		kicker_alive = true;
@@ -218,19 +224,16 @@ void process_Message(mailbox_buffer *to_Process){
 		{
 			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			dribbler_alive = false;
-			return;
 		}
-		if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING)  )
+		else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING)  )
 		{
 			LOG_printf("CAN_ERROR :: Ball sensor is not functioning");
 			dribbler_alive = false;
-			return;
 		}
-		if( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING)  )
+		else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING)  )
 		{
 			LOG_printf("CAN_ERROR :: Dribbler is not functioning");
 			dribbler_alive = false;
-			return;
 		}
 		LOG_printf("CAN_INIT :: Dribbler is initalized correctly!");
 		dribbler_alive = true;
@@ -331,27 +334,49 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->angle;
 	stateControl_SetRef(stateReference);
-	// dribbler_SetSpeed(robotCommand->dribbler);
-	// shoot_SetPower(robotCommand->kickChipPower);
 
-// 	if (robotCommand->doKick) {
-// 		if (ballPosition.canKickBall || robotCommand->doForce){
-// 			shoot_Shoot(shoot_Kick);
-// 		}
-// 	}
-// 	else if (robotCommand->doChip) {
-// 		if (ballPosition.canKickBall || robotCommand->doForce) {
-// 			shoot_Shoot(shoot_Chip);
-// 		}
-// 	}
-// 	else if (robotCommand->kickAtAngle) {
-// 		float localState[4] = {0.0f};
-// 		stateEstimation_GetState(localState);
-// 		if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
-// 			if (ballPosition.canKickBall || robotCommand->doForce) {
-// 				shoot_Shoot(shoot_Kick);
-// 			}
-// 		}
+	if (robotCommand->dribbler != dribbler_speed)
+		CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	
+	/*====================== NEW SHOOTING CODE =====================*/
+	// if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
+	// {	
+	// 	shoot_power = robotCommand->kickChipPower;
+	// 	doForce_CAN = robotCommand->doForce;
+	// 	if (robotCommand->doChip)
+	// 		CAN_Send_Message(CHIP_MESSAGE, KICK_CHIP_ID, &hcan1);
+	// 	else if (robotCommand->doKick)
+	// 		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+	// 	else if (robotCommand->kickAtAngle)
+	// 	{
+	// 		float localState[4] = {0.0f};
+	// 		stateEstimation_GetState(localState);
+	// 		if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+	// 			CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+	// 		}
+	// 	}
+	// }
+
+	/*======================== OLD SHOOTING CODE ========================*/
+	//shoot_SetPower(robotCommand->kickChipPower);
+	// if (robotCommand->doKick) {
+	// 	if (ballPosition.canKickBall || robotCommand->doForce){
+	// 		shoot_Shoot(shoot_Kick);
+	// 	}
+	// }
+	// 	else if (robotCommand->doChip) {
+	// 		if (ballPosition.canKickBall || robotCommand->doForce) {
+	// 			shoot_Shoot(shoot_Chip);
+	// 		}
+	// 	}
+	// 	else if (robotCommand->kickAtAngle) {
+		// float localState[4] = {0.0f};  
+		// stateEstimation_GetState(localState);
+		// if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+		// 	if (ballPosition.canKickBall || robotCommand->doForce) {
+		// 		shoot_Shoot(shoot_Kick);
+		// 	}
+		// }
 // 	}
 }
 
@@ -615,7 +640,15 @@ void init(void){
 	speaker_Stop();
 
 {	// ====== Check if communication if other boards is working
-
+	bool* ptr_board_state = &powerBoard_alive;
+	check_otherboards(POWER_ID, &ptr_board_state);
+	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
+	ptr_board_state = &dribbler_alive;
+	check_otherboards(DRIBBLER_ID, &ptr_board_state);
+	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
+	ptr_board_state = &kicker_alive;
+	check_otherboards(KICK_CHIP_ID, &ptr_board_state);
+	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
 }
 	if (all_wheels_initialized != MOTOR_OK) {
 		//buzzer_Play_WarningThree();
@@ -661,6 +694,24 @@ uint8_t robot_get_Channel(){
 	return ROBOT_CHANNEL == YELLOW_CHANNEL ? 0 : 1;
 }
 
+void check_otherboards(uint8_t board_ID, bool *board_state){
+
+	//We check if the board is alive three times, which means we send the message thrice
+	uint8_t MAX_ATTEMPTS = 0;
+	while (MAX_ATTEMPTS < 3 && *board_state == false)
+	{
+		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
+		HAL_Delay(1000);
+	}	
+	if (*board_state == false)
+	{
+		//Play warning sounds
+		buzzer_Play_WarningFour(); 
+		LOG_printf("CAN_ERROR :: The board %d is not alive \n",board_ID);
+	}
+}
+
+
 
 /* =================================================== */
 /* ==================== MAIN LOOP ==================== */
@@ -673,6 +724,17 @@ void loop(void){
     LOG_send();
 
 	menu_Loop();
+
+	/* CAN BUS RELATED PROCESS */
+	if (CAN_to_process){
+		if (!MailBox_one.empty)
+			CAN_Process_Message(&MailBox_one);
+		if (!MailBox_two.empty)
+			CAN_Process_Message(&MailBox_two);
+		if (!MailBox_three.empty)
+			CAN_Process_Message(&MailBox_three);
+		CAN_to_process = false;
+	}
 
     // Play a warning if a REM packet with an incorrect version was received
     if(!REM_last_packet_had_correct_version)
@@ -852,7 +914,11 @@ void handleRobotMusicCommand(uint8_t* packet_buffer){
 }
 
 void handleRobotKillCommand(){
-	//TODO
+	kill_robot = true;
+	powerboard_request = false;
+	// CAN_Send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
+	// before sending the message do we have to do something such as discharging the capacitors?
+	return;
 }
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp){
@@ -1028,10 +1094,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
 			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			// robotFeedback.batteryLevel = (batCounter > 1000);
+			// robotFeedback.batteryLevel = powerboard_voltage;
 			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
 			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
 			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
+			// robotFeedback.capacitor_voltage = kicker_capacitor_voltage;
 
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);

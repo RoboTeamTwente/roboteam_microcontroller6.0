@@ -33,7 +33,6 @@ void CAN_Init(CAN_HandleTypeDef *hcan){
 void CAN_error_LOG(CAN_TxHeaderTypeDef *Header){
 	LOG("Failed to transmit message");
 	LOG_send();
-	return;
 }
 
 void send_ACK(){ // each ACK will be different per board
@@ -293,4 +292,17 @@ bool get_capacitor_charging_state(uint8_t payload[8]){
 
 void kill(){
  //HAL_GPIO_WritePin(Kill_GPIO_Port, Kill_Pin, GPIO_PIN_RESET);
+}
+
+// Function to initialize CAN header structure
+CAN_TxHeaderTypeDef CAN_Initalize_Header(){
+
+    CAN_TxHeaderTypeDef TxHeader;
+
+    TxHeader.DLC = 1;
+    TxHeader.ExtId = 0;
+    TxHeader.IDE = CAN_ID_STD;
+    TxHeader.RTR = CAN_RTR_DATA;
+    TxHeader.TransmitGlobalTime = DISABLE;
+    return TxHeader;
 }
