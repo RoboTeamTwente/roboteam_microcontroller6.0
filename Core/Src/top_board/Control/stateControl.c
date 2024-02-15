@@ -1,6 +1,7 @@
 
 #include "stateControl.h"
 #include "logging.h"
+#include "wheels.h"
 
 ///////////////////////////////////////////////////// VARIABLES
 
@@ -25,6 +26,9 @@ static bool previousUseAbsoluteAngle = true;
 
 // The velocity coupling matrix, used to transform local velocities into wheel velocities [4x3]
 static float D[12] = {0.0f};
+
+static float wheels_measured_speeds[4] = {};      // Stores most recent measurement of wheel speeds in rad/s
+static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -110,15 +114,101 @@ void stateControl_Update(){
 	}
 }
 
+////////////// WHEELS CONTROL START
+
+/**
+ * @brief Updates the wheels towards the commanded wheel speeds using the encoders and a PID controller.
+ * 
+ * TODO : check OMEGAtoPWM values for new motor!!!
+ * This function is resonsible for getting the wheels to the commanded speeds, as stored in the file-local variable
+ * "wheels_commanded_speeds". Wheel speeds, given in rad/s, are converted directly to a PWM value with help of the
+ * conversion variable OMEGAtoPWM. This variable is based on information from the Maxon Motor datasheet. 
+ * 
+ * A PID controller is used to handle any error between the commanded and actual wheel speeds. First, the current wheel
+ * speeds are measured by reading out the encoders and converting these values to rad/s. The commanded wheel speeds are
+ * then subtracted from these measured wheel speeds, giving the error. This error is put through a PID controller, and
+ * the resulting PID value is added to the commanded speeds before being converted to a PWM value. 
+ * 
+ * The resulting PWM values have a range between -1 and 1. Positive values mean clockwise and negative values mean counter-clockwise direction. 
+ */
+void wheels_Update() {
+	/* Don't run the wheels if these are not initialized */
+	/* Not that anything would happen anyway, because the PWM timers wouldn't be running, but still .. */
+	if(!wheels_initialized){
+		wheels_Stop();
+		return;
+	}
+
+	for (motor_id_t motor = RF; motor <= RB; motor++) {
+		int16_t	encoder_value = encoder_GetCounter(motor);
+		encoder_ResetCounter(motor);
+		wheels_measured_speeds[motor] =  WHEEL_ENCODER_TO_OMEGA * encoder_value; // if it doesn't work, get out the calculation of the measured speeds of the if loop.
+
+		// Calculate the velocity error
+		float angular_velocity_error = wheels_commanded_speeds[motor] - wheels_measured_speeds[motor]; 		
+	
+		// If the error is very small, ignore it (why is this here?)
+		if (fabs(angular_velocity_error) < 0.1) {
+			angular_velocity_error = 0.0f;
+			wheelsK[motor].I = 0;
+		}
+
+		float feed_forward = 0.0f;
+		float threshold = 0.05f;
+
+		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
+    		feed_forward = 0;
+		} 
+		else if (wheels_commanded_speeds[motor] > 0) {
+			feed_forward = wheels_commanded_speeds[motor] + 13;
+    	}
+		else if (wheels_commanded_speeds[motor] < 0) {
+			feed_forward = wheels_commanded_speeds[motor] - 13;
+    	}
+
+		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
+		int32_t wheel_speed_percentage = OMEGAtoPWM * (feed_forward + PID(angular_velocity_error, &wheelsK[motor])); 
+
+		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
+	}
+}
+
+/**
+ * @brief Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
+ * This function is the same as wheels_SetSpeeds from Microcontroller 5.0!!!
+ * 
+ * @param speeds float[4]{RF, LF, LB, RB} commanded wheels speeds, in rad/s. These values are stored in the file-local
+ * variable 'wheels_commanded_speeds'. This variable will later be used in wheels_Update() to control the wheels.
+ */
+void wheels_set_command_speed(const float speeds[4]) {
+	for(motor_id_t wheel = RF; wheel <= RB; wheel++){
+		wheels_commanded_speeds[wheel] = speeds[wheel];
+	}
+}
+
+/**
+ * @brief Get the last measured wheel speeds in rad/s
+ * 
+ * @param speeds float[4]{RF, LF, LB, RB} output array in which the measured speeds will be stored
+ */
+void wheels_GetMeasuredSpeeds(float speeds[4]) {
+	// Copy into "speeds", so that the file-local variable "wheels_measured_speeds" doesn't escape
+	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
+		speeds[wheel] = wheels_measured_speeds[wheel];
+	}
+}
+
+float* stateControl_GetWheelRef() {
+	return wheelRef;
+}
+
+///////////// WHEELS CONTROL END
+
 void stateControl_SetRef(float _stateGlobalRef[4]){
 	stateGlobalRef[vel_x] = _stateGlobalRef[vel_x];
 	stateGlobalRef[vel_y] = _stateGlobalRef[vel_y];
 	stateGlobalRef[vel_w] = _stateGlobalRef[vel_w];
 	stateGlobalRef[yaw] = _stateGlobalRef[yaw];
-}
-
-float* stateControl_GetWheelRef() {
-	return wheelRef;
 }
 
 void stateControl_SetState(float _stateLocal[4]){
