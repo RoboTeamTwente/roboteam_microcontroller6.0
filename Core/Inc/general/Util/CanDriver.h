@@ -238,12 +238,9 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 
 	bool get_chip_state(uint8_t payload[8]);
 
-
 	void set_header_discharge(CAN_TxHeaderTypeDef *TxHeader);
 
-
 	void set_request_capacitor_voltage_header(CAN_TxHeaderTypeDef *TxHeader);
-
 
 	void set_response_capacitor_voltage_header(CAN_TxHeaderTypeDef *TxHeader);
 
