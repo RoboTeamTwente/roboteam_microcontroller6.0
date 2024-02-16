@@ -12,6 +12,7 @@ static void menu_move_sideways(int direction);
 static void display_text();
 static void test_page();
 static void menuHasNoChildrenException();
+static void menuHasTooManyChildrenException();
 
 ///////////////////////////////////////////////////// VARIABLES
 static bool oled_initialized = false;
@@ -21,6 +22,8 @@ static int id_not_in_test_mode;
 static int id_self_test_menu;
 static int id_error_no_children;
 static int id_root_page;
+bool flag_error_too_many_children = false;
+char* page_name_error_too_many_children;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
@@ -50,8 +53,18 @@ void OLED_DeInit() {
  * @brief update what is displayed on the OLED screen
 */
 void OLED_Update(button_id_t button, bool test_mode) {
+    
+    if (!oled_initialized) {
+        return;
+    }
+
+    if (flag_error_too_many_children) {
+        menuHasTooManyChildrenException();
+        return;
+    }
+
     //TODO maybe do something else on button none? like refreshing variable data
-    if(!oled_initialized || button == BUTTON_NONE) {
+    if (button == BUTTON_NONE) {
         return;
     }
 
@@ -78,6 +91,10 @@ void OLED_Update(button_id_t button, bool test_mode) {
     resetButtonState(button);
 }
 
+void OLED_set_error_too_many_children(char* page_name) {
+    flag_error_too_many_children = true;
+    page_name_error_too_many_children = page_name;
+}
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 /**
@@ -306,3 +323,22 @@ static void menuHasNoChildrenException() {
     SSD1306_UpdateScreen();
 }
 
+/**
+ * @brief display exception if a menu has too many children
+*/
+static void menuHasTooManyChildrenException() {
+    clear_screen();
+    SSD1306_GotoXY (5,0);
+    SSD1306_Puts("ERROR", &Font_11x18, 1);
+    SSD1306_GotoXY (5,20);
+    char tempstr[20];
+    sprintf(tempstr, "%s", page_name_error_too_many_children);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_GotoXY (5,31);
+    SSD1306_Puts("has too many", &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts("children. Fix and", &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    SSD1306_Puts("reupload code", &Font_7x10, 1);
+    SSD1306_UpdateScreen();
+}

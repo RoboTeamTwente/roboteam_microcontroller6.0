@@ -36,6 +36,7 @@ struct page_struct
 #include "main.h"
 #include "logging.h"
 #include "main_menu.h"
+#include "OLED_driver.h"
 
 /* Public functions */
 void pages_init();

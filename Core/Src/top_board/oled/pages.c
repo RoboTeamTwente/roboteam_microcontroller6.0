@@ -5,6 +5,7 @@ struct page_struct page_root;
 struct page_struct main_menu;
 struct page_struct not_in_test_mode;
 struct page_struct error_no_children;
+struct page_struct error_menu_has_too_many_children;
 
 ///////////////////////////////////////////////////////////// Public functions implementations
 
@@ -43,7 +44,7 @@ void pages_init() {
     strcpy(not_in_test_mode.line3, "reboot the robot");
 
     error_no_children.id = 30;
-    strcpy(error_no_children.page_name, "Exception");
+    strcpy(error_no_children.page_name, "Error");
     error_no_children.n_of_childeren = 0;
     error_no_children.parent = NULL;
     error_no_children.is_menu = false;
@@ -72,6 +73,6 @@ void add_child_to_parent(page_struct *current) {
         parent->childeren[parent->n_of_childeren] = current;
         parent->n_of_childeren++;
     } else {
-        //TODO some kind of error
+        OLED_set_error_too_many_children(parent->page_name);
     }
 }

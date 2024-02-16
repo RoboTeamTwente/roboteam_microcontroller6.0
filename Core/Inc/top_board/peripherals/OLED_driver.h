@@ -16,5 +16,6 @@
 void OLED_Init();
 void OLED_DeInit();
 void OLED_Update(button_id_t button, bool test_mode);
+void OLED_set_error_too_many_children(char* page_name);
 
 #endif /* INC_OLED_H_ */
