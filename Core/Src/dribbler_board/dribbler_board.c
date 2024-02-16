@@ -4,11 +4,14 @@
     ======================================================================
     ====================== CAN RELEATED VARIABLES ========================
     ======================================================================
-*/
-uint64_t TxMailbox[1];// Array used in transmission of messages in CAN bus
+*/    
+    // Array used in transmission of messages in CAN bus
+uint64_t TxMailbox[1];
+
     // These values are set depending on weither or not the dribbler initalizes correctly, used ONLY FOR INITLIZATION
 bool dribbler_functioning_state;
 bool ballsensor_functioning_state;
+
     // These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
 bool dribbler_state;
 bool ballsensor_state;
@@ -65,34 +68,3 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
     if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
 
 }
-
-/*
-
-send_message::
-
-case IM_ALIVE_DRIBBLER:
-	set_dribbler_im_alive(&TxHeader);
-	set_MCP_version(payload);
-	set_dribbler_state(payload, true);
-	set_ballsensor_state(payload, true);
-	break;
-
-case DRIBBLER_SEESBALL_MESSAGE:
-	set_dribbler_sees_ball_header(&TxHeader);
-	set_dribbler_sees_ball(payload, true);
-	break;
-
-case BALLSENSOR_MESSAGE:
-	set_ballsensor_sees_ball_header(&TxHeader);
-	set_ballsensor_state(payload, true);
-	break;
-
-process_message::
-
-case ARE_YOU_ALIVE:
-	set_are_you_alive_message_header(&TxHeader, reciever_ID);
-	set_MCP_version(payload);
-	break;
-
-
-*/
