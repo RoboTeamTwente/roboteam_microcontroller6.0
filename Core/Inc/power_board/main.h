@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+extern CAN_HandleTypeDef hcan;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

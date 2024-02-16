@@ -2,9 +2,10 @@
 #include "CanDriver.h"
 
 
-extern uint16_t heartbeat_10000ms = 0;
-bool kill_flag voltage_request = false;
+uint16_t heartbeat_10000ms = 0;
+bool kill_flag, voltage_request = false;
 uint16_t voltage_reading = 0;
+uint64_t TxMailbox[0];  
 
 
 
@@ -18,7 +19,6 @@ void init() {
 
     /* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	REM_UARTinit(UART_PC);
-    heartbeat_10000ms = HAL_GetTick() + 10000;
 }
 
 /* =================================================== */
@@ -96,7 +96,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 	{
 		if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
 		{
-			// Do something
+			
 		}
 	}
 	

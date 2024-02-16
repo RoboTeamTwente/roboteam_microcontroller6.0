@@ -106,6 +106,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   init();
+  heartbeat_10000ms = HAL_GetTick() + 100000;
   while (1)
   { 
     loop();    
