@@ -1,11 +1,9 @@
 #ifndef INC_PAGES_H_
 #define INC_PAGES_H_
 
-#include "main.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "logging.h"
 
 #define MAX_CHILDEREN 9
 #define MAX_VAR_NAME_LENGTH 9
@@ -31,12 +29,20 @@ struct page_struct
     char line3[MAX_STRING_LENGTH];
 };
 
+/*
+ * NOTE: these includes need to underneath the declaration of the struct 
+ * to not break uses of the page_struct in other files
+*/
+#include "main.h"
+#include "logging.h"
+#include "main_menu.h"
+
 /* Public functions */
 void pages_init();
 page_struct* getRootPage();
 page_struct* getNotInTestMode();
-int getSelfTestMenuID();
 page_struct* getErrorNoChildren();
+void add_child_to_parent(page_struct *current);
 
 
 #endif /* INC_PAGES_H_ */
