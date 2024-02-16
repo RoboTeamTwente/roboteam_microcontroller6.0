@@ -40,7 +40,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-CAN_HandleTypeDef hcan;
+extern CAN_HandleTypeDef hcan;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -104,6 +104,8 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,7 +113,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    loop();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
