@@ -49,7 +49,7 @@ void pages_init() {
     error_no_children.parent = NULL;
     error_no_children.is_menu = false;
     error_no_children.is_test = false;
-    error_no_children.has_variables = true;
+    error_no_children.has_variables = false;
 }
 
 page_struct* getRootPage() {

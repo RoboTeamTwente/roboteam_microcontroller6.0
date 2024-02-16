@@ -23,6 +23,7 @@ static int id_self_test_menu;
 static int id_error_no_children;
 static int id_root_page;
 bool flag_error_too_many_children = false;
+bool flag_error_too_many_children_page_init = false;
 char* page_name_error_too_many_children;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
@@ -53,21 +54,26 @@ void OLED_DeInit() {
  * @brief update what is displayed on the OLED screen
 */
 void OLED_Update(button_id_t button, bool test_mode) {
-    
+    /* return if not initialized */
     if (!oled_initialized) {
         return;
     }
 
+    /* show error if a menu has too many children; afterwards return */
     if (flag_error_too_many_children) {
-        menuHasTooManyChildrenException();
+        if (!flag_error_too_many_children_page_init) menuHasTooManyChildrenException();
         return;
     }
 
-    //TODO maybe do something else on button none? like refreshing variable data
+    /* if no button is pressed return; update variables displayed on page if needed beforehand */
     if (button == BUTTON_NONE) {
+        if (current_page->has_variables) {
+
+        } 
         return;
     }
 
+    /* find out what to do on button press */
     if (current_page->id == id_root_page || current_page->id == id_not_in_test_mode || current_page->id == id_error_no_children) {
         current_page = getRootPage()->childeren[0];
         item_selector = 0;
@@ -341,4 +347,5 @@ static void menuHasTooManyChildrenException() {
     SSD1306_GotoXY (5,53);
     SSD1306_Puts("reupload code", &Font_7x10, 1);
     SSD1306_UpdateScreen();
+    flag_error_too_many_children_page_init = true;
 }
