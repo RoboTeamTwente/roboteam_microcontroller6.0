@@ -29,7 +29,7 @@ volatile bool DEBUG_MODE = false;
 	- kill_robot, powerboard_request 
 */
 uint64_t TxMailbox[1];
-bool powerBoard_alive, dribbler_alive, kicker_alive;
+bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
 bool dribbler_sees_ball, ballsensor_sees_ball;
 uint16_t powerboard_voltage, kicker_capacitor_voltage;
 float dribbler_speed = 0;
@@ -109,161 +109,112 @@ SX1280_Interface SX_Interface = {.SPI= COMM_SPI, .TXbuf= SX_TX_buffer, .RXbuf= S
 
 
 /* ============================================================ */
-/* ==================== CAN_BUS METHODS ======================= */
+/* ==================== CAN BUS METHODS ======================= */
 /* ============================================================ */
 
-/*
- * Generate the message we want to transmit based on
- * ID arguments passed
+/**
+ * @brief Generate the message we want to transmit based on ID arguments passed
  */
 void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
-
-  	uint8_t payload[8];
+	uint8_t payload[8];
   	memset(payload, 0, sizeof(payload));
 	CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
 
-	if (sending_message_ID == ARE_YOU_ALIVE)
-	{
+	if (sending_message_ID == ARE_YOU_ALIVE) {
 		set_are_you_alive_message_header(&CAN_TxHeader, reciever_ID);
 		set_MCP_version(payload);
-	}
-	else if (reciever_ID == POWER_ID)
-	{
-		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE)
-		{
+	} else if (reciever_ID == POWER_ID) {
+		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE) {
 			set_kill_voltage_message_header(&CAN_TxHeader);
 			set_kill_state(payload, kill_robot);
 			set_request_power_state(payload, powerboard_request);
 		}
-	}
-	else if (reciever_ID == DRIBBLER_ID)
-	{
-		if (sending_message_ID == DRIBBLER_SPEED)
-		{
+	} else if (reciever_ID == DRIBBLER_ID) {
+		if (sending_message_ID == DRIBBLER_SPEED) {
 			set_request_dribbler_speed_header(&CAN_TxHeader);
-			float dribbler_speed = 0xF0;
 			set_dribbler_speed(&payload, dribbler_speed);
 		}
 	}
-	else if (KICK_CHIP_ID)
-	{
-		if (sending_message_ID == KICK_MESSAGE)
-		{
+	else if (KICK_CHIP_ID) {
+		if (sending_message_ID == KICK_MESSAGE) {
 			set_header_kick(&CAN_TxHeader);
 			set_kick_state(payload, true);
-			set_do_Force(payload, false);
+			set_do_Force(payload, doForce_CAN);
 			set_shoot_power(payload, 2);
-		}
-		else if (sending_message_ID == CHIP_MESSAGE)
-		{
+		} else if (sending_message_ID == CHIP_MESSAGE) {
 			set_header_chip(&CAN_TxHeader);
 			set_chip_state(payload, true);
-			set_do_Force(payload, false);
+			set_do_Force(payload, doForce_CAN);
 			set_shoot_power(payload, 2);
-		}
-		else if (sending_message_ID == DISCHARGE_MESSAGE)
-		{
+		} else if (sending_message_ID == DISCHARGE_MESSAGE) {
 			set_header_discharge(&CAN_TxHeader);
-		}
-		else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE)
-		{
+		} else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
 			set_request_capacitor_voltage_header(&CAN_TxHeader);
 		}
 	}
 
-	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
-		CAN_error_LOG(&CAN_TxHeader);
-
-	return;
+	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
 }
 
-/*
+/**
 	Here we process the messages we have recieved
 	This is done via the 
  */
 void CAN_Process_Message(mailbox_buffer *to_Process){
-
-	if (to_Process->message_id == IM_ALIVE_VOLTAGE)
-	{
-		if( !(get_MCP_version(to_Process->data_Frame) == MCP_VERSION))
-		{
+	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
+	if (to_Process->message_id == IM_ALIVE_VOLTAGE)	{
+		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
 			LOG_printf("CAN_ERROR :: Mismatch version between TOP and POWER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			powerBoard_alive = false;
-		}
-		else if( (get_powerBoard_sensor_state(to_Process->data_Frame) == POWER_SENSOR_NOT_WORKING) )
-		{
+		} else if( (get_powerBoard_sensor_state(to_Process->data_Frame) == POWER_SENSOR_NOT_WORKING)) {
 			LOG_printf("CAN_ERROR :: Powerboard voltage meter is not working");
 			powerBoard_alive = false;
+		} else {
+			LOG_printf("CAN_INIT :: Powerboard is initalized correctly!");
+			powerBoard_alive = true;
 		}
-		LOG_printf("CAN_INIT :: Powerboard is initalized correctly!");
-		powerBoard_alive = true;
-	}
-	else if (to_Process->message_id == IM_ALIVE_KICKER)
-	{
-		if( !(get_MCP_version(to_Process->data_Frame) == MCP_VERSION))
-		{
+	} else if (to_Process->message_id == IM_ALIVE_KICKER) {
+		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
 			LOG_printf("CAN_ERROR :: Mismatch version between TOP and KICKER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-			kicker_alive = false;
-		}
-		else if ( (get_capacitor_charging_state(to_Process->data_Frame) == CAPACITOR_SENSOR_NOT_WORKING)  )
-		{
+			kickerBoard_alive = false;
+		} else if ( (get_capacitor_charging_state(to_Process->data_Frame) == CAPACITOR_SENSOR_NOT_WORKING)) {
 			LOG_printf("CAN_ERROR :: Kicker is not charging");
-			kicker_alive = false;
-		}
-		else if( (get_capacitor_sensor_state(to_Process->data_Frame) == CAPACITOR_NOT_CHARGING)  )
-		{
+			kickerBoard_alive = false;
+		} else if( (get_capacitor_sensor_state(to_Process->data_Frame) == CAPACITOR_NOT_CHARGING)) {
 			LOG_printf("CAN_ERROR :: Kicker voltage meter is not working");
-			kicker_alive = false;
+			kickerBoard_alive = false;
+		} else {
+			LOG_printf("CAN_INIT :: Kicker is initalized correctly!");
+			kickerBoard_alive = true;
 		}
-		LOG_printf("CAN_INIT :: Kicker is initalized correctly!");
-		kicker_alive = true;
-	}
-	else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
+	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
 	{
-		if( !(get_MCP_version(to_Process->data_Frame) == MCP_VERSION))
-		{
+		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
 			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-			dribbler_alive = false;
-		}
-		else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING)  )
-		{
+			dribblerBoard_alive = false;
+		} else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
 			LOG_printf("CAN_ERROR :: Ball sensor is not functioning");
-			dribbler_alive = false;
-		}
-		else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING)  )
-		{
+			dribblerBoard_alive = false;
+		} else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
 			LOG_printf("CAN_ERROR :: Dribbler is not functioning");
-			dribbler_alive = false;
+			dribblerBoard_alive = false;
+		} else {
+			LOG_printf("CAN_INIT :: Dribbler is initalized correctly!");
+			dribblerBoard_alive = true;
 		}
-		LOG_printf("CAN_INIT :: Dribbler is initalized correctly!");
-		dribbler_alive = true;
-	}
-	else if (to_Process->message_id == VOLTAGE_RESPONSE)
-	{
+	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
-		LOG_printf("CAN_MESSAGE :: Recieved voltage reading from Powerboard : %d", powerboard_voltage);
-	}
-	else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)
-	{
+	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
 		dribbler_sees_ball = get_dribbler_sees_ball(to_Process->data_Frame);
-		LOG_printf("CAN_MESSAGE :: Change in dribbler state : %d", dribbler_sees_ball);
-	}
-	else if (to_Process->message_id == BALLSENSOR_MESSAGE)
-	{
+	} else if (to_Process->message_id == BALLSENSOR_MESSAGE) {
 		ballsensor_sees_ball = get_sensor_sees_ball(to_Process->data_Frame);
-		LOG_printf("CAN_MESSAGE :: Change in ballsensor state : %d",  ballsensor_sees_ball);
-	}
-	else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE)
-	{
-		kicker_capacitor_voltage = get_capacitor_voltage_response(to_Process->data_Frame);
-		LOG_printf("CAN_MESSAGE :: Recieved voltage reading from kicker : %d", kicker_capacitor_voltage);
+	} else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE) {
+		kicker_capacitor_voltage = get_capacitor_voltage_response(to_Process->data_Frame);;
 	}
 	LOG_sendAll();
 	to_Process->empty = true; // reset the mailbox to the empty state
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;
-
-	return;
 }
 
 /* ============================================================ */
@@ -335,8 +286,10 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateReference[yaw] = robotCommand->angle;
 	stateControl_SetRef(stateReference);
 
-	if (robotCommand->dribbler != dribbler_speed)
+	if (robotCommand->dribbler != dribbler_speed) {
+		dribbler_speed = robotCommand->dribbler;
 		CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	}
 	
 	/*====================== NEW SHOOTING CODE =====================*/
 	// if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
@@ -538,6 +491,11 @@ void init(void){
 
 	HAL_Delay(300);
 
+	if (all_wheels_initialized != MOTOR_OK) {
+		buzzer_Play_WarningThree();
+		HAL_Delay(1000);
+	}
+
 	LOG_sendAll();
 }
 
@@ -640,20 +598,18 @@ void init(void){
 	speaker_Stop();
 
 {	// ====== Check if communication if other boards is working
-	bool* ptr_board_state = &powerBoard_alive;
-	check_otherboards(POWER_ID, &ptr_board_state);
+	check_otherboards(POWER_ID, &powerBoard_alive);
 	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
-	ptr_board_state = &dribbler_alive;
-	check_otherboards(DRIBBLER_ID, &ptr_board_state);
+	check_otherboards(DRIBBLER_ID, &dribblerBoard_alive);
 	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
-	ptr_board_state = &kicker_alive;
-	check_otherboards(KICK_CHIP_ID, &ptr_board_state);
+	check_otherboards(KICK_CHIP_ID, &kickerBoard_alive);
 	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
-}
-	if (all_wheels_initialized != MOTOR_OK) {
-		//buzzer_Play_WarningThree();
+	if (!(powerBoard_alive && dribblerBoard_alive && kickerBoard_alive)) {
+		buzzer_Play_WarningFour();
 		HAL_Delay(1000);
 	}
+}
+	
 	set_Pin(LED6_pin, 1);
 
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
@@ -703,12 +659,7 @@ void check_otherboards(uint8_t board_ID, bool *board_state){
 		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
 		HAL_Delay(1000);
 	}	
-	if (*board_state == false)
-	{
-		//Play warning sounds
-		buzzer_Play_WarningFour(); 
-		LOG_printf("CAN_ERROR :: The board %d is not alive \n",board_ID);
-	}
+	if (*board_state == false) LOG_printf("CAN_ERROR :: The board %d is not alive \n",board_ID);
 }
 
 
@@ -723,23 +674,22 @@ void loop(void){
     /* Send anything in the log buffer over UART */
     LOG_send();
 
-	menu_Loop();
-
 	/* CAN BUS RELATED PROCESS */
 	if (CAN_to_process){
-		if (!MailBox_one.empty)
-			CAN_Process_Message(&MailBox_one);
-		if (!MailBox_two.empty)
-			CAN_Process_Message(&MailBox_two);
-		if (!MailBox_three.empty)
-			CAN_Process_Message(&MailBox_three);
+		if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
+		if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
+		if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
 		CAN_to_process = false;
 	}
 
+	menu_Loop();
+
     // Play a warning if a REM packet with an incorrect version was received
-    if(!REM_last_packet_had_correct_version)
-        if(!buzzer_IsPlaying())
+    if(!REM_last_packet_had_correct_version) {
+        if(!buzzer_IsPlaying()) {
             buzzer_Play_WarningTwo();
+		}
+	}
 
     // Check for connection to serial, wireless, and xsens
     // Cast to int32_t is needed since it might happen that current_time is smaller than time_last_packet_*
@@ -749,9 +699,7 @@ void loop(void){
     is_connected_xsens    = (int32_t)(current_time - timestamp_last_packet_xsens)    < 250;
 
     // Refresh Watchdog timer
-	if (!DEBUG_MODE) {
-    	IWDG_Refresh(iwdg);
-	}
+	if (!DEBUG_MODE) IWDG_Refresh(iwdg);
 
     /** MUSIC TEST CODE **/
     if(RobotMusicCommand_received_flag){
@@ -784,9 +732,7 @@ void loop(void){
     // test_Update();
 
     // Go through all commands if robot is not in HALT state
-    if (!halt) {
-        executeCommands(&activeRobotCommand);
-    }
+    if (!halt) executeCommands(&activeRobotCommand);
 
     if(flag_sdcard_write_feedback){
         flag_sdcard_write_feedback = false;
