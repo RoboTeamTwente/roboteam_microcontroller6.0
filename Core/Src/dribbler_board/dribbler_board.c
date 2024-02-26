@@ -1,6 +1,6 @@
 #include "dribbler_board.h"
 
-volatile bool BOARD_INITIALIZED = fasle;
+volatile bool BOARD_INITIALIZED = false;
 
 /* ====================================================================== */    
 /* ====================== CAN RELEATED VARIABLES ======================== */    
@@ -90,4 +90,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (GPIO_Pin == BS_pin.PIN){
 		ballSensor_IRQ_Handler();
 	}
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }

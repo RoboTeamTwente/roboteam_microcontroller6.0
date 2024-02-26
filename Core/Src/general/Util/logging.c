@@ -78,8 +78,8 @@ void LOG(char *message){
     REM_Log_set_payloadSize((REM_LogPayload*) payload, REM_PACKET_SIZE_REM_LOG + message_length);
     // REM_Log_set_fromBS     ((REM_LogPayload*) payload, 1);
     REM_Log_set_toPC       ((REM_LogPayload*) payload, 1);
-    REM_Log_set_fromRobotId((REM_LogPayload*) payload, robot_get_ID());
-    REM_Log_set_fromColor  ((REM_LogPayload*) payload, robot_get_Channel());
+    REM_Log_set_fromRobotId((REM_LogPayload*) payload, 0);
+    REM_Log_set_fromColor  ((REM_LogPayload*) payload, 0);
     REM_Log_set_timestamp  ((REM_LogPayload*) payload, HAL_GetTick());
 
     // Copy the message into the message container, next to the BasestationLog header

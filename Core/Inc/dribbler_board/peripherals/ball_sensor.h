@@ -4,9 +4,11 @@
 #include "main.h"
 #include "stdbool.h"
 #include "logging.h"
+#include "gpio_util.h"
 
 void ballSensor_Init();
 void ballSensor_DeInit();
+void ballSensor_TestIfWorking();
 void ballSensor_IRQ_Handler();
 bool ballSensor_seesBall();
 

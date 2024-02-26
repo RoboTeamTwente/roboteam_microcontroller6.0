@@ -1,6 +1,5 @@
 #include "ball_sensor.h"
 
-
 // Static to keep everything local to this file
 static volatile bool seesBall = false; // ball sensor sees ball
 static bool ballSensorIsWorking = false;
@@ -12,12 +11,36 @@ void read_gpio();
 // ====================== PUBLIC FUNCTIONS ====================== //
 
 void ballSensor_Init() {
+	ballSensor_TestIfWorking();
 	seesBall = false;
-	//TODO verify if sensor is working
 }
 
 void ballSensor_DeInit() {
+	set_Pin(IR_LED_pin, 0);
+	ballSensorIsWorking = false;
 	seesBall = false;
+}
+
+/**
+ * @brief tests if the ball sensor is working
+ * @note LED is on afterwards
+*/
+void ballSensor_TestIfWorking() {
+	//Part 1: disable LED and check signal
+	ballSensorIsWorking = true;
+	set_Pin(IR_LED_pin, 0);
+	read_gpio();
+	if (seesBall) {
+		ballSensorIsWorking = false;
+	}
+
+	//Part 2: enable LED and check signal
+	set_Pin(IR_LED_pin, 1);
+	read_gpio();
+	if (!seesBall) {
+		ballSensorIsWorking = false;
+	}
+
 }
 
 /*

@@ -15,4 +15,5 @@
 GPIO_Pin Dribbler_PWM_pin	= { PWM_Dribbler_GPIO_Port	, PWM_Dribbler_Pin	};
 
 // Ballsensor
-GPIO_Pin BS           = { BS_GPIO_Port            , BS_Pin       };
+GPIO_Pin BS_pin                 = { BS_GPIO_Port            , BS_Pin       };
+GPIO_Pin IR_LED_pin             = { IR_LED_GPIO_Port        , IR_LED_Pin   };
