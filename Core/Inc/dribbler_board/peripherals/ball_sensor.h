@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "stdbool.h"
+#include "logging.h"
 
 void ballSensor_Init();
 void ballSensor_DeInit();

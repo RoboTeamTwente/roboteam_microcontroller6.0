@@ -2,18 +2,18 @@
 
 
 // Static to keep everything local to this file
-static uint32_t error; // for i2c errors
 static volatile bool seesBall = false; // ball sensor sees ball
+static bool ballSensorIsWorking = false;
 
 // ================ PRIVATE FUNCTION DECLARATIONS ================ //
 void read_gpio();
-void bs_I2C_error(uint8_t error);
 
 
 // ====================== PUBLIC FUNCTIONS ====================== //
 
 void ballSensor_Init() {
 	seesBall = false;
+	//TODO verify if sensor is working
 }
 
 void ballSensor_DeInit() {
@@ -21,20 +21,20 @@ void ballSensor_DeInit() {
 }
 
 /*
-	read from GPIO:
-		If high:
-			set seesball to false --> we lost the ball
-		else low --> ball is present:
-			set seesball to true
-		write to LOG about current ball state
-		set LED to value of seesBall
+read from GPIO:
+	If high:
+		set seesball to false --> we lost the ball
+	else low --> ball is present:
+		set seesball to true
+	write to LOG about current ball state
+	set LED to value of seesBall
 */
 void ballSensor_IRQ_Handler() {
 	read_gpio();
 	if (!seesBall){
-		//LOG("[BALLSENSOR]:: We lost the ball");
+		LOG("[BALLSENSOR]:: We lost the ball");
 	} else{
-		//LOG("[BALLSENSOR]:: We have the ball");
+		LOG("[BALLSENSOR]:: We have the ball");
 	}
 }
 
@@ -50,15 +50,5 @@ void read_gpio() {
 		If GPIO_PIN_SET then set return to false, otherwise true
 	*/
 	GPIO_PinState portState = HAL_GPIO_ReadPin(BS_GPIO_Port, BS_Pin);
-	if (portState == GPIO_PIN_RESET){
-		seesBall = false;
-		return;
-	}
-	seesBall = true;
+	seesBall = portState == GPIO_PIN_RESET;
 }
-
-void bs_I2C_error(uint8_t error){
-	seesBall = false;
-	//LOG_printf("[bs_I2C_error] %d\n", error);
-}
-

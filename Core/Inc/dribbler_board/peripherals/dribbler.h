@@ -17,6 +17,7 @@
 #include <math.h>
 #include "control_util.h"
 #include "tim_util.h"
+#include "logging.h"
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
