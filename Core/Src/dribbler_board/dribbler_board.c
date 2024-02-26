@@ -17,7 +17,8 @@ bool dribbler_state;
 bool ballsensor_state;
 
 void init(){
-    
+    dribbler_Init();
+    ballSensor_Init();
 }
 
 void loop(){

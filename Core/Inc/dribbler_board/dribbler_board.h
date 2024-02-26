@@ -4,6 +4,7 @@
 #include "main.h"
 #include "CanDriver.h"
 #include "ball_sensor.h"
+#include "dribbler.h"
 
 void init();
 void loop();

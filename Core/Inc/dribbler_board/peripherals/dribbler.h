@@ -13,6 +13,7 @@
 #ifndef DRIBBLER_DRIBBLER_H_
 #define DRIBBLER_DRIBBLER_H_
 
+#include "main.h"
 #include <math.h>
 #include "control_util.h"
 

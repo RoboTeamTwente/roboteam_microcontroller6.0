@@ -36,7 +36,6 @@ void ballSensor_IRQ_Handler() {
 	} else{
 		LOG("[BALLSENSOR]:: We have the ball");
 	}
-	set_Pin(LED4_pin, seesBall);
 }
 
 bool ballSensor_seesBall() {
