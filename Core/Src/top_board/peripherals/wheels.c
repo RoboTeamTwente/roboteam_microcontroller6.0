@@ -166,7 +166,7 @@ bool wheels_GetWheelsBraking() {
 void wheels_Stop() {
 	for (int motor = 0; motor < 4; motor++){
 		wheels_SetSpeed_PWM(motor, 0);
-		wheels_commanded_speeds[0] = 0;
+		// wheels_commanded_speeds[motor] = 0; // TODO: check the declaration of this variable
 	}
 }
 

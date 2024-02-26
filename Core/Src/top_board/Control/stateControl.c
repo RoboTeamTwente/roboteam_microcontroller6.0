@@ -73,9 +73,9 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 	
 	/* Initialize wheel controllers */
-	for (motor_id_t motor = RF; motor <= RB; motor++){
-		initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
-	}
+	// for (motor_id_t motor = RF; motor <= RB; motor++){
+	// 	initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
+	// }
 
 int stateControl_Init(){
 	status = on;
@@ -174,7 +174,7 @@ void wheels_Update() {
     	}
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-		int32_t wheel_speed_percentage = OMEGAtoPWM * (feed_forward + PID(angular_velocity_error, &wheelsK[motor])); 
+		float wheel_speed_percentage = OMEGAtoPWM * (feed_forward + PID(angular_velocity_error, &wheelsK[motor])); 
 
 		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
 	}
@@ -214,6 +214,16 @@ void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 		wheelsK[wheel].kP = PIDGains->Pwheels;
 		wheelsK[wheel].kI = PIDGains->Iwheels;
     	wheelsK[wheel].kD = PIDGains->Dwheels;
+	}
+}
+
+/**
+ * @brief Stops the wheels without deinitializing them 
+ */
+void wheels_Stop() {
+	for (int motor = 0; motor < 4; motor++){
+		wheels_SetSpeed_PWM(motor, 0);
+		// wheels_commanded_speeds[motor] = 0; // TODO: check the declaration of this variable
 	}
 }
 
