@@ -205,6 +205,16 @@ void wheels_GetMeasuredSpeeds(float speeds[4]) {
 	}
 }
 
+/**
+ * @brief Stops the wheels without deinitializing them 
+ */
+void wheels_Stop() {
+	for (int motor = 0; motor < 4; motor++){
+		wheels_SetSpeed_PWM(motor, 0);
+		wheels_commanded_speeds[motor] = 0;
+	}
+}
+
 float* stateControl_GetWheelRef() {
 	return wheelRef;
 }
@@ -214,16 +224,6 @@ void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 		wheelsK[wheel].kP = PIDGains->Pwheels;
 		wheelsK[wheel].kI = PIDGains->Iwheels;
     	wheelsK[wheel].kD = PIDGains->Dwheels;
-	}
-}
-
-/**
- * @brief Stops the wheels without deinitializing them 
- */
-void wheels_Stop() {
-	for (int motor = 0; motor < 4; motor++){
-		wheels_SetSpeed_PWM(motor, 0);
-		// wheels_commanded_speeds[motor] = 0; // TODO: check the declaration of this variable
 	}
 }
 

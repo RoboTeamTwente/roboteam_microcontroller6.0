@@ -161,16 +161,6 @@ bool wheels_GetWheelsBraking() {
 }
 
 /**
- * @brief Stops the wheels without deinitializing them 
- */
-void wheels_Stop() {
-	for (int motor = 0; motor < 4; motor++){
-		wheels_SetSpeed_PWM(motor, 0);
-		// wheels_commanded_speeds[motor] = 0; // TODO: check the declaration of this variable
-	}
-}
-
-/**
   * @brief Returns whether board can communicate with the motor driver
   * @param motor Motor id
   * @retval Motor status
