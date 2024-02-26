@@ -4,7 +4,7 @@
  */
 
 #include "CanDriver.h"
-#include "logging.h"
+//#include "logging.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>

@@ -28,9 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
-#include "dribbler_board.h"
-#include <stdio.h>
-#include <string.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -61,6 +59,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define APB 150
+#define MAX_PWM 6000
+#define ENCODER_FILTER 15
+#define Dribbler_CHA_Pin GPIO_PIN_0
+#define Dribbler_CHA_GPIO_Port GPIOA
+#define Dribbler_CHB_Pin GPIO_PIN_1
+#define Dribbler_CHB_GPIO_Port GPIOA
+#define PWM_Dribbler_Pin GPIO_PIN_4
+#define PWM_Dribbler_GPIO_Port GPIOA
+#define IR_LED_Pin GPIO_PIN_5
+#define IR_LED_GPIO_Port GPIOA
+#define BS_Pin GPIO_PIN_6
+#define BS_GPIO_Port GPIOA
+#define BS_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 

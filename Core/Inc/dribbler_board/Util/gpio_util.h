@@ -9,7 +9,7 @@
 #define UTILS_GPIO_UTIL_H_
 
 #include "stdbool.h"
-#include "stm32f7xx_hal.h"
+#include "stm32f3xx_hal.h"
 
 #define LOW 0
 #define HIGH 1
@@ -26,8 +26,7 @@ typedef struct GPIO_Pin{
 extern GPIO_Pin Dribbler_PWM_pin;
 
 // Ballsensor
-extern GPIO_Pin BS_IRQ_pin;
-extern GPIO_Pin BS_RST_pin;
+extern GPIO_Pin BS_pin;
 
 /////////////////////////////////////////////// GPIO UTILITY FUNCTIONS
 

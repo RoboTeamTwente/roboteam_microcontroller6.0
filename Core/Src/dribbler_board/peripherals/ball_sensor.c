@@ -32,9 +32,9 @@ void ballSensor_DeInit() {
 void ballSensor_IRQ_Handler() {
 	read_gpio();
 	if (!seesBall){
-		LOG("[BALLSENSOR]:: We lost the ball");
+		//LOG("[BALLSENSOR]:: We lost the ball");
 	} else{
-		LOG("[BALLSENSOR]:: We have the ball");
+		//LOG("[BALLSENSOR]:: We have the ball");
 	}
 }
 
@@ -49,7 +49,7 @@ void read_gpio() {
 					  otherwise will return GPIO_PIN_RESET
 		If GPIO_PIN_SET then set return to false, otherwise true
 	*/
-	GPIO_PinState portState = HAL_GPIO_ReadPin(BS_IRQ_GPIO_Port, BS_IRQ_Pin);
+	GPIO_PinState portState = HAL_GPIO_ReadPin(BS_GPIO_Port, BS_Pin);
 	if (portState == GPIO_PIN_RESET){
 		seesBall = false;
 		return;
@@ -59,6 +59,6 @@ void read_gpio() {
 
 void bs_I2C_error(uint8_t error){
 	seesBall = false;
-	LOG_printf("[bs_I2C_error] %d\n", error);
+	//LOG_printf("[bs_I2C_error] %d\n", error);
 }
 
