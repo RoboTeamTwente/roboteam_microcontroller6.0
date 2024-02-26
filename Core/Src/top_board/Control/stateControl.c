@@ -1,7 +1,6 @@
 
 #include "stateControl.h"
 #include "logging.h"
-#include "wheels.h"
 
 ///////////////////////////////////////////////////// VARIABLES
 
@@ -29,6 +28,10 @@ static float D[12] = {0.0f};
 
 static float wheels_measured_speeds[4] = {};      // Stores most recent measurement of wheel speeds in rad/s
 static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
+
+///////////////////////////////////////////////////// STRUCTURE
+
+static PIDvariables wheelsK[4];
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -68,7 +71,11 @@ static void velocityControl(float stateLocal[3], float stateGlobalRef[4], float 
 static float absoluteAngleControl(float angleRef, float angle);
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
-
+	
+	/* Initialize wheel controllers */
+	for (motor_id_t motor = RF; motor <= RB; motor++){
+		initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
+	}
 
 int stateControl_Init(){
 	status = on;
@@ -200,6 +207,14 @@ void wheels_GetMeasuredSpeeds(float speeds[4]) {
 
 float* stateControl_GetWheelRef() {
 	return wheelRef;
+}
+
+void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
+	for(wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++){
+		wheelsK[wheel].kP = PIDGains->Pwheels;
+		wheelsK[wheel].kI = PIDGains->Iwheels;
+    	wheelsK[wheel].kD = PIDGains->Dwheels;
+	}
 }
 
 ///////////// WHEELS CONTROL END

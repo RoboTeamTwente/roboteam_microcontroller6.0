@@ -18,6 +18,7 @@
 #include "gpio_util.h"
 #include "tim_util.h"
 #include "REM_RobotSetPIDGains.h"
+#include "wheels.h"
 
 // Set default PID values
 #define default_P_gain_u 0.2
@@ -115,5 +116,10 @@ void stateControl_ResetAngleI();
  * Resets the entire PID calculation for the angle.
  */
 void stateControl_ResetPID();
+
+void wheels_Update();
+void wheels_set_command_speed(const float speeds[4]); // Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
+void wheels_GetMeasuredSpeeds(float speeds[4]); // Get the last measured wheel speeds in rad/s
+void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains);
 
 #endif /* DO_STATE_CONTROL_H_ */

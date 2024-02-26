@@ -47,10 +47,6 @@ void wheels_DeInit();
 void wheels_SetPWM(motor_id_t id, int32_t Value);
 Motor_StatusTypeDef wheels_SetSpeed_PWM(motor_id_t id, float Value); // To set directly a PWM value to the motor (Value has a range between -1 and 1), for testing
 
-void wheels_set_command_speed(const float speeds[4]); // Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
-void wheels_GetMeasuredSpeeds(float speeds[4]); // Get the last measured wheel speeds in rad/s
-
-void wheels_Update();
 //Enable the brakes
 void wheels_Brake();
 //Disable the brakes
@@ -63,7 +59,7 @@ bool wheels_GetWheelsBraking();
 Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
 Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);
 
-void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains);
+static bool wheels_initialized = false; // being called in wheels_Update function inn State Control
 
 /* Encoders */
 void encoder_Init();

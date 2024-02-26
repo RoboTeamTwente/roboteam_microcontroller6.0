@@ -12,11 +12,8 @@ static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t 
 
 ///////////////////////////////////////////////////// STRUCTS
 
-static PIDvariables wheelsK[4];
-
 ///////////////////////////////////////////////////// VARIABLES
 
-static bool wheels_initialized = false;
 static bool wheels_braking = true;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
@@ -27,11 +24,6 @@ static bool wheels_braking = true;
   */
 Motor_StatusTypeDef wheels_Init(){
 	wheels_Brake();
-
-	/* Initialize wheel controllers */
-	for (motor_id_t motor = RF; motor <= RB; motor++){
-		initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
-	}
 
 	/* Start the PWM timers */
 	start_PWM(PWM_RF);
@@ -133,14 +125,6 @@ void wheels_GetPWM(uint32_t pwms[4]) {
 	pwms[wheels_RB] = get_PWM(PWM_RB);
 	pwms[wheels_LB] = get_PWM(PWM_LB);
 	pwms[wheels_LF] = get_PWM(PWM_LF);
-}
-
-void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
-	for(wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++){
-		wheelsK[wheel].kP = PIDGains->Pwheels;
-		wheelsK[wheel].kI = PIDGains->Iwheels;
-    	wheelsK[wheel].kD = PIDGains->Dwheels;
-	}
 }
 
 /**
