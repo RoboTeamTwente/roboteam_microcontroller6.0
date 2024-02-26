@@ -19,6 +19,7 @@
 #include "tim_util.h"
 #include "REM_RobotSetPIDGains.h"
 #include "wheels.h"
+#include <math.h>
 
 // Set default PID values
 #define default_P_gain_u 0.2f

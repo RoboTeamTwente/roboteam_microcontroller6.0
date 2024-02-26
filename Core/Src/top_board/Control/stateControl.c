@@ -26,8 +26,8 @@ static bool previousUseAbsoluteAngle = true;
 // The velocity coupling matrix, used to transform local velocities into wheel velocities [4x3]
 static float D[12] = {0.0f};
 
-static float wheels_measured_speeds[4] = {};      // Stores most recent measurement of wheel speeds in rad/s
-static float wheels_commanded_speeds[4] = {};     // Holds most recent commanded wheel speeds in rad/s
+static float wheels_measured_speeds[4] = {0.0f};      // Stores most recent measurement of wheel speeds in rad/s
+static float wheels_commanded_speeds[4] = {0.0f};     // Holds most recent commanded wheel speeds in rad/s
 
 ///////////////////////////////////////////////////// STRUCTURE
 
