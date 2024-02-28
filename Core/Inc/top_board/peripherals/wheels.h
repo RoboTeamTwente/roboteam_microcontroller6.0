@@ -59,7 +59,7 @@ bool wheels_GetWheelsBraking();
 Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
 Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);
 
-static bool wheels_initialized = false; // being called in wheels_Update function inn State Control
+extern bool wheels_initialized; // being called in wheels_Update function inn State Control
 
 /* Encoders */
 void encoder_Init();

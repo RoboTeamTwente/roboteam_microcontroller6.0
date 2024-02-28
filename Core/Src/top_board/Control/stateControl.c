@@ -3,6 +3,7 @@
 #include "logging.h"
 
 ///////////////////////////////////////////////////// VARIABLES
+ bool wheels_initialized = false;
 
 // The current status of the system.
 static PID_states status = off;
@@ -71,11 +72,6 @@ static void velocityControl(float stateLocal[3], float stateGlobalRef[4], float 
 static float absoluteAngleControl(float angleRef, float angle);
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
-	
-	/* Initialize wheel controllers */
-	// for (motor_id_t motor = RF; motor <= RB; motor++){
-	// 	initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
-	// }
 
 int stateControl_Init(){
 	status = on;
@@ -83,6 +79,10 @@ int stateControl_Init(){
 	initPID(&stateLocalK[vel_v], default_P_gain_v, default_I_gain_v, default_D_gain_v);
 	initPID(&stateLocalK[vel_w], default_P_gain_w, default_I_gain_w, default_D_gain_w); 
 	initPID(&stateLocalK[yaw], default_P_gain_yaw, default_I_gain_yaw, default_D_gain_yaw);
+	/* Initialize wheel controllers */
+	for (motor_id_t motor = RF; motor <= RB; motor++){
+		initPID(&wheelsK[motor], default_P_gain_wheels, default_I_gain_wheels, default_D_gain_wheels);
+	}
 	HAL_TIM_Base_Start_IT(TIM_CONTROL);
 
 	// Initialize the velocity coupling matrix.
