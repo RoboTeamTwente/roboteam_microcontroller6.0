@@ -70,9 +70,9 @@ void Error_Handler(void);
 #define PWM_Dribbler_GPIO_Port GPIOA
 #define IR_LED_Pin GPIO_PIN_5
 #define IR_LED_GPIO_Port GPIOA
-#define BS_Pin GPIO_PIN_6
-#define BS_GPIO_Port GPIOA
-#define BS_EXTI_IRQn EXTI9_5_IRQn
+#define BS_IRQ_Pin GPIO_PIN_6
+#define BS_IRQ_GPIO_Port GPIOA
+#define BS_IRQ_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 

@@ -384,11 +384,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(IR_LED_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BS_Pin */
-  GPIO_InitStruct.Pin = BS_Pin;
+  /*Configure GPIO pin : BS_IRQ_Pin */
+  GPIO_InitStruct.Pin = BS_IRQ_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(BS_IRQ_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 0);

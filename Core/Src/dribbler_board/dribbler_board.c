@@ -87,7 +87,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    if (GPIO_Pin == BS_pin.PIN){
+    if (GPIO_Pin == BS_IRQ_pin.PIN){
 		ballSensor_IRQ_Handler();
 	}
 }

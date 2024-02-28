@@ -26,7 +26,7 @@ typedef struct GPIO_Pin{
 extern GPIO_Pin Dribbler_PWM_pin;
 
 // Ballsensor
-extern GPIO_Pin BS_pin;
+extern GPIO_Pin BS_IRQ_pin;
 extern GPIO_Pin IR_LED_pin;
 
 /////////////////////////////////////////////// GPIO UTILITY FUNCTIONS
