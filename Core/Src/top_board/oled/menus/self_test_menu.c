@@ -6,8 +6,8 @@ struct page_struct self_test_kicker_menu;
 struct page_struct self_test_dribbler_menu;
 
 /**
- * @brief initialize the pages that are the children of main menu
- * @note constraint for children of main menu: 10 < id < 20 
+ * @brief initialize the pages that are the children of self test menu
+ * @note constraint for children of self test menu: 10 < id < 20 
 */
 void self_test_menu_initChildren(page_struct *parent) {
     self_test_top_menu.id = 11;
