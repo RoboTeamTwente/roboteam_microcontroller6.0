@@ -1,5 +1,6 @@
 #include "power_board.h"
 #include "CanDriver.h"
+#include "rem.h"
 
 
 uint16_t heartbeat_10000ms = 0;
@@ -15,16 +16,33 @@ uint64_t TxMailbox[0];
 void init() {
     // Set power circuit pin to HIGH, meaning on. When pulled again to LOW, it signals the power circuit to turn off, and power is then cut off instantly.
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
-	set_Pin(BAT_KILL_pin, 0); //0 SHOULD BE 1 BUT ELECTRONICS NEEDS TO FIX IT
+	//set_Pin(BAT_KILL_pin, 0); //0 SHOULD BE 1 BUT ELECTRONICS NEEDS TO FIX IT
 
-    /* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
+	CAN_Init(&hcan);
+	
+	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	REM_UARTinit(UART_PC);
+
+	LOG("HELLO WORLD");
+	LOG_sendAll();
+
+	heartbeat_10000ms = HAL_GetTick() + 100000;
+}
+
+uint8_t robot_get_ID(){
+  return 0;
+}
+
+uint8_t robot_get_Channel(){
+  return 0;
 }
 
 /* =================================================== */
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
+	LOG("HELLO WORLD");
+	LOG_sendAll();
     uint32_t current_time = HAL_GetTick();
     /* USER CODE END WHILE */
     if (CAN_to_process)

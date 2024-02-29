@@ -18,11 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "logging.h"
-#include "peripheral_util.h"
-#include "power_board.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "power_board.h"
 
 /* USER CODE END Includes */
 
@@ -43,7 +42,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
+
 I2C_HandleTypeDef hi2c1;
+
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_tx;
 
@@ -97,29 +98,22 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_CAN_Init();
-  CAN_Init(&hcan);
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-
+  /* USER CODE BEGIN 2 */
+  init();
   /* USER CODE END 2 */
-  
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  init();
-  heartbeat_10000ms = HAL_GetTick() + 100000;
   while (1)
-  { 
-    loop();    
+  {
+    loop();
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-}
-
-uint8_t robot_get_ID(){
-  return 0;
-}
-
-uint8_t robot_get_Channel(){
-  return 0;
 }
 
 /**
@@ -297,7 +291,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
 
 }
