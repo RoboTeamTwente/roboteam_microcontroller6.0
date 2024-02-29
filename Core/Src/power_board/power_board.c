@@ -1,6 +1,7 @@
 #include "power_board.h"
 #include "CanDriver.h"
 #include "rem.h"
+#include "main.h"
 
 
 uint16_t heartbeat_10000ms = 0;
