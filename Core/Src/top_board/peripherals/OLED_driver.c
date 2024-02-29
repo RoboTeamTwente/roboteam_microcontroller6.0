@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 static void onButtonPressMenu(button_id_t button);
 static void onButtonPressSelfTest(button_id_t button);
+static void onButtonPressDefault(button_id_t button);
 static void boot_screen();
 static void clear_screen();
 static void refresh();
@@ -81,10 +82,12 @@ void OLED_Update(button_id_t button, bool test_mode) {
         onButtonPressMenu(button);
     } else if (current_page->is_test) {
         onButtonPressSelfTest(button);
+    } else {
+        onButtonPressDefault(button);
     }
 
     /* Prevent user from going into test menu if robot not in test mode*/
-    if (!test_mode && current_page->id == id_self_test_menu) {
+    if (!test_mode && (current_page->id == id_self_test_menu || current_page->is_test)) {
         current_page = getNotInTestMode();
     }
 
@@ -149,6 +152,13 @@ static void onButtonPressSelfTest(button_id_t button) {
     } else {
         current_page = current_page->childeren[0];
     }
+}
+
+/**
+ * @brief move back to the parent
+*/
+static void onButtonPressDefault(button_id_t button) {
+    current_page = current_page->parent;
 }
 
 

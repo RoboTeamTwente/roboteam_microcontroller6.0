@@ -26,6 +26,7 @@ void main_menu_initChildren(page_struct *parent) {
     info_menu.is_test = false;
     info_menu.has_variables = false;
     add_child_to_parent(&info_menu);
+    info_menu_initChildren(&info_menu);
 }
 
 int getSelfTestMenuID() {
