@@ -21,6 +21,8 @@
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
+uint32_t set_speed;
+
 // Initializes the PIDs / encoders / PWM timers
 void dribbler_Init();
 // Denitializes the encoders / PWM timers

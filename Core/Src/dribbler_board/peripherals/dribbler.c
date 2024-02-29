@@ -1,6 +1,6 @@
 #include "dribbler.h"
 
-static const uint16_t DRIBBLER_MAX_PWM = 10000;
+static const uint16_t DRIBBLER_MAX_PWM = 320;
 static const uint8_t  delay_size = 4;
 static const float minimum_reliable_data = 200.0f;
 #define MOVINGAVERAGE_BUFFER_SIZE 5
@@ -42,7 +42,8 @@ void dribbler_Init(){
 	start_PWM(PWM_Dribbler);
 	/* Start the encoder */
 	HAL_TIM_Base_Start(ENC_DRIBBLER);
-	dribbler_SetSpeed(0.5f);
+	float per = 0.0f;
+	dribbler_SetSpeed(per);
 }
 
 void dribbler_DeInit(){
@@ -51,19 +52,19 @@ void dribbler_DeInit(){
 	HAL_TIM_Base_Stop(ENC_DRIBBLER);
 }
 
-void dribbler_SetSpeed(float speed){
-	if(speed > 1){
-		speed = 1;
-	}else if(speed < 0){
-		speed = 0;
-	}
-
+void dribbler_SetSpeed(float Value){
+	// if(Value > 1){
+	// 	Value = 1;
+	// }else if(Value < 0){
+	// 	Value = 0;
+	// }
+	
+	float speed = Value;
     moving_average.command_buf[moving_average.command_idx] = speed;
-    moving_average.command_idx = (moving_average.command_idx+1) % MOVINGAVERAGE_BUFFER_SIZE;	
-
-	set_PWM(PWM_Dribbler, (uint32_t)(speed * DRIBBLER_MAX_PWM));
+    moving_average.command_idx = (moving_average.command_idx+1) % MOVINGAVERAGE_BUFFER_SIZE;
+	uint32_t speed_ = speed * 320;
+	TIM3->CCR2 = speed_;
 }
-
 
 /**
  * @brief Updates the dribbler variables

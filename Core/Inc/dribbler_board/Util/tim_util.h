@@ -9,6 +9,7 @@
 #define UTILS_TIM_UTIL_H_
 
 #include "stm32f3xx_hal.h"
+#include "main.h"
 // Timers
 extern TIM_HandleTypeDef htim1; // internal timer (not used ATM)
 extern TIM_HandleTypeDef htim2; // encoder Dribbler 32 bit
@@ -41,12 +42,14 @@ inline void stop_PWM(PWM_struct PWM){
     HAL_TIM_PWM_Stop(PWM.TIM, PWM.Channel);
 }
 
-inline void set_PWM(PWM_struct PWM, uint32_t Value){
-    __HAL_TIM_SET_COMPARE(PWM.TIM , PWM.Channel, Value);
+inline void set_PWM(PWM_struct PWM, float Value){
+    uint32_t speed = (uint32_t)(Value * 320);
+    TIM3->CCR2 = speed;
 }
 
 inline uint32_t get_PWM(PWM_struct PWM){
     return __HAL_TIM_GET_COMPARE(PWM.TIM , PWM.Channel);
 }
+
 
 #endif //UTILS_TIM_UTIL_H_

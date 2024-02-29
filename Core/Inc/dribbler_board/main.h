@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-CAN_HandleTypeDef hcan;
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -60,9 +60,9 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define APB 150
-#define MAX_PWM 6000
+CAN_HandleTypeDef hcan;
 #define ENCODER_FILTER 15
+#define MAX_DRIBBLER_PWM 320
 #define Dribbler_CHA_Pin GPIO_PIN_0
 #define Dribbler_CHA_GPIO_Port GPIOA
 #define Dribbler_CHB_Pin GPIO_PIN_1
