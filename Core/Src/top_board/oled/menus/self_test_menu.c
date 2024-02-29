@@ -19,6 +19,7 @@ void self_test_menu_initChildren(page_struct *parent) {
     self_test_top_menu.has_variables = false;
     add_child_to_parent(&self_test_top_menu);
     buzzer_test_init(&self_test_top_menu);
+    wheel_twitch_init(&self_test_top_menu);
 
     self_test_power_menu.id = 12;
     strcpy(self_test_power_menu.page_name, "Power board");

@@ -105,6 +105,21 @@ void OLED_set_error_too_many_children(char* page_name) {
     page_name_error_too_many_children = page_name;
 }
 
+void start_test() {
+    SSD1306_GotoXY (5,20);
+    SSD1306_Puts("Test is running", &Font_7x10, 1);
+    SSD1306_UpdateScreen();   
+}
+
+void end_of_test() {
+    SSD1306_GotoXY (5,31);
+    SSD1306_Puts("Test done!", &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts("press \"OK\" to", &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    SSD1306_Puts("continue", &Font_7x10, 1);
+}
+
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 /**
  * @brief actions after button press for menu page
@@ -203,7 +218,6 @@ static void refresh(){
         }
     } 
     
-
     SSD1306_UpdateScreen(); // update screen
 }
 
@@ -309,12 +323,13 @@ static void display_text() {
 }
 
 static void test_page() {
-    if (current_page->has_variables) {
-        //TODO
-    } else {
-        display_text();
+    if (!run_test(current_page)) {
+        if (current_page->has_variables) {
+            //TODO
+        } else {
+            display_text();
+        }
     }
-    run_test(current_page);
 }
 
 /**
