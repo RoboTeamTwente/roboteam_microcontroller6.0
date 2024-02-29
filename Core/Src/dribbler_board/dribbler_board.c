@@ -31,6 +31,15 @@ void init(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
+    if (CAN_to_process){
+        if (!MailBox_one.empty)
+            CAN_Process_Message(&MailBox_one);
+        if (!MailBox_two.empty)
+            CAN_Process_Message(&MailBox_two);
+        if (!MailBox_three.empty)
+            CAN_Process_Message(&MailBox_three);
+        CAN_to_process = false;
+	}
 
 }
 
@@ -49,7 +58,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
     }
     else if (to_Process->message_id == DRIBBLER_SPEED){
         float new_dribbler_speed = get_dribbler_sees_ball(to_Process->data_Frame);
-        //set_dribbler_speed(new_dribbler_speed); 
+        dribbler_SetSpeed(new_dribbler_speed); 
     }   
 
 }
@@ -63,7 +72,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 
         if (sending_message_ID == DRIBBLER_SEESBALL_MESSAGE){
             set_dribbler_sees_ball_header(&CAN_TxHeader);
-            set_dribbler_sees_ball(payload, dribbler_state);
+            set_dribbler_sees_ball(payload, dribbler_GetHasBall());
         }
 
         else if (sending_message_ID == BALLSENSOR_MESSAGE){
@@ -83,6 +92,19 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 
 }
 
+/* =================================================== */
+/* ===================== METHODS ===================== */
+/* =================================================== */
+void dribbler_CALLBACK_FUNCTION(){
+    dribbler_Update();
+    dribbler_CalculateHasBall();
+    if (dribbler_ChangeInState()){
+        CAN_Send_Message(DRIBBLER_SEESBALL_MESSAGE, TOP_ID, &hcan);
+        dribbler_set_State(false);
+    }
+}
+
+
 /* ============================================================ */
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
@@ -93,4 +115,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (&htim == &htim3){
+        dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
+    }
 }

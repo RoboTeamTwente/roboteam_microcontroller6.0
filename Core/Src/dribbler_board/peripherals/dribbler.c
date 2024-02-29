@@ -20,6 +20,7 @@ static float speed = 0.0f;                       // Stores most recent measureme
 static float speed_filtered = 0.0f;              // Stores filtered measurement of dribbler speed in rad/s
 static float speed_filtered_previous = 0.0f;     // Stores the previous filtered measurement of dribbler speed in rad/s
 static bool has_ball = false;                    // Stores information if dribbler thinks it has the ball
+static bool sent_state_change = false;			 // Messages are sent when we go from not having to having the ball and the inverse
 static uint32_t last_encoder_measurement = 0;    // Stores the last encoder measurement
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
@@ -41,7 +42,7 @@ void dribbler_Init(){
 	start_PWM(PWM_Dribbler);
 	/* Start the encoder */
 	HAL_TIM_Base_Start(ENC_DRIBBLER);
-	dribbler_SetSpeed(0);
+	dribbler_SetSpeed(0.5f);
 }
 
 void dribbler_DeInit(){
@@ -117,17 +118,35 @@ void dribbler_CalculateHasBall(){
 	}
 
 	// check if all conditions are met, assume we have the ball if so
-	if (speed_reducing && (speed_filtered > minimum_reliable_data) && (speed_command_average > 0)){
-		has_ball = true;
+	if (!has_ball){
+		if (speed_reducing && (speed_filtered > minimum_reliable_data) && (speed_command_average > 0)){
+			has_ball = true;
+			sent_state_change = true;
+		}
 	}
 	
 	// Only say we lose the ball if the speed increases above the threshold value or if the dribbler turns off
 	if (has_ball){
 		if ((speed_increasing && (speed_filtered > (moving_average.speedBeforeGotBall-5))) || speed_command_average < 0.05f){
 			has_ball = false;
+			sent_state_change = true;
 		}
 	}	
 
+}
+
+/**
+ * @brief Have we already sent the message that we changed the state of the dribbler
+ */
+bool dribbler_ChangeInState(){
+	return sent_state_change;
+}
+
+/**
+ * @brief Set the value of the sent_state_change bool
+ */
+void dribbler_set_State(bool state){
+	sent_state_change = state;
 }
 
 /**

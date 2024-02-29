@@ -14,9 +14,9 @@
 #define DRIBBLER_DRIBBLER_H_
 
 #include "main.h"
+#include "tim_util.h"
 #include <math.h>
 #include "control_util.h"
-#include "tim_util.h"
 #include "logging.h"
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
@@ -39,6 +39,10 @@ float dribbler_GetSpeedBeforeGotBall();
 void dribbler_CalculateHasBall();
 // Returns true if the dribbler has the ball
 bool dribbler_GetHasBall();
+// Returns false if we haven't sent the message of the dribbler state
+bool dribbler_ChangeInState();
+// Sets the value of the message boolean
+void dribbler_set_State(bool state);
 // Returns the latest encoder measurement
 uint32_t dribbler_GetEncoderMeasurement();
 

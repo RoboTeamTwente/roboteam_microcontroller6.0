@@ -28,15 +28,16 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
+#include "dribbler_board.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+CAN_HandleTypeDef hcan;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-extern CAN_HandleTypeDef hcan;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
