@@ -98,7 +98,7 @@ void dribbler_CALLBACK_FUNCTION(){
     dribbler_CalculateHasBall();
     if (dribbler_ChangeInState()){
         CAN_Send_Message(DRIBBLER_SEESBALL_MESSAGE, TOP_ID, &hcan);
-        dribbler_set_State(false);
+        dribbler_set_State(dribbler_GetHasBall());
     }
 }
 

@@ -53,12 +53,6 @@ void dribbler_DeInit(){
 }
 
 void dribbler_SetSpeed(float Value){
-	// if(Value > 1){
-	// 	Value = 1;
-	// }else if(Value < 0){
-	// 	Value = 0;
-	// }
-	
 	float speed = Value;
     moving_average.command_buf[moving_average.command_idx] = speed;
     moving_average.command_idx = (moving_average.command_idx+1) % MOVINGAVERAGE_BUFFER_SIZE;
