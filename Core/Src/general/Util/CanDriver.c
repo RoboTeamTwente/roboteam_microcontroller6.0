@@ -75,7 +75,7 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
 		memcpy(MailBox_three.data_Frame, RxData, sizeof(data));
 		return true;
 	}
-	free(data);
+	//free(data);
 	return false;
 }
 

@@ -132,7 +132,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 	} else if (reciever_ID == DRIBBLER_ID) {
 		if (sending_message_ID == DRIBBLER_SPEED) {
 			set_request_dribbler_speed_header(&CAN_TxHeader);
-			set_dribbler_speed(&payload, dribbler_speed);
+			set_dribbler_speed(payload, dribbler_speed);
 		}
 	}
 	else if (KICK_CHIP_ID) {
@@ -153,7 +153,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 		}
 	}
 
-	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
+	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
 }
 
 /**
