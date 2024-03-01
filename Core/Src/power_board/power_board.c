@@ -22,10 +22,7 @@ void init() {
 	CAN_Init(&hcan);
 	
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-	REM_UARTinit(UART_PC);
-
-	LOG("HELLO WORLD");
-	LOG_sendAll();
+	//REM_UARTinit(UART_PC);
 
 	heartbeat_10000ms = HAL_GetTick() + 100000;
 }
@@ -42,8 +39,6 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
-	LOG("HELLO WORLD");
-	LOG_sendAll();
     uint32_t current_time = HAL_GetTick();
     /* USER CODE END WHILE */
     if (CAN_to_process)
