@@ -597,6 +597,11 @@ void init(void){
 	// Ensure that the speaker is stopped. The speaker keeps going even if the robot is reset
 	speaker_Stop();
 
+	// Play RobotID
+	HAL_Delay(50);
+	buzzer_Play_ID(ROBOT_ID);
+
+
 {	// ====== Check if communication if other boards is working
 	check_otherboards(POWER_ID, &powerBoard_alive);
 	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
@@ -629,9 +634,6 @@ void init(void){
 
 	/* Turn of all leds. Will now be used to indicate robot status */
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
-	HAL_Delay(50);
-	buzzer_Play_ID(ROBOT_ID);
-
 	timestamp_initialized = HAL_GetTick();
 
 	/* Set the heartbeat timers */
@@ -656,8 +658,15 @@ void check_otherboards(uint8_t board_ID, bool *board_state){
 	uint8_t MAX_ATTEMPTS = 0;
 	while (MAX_ATTEMPTS < 3 && *board_state == false)
 	{
+		MAX_ATTEMPTS++;
 		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
-		HAL_Delay(1000);
+		HAL_Delay(500);
+		if (CAN_to_process){
+			if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
+			if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
+			if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
+		CAN_to_process = false;
+	}
 	}	
 	if (*board_state == false) LOG_printf("CAN_ERROR :: The board %d is not alive \n",board_ID);
 }
