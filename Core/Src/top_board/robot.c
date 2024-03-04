@@ -153,7 +153,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 		}
 	}
 
-	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
+	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
 }
 
 /**
