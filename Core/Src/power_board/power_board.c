@@ -24,7 +24,7 @@ void init() {
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
 
-	heartbeat_10000ms = HAL_GetTick() + 100000;
+	heartbeat_10000ms = HAL_GetTick() + 10000;
 }
 
 uint8_t robot_get_ID(){
