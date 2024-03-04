@@ -178,7 +178,6 @@ int main(void)
   MX_CAN1_Init();
   MX_ADC1_Init();
   MX_UART8_Init();
-  CAN_Init(&hcan1); // this is required for the CAN filter
   
   /* USER CODE BEGIN 2 */
   init();

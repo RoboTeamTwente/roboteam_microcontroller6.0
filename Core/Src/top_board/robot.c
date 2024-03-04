@@ -603,6 +603,7 @@ void init(void){
 
 
 {	// ====== Check if communication if other boards is working
+  	CAN_Init(&hcan1); // this is required for the CAN filter
 	check_otherboards(POWER_ID, &powerBoard_alive);
 	if (!DEBUG_MODE) {IWDG_Refresh(iwdg);}
 	check_otherboards(DRIBBLER_ID, &dribblerBoard_alive);
