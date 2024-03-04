@@ -149,7 +149,7 @@ int main(void)
   PeriphCommonClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  HAL_InitTick(0);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
