@@ -28,7 +28,7 @@ volatile bool DEBUG_MODE = false;
 	- doForce_CAN
 	- kill_robot, powerboard_request 
 */
-uint64_t TxMailbox[1];
+uint32_t TxMailbox[1];
 bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
 bool dribbler_sees_ball, ballsensor_sees_ball;
 uint16_t powerboard_voltage, kicker_capacitor_voltage;
