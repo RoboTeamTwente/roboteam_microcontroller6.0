@@ -66,7 +66,7 @@ void loop() {
  * Generate the message we want to transmit based on
  * ID arguments passed
  */
-void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
+void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcanP){
 
     uint8_t payload[8];
     memset(payload, 0, sizeof(payload));
@@ -86,7 +86,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 			set_powerBoard_sensor_state(payload, true);
 		}
 	}
-	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
+	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
 		CAN_error_LOG(&CAN_TxHeader);
 
 	return;
