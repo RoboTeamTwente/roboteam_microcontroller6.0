@@ -40,7 +40,6 @@ uint8_t robot_get_Channel(){
 /* =================================================== */
 void loop() {
     uint32_t current_time = HAL_GetTick();
-    /* USER CODE END WHILE */
     if (CAN_to_process)
     {
         if (!MailBox_one.empty)
@@ -108,10 +107,11 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 	}
 	else if (to_Process->message_id == ARE_YOU_ALIVE)
 	{
-		if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
-		{
+		CAN_Send_Message(IM_ALIVE_VOLTAGE, TOP_ID, &hcan);
+		// if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
+		// {
 			
-		}
+		// }
 	}
 	
 	to_Process->empty = true;
