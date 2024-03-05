@@ -21,6 +21,7 @@ bool ballsensor_state;
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(){
+    CAN_Init(&hcan, DRIBBLER_ID);
     dribbler_Init();
     //ballSensor_Init();
     BOARD_INITIALIZED = true;
