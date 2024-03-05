@@ -824,6 +824,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		float* refSpeedWheelsPointer;
 		refSpeedWheelsPointer = stateControl_GetWheelRef();
+		
+		float* pointerGlobalBodyRef;
+		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
+		
 		wheels_set_command_speed( stateControl_GetWheelRef() );
 
 		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
@@ -878,10 +882,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
 			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
 			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
-			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
-			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
-			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
-			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
+			robotStateInfo.bodyXIntegral = pointerGlobalBodyRef[vel_x]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
+			robotStateInfo.bodyYIntegral = pointerGlobalBodyRef[vel_y]; //
+			robotStateInfo.bodyWIntegral = pointerGlobalBodyRef[vel_w]; //
+			robotStateInfo.bodyYawIntegral = pointerGlobalBodyRef[yaw]; //
 			robotStateInfo.wheel1Integral = refSpeedWheelsPointer[0]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
 			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
 			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //

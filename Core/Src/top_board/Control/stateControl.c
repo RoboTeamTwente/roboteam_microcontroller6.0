@@ -216,10 +216,6 @@ void wheels_Stop() {
 	}
 }
 
-float* stateControl_GetWheelRef() {
-	return wheelRef;
-}
-
 void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 	for(wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++){
 		wheelsK[wheel].kP = PIDGains->Pwheels;
@@ -264,6 +260,14 @@ void stateControl_GetPIDGains(PIDvariables gainsLocal[4]){
 
 float stateControl_GetIntegral(robot_axes direction) {
 	return stateLocalK[direction].I;
+}
+
+float* stateControl_GetWheelRef() {
+	return wheelRef;
+}
+
+float* stateControl_GetBodyGlobalRef() {
+	return stateGlobalRef;
 }
 
 void stateControl_useAbsoluteAngle(bool angularControl){

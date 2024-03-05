@@ -73,6 +73,14 @@ void stateControl_SetRef(float _stateGlobalRef[4]);
 float* stateControl_GetWheelRef();
 
 /**
+ * Get the referenced global body speeds (for yaw - angleControl)
+ * 
+ * @return float* An array with the global x, y, w and yaw velocities to be achieved [m/s]
+
+ */
+float* stateControl_GetBodyGlobalRef();
+
+/**
  * Set the current state as the estimated state as calculated by stateEstimation
  * 
  * @param _stateLocal The u [m/s], v [m/s] and w [rad/s] speeds and yaw [rad] from stateEstimation
