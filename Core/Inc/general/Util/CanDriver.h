@@ -21,7 +21,7 @@ extern mailbox_buffer MailBox_two;
 extern mailbox_buffer MailBox_three;
 extern bool CAN_to_process;
 
-void CAN_Init(CAN_HandleTypeDef *hcan);
+void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id);
 
 void CAN_SendMessage(CAN_HandleTypeDef *hcan, uint32_t MessageId , uint8_t *TxData[8], uint32_t Length);
 

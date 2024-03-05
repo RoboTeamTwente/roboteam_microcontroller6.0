@@ -19,7 +19,7 @@ void init() {
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	//set_Pin(BAT_KILL_pin, 0); //0 SHOULD BE 1 BUT ELECTRONICS NEEDS TO FIX IT
 
-	CAN_Init(&hcan);
+	CAN_Init(&hcan, POWER_ID);
 	
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
