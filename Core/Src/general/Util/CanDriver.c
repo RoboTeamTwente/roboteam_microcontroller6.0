@@ -25,9 +25,9 @@ void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
     canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
     canfilterconfig.FilterBank = 10;
     canfilterconfig.FilterFIFOAssignment = CAN_RX_FIFO0;
-    canfilterconfig.FilterIdHigh = board_id << 13;
+    canfilterconfig.FilterIdHigh = board_id << 12;
     canfilterconfig.FilterIdLow = 0x0000;
-    canfilterconfig.FilterMaskIdHigh = 0xE000;
+    canfilterconfig.FilterMaskIdHigh = 0xF000;
     canfilterconfig.FilterMaskIdLow = 0x0000;
     canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
     canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
