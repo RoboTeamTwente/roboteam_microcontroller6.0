@@ -822,6 +822,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateControl_SetState(stateLocal);
 		stateControl_Update();
 
+		float* refSpeedWheelsPointer;
+		refSpeedWheelsPointer = stateControl_GetWheelRef();
 		wheels_set_command_speed( stateControl_GetWheelRef() );
 
 		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
@@ -880,6 +882,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
 			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
 			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
+			robotStateInfo.wheel1Integral = refSpeedWheelsPointer[0]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
+			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
+			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //
+			robotStateInfo.wheel4Integral = refSpeedWheelsPointer[3]; // 
 
 
 			// flag_sdcard_write_feedback = true;
