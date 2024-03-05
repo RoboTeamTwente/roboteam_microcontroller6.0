@@ -113,8 +113,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (&htim == &htim3){
-        dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
-    }
-}
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+//     if (&htim == &htim3){
+//         dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
+//     }
+// }
