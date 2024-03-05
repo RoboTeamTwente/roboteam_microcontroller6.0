@@ -53,10 +53,9 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-extern CAN_HandleTypeDef hcan;
 
 /* USER CODE BEGIN EFP */
-
+extern CAN_HandleTypeDef hcan;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

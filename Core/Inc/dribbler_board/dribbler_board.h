@@ -11,6 +11,7 @@
 #include "gpio_util.h"
 #include "tim_util.h"
 #include "peripheral_util.h"
+#include <string.h>
 
 void init();
 void loop();

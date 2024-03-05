@@ -14,7 +14,7 @@
 mailbox_buffer MailBox_one    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-char str[75];
+//char str[75];
 bool CAN_to_process = false;
 
 // Function to initialize CAN communication
@@ -81,12 +81,12 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
     } else if (MailBox_two.empty){
         MailBox_two.empty = false;
         MailBox_two.message_id = message_ID;
-        memcpy(MailBox_two.data_Frame, RxData, sizeof(*RxData));
+        memcpy(MailBox_two.data_Frame, data, sizeof(data));
         return true;
     } else if (MailBox_three.empty){
         MailBox_three.empty = false;
         MailBox_three.message_id = message_ID;
-        memcpy(MailBox_three.data_Frame, RxData, sizeof(*RxData));
+        memcpy(MailBox_three.data_Frame, data, sizeof(data));
         return true;
     }
 
