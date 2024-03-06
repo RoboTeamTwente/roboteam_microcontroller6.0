@@ -164,42 +164,42 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
 	if (to_Process->message_id == IM_ALIVE_VOLTAGE)	{
 		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and POWER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+			LOG_printf("CAN_ERROR :: Mismatch version between TOP and POWER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			powerBoard_alive = false;
 		} else if( (get_powerBoard_sensor_state(to_Process->data_Frame) == POWER_SENSOR_NOT_WORKING)) {
-			LOG_printf("CAN_ERROR :: Powerboard voltage meter is not working");
+			LOG_printf("CAN_ERROR :: Powerboard voltage meter is not working\n");
 			powerBoard_alive = false;
 		} else {
-			LOG_printf("CAN_INIT :: Powerboard is initalized correctly!");
+			LOG_printf("CAN_INIT :: Power board is initalized correctly!\n");
 			powerBoard_alive = true;
 		}
 	} else if (to_Process->message_id == IM_ALIVE_KICKER) {
 		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and KICKER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+			LOG_printf("CAN_ERROR :: Mismatch version between TOP and KICKER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			kickerBoard_alive = false;
 		} else if ( (get_capacitor_charging_state(to_Process->data_Frame) == CAPACITOR_SENSOR_NOT_WORKING)) {
-			LOG_printf("CAN_ERROR :: Kicker is not charging");
+			LOG_printf("CAN_ERROR :: Kicker is not charging\n");
 			kickerBoard_alive = false;
 		} else if( (get_capacitor_sensor_state(to_Process->data_Frame) == CAPACITOR_NOT_CHARGING)) {
-			LOG_printf("CAN_ERROR :: Kicker voltage meter is not working");
+			LOG_printf("CAN_ERROR :: Kicker voltage meter is not working\n");
 			kickerBoard_alive = false;
 		} else {
-			LOG_printf("CAN_INIT :: Kicker is initalized correctly!");
+			LOG_printf("CAN_INIT :: Kicker board is initalized correctly!\n");
 			kickerBoard_alive = true;
 		}
 	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
 	{
 		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
 			dribblerBoard_alive = false;
 		} else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
-			LOG_printf("CAN_ERROR :: Ball sensor is not functioning");
+			LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
 			dribblerBoard_alive = false;
 		} else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
-			LOG_printf("CAN_ERROR :: Dribbler is not functioning");
+			LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
 			dribblerBoard_alive = false;
 		} else {
-			LOG_printf("CAN_INIT :: Dribbler is initalized correctly!");
+			LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
 			dribblerBoard_alive = true;
 		}
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
