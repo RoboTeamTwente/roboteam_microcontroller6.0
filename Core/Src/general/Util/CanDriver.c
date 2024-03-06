@@ -148,7 +148,7 @@ void set_request_power_state(uint8_t payload[8], bool request_State){
 // Function to set the header for "Voltage Response" message
 void set_voltage_response_header(CAN_TxHeaderTypeDef *TxHeader){
     TxHeader->DLC = 2;
-    TxHeader->StdId = (POWER_ID << RECEIVER_ID_LOCATION) | VOLTAGE_RESPONSE;
+    TxHeader->StdId = (TOP_ID << RECEIVER_ID_LOCATION) | VOLTAGE_RESPONSE;
 }
 
 // Function to get the voltage response from a payload
