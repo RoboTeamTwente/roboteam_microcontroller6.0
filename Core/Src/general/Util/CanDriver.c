@@ -213,7 +213,7 @@ bool get_dribbler_sees_ball(uint8_t payload[8]){
 }
 
 // Function to set the header for "Ball Sensor" message
-void set_ballsensor_header(CAN_TxHeaderTypeDef *TxHeader){
+void set_ballsensor_sees_ball_header(CAN_TxHeaderTypeDef *TxHeader){
     TxHeader->StdId = (TOP_ID << RECEIVER_ID_LOCATION) | BALLSENSOR_MESSAGE;
 }
 
