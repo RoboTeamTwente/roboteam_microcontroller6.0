@@ -11,7 +11,6 @@ static void static_page();
 static void scrollable_page();
 static void menu_move_sideways(int direction);
 static void display_text();
-static void test_page();
 static void menuHasNoChildrenException();
 static void menuHasTooManyChildrenException();
 
@@ -210,7 +209,9 @@ static void refresh(){
                 scrollable_page();
             }
         } else if (current_page->is_test) {
-            test_page();
+            display_text();
+            SSD1306_UpdateScreen(); // update screen
+            run_test(current_page);
         } else if (current_page->has_variables) {
 
         } else {
@@ -320,16 +321,6 @@ static void display_text() {
     SSD1306_Puts(current_page->line2, &Font_7x10, 1);
     SSD1306_GotoXY (5,53);
     SSD1306_Puts(current_page->line3, &Font_7x10, 1);
-}
-
-static void test_page() {
-    if (!run_test(current_page)) {
-        if (current_page->has_variables) {
-            //TODO
-        } else {
-            display_text();
-        }
-    }
 }
 
 /**
