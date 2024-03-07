@@ -113,8 +113,10 @@ void stateControl_Update(){
 		float velocityWheelRef[4] = {0.0f};
 		velocityControl(stateLocal, stateGlobalRef, velocityWheelRef);
 
+		float angularRef = useAbsoluteAngle ? absoluteAngleControl(stateGlobalRef[yaw], stateLocal[yaw]) : 0.0f;
+
 		for (wheel_names wheel=wheels_RF; wheel<=wheels_RB; wheel++){
-			wheelRef[wheel] = velocityWheelRef[wheel];
+			wheelRef[wheel] = velocityWheelRef[wheel] + angularRef;
 		}
 	}
 }
@@ -350,8 +352,6 @@ static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float 
 	stateLocalRef_PID[vel_u] = stateLocalRef[vel_u]/SLIPPAGE_FACTOR_U + PID(veluErr, &stateLocalK[vel_u]);
 	stateLocalRef_PID[vel_v] = stateLocalRef[vel_v]/SLIPPAGE_FACTOR_V + PID(velvErr, &stateLocalK[vel_v]);
 	stateLocalRef_PID[vel_w] = stateLocalRef[vel_w]/SLIPPAGE_FACTOR_W + PID(velwErr, &stateLocalK[vel_w]);
-
-	stateLocalRef_PID[yaw] = stateLocalRef_PID[yaw] + useAbsoluteAngle ? absoluteAngleControl(stateLocalRef[yaw], stateLocal[yaw]) : 0.0f;
 	
 	body2Wheels(velocityWheelRef, stateLocalRef_PID); //translate velocity to wheel speed
 }
