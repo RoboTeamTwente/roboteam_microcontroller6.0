@@ -10,7 +10,8 @@
 #include <stdbool.h>
 #include "ssd1306/bitmap.h"
 #include "pages.h"
-#include "selftests.h"
+#include "selftest_selector.h"
+#include "variable_page_selector.h"
 #include "robot.h"
 
 void OLED_Init();

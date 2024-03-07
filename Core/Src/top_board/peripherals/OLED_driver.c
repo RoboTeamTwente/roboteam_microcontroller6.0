@@ -68,7 +68,12 @@ void OLED_Update(button_id_t button, bool test_mode) {
     /* if no button is pressed return; update variables displayed on page if needed beforehand */
     if (button == BUTTON_NONE) {
         if (current_page->has_variables) {
-
+            clear_screen();
+            SSD1306_GotoXY (5,0);
+	        SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
+            update_variables(current_page);
+            display_text();
+            SSD1306_UpdateScreen(); // update screen
         } 
         return;
     }
@@ -213,7 +218,8 @@ static void refresh(){
             SSD1306_UpdateScreen(); // update screen
             run_test(current_page);
         } else if (current_page->has_variables) {
-
+            update_variables(current_page);
+            display_text();
         } else {
             display_text();
         }

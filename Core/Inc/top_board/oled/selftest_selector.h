@@ -4,6 +4,6 @@
 #include "pages.h"
 #include "buzzer_test.h"
 
-bool run_test(page_struct *page);
+void run_test(page_struct *page);
 
 #endif /* INC_SELFTESTS_H_ */

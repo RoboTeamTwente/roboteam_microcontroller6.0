@@ -48,7 +48,7 @@
 REM_RobotCommandPayload myRobotCommandPayload;
 REM_RobotCommand myRobotCommand;
 
-void print(char _out[]);
+extern uint64_t unix_timestamp;
 
 void init(void);
 void loop(void);
