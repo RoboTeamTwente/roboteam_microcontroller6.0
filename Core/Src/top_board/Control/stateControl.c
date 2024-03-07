@@ -50,9 +50,8 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[3]);
  * 
  * @param global 	The global coordinates {vel_x, vel_y, vel_w, yaw}
  * @param local 	The local coordinates {vel_u, vel_v, vel_w, yaw}
- * @param angle 	Yaw
  */
-static void global2Local(float global[4], float local[4], float angle);
+static void global2Local(float global[4], float local[4]);
 
 /**
  * Determines the desired wheel speeds given the desired velocities
@@ -114,10 +113,8 @@ void stateControl_Update(){
 		float velocityWheelRef[4] = {0.0f};
 		velocityControl(stateLocal, stateGlobalRef, velocityWheelRef);
 
-		float angularRef = useAbsoluteAngle ? absoluteAngleControl(stateGlobalRef[yaw], stateLocal[yaw]) : 0.0f;
-
 		for (wheel_names wheel=wheels_RF; wheel<=wheels_RB; wheel++){
-			wheelRef[wheel] = velocityWheelRef[wheel] + angularRef;
+			wheelRef[wheel] = velocityWheelRef[wheel];
 		}
 	}
 }
@@ -332,18 +329,18 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[3]){
 	}
 }
 
-static void global2Local(float global[4], float local[4], float angle){
+static void global2Local(float global[4], float local[4]){
 	//trigonometry
-	local[vel_u] = cosf(angle) * global[vel_x] + sinf(angle) * global[vel_y];
-	local[vel_v] = -sinf(angle) * global[vel_x] + cosf(angle) * global[vel_y];
+	local[vel_u] = cosf(global[yaw]) * global[vel_x] + sinf(global[yaw]) * global[vel_y];
+	local[vel_v] = -sinf(global[yaw]) * global[vel_x] + cosf(global[yaw]) * global[vel_y];
     local[vel_w] = global[vel_w];
 	local[yaw] = global[yaw];
 }
 
-static void velocityControl(float stateLocal[3], float stateGlobalRef[4], float velocityWheelRef[4]){
-	float stateLocalRef[3] = {0.0f, 0.0f, 0.0f};
-	float stateLocalRef_PID[3] = {0.0f, 0.0f, 0.0f};
-	global2Local(stateGlobalRef, stateLocalRef, stateLocal[yaw]); //transfer global to local
+static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]){
+	float stateLocalRef[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	float stateLocalRef_PID[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	global2Local(stateGlobalRef, stateLocalRef); //transfer global to local
 
 	// Local control
 	float veluErr = (stateLocalRef[vel_u] - stateLocal[vel_u]);
@@ -354,6 +351,8 @@ static void velocityControl(float stateLocal[3], float stateGlobalRef[4], float 
 	stateLocalRef_PID[vel_v] = stateLocalRef[vel_v]/SLIPPAGE_FACTOR_V + PID(velvErr, &stateLocalK[vel_v]);
 	stateLocalRef_PID[vel_w] = stateLocalRef[vel_w]/SLIPPAGE_FACTOR_W + PID(velwErr, &stateLocalK[vel_w]);
 
+	stateLocalRef_PID[yaw] = stateLocalRef_PID[yaw] + useAbsoluteAngle ? absoluteAngleControl(stateLocalRef[yaw], stateLocal[yaw]) : 0.0f;
+	
 	body2Wheels(velocityWheelRef, stateLocalRef_PID); //translate velocity to wheel speed
 }
 
