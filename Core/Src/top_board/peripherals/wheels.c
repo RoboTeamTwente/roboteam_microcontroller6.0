@@ -14,7 +14,10 @@ static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t 
 
 ///////////////////////////////////////////////////// VARIABLES
 
+static bool wheels_initialized = false;
 static bool wheels_braking = true;
+
+static float wheels_measured_speeds[4] = {0.0f};      // Stores most recent measurement of wheel speeds in rad/s
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
@@ -49,6 +52,10 @@ Motor_StatusTypeDef wheels_Init(){
 	wheels_initialized = true;
 
 	return output;
+}
+
+bool wheels_AreInitialized(){
+	return wheels_initialized;
 }
 
 /**
@@ -115,17 +122,24 @@ Motor_StatusTypeDef wheels_SetSpeed_PWM(motor_id_t id, float value){
 	return MOTOR_OK;
 }
 
-/**
- * @brief Get the current wheel PWMs
- * 
- * @param pwms uint32_t[4]{RF, LF, LB, RB} output array in which the wheel PWMs will be stored
- */
-void wheels_GetPWM(uint32_t pwms[4]) {
-	pwms[wheels_RF] = get_PWM(PWM_RF);
-	pwms[wheels_RB] = get_PWM(PWM_RB);
-	pwms[wheels_LB] = get_PWM(PWM_LB);
-	pwms[wheels_LF] = get_PWM(PWM_LF);
+void wheels_SetPWMPercentage_Array(float wheel_pwm_percentage_list[4]) {
+	for (motor_id_t motor = RF; motor <= RB; motor++) {
+		// wheels_SetSpeed_PWM(motor_id_t id, float value)
+		wheels_SetSpeed_PWM(motor, wheel_pwm_percentage_list[motor]);
+	}
 }
+
+// /**
+//  * @brief Get the current wheel PWMs
+//  * 
+//  * @param pwms uint32_t[4]{RF, LF, LB, RB} output array in which the wheel PWMs will be stored
+//  */
+// void wheels_GetPWM(uint32_t pwms[4]) {
+// 	pwms[wheels_RF] = get_PWM(PWM_RF);
+// 	pwms[wheels_RB] = get_PWM(PWM_RB);
+// 	pwms[wheels_LB] = get_PWM(PWM_LB);
+// 	pwms[wheels_LF] = get_PWM(PWM_LF);
+// }
 
 /**
  * @brief Enable the brakes
@@ -151,6 +165,17 @@ void wheels_Unbrake(){
 	set_Pin(LF_Brake_pin, true);
 
 	wheels_braking = false;
+}
+
+/**
+ * @brief Stops the wheels without deinitializing them 
+ */
+void wheels_Stop() {
+	for (int motor = 0; motor < 4; motor++){
+		wheels_SetSpeed_PWM(motor, 0);
+		// TODO: MAKE THE WHEEL REFERENCE IN STATECONTROL 0 IF THIS COMMAND IS USED
+		// wheels_commanded_speeds[motor] = 0;
+	}
 }
 
 /**
@@ -226,7 +251,6 @@ int16_t encoder_GetCounter(motor_id_t id){
 	 return rotationsint;
 }
 
-
 /**
   * @brief Resets the encoder counter to 0
   * @param id Motor id
@@ -246,6 +270,25 @@ void encoder_ResetCounter(motor_id_t id){
 		case LF:
 			__HAL_TIM_SET_COUNTER(ENC_LF,0);
 			break;
+	}
+}
+
+
+void wheels_GetMeasuredSpeeds(float speeds[4]) {
+	// Copy into "speeds", so that the file-local variable "wheels_measured_speeds" doesn't escape
+	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
+		speeds[wheel] = wheels_measured_speeds[wheel];
+	}
+}
+
+void computeWheelSpeeds(){
+	int16_t encoder_values[4] = {0};
+	for (motor_id_t motor = RF; motor <= RB; motor++) {
+		encoder_values[motor] = encoder_GetCounter(motor);
+		encoder_ResetCounter(motor);
+
+		wheel_names wheel = motor;
+		wheels_measured_speeds[wheel] = MOTOR_ENCODER_TO_OMEGA * ((float) encoder_values[motor]);
 	}
 }
 

@@ -820,7 +820,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		float stateLocal[4] = {0.0f};
 		stateEstimation_GetState(stateLocal);
 		stateControl_SetState(stateLocal);
-		stateControl_Update();
+		
+
+
+
 
 		float* refSpeedWheelsPointer;
 		refSpeedWheelsPointer = stateControl_GetWheelRef();
@@ -828,7 +831,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		float* pointerGlobalBodyRef;
 		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
 		
-		wheels_set_command_speed( stateControl_GetWheelRef() );
+		// wheels_set_command_speed( stateControl_GetWheelRef() );
 
 		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
 		// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
@@ -840,14 +843,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 			// Instruct each wheel to go 30 rad/s
 			float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
-			wheels_set_command_speed(wheel_speeds);
+			// 
+			// 
+			// MAKE THIS WORK AGAIN!
+			// 
+			// 
+			// wheels_set_command_speed(wheel_speeds);
 
 			// If the gyroscope detects some rotational movement, we stop the drainage program.
 			if (fabs(MTi->gyr[2]) > 0.3f) {
 				DRAIN_BATTERY = false;
 			}
 		}
-		wheels_Update();
+
+
+		stateControl_Update();
+		
 
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;

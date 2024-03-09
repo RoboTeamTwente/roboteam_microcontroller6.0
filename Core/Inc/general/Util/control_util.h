@@ -32,7 +32,7 @@ float SPEED_CONSTANT;
 #define WHEEL_PULSES_PER_ROTATION (float)4*2048 // number of pulses of the encoder per rotation of the motor. New encoder: ENX 32 MILE // Multiplication by 4 is unsure but datahseet from Maxon is dfferent than some sources.
 
 float OMEGAtoPWM; // conversion factor from wheel speed [rad/s] to required PWM on the motor
-#define WHEEL_ENCODER_TO_OMEGA (float)2*M_PI/(TIME_DIFF*WHEEL_GEAR_RATIO*WHEEL_PULSES_PER_ROTATION) // conversion factor from number of encoder pulses to wheel speed [rad/s]
+#define MOTOR_ENCODER_TO_OMEGA (float)2*M_PI/(TIME_DIFF*WHEEL_GEAR_RATIO*WHEEL_PULSES_PER_ROTATION) // conversion factor from number of encoder pulses to wheel speed [rad/s]
 
 // Control 
 // To check !!!

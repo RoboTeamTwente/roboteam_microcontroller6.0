@@ -42,10 +42,13 @@ typedef enum{
 }Motor_StatusTypeDef;
 
 Motor_StatusTypeDef wheels_Init();
+// Returns boolean value to is initialised (true) or not (false)
+bool wheels_AreInitialized();
 void wheels_DeInit();
 
 void wheels_SetPWM(motor_id_t id, int32_t Value);
 Motor_StatusTypeDef wheels_SetSpeed_PWM(motor_id_t id, float Value); // To set directly a PWM value to the motor (Value has a range between -1 and 1), for testing
+void wheels_SetPWMPercentage_Array(float wheel_pwm_percentage_list[4]);
 
 //Enable the brakes
 void wheels_Brake();
@@ -59,11 +62,13 @@ bool wheels_GetWheelsBraking();
 Motor_StatusTypeDef wheels_DriverStatus(motor_id_t motor);
 Motor_StatusTypeDef wheels_DriverPresent(motor_id_t motor);
 
-extern bool wheels_initialized; // being called in wheels_Update function inn State Control
-
 /* Encoders */
 void encoder_Init();
 int16_t encoder_GetCounter(motor_id_t id);
 void encoder_ResetCounter(motor_id_t id);
+// Get the last measured wheel speeds in rad/s
+void wheels_GetMeasuredSpeeds(float speeds[4]);
+// Calculates angular velocity in rad/s for each wheel based on their encoder values
+void computeWheelSpeeds();
 
 #endif /* INC_WHEELS_H_ */
