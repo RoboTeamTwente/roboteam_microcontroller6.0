@@ -131,8 +131,9 @@ static void wheels2Body(float wheelSpeeds[4], float output[3]){
 float smoothen_rateOfTurn(float rateOfTurn){
     static float buffer[RoT_BUFFER_SIZE] = {0.0f}; // circular buffer
     static int idx = 0; // holds current index of buffer
+	float offset = 0.18825f; // gyrsocope offset (measured when robot was on tape)
 
-    buffer[idx] = rateOfTurn;
+    buffer[idx] = rateOfTurn + offset; // added offset
     //idx = idx >= RoT_BUFFER_SIZE-1 ? 0 : idx + 1;
 	idx = (idx+1) % RoT_BUFFER_SIZE;
 
