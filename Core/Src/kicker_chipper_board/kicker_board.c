@@ -1,13 +1,23 @@
-#include "power_board.h"
+#include "kicker_board.h"
 #include "CanDriver.h"
 //#include "rem.h"
 #include "main.h"
+
+uint64_t TxMailbox[0];  
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
     CAN_Init(&hcan, KICK_CHIP_ID);
+}
+
+uint8_t robot_get_ID(){
+  return 0;
+}
+
+uint8_t robot_get_Channel(){
+  return 0;
 }
 
 
@@ -36,11 +46,9 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
     memset(payload, 0, sizeof(payload));
     CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
 
-	if (reciever_ID == TOP_ID)
-	{
-		if (sending_message_ID == IM_ALIVE_KICKER)
-		{
-			set_kickerBoard_im_alive_header(&CAN_TxHeader);
+	if (reciever_ID == TOP_ID) {
+		if (sending_message_ID == IM_ALIVE_KICKER) {
+			set_kicker_im_alive(&CAN_TxHeader);
 			set_MCP_version(payload);
             set_kick_state(payload, true);
 		}
