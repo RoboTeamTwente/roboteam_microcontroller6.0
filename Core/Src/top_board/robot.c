@@ -134,8 +134,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 			set_request_dribbler_speed_header(&CAN_TxHeader);
 			set_dribbler_speed(payload, dribbler_speed);
 		}
-	}
-	else if (KICK_CHIP_ID) {
+	} else if (reciever_ID == KICK_CHIP_ID) {
 		if (sending_message_ID == KICK_MESSAGE) {
 			set_header_kick(&CAN_TxHeader);
 			set_kick_state(payload, true);
@@ -823,7 +822,9 @@ void loop(void){
 	// Heartbeat every 10000ms (10sec)
 	if (heartbeat_10000ms < current_time) {
 		while (heartbeat_10000ms < current_time) heartbeat_10000ms += 10000;
-		CAN_Send_Message(REQUEST_POWER_VOLTAGE, POWER_ID, &hcan1);
+		kill_robot = false;
+		powerboard_request = true;
+		CAN_Send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
 	} else {
 		//TODO send request to some other board?
 	}
@@ -835,8 +836,8 @@ void loop(void){
     set_Pin(LED3_pin, halt);						// On when halting
     //set_Pin(LED4_pin, dribbler_GetHasBall());       // On when the dribbler detects the ball
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
-	// LED6 Toggled when a MCP packet is received
-    // LED7 Wireless_Readpacket_Cplt : toggled when a REM packet is received
+	// LED6 Toggled when a REM packet is received
+    // LED7 Wireless_Readpacket_Cplt : toggled when a MCP packet is received
 }
 
 /* ========================================================= */
