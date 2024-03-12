@@ -57,7 +57,6 @@ void dribbler_SetSpeed(float Value){
     moving_average.command_buf[moving_average.command_idx] = speed;
     moving_average.command_idx = (moving_average.command_idx+1) % MOVINGAVERAGE_BUFFER_SIZE;
 	uint32_t speed_ = speed * 320;
-	//__HAL_TIM_SET_COMPARE(.TIM , PWM.Channel, Value);
 	TIM3->CCR2 = speed_;
 }
 
