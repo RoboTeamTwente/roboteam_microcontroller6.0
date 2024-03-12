@@ -39,9 +39,8 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
-    uint32_t current_time = HAL_GetTick();
-    if (CAN_to_process)
-    {
+    //uint32_t current_time = HAL_GetTick();
+    if (CAN_to_process){
         if (!MailBox_one.empty)
             CAN_Process_Message(&MailBox_one);
         if (!MailBox_two.empty)
@@ -50,14 +49,6 @@ void loop() {
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
 	}
-    
-    // 10 seconds passed now we send the reading of the voltage meter to the top board
-    if (heartbeat_10000ms < current_time)
-    {
-      // voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
-	  CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
-      heartbeat_10000ms = current_time + 10000;
-    }
 }
 
 
@@ -71,8 +62,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
     memset(payload, 0, sizeof(payload));
     CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
 
-	if (reciever_ID == TOP_ID)
-	{
+	if (reciever_ID == TOP_ID){
 		if (sending_message_ID == VOLTAGE_RESPONSE)
 		{
 			set_voltage_response_header(&CAN_TxHeader);
@@ -85,10 +75,10 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 			set_powerBoard_sensor_state(payload, true);
 		}
 	}
-	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK)
+	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) {
 		CAN_error_LOG(&CAN_TxHeader);
+	}
 
-	return;
 }
 
 /*
@@ -104,6 +94,9 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 	{
 		kill_flag = get_kill_state(to_Process->data_Frame[0]);
 		voltage_request = get_request_power_state(to_Process->data_Frame[0]);
+		if (voltage_request) {
+			CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
+		}
 	}
 	else if (to_Process->message_id == ARE_YOU_ALIVE)
 	{
@@ -117,6 +110,4 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;
-
-	return;
 }
