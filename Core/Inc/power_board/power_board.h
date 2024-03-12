@@ -11,4 +11,4 @@ void loop();
 uint8_t robot_get_ID();
 uint8_t robot_get_Channel();
 
-#endif /* _POEWR_BOARD_H_ */
+#endif /* _POWER_BOARD_H_ */
