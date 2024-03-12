@@ -820,6 +820,14 @@ void loop(void){
 
     }
 
+	// Heartbeat every 10000ms (10sec)
+	if (heartbeat_10000ms < current_time) {
+		while (heartbeat_10000ms < current_time) heartbeat_10000ms += 10000;
+		CAN_Send_Message(REQUEST_POWER_VOLTAGE, POWER_ID, &hcan1);
+	} else {
+		//TODO send request to some other board?
+	}
+
      /* LEDs for debugging */
     // LED0 : toggled every second while alive
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
