@@ -5,6 +5,7 @@
 #include "peripheral_util.h"
 #include "CanDriver.h"
 #include <string.h>
+#include "shoot.h"
 
 void init();
 void loop();

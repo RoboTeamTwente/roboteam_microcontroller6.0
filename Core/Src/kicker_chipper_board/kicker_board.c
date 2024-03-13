@@ -10,6 +10,7 @@ uint64_t TxMailbox[0];
 /* ======================================================== */
 void init() {
     CAN_Init(&hcan, KICK_CHIP_ID);
+	shoot_Init();
 }
 
 uint8_t robot_get_ID(){
@@ -67,16 +68,32 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
  */
 void CAN_Process_Message(mailbox_buffer *to_Process){
 
-	if (to_Process->message_id == ARE_YOU_ALIVE)
-	{
+	if (to_Process->message_id == ARE_YOU_ALIVE) {
 		CAN_Send_Message(IM_ALIVE_KICKER, TOP_ID, &hcan);
 		// if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
 		// {
 			
 		// }
-	}
-	
+	} else if (to_Process->message_id == KICK_MESSAGE) {
+		shoot_SetPower(get_shoot_power(to_Process->data_Frame));
+		if (get_kick_state(to_Process->data_Frame)) shoot_Shoot(shoot_Kick);
+	} else if (to_Process->message_id == CHIP_MESSAGE) {
+		shoot_SetPower(get_shoot_power(to_Process->data_Frame));
+		if (get_kick_state(to_Process->data_Frame)) shoot_Shoot(shoot_Chip);
+	} else if (to_Process->message_id == DISCHARGE_MESSAGE) {
+		
+	} else if (to_Process->message_id == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
+
+	} 
+		
 	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;
+}
+
+// Handles the interrupts of the different timers.
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM_SHOOT->Instance) {
+			shoot_Callback();
+		}
 }
