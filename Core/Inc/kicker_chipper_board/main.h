@@ -57,6 +57,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define APB 8
 #define Charge_done_Pin GPIO_PIN_1
 #define Charge_done_GPIO_Port GPIOA
 #define Fault_Pin GPIO_PIN_2
