@@ -2,6 +2,7 @@
 #define _BALL_SENSOR_H
 
 #include "main.h"
+#include "dribbler_board.h"
 #include "stdbool.h"
 #include "logging.h"
 #include "gpio_util.h"

@@ -13,7 +13,11 @@
 #include "peripheral_util.h"
 #include <string.h>
 
+bool dribbler_state;
+bool ballsensor_state;
+
 void init();
 void loop();
+void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan);
 
 #endif /* _DRIBBLER_BOARD_H_ */

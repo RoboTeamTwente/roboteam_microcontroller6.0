@@ -1,11 +1,11 @@
 #include "ball_sensor.h"
+#include "CanDriver.h"
 
 static bool seesBall = false; // ball sensor sees ball
 static bool ballSensorIsWorking = false;
 
 // ================ PRIVATE FUNCTION DECLARATIONS ================ //
 void read_gpio();
-
 
 // ====================== PUBLIC FUNCTIONS ====================== //
 
@@ -64,8 +64,10 @@ void ballSensor_IRQ_Handler() {
 	read_gpio();
 	if (!seesBall){
 		LOG("[BALLSENSOR]:: We lost the ball");
+		ballsensor_state = false;
 	} else{
 		LOG("[BALLSENSOR]:: We have the ball");
+		ballsensor_state = true;
 	}
 	LOG_sendAll();
 }

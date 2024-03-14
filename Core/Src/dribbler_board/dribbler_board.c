@@ -110,6 +110,7 @@ void dribbler_CALLBACK_FUNCTION(){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (GPIO_Pin == BS_IRQ_pin.PIN){
 		ballSensor_IRQ_Handler();
+        CAN_Send_Message(BALLSENSOR_MESSAGE, TOP_ID, &hcan);
 	}
 }
 
