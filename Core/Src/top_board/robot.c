@@ -661,14 +661,15 @@ void check_otherboards(uint8_t board_ID, bool *board_state){
 		MAX_ATTEMPTS++;
 		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
 		HAL_Delay(500);
-		if (CAN_to_process){
+		if (CAN_to_process){ 
 			if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
 			if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
 			if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
-		CAN_to_process = false;
-	}
+			CAN_to_process = false;
+		}
 	}	
-	if (*board_state == false) LOG_printf("CAN_ERROR :: The board %d is not alive \n",board_ID);
+	char *name =  board_ID == POWER_ID ? "Power Board" : (board_ID == DRIBBLER_ID ? "Dribbler Board" : "Kickker Board");
+	if (*board_state == false) LOG_printf("CAN_ERROR :: The %s is not alive \n", name);
 }
 
 
@@ -821,10 +822,7 @@ void loop(void){
 
 	// Heartbeat every 10000ms (10sec)
 	if (heartbeat_10000ms < current_time) {
-		while (heartbeat_10000ms < current_time) heartbeat_10000ms += 10000;
-		kill_robot = false;
-		powerboard_request = true;
-		CAN_Send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
+		
 	} else {
 		//TODO send request to some other board?
 	}
