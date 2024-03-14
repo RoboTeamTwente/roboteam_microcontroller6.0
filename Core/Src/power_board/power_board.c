@@ -39,7 +39,8 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
-    //uint32_t current_time = HAL_GetTick();
+    uint32_t current_time = HAL_GetTick();
+	
     if (CAN_to_process){
         if (!MailBox_one.empty)
             CAN_Process_Message(&MailBox_one);
@@ -49,6 +50,14 @@ void loop() {
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
 	}
+
+	    // 10 seconds passed now we send the reading of the voltage meter to the top board
+    if (heartbeat_10000ms < current_time)
+    {
+      // voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
+	  CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
+      heartbeat_10000ms = current_time + 10000;
+    }
 }
 
 
