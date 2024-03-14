@@ -160,21 +160,22 @@ void wheels_Update() {
 			wheelsK[motor].I = 0;
 		}
 
-		float feed_forward = 0.0f;
-		float threshold = 0.05f;
+		// FEEDFOWARD of robot 5.0
+		// float feed_forward = 0.0f;
+		// float threshold = 0.05f;
 
-		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
-    		feed_forward = 0;
-		} 
-		else if (wheels_commanded_speeds[motor] > 0) {
-			feed_forward = wheels_commanded_speeds[motor] + 13;
-    	}
-		else if (wheels_commanded_speeds[motor] < 0) {
-			feed_forward = wheels_commanded_speeds[motor] - 13;
-    	}
+		// if (fabs(wheels_commanded_speeds[motor]) < threshold) {
+    	// 	feed_forward = 0;
+		// } 
+		// else if (wheels_commanded_speeds[motor] > 0) {
+		// 	feed_forward = wheels_commanded_speeds[motor] + 13;
+    	// }
+		// else if (wheels_commanded_speeds[motor] < 0) {
+		// 	feed_forward = wheels_commanded_speeds[motor] - 13;
+    	// }
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-		float wheel_speed_percentage = OMEGAtoPWM * (feed_forward + PID(angular_velocity_error, &wheelsK[motor])); 
+		float wheel_speed_percentage = OMEGAtoPWM * (wheels_commanded_speeds[motor] + PID(angular_velocity_error, &wheelsK[motor])); 
 
 		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
 	}
