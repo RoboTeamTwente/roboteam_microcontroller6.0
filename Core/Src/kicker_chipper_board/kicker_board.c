@@ -3,17 +3,14 @@
 //#include "rem.h"
 #include "main.h"
 
-uint64_t TxMailbox[1];  
-uint32_t heartbeat = 0;
+uint64_t TxMailbox[1]; 
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
     CAN_Init(&hcan, KICK_CHIP_ID);
-	//shoot_Init();
-	heartbeat = HAL_GetTick() + 3000;
-	CAN_Send_Message(IM_ALIVE_KICKER, TOP_ID, &hcan);
+	shoot_Init();
 }
 
 uint8_t robot_get_ID(){
@@ -38,11 +35,6 @@ void loop() {
         if (!MailBox_three.empty)
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
-	}
-
-	if (time > heartbeat) {
-		heartbeat = time + 3000;
-		CAN_Send_Message(CAPACITOR_VOLTAGE_MESSAGE, TOP_ID, &hcan);
 	}
 
 
