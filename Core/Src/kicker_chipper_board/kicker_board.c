@@ -69,7 +69,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 			set_capacitor_voltage_response(payload, 0);
 		}
 	}
-	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, TxMailbox[0]) != HAL_OK) {
+	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) {
 		CAN_error_LOG(&CAN_TxHeader);
     }
 }
