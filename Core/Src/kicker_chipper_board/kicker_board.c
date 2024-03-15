@@ -3,7 +3,7 @@
 //#include "rem.h"
 #include "main.h"
 
-uint64_t TxMailbox[0];  
+uint64_t TxMailbox[1];  
 uint32_t heartbeat = 0;
 
 /* ======================================================== */
