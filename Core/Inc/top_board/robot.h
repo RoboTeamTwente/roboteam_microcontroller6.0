@@ -4,24 +4,27 @@
 #include <unistd.h>
 #include "main.h"
 
-//#include "control_util.h"
+#include "control_util.h"
 #include "gpio_util.h"
 #include "tim_util.h"
 #include "peripheral_util.h"
-//#include "stateControl.h"
-//#include "stateEstimation.h"
+#include "wheels.h"
+#include "stateControl.h"
+#include "stateEstimation.h"
 #include "sdcard.h"
 #include "Wireless.h"
 #include "buzzer.h"
 #include "speaker.h"
 #include "MTi.h"
-//#include "yawCalibration.h"
+#include "yawCalibration.h"
 #include "iwdg.h"
 #include "logging.h"
 #include "SX1280_Constants.h"
 #include "AssuredPacketManager.h"
 #include "drivers.h"
 #include "pages.h"
+
+#include "CanDriver.h"
 
 #include "rem.h"
 
@@ -54,6 +57,7 @@ void init(void);
 void loop(void);
 uint8_t robot_get_ID();
 uint8_t robot_get_Channel();
+void check_otherboards(uint8_t board_ID, bool *board_state);
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp);
 void robot_setRobotMusicCommandPayload(REM_RobotMusicCommandPayload* rmcp);

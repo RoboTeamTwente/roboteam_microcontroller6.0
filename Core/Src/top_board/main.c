@@ -149,7 +149,7 @@ int main(void)
   PeriphCommonClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  HAL_InitTick(0);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -178,10 +178,9 @@ int main(void)
   MX_CAN1_Init();
   MX_ADC1_Init();
   MX_UART8_Init();
+  
   /* USER CODE BEGIN 2 */
-
   init();
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
