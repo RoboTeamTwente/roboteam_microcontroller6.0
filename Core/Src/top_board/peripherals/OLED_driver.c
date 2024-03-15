@@ -13,6 +13,7 @@ static void menu_move_sideways(int direction);
 static void display_text();
 static void menuHasNoChildrenException();
 static void menuHasTooManyChildrenException();
+static void putPageName();
 
 ///////////////////////////////////////////////////// VARIABLES
 static bool oled_initialized = false;
@@ -73,8 +74,7 @@ void OLED_Update(button_id_t button, bool test_mode) {
         }
         if (current_page->has_variables) {
             clear_screen();
-            SSD1306_GotoXY (5,0);
-	        SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
+            putPageName();
             update_variables(current_page);
             display_text();
             SSD1306_UpdateScreen(); // update screen
@@ -114,6 +114,8 @@ void OLED_set_error_too_many_children(char* page_name) {
 }
 
 void start_of_test() {
+    clear_screen();
+    putPageName();
     SSD1306_GotoXY (5,20);
     SSD1306_Puts("Test is running", &Font_7x10, 1);
     SSD1306_UpdateScreen();   
@@ -121,6 +123,10 @@ void start_of_test() {
 
 void end_of_test() {
     test_is_finished = true;
+    clear_screen();
+    putPageName();
+    SSD1306_GotoXY (5,20);
+    SSD1306_Puts("Test is running", &Font_7x10, 1);
     SSD1306_GotoXY (5,31);
     SSD1306_Puts("Test done!", &Font_7x10, 1);
     SSD1306_GotoXY (5,42);
@@ -212,8 +218,7 @@ static void refresh(){
         boot_screen();
     } else {
         //draw page name
-        SSD1306_GotoXY (5,0);
-	    SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
+        putPageName();
         if (current_page->is_menu) {
             if (current_page->n_of_childeren <= 3) {
                 static_page();
@@ -382,4 +387,9 @@ static void menuHasTooManyChildrenException() {
     SSD1306_Puts("reupload code", &Font_7x10, 1);
     SSD1306_UpdateScreen();
     flag_error_too_many_children_page_init = true;
+}
+
+static void putPageName() {
+    SSD1306_GotoXY (5,0);
+    SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
 }
