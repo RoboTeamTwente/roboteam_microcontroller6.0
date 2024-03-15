@@ -2,7 +2,6 @@
 #define INC_SELFTESTS_H_
 
 #include "pages.h"
-#include "buzzer_test.h"
 
 void run_test(page_struct *page);
 

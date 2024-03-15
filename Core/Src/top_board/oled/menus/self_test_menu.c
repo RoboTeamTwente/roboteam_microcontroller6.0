@@ -4,6 +4,7 @@ struct page_struct self_test_top_menu;
 struct page_struct self_test_power_menu;
 struct page_struct self_test_kicker_menu;
 struct page_struct self_test_dribbler_menu;
+struct page_struct self_test_system_menu;
 
 /**
  * @brief initialize the pages that are the children of self test menu
@@ -47,5 +48,15 @@ void self_test_menu_initChildren(page_struct *parent) {
     self_test_dribbler_menu.is_test = false;
     self_test_dribbler_menu.has_variables = false;
     add_child_to_parent(&self_test_dribbler_menu);
+
+    self_test_system_menu.id = 15;
+    strcpy(self_test_system_menu.page_name, "System tests");
+    self_test_system_menu.parent = parent;
+    self_test_system_menu.n_of_childeren = 0;
+    self_test_system_menu.is_menu = true;
+    self_test_system_menu.is_test = false;
+    self_test_system_menu.has_variables = false;
+    add_child_to_parent(&self_test_system_menu);
+    system_test_init(&self_test_system_menu);
 
 }

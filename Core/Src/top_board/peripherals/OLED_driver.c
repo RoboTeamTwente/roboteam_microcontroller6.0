@@ -25,6 +25,7 @@ static int id_root_page;
 bool flag_error_too_many_children = false;
 bool flag_error_too_many_children_page_init = false;
 char* page_name_error_too_many_children;
+bool test_is_finished = false;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
@@ -67,6 +68,9 @@ void OLED_Update(button_id_t button, bool test_mode) {
 
     /* if no button is pressed return; update variables displayed on page if needed beforehand */
     if (button == BUTTON_NONE) {
+        if (current_page->is_test) {
+            run_test(current_page);
+        }
         if (current_page->has_variables) {
             clear_screen();
             SSD1306_GotoXY (5,0);
@@ -116,12 +120,14 @@ void start_of_test() {
 }
 
 void end_of_test() {
+    test_is_finished = true;
     SSD1306_GotoXY (5,31);
     SSD1306_Puts("Test done!", &Font_7x10, 1);
     SSD1306_GotoXY (5,42);
     SSD1306_Puts("press \"OK\" to", &Font_7x10, 1);
     SSD1306_GotoXY (5,53);
     SSD1306_Puts("continue", &Font_7x10, 1);
+    SSD1306_UpdateScreen();   
 }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
@@ -168,6 +174,7 @@ static void onButtonPressSelfTest(button_id_t button) {
         while(!current_page->is_menu) {
             current_page = current_page->parent;
         }
+        test_is_finished = false;
     } else {
         current_page = current_page->childeren[0];
     }

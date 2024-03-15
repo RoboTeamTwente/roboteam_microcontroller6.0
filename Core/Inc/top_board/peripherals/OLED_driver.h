@@ -14,6 +14,8 @@
 #include "variable_page_selector.h"
 #include "robot.h"
 
+extern bool test_is_finished;
+
 void OLED_Init();
 void OLED_DeInit();
 void OLED_Update(button_id_t button, bool test_mode);

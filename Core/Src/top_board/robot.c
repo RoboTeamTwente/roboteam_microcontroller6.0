@@ -528,7 +528,7 @@ void loop(void){
         SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
     }
 
-    // // Heartbeat every 17ms	
+    // Heartbeat every 17ms	
     // if(heartbeat_17ms < current_time){
     //     while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
 
