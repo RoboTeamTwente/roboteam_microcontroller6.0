@@ -290,24 +290,24 @@ void executeCommands(REM_RobotCommand* robotCommand){
 		CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
 	}
 	
-	/*====================== NEW SHOOTING CODE =====================*/
-	// if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
-	// {	
-	// 	shoot_power = robotCommand->kickChipPower;
-	// 	doForce_CAN = robotCommand->doForce;
-	// 	if (robotCommand->doChip)
-	// 		CAN_Send_Message(CHIP_MESSAGE, KICK_CHIP_ID, &hcan1);
-	// 	else if (robotCommand->doKick)
-	// 		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
-	// 	else if (robotCommand->kickAtAngle)
-	// 	{
-	// 		float localState[4] = {0.0f};
-	// 		stateEstimation_GetState(localState);
-	// 		if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
-	// 			CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
-	// 		}
-	// 	}
-	// }
+	// /*====================== NEW SHOOTING CODE =====================*/
+	if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
+	{	
+		shoot_power = robotCommand->kickChipPower;
+		doForce_CAN = robotCommand->doForce;
+		if (robotCommand->doChip)
+			CAN_Send_Message(CHIP_MESSAGE, KICK_CHIP_ID, &hcan1);
+		else if (robotCommand->doKick)
+			CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+		else if (robotCommand->kickAtAngle)
+		{
+			float localState[4] = {0.0f};
+			stateEstimation_GetState(localState);
+			if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+				CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+			}
+		}
+	}
 
 	/*======================== OLD SHOOTING CODE ========================*/
 	//shoot_SetPower(robotCommand->kickChipPower);
@@ -1058,9 +1058,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.timestamp = unix_timestamp;
 			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
 			// robotFeedback.batteryLevel = powerboard_voltage;
-			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
-			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
-			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
+			// robotFeedback.ballSensorWorking = dribblerBoard_alive;
+			// robotFeedback.ballSensorSeesBall = ballsensor_sees_ball;
+			// robotFeedback.ballPos = dribblerBoard_alive ? (-.5 + ballPosition.x / 700.) : 0;
 			// robotFeedback.capacitor_voltage = kicker_capacitor_voltage;
 
 			float localState[4] = {0.0f};
@@ -1072,7 +1072,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.theta = atan2(vu, vv);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-			// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
+			// robotFeedback.dribblerSeesBall = dribbler_sees_ball;
 		}
 		
 		/* == Fill robotStateInfo packet == */ {	
