@@ -4,13 +4,16 @@
 #include "main.h"
 
 uint64_t TxMailbox[0];  
+uint32_t heartbeat = 0;
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
     CAN_Init(&hcan, KICK_CHIP_ID);
-	shoot_Init();
+	//shoot_Init();
+	heartbeat = HAL_GetTick() + 3000;
+	CAN_Send_Message(IM_ALIVE_KICKER, TOP_ID, &hcan);
 }
 
 uint8_t robot_get_ID(){
@@ -26,6 +29,7 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
+	uint32_t time = HAL_GetTick();
     if (CAN_to_process) {
         if (!MailBox_one.empty)
             CAN_Process_Message(&MailBox_one);
@@ -35,6 +39,13 @@ void loop() {
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
 	}
+
+	if (time > heartbeat) {
+		heartbeat = time + 3000;
+		CAN_Send_Message(CAPACITOR_VOLTAGE_MESSAGE, TOP_ID, &hcan);
+	}
+
+
 }
 
 /*
@@ -51,10 +62,14 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 		if (sending_message_ID == IM_ALIVE_KICKER) {
 			set_kicker_im_alive(&CAN_TxHeader);
 			set_MCP_version(payload);
-            set_kick_state(payload, true);
+			set_capacitor_sensor_state(payload, true);
+			set_capacitor_charging_state(payload, true);
+		} else if (sending_message_ID == CAPACITOR_VOLTAGE_MESSAGE) {
+			set_response_capacitor_voltage_header(&CAN_TxHeader);
+			set_capacitor_voltage_response(payload, 0);
 		}
 	}
-	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) {
+	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, TxMailbox[0]) != HAL_OK) {
 		CAN_error_LOG(&CAN_TxHeader);
     }
 }
@@ -70,10 +85,6 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 
 	if (to_Process->message_id == ARE_YOU_ALIVE) {
 		CAN_Send_Message(IM_ALIVE_KICKER, TOP_ID, &hcan);
-		// if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
-		// {
-			
-		// }
 	} else if (to_Process->message_id == KICK_MESSAGE) {
 		shoot_SetPower(get_shoot_power(to_Process->data_Frame));
 		if (get_kick_state(to_Process->data_Frame)) shoot_Shoot(shoot_Kick);
