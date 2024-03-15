@@ -1,16 +1,20 @@
 #include "kicker_board.h"
 #include "CanDriver.h"
+#include "capacitor_sensor.h"
 //#include "rem.h"
 #include "main.h"
 
 uint64_t TxMailbox[1]; 
-
+bool voltage_meter_state = false;
+bool capcitor_charging_state = false;
+uint16_t voltage_reading;
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
     CAN_Init(&hcan, KICK_CHIP_ID);
 	shoot_Init();
+	voltage_meter_state = init_sensor();
 }
 
 uint8_t robot_get_ID(){
@@ -54,11 +58,12 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 		if (sending_message_ID == IM_ALIVE_KICKER) {
 			set_kicker_im_alive(&CAN_TxHeader);
 			set_MCP_version(payload);
-			set_capacitor_sensor_state(payload, true);
-			set_capacitor_charging_state(payload, true);
+			set_capacitor_sensor_state(payload, voltage_meter_state);
+			set_capacitor_charging_state(payload, capcitor_charging_state);
 		} else if (sending_message_ID == CAPACITOR_VOLTAGE_MESSAGE) {
+			voltage_reading = get_reading();
 			set_response_capacitor_voltage_header(&CAN_TxHeader);
-			set_capacitor_voltage_response(payload, 0);
+			set_capacitor_voltage_response(payload, voltage_reading);
 		}
 	}
 	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) {
@@ -86,7 +91,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 	} else if (to_Process->message_id == DISCHARGE_MESSAGE) {
 		
 	} else if (to_Process->message_id == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
-
+		CAN_Send_Message(CAPACITOR_VOLTAGE_MESSAGE, TOP_ID, &hcan);
 	} 
 		
 	to_Process->empty = true;
