@@ -109,7 +109,7 @@ void OLED_set_error_too_many_children(char* page_name) {
     page_name_error_too_many_children = page_name;
 }
 
-void start_test() {
+void start_of_test() {
     SSD1306_GotoXY (5,20);
     SSD1306_Puts("Test is running", &Font_7x10, 1);
     SSD1306_UpdateScreen();   

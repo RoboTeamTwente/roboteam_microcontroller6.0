@@ -47,7 +47,7 @@ void wheel_twitch_init(page_struct *parent) {
  * @brief let all the wheels turn forward and backwards slightly. After prepare the visualazation for the data
 */
 void wheel_twitch_run() {
-    start_test();
+    start_of_test();
     wheels_Unbrake();
     uint8_t working[4] = {0};
     for(int motor = 0; motor < 4; motor++){//motors
