@@ -288,6 +288,11 @@ static void scrollable_page() {
         line3 = current_page->childeren[(item_selector + 2) % back_index]->page_name;
     }
     SSD1306_Puts(line3, &Font_7x10, 1);
+
+    //scrollbar
+    SSD1306_DrawBitmap(115, 0, bitmap_scrollbar_background , 8, 64, 1); //scrollbar background
+    int scrollbar_size = 64 / (current_page->n_of_childeren + 1);
+    SSD1306_DrawFilledRectangle(119, scrollbar_size * item_selector, 3, scrollbar_size, 1);
 }
 
 /**
