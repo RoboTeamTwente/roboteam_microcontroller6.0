@@ -1,7 +1,7 @@
 #ifndef INC_SYSTEM_TEST_H_
 #define INC_SYSTEM_TEST_H_
 
-#include "pages.h"
+#include "OLED_driver.h"
 
 extern bool system_test_running;
 

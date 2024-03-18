@@ -1,7 +1,7 @@
 #ifndef INC_MAIN_MENU_H_
 #define INC_MAIN_MENU_H_
 
-#include "pages.h"
+#include "OLED_driver.h"
 #include "self_test_menu.h"
 #include "info_menu.h"
 

@@ -1,7 +1,7 @@
 #ifndef INC_SELF_TEST_MENU_H_
 #define INC_SELF_TEST_MENU_H_
 
-#include "pages.h"
+#include "OLED_driver.h"
 #include "buzzer_test.h"
 #include "wheel_twitch.h"
 #include "system_test.h"

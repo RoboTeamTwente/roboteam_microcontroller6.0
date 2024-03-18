@@ -1,18 +1,55 @@
 #ifndef INC_OLED_H_
 #define INC_OLED_H_
 
-#include "ssd1306/OledDriver.h"
-#include "button.h"
-#include "drivers.h"
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+
+#define MAX_CHILDEREN 9
+#define MAX_VAR_NAME_LENGTH 9
+#define MAX_MENU_NAME_LENGTH 15
+#define MAX_SUBMENU_NAME_LENGTH 23
+#define MAX_STRING_LENGTH 23
+
+typedef struct page_struct page_struct;
+
+enum test_type {
+    NOT_A_TEST,
+    BLOCKING_TEST,
+    NON_BLOCKING_TEST,
+};
+
+struct page_struct
+{
+    int id;
+    char page_name[MAX_MENU_NAME_LENGTH];
+    page_struct *parent;
+    page_struct *childeren[MAX_CHILDEREN]; 
+    int n_of_childeren;
+    bool is_menu;
+    enum test_type is_test;
+    bool has_variables;
+    char line0[MAX_STRING_LENGTH];
+    char line1[MAX_STRING_LENGTH];
+    char line2[MAX_STRING_LENGTH];
+    char line3[MAX_STRING_LENGTH];
+};
+
+/*
+ * NOTE: these includes need to underneath the declaration of the struct 
+ * to not break uses of the page_struct in other files
+*/
+
+#include "button.h"
+#include "drivers.h"
 #include "ssd1306/bitmap.h"
 #include "pages.h"
 #include "selftest_selector.h"
 #include "variable_page_selector.h"
 #include "robot.h"
+#include "ssd1306/OledDriver.h"
+#include "main.h"
 
 extern bool test_is_finished;
 
