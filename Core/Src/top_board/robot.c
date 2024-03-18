@@ -529,27 +529,27 @@ void init(void){
 	Check whether the MTi is already intialized.
 	If the 3rd and 4th bit of the statusword are non-zero, then the initializion hasn't completed yet.
 	*/
-	// while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
-	// 	MTi = MTi_Init(1, XFP_VRU_general);
-	// 	if (!TEST_MODE) IWDG_Refresh(iwdg);
+	while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
+		MTi = MTi_Init(1, XFP_VRU_general);
+		if (!TEST_MODE) IWDG_Refresh(iwdg);
 
 
-	// 	if (MTi_made_init_attempts > 0) {
-	// 		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
-	// 	}
-	// 	MTi_made_init_attempts += 1;
-	// 	LOG_sendAll();
+		if (MTi_made_init_attempts > 0) {
+			LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
+		}
+		MTi_made_init_attempts += 1;
+		LOG_sendAll();
 
-	// 	// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
-	// 	HAL_Delay(1100);
-	// }
+		// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
+		HAL_Delay(1100);
+	}
 
-	// // If after the maximum number of attempts the calibration still failed, play a warning sound... :(
-	// if (MTi == NULL || (MTi->statusword & (0x18)) != 0) {
-	// 	LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
-	// 	buzzer_Play_WarningOne();
-	// 	HAL_Delay(1500); // The duration of the sound
-	// }
+	// If after the maximum number of attempts the calibration still failed, play a warning sound... :(
+	if (MTi == NULL || (MTi->statusword & (0x18)) != 0) {
+		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
+		buzzer_Play_WarningOne();
+		HAL_Delay(1500); // The duration of the sound
+	}
 	LOG_sendAll();
 }
 	
@@ -699,11 +699,10 @@ void loop(void){
     /* === Determine HALT state === */
     xsens_CalibrationDone = (MTi->statusword & (0x18)) == 0; // if bits 3 and 4 of status word are zero, calibration is done
     halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
-    if(TEST_MODE) halt = false;
+    if(get_system_test_running()) halt = false;
 
     if (halt) {
         // LOG_printf("HALT %d %d %d\n", xsens_CalibrationDone, checkWirelessConnection(), isSerialConnected);
-        // toggle_Pin(LED5_pin);
         stateControl_ResetAngleI();
         resetRobotCommand(&activeRobotCommand);
         initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
@@ -721,9 +720,9 @@ void loop(void){
     // test_Update();
 
     // // Go through all commands if robot is not in HALT state or TEST_MODE
-    // if (!halt && !TEST_MODE) {
-    //     executeCommands(&activeRobotCommand);
-    // }
+    if (!halt) {
+        executeCommands(&activeRobotCommand);
+    }
 
     if(flag_sdcard_write_feedback){
         flag_sdcard_write_feedback = false;
@@ -1013,6 +1012,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateControl_SetState(stateLocal);
 		stateControl_Update();
 
+		float* refSpeedWheelsPointer;
+		refSpeedWheelsPointer = stateControl_GetWheelRef();
+		
+		float* pointerGlobalBodyRef;
+		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
+		
 		wheels_set_command_speed( stateControl_GetWheelRef() );
 
 		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
@@ -1068,10 +1073,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
 			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
 			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
-			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_x);
-			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_y);
-			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
-			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
+			robotStateInfo.bodyXIntegral = pointerGlobalBodyRef[vel_x]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
+			robotStateInfo.bodyYIntegral = pointerGlobalBodyRef[vel_y]; //
+			robotStateInfo.bodyWIntegral = pointerGlobalBodyRef[vel_w]; //
+			robotStateInfo.bodyYawIntegral = pointerGlobalBodyRef[yaw]; //
+			robotStateInfo.wheel1Integral = refSpeedWheelsPointer[0]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
+			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
+			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //
+			robotStateInfo.wheel4Integral = refSpeedWheelsPointer[3]; // 
 
 
 			flag_sdcard_write_feedback = true;

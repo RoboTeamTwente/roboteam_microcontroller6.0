@@ -37,4 +37,8 @@ uint32_t get_system_test_time_started() {
     return time_started;
 }
 
+bool get_system_test_running() {
+    return system_test_running;
+}
+
 

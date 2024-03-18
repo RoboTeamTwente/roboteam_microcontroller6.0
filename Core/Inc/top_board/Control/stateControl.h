@@ -18,27 +18,29 @@
 #include "gpio_util.h"
 #include "tim_util.h"
 #include "REM_RobotSetPIDGains.h"
+#include "wheels.h"
+#include <math.h>
 
 // Set default PID values
-#define default_P_gain_u 0.2
-#define default_I_gain_u 0.0
-#define default_D_gain_u 0.0
+#define default_P_gain_u 0.2f
+#define default_I_gain_u 0.0f
+#define default_D_gain_u 0.0f
 
-#define default_P_gain_v 0.3
-#define default_I_gain_v 0.0
-#define default_D_gain_v 0.0
+#define default_P_gain_v 0.3f
+#define default_I_gain_v 0.0f
+#define default_D_gain_v 0.0f
 
-#define default_P_gain_w 0.25
-#define default_I_gain_w 5.0
-#define default_D_gain_w 0.0
+#define default_P_gain_w 0.25f
+#define default_I_gain_w 5.0f
+#define default_D_gain_w 0.0f
 
-#define default_P_gain_yaw 20.0
-#define default_I_gain_yaw 5.0
-#define default_D_gain_yaw 0.0
+#define default_P_gain_yaw 20.0f
+#define default_I_gain_yaw 5.0f
+#define default_D_gain_yaw 0.0f
 
-#define default_P_gain_wheels 2.0
-#define default_I_gain_wheels 0.0
-#define default_D_gain_wheels 0.0
+#define default_P_gain_wheels 2.0f
+#define default_I_gain_wheels 0.0f
+#define default_D_gain_wheels 0.0f
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
@@ -69,6 +71,14 @@ void stateControl_SetRef(float _stateGlobalRef[4]);
  * @return float* An array with the wheel speeds [rad/s].
  */
 float* stateControl_GetWheelRef();
+
+/**
+ * Get the referenced global body speeds (for yaw - angleControl)
+ * 
+ * @return float* An array with the global x, y, w and yaw velocities to be achieved [m/s]
+
+ */
+float* stateControl_GetBodyGlobalRef();
 
 /**
  * Set the current state as the estimated state as calculated by stateEstimation
@@ -115,5 +125,10 @@ void stateControl_ResetAngleI();
  * Resets the entire PID calculation for the angle.
  */
 void stateControl_ResetPID();
+
+void wheels_Update();
+void wheels_set_command_speed(const float speeds[4]); // Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
+void wheels_GetMeasuredSpeeds(float speeds[4]); // Get the last measured wheel speeds in rad/s
+void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains);
 
 #endif /* DO_STATE_CONTROL_H_ */
