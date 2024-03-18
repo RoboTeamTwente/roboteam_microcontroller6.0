@@ -798,7 +798,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		counter_TIM_CONTROL++;
 
-		//state estimation
+		// State Info
 		stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
 		stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
 		
@@ -807,6 +807,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
 		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
 		stateInfo.rateOfTurn = MTi->gyr[2];
+
+		//Robot standing still for 1second for RoT calibration (gyroscope drift)
+		wheels_Brake();
+		RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
+		wheels_Unbrake();
+
+		// State Estimation
 		stateEstimation_Update(&stateInfo);
 
 		//TODO check for test_isTestRunning
