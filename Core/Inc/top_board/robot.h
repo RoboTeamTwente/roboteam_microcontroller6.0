@@ -25,6 +25,7 @@
 #include "pages.h"
 
 #include "CanDriver.h"
+#include "system_test.h"
 
 #include "rem.h"
 

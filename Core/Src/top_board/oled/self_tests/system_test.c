@@ -1,7 +1,7 @@
 #include "system_test.h"
 
 bool system_test_running = false;
-uint32_t time_started = 0;
+static uint32_t time_started = 0;
 struct page_struct running_page;
 struct page_struct finish_page;
 
@@ -25,7 +25,7 @@ void system_test_run() {
         system_test_running = true;
     } else if (system_test_running) {
         //let the test run for 10 seconds
-        if (current_time > time_started + 1000) {
+        if (current_time > time_started + 10000) {
             wheels_Brake();
             end_of_test();
             system_test_running = false;
@@ -33,5 +33,8 @@ void system_test_run() {
     }
 }
 
+uint32_t get_system_test_time_started() {
+    return time_started;
+}
 
 

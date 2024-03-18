@@ -103,6 +103,9 @@ static volatile Wireless_Packet rxPacket;
 SX1280_Interface SX_Interface = {.SPI= COMM_SPI, .TXbuf= SX_TX_buffer, .RXbuf= SX_RX_buffer /*, .logger=LOG_printf*/,};
 
 
+void updateTestCommand(REM_RobotCommand* rc, uint32_t time);
+
+
 /* ============================================================ */
 /* ==================== CAN BUS METHODS ======================= */
 /* ============================================================ */
@@ -351,7 +354,7 @@ void initPacketHeader(REM_Packet* packet, uint8_t robot_id, uint8_t channel, uin
  * @return true If the test is ongoing
  * @return false If the test is finished
  */
-bool updateTestCommand(REM_RobotCommand* rc, uint32_t time){
+void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	// First, empty the entire RobotCommand
 	resetRobotCommand(rc);
 	// Set the basic required stuff
@@ -359,30 +362,19 @@ bool updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	rc->remVersion = REM_LOCAL_VERSION;
 	rc->toRobotId = ROBOT_ID;
 
-	// Don't do anything for the first second
-	if(time < 1000) return true;
-	// Don't do anything after 11 seconds
-	if(11000 < time) return false;
-	// These two give a test window of 10 seconds. 
-	
-	// Normalize time to 0 for easier calculations
-	time -= 1000;
+	uint32_t c_time = time - get_system_test_time_started();
 
 	// Split up testing window into blocks of two seconds
-	float period_fraction = (time%2000)/2000.f;
+	float period_fraction = (c_time%2000)/2000.f;
 
 	// Rotate around, slowly
 	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
 	// // Turn on dribbler
 	// rc->dribbler = period_fraction;
 	// // Kick a little every block
-	// if(0.95 < period_fraction){
-	// 	rc->doKick = true;
-	// 	rc->kickChipPower = 1;
-	// 	rc->doForce = true;
-	// }
-
-	return true;
+	if(0.95 < period_fraction){
+		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+	}
 }
 
 
@@ -749,14 +741,14 @@ void loop(void){
     }
 
     // Heartbeat every 17ms	
-    // if(heartbeat_17ms < current_time){
-    //     while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
+    if(heartbeat_17ms < current_time){
+        while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
 
-    //     if(IS_RUNNING_TEST){
-    //         IS_RUNNING_TEST = updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
-    //         flag_sdcard_write_command = true;
-    //     }
-    // }	
+        if(system_test_running){
+            updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
+            flag_sdcard_write_command = true;
+        }
+    }	
 
     // Heartbeat every 100ms	
     if(heartbeat_100ms < current_time){
@@ -989,7 +981,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED || TEST_MODE) return;
+		if(!ROBOT_INITIALIZED) return;
 
 		if (!unix_initalized && activeRobotCommand.timestamp != 0){
 			unix_timestamp = activeRobotCommand.timestamp;
@@ -1082,7 +1074,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
 
 
-			// flag_sdcard_write_feedback = true;
+			flag_sdcard_write_feedback = true;
 			unix_timestamp += 1	;
 		}
     }
