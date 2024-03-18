@@ -2,18 +2,15 @@
 
 bool system_test_running = false;
 static uint32_t time_started = 0;
-struct page_struct running_page;
-struct page_struct finish_page;
+struct page_struct system_test_running_page;
 
 void system_test_init(page_struct *parent) {
-    running_page.id = 1511;
-    strcpy(running_page.page_name, "System test");
-    running_page.parent = parent;
-    running_page.n_of_childeren = 0;
-    running_page.is_menu = false;
-    running_page.is_test = true;
-    running_page.has_variables = false;
-    add_child_to_parent(&running_page);
+    pages_set_default_values(&system_test_running_page);
+    system_test_running_page.id = 1511;
+    strcpy(system_test_running_page.page_name, "System test");
+    system_test_running_page.parent = parent;
+    system_test_running_page.is_test = NON_BLOCKING_TEST;
+    add_child_to_parent(&system_test_running_page);
 }
 void system_test_run() {
     //test has not started yet

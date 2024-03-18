@@ -11,35 +11,29 @@ char* number_to_status(int num);
  * @note id 112x
 */
 void wheel_twitch_init(page_struct *parent) {
+    pages_set_default_values(&wheel_twitch_warning);
     wheel_twitch_warning.id = 1121;
     strcpy(wheel_twitch_warning.page_name, "Wheel twitch");
     wheel_twitch_warning.parent = parent;
-    wheel_twitch_warning.n_of_childeren = 0;
-    wheel_twitch_warning.is_menu = false;
-    wheel_twitch_warning.is_test = true;
-    wheel_twitch_warning.has_variables = false;
+    wheel_twitch_warning.is_test = BLOCKING_TEST;
     strcpy(wheel_twitch_warning.line0, "Make sure that");
     strcpy(wheel_twitch_warning.line1, "wheels are of");
     strcpy(wheel_twitch_warning.line2, "ground. Press");
     strcpy(wheel_twitch_warning.line3, "\"OK\" to run");
     add_child_to_parent(&wheel_twitch_warning);
 
+    pages_set_default_values(&wheel_twitch_running);
     wheel_twitch_running.id = 1122;
     strcpy(wheel_twitch_running.page_name, "Wheel twitch");
     wheel_twitch_running.parent = &wheel_twitch_warning;
-    wheel_twitch_running.n_of_childeren = 0;
-    wheel_twitch_running.is_menu = false;
-    wheel_twitch_running.is_test = true;
-    wheel_twitch_running.has_variables = false;
+    wheel_twitch_running.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_running);
 
+    pages_set_default_values(&wheel_twitch_result);
     wheel_twitch_result.id = 1123;
     strcpy(wheel_twitch_result.page_name, "Wheel twitch");
     wheel_twitch_result.parent = &wheel_twitch_running;
-    wheel_twitch_result.n_of_childeren = 0;
-    wheel_twitch_result.is_menu = false;
-    wheel_twitch_result.is_test = true;
-    wheel_twitch_result.has_variables = false;
+    wheel_twitch_result.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_result);
 }
 
@@ -56,7 +50,7 @@ void wheel_twitch_run() {
 		working[motor]++;//increment if passes test
 
 		encoder_ResetCounter(motor);
-		wheels_SetSpeed_PWM(motor, 0.1);
+		wheels_SetSpeed_PWM(motor, 0.1f);
 
 		for(int i = 0; i < 50; i++){ // max 0.5 sec long
 			if(encoder_GetCounter(motor) > 100){
@@ -72,7 +66,7 @@ void wheel_twitch_run() {
 		HAL_Delay(50);
 
 		encoder_ResetCounter(motor);
-		wheels_SetSpeed_PWM(motor, -0.1);
+		wheels_SetSpeed_PWM(motor, -0.1f);
 
 		for(int i = 0; i < 50; i++){ // max .5 sec long
 			if(encoder_GetCounter(motor) < -100){

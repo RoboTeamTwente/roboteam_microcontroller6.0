@@ -13,6 +13,12 @@
 
 typedef struct page_struct page_struct;
 
+enum test_type {
+    NOT_A_TEST,
+    BLOCKING_TEST,
+    NON_BLOCKING_TEST,
+};
+
 struct page_struct
 {
     int id;
@@ -21,7 +27,7 @@ struct page_struct
     page_struct *childeren[MAX_CHILDEREN]; 
     int n_of_childeren;
     bool is_menu;
-    bool is_test;
+    enum test_type is_test;
     bool has_variables;
     char line0[MAX_STRING_LENGTH];
     char line1[MAX_STRING_LENGTH];
@@ -43,6 +49,7 @@ void pages_init();
 page_struct* getRootPage();
 page_struct* getNotInTestMode();
 page_struct* getErrorNoChildren();
+void pages_set_default_values(page_struct *p);
 void add_child_to_parent(page_struct *current);
 
 
