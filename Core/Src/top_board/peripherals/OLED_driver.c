@@ -69,7 +69,7 @@ void OLED_Update(button_id_t button, bool test_mode) {
 
     /* if no button is pressed return; update variables displayed on page if needed beforehand */
     if (button == BUTTON_NONE) {
-        if (current_page->is_test) {
+        if (current_page->is_test != NOT_A_TEST) {
             run_test(current_page);
         }
         if (current_page->has_variables) {
@@ -88,14 +88,14 @@ void OLED_Update(button_id_t button, bool test_mode) {
         item_selector = 0;
     } else if (current_page->is_menu) {
         onButtonPressMenu(button);
-    } else if (current_page->is_test) {
+    } else if (current_page->is_test != NOT_A_TEST) {
         onButtonPressSelfTest(button);
     } else {
         onButtonPressDefault(button);
     }
 
     /* Prevent user from going into test menu if robot not in test mode*/
-    if (!test_mode && (current_page->id == id_self_test_menu || current_page->is_test)) {
+    if (!test_mode && (current_page->id == id_self_test_menu || current_page->is_test != NOT_A_TEST)) {
         current_page = getNotInTestMode();
     }
 
@@ -134,6 +134,10 @@ void end_of_test() {
     SSD1306_GotoXY (5,53);
     SSD1306_Puts("continue", &Font_7x10, 1);
     SSD1306_UpdateScreen();   
+}
+
+enum test_type OLED_get_current_page_test_type() {
+    return current_page->is_test;
 }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
@@ -225,7 +229,7 @@ static void refresh(){
             } else {
                 scrollable_page();
             }
-        } else if (current_page->is_test) {
+        } else if (current_page->is_test != NOT_A_TEST) {
             display_text();
             SSD1306_UpdateScreen(); // update screen
             run_test(current_page);

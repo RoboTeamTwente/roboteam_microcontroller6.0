@@ -66,7 +66,7 @@ void buzzer_Play_note(uint16_t period, float duration){
 }
 
 void buzzer_Play(song_struct* tone) {
-	if(!buzzer_initialized) return;
+	if(!buzzer_initialized || DISABLE_BUZZER) return;
 	
 	song = tone;
 

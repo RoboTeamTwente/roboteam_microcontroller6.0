@@ -15,6 +15,7 @@ void self_test_menu_initChildren(page_struct *parent) {
     self_test_system_menu.id = 15;
     strcpy(self_test_system_menu.page_name, "System tests");
     self_test_system_menu.parent = parent;
+    self_test_system_menu.is_menu = true;
     add_child_to_parent(&self_test_system_menu);
     system_test_init(&self_test_system_menu);
 
@@ -31,6 +32,7 @@ void self_test_menu_initChildren(page_struct *parent) {
     pages_set_default_values(&self_test_power_menu);
     self_test_power_menu.id = 12;
     strcpy(self_test_power_menu.page_name, "Power board");
+    self_test_power_menu.is_menu = true;
     self_test_power_menu.parent = parent;
     add_child_to_parent(&self_test_power_menu);
 

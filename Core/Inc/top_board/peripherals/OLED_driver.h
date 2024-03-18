@@ -22,5 +22,6 @@ void OLED_Update(button_id_t button, bool test_mode);
 void OLED_set_error_too_many_children(char* page_name);
 void start_of_test();
 void end_of_test();
+enum test_type OLED_get_current_page_test_type();
 
 #endif /* INC_OLED_H_ */ 

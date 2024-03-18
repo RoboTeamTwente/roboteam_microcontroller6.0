@@ -53,6 +53,7 @@ REM_RobotCommandPayload myRobotCommandPayload;
 REM_RobotCommand myRobotCommand;
 
 extern uint64_t unix_timestamp;
+extern bool DISABLE_BUZZER;
 
 void init(void);
 void loop(void);

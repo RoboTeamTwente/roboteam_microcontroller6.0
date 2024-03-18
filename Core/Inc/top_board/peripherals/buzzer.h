@@ -5,6 +5,7 @@
 #include "gpio_util.h"
 #include "tim_util.h"
 #include "buzzer_tunes.h"
+#include "robot.h"
 
 ///////////////////////////////////////////////////// BUZZER LIMITERS
 #define BUZZER_SCALER 4000

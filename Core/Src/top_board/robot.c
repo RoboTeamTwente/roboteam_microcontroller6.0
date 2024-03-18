@@ -8,6 +8,7 @@ uint16_t MTi_MAX_INIT_ATTEMPTS = 5;
 
 volatile bool ROBOT_INITIALIZED = false;
 volatile bool TEST_MODE = false;
+bool DISABLE_BUZZER = false;
 
 /*
 	These variables are used for the CAN bus messaging
@@ -289,45 +290,23 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	}
 	
 	/*====================== NEW SHOOTING CODE =====================*/
-	// if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
-	// {	
-	// 	shoot_power = robotCommand->kickChipPower;
-	// 	doForce_CAN = robotCommand->doForce;
-	// 	if (robotCommand->doChip)
-	// 		CAN_Send_Message(CHIP_MESSAGE, KICK_CHIP_ID, &hcan1);
-	// 	else if (robotCommand->doKick)
-	// 		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
-	// 	else if (robotCommand->kickAtAngle)
-	// 	{
-	// 		float localState[4] = {0.0f};
-	// 		stateEstimation_GetState(localState);
-	// 		if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
-	// 			CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
-	// 		}
-	// 	}
-	// }
-
-	/*======================== OLD SHOOTING CODE ========================*/
-	//shoot_SetPower(robotCommand->kickChipPower);
-	// if (robotCommand->doKick) {
-	// 	if (ballPosition.canKickBall || robotCommand->doForce){
-	// 		shoot_Shoot(shoot_Kick);
-	// 	}
-	// }
-	// 	else if (robotCommand->doChip) {
-	// 		if (ballPosition.canKickBall || robotCommand->doForce) {
-	// 			shoot_Shoot(shoot_Chip);
-	// 		}
-	// 	}
-	// 	else if (robotCommand->kickAtAngle) {
-		// float localState[4] = {0.0f};  
-		// stateEstimation_GetState(localState);
-		// if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
-		// 	if (ballPosition.canKickBall || robotCommand->doForce) {
-		// 		shoot_Shoot(shoot_Kick);
-		// 	}
-		// }
-// 	}
+	if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
+	{	
+		shoot_power = robotCommand->kickChipPower;
+		doForce_CAN = robotCommand->doForce;
+		if (robotCommand->doChip)
+			CAN_Send_Message(CHIP_MESSAGE, KICK_CHIP_ID, &hcan1);
+		else if (robotCommand->doKick)
+			CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+		else if (robotCommand->kickAtAngle)
+		{
+			float localState[4] = {0.0f};
+			stateEstimation_GetState(localState);
+			if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+				CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+			}
+		}
+	}
 }
 
 void resetRobotCommand(REM_RobotCommand* robotCommand){
@@ -405,7 +384,7 @@ void init(void){
 	ROBOT_ID = get_Id();
 	ROBOT_CHANNEL = read_Pin(SW4_pin) == GPIO_PIN_SET ? BLUE_CHANNEL : YELLOW_CHANNEL;
 	//UNDEFINED = read_Pin(SW5_pin);
-	//UNDEFINED = read_Pin(SW6_pin);
+	DISABLE_BUZZER = read_Pin(SW6_pin);
 	TEST_MODE = read_Pin(SW7_pin);
 
 	if (!TEST_MODE) {
@@ -1000,7 +979,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.rateOfTurn = MTi->gyr[2];
 		stateEstimation_Update(&stateInfo);
 
-		if(halt){
+		if(halt || (TEST_MODE && OLED_get_current_page_test_type() != NON_BLOCKING_TEST)){
 			unix_initalized = false;
 			wheels_Stop();
 			return;
