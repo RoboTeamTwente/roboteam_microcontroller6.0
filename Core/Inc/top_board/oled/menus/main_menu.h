@@ -4,6 +4,7 @@
 #include "OLED_driver.h"
 #include "self_test_menu.h"
 #include "info_menu.h"
+#include "drain_battery.h"
 
 void main_menu_initChildren(page_struct *parent);
 int getSelfTestMenuID();

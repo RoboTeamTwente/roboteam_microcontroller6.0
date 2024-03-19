@@ -26,6 +26,7 @@
 
 #include "CanDriver.h"
 #include "system_test.h"
+#include "drain_battery.h"
 
 #include "rem.h"
 
@@ -54,6 +55,8 @@ REM_RobotCommand myRobotCommand;
 
 extern uint64_t unix_timestamp;
 extern bool DISABLE_BUZZER;
+extern uint16_t powerboard_voltage;
+extern bool powerBoard_alive;
 
 void init(void);
 void loop(void);

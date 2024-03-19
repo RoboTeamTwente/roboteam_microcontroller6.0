@@ -108,11 +108,17 @@ void OLED_Update(button_id_t button, bool test_mode) {
     resetButtonState(button);
 }
 
+/**
+ * @brief display error that a menu has too many children
+*/
 void OLED_set_error_too_many_children(char* page_name) {
     flag_error_too_many_children = true;
     page_name_error_too_many_children = page_name;
 }
 
+/**
+ * @brief display that the test has started
+*/
 void start_of_test() {
     clear_screen();
     putPageName();
@@ -121,21 +127,25 @@ void start_of_test() {
     SSD1306_UpdateScreen();   
 }
 
+/**
+ * @brief display that the test has ended
+*/
 void end_of_test() {
     test_is_finished = true;
     clear_screen();
     putPageName();
     SSD1306_GotoXY (5,20);
-    SSD1306_Puts("Test is running", &Font_7x10, 1);
-    SSD1306_GotoXY (5,31);
     SSD1306_Puts("Test done!", &Font_7x10, 1);
-    SSD1306_GotoXY (5,42);
+    SSD1306_GotoXY (5,31);
     SSD1306_Puts("press \"OK\" to", &Font_7x10, 1);
-    SSD1306_GotoXY (5,53);
+    SSD1306_GotoXY (5,42);
     SSD1306_Puts("continue", &Font_7x10, 1);
     SSD1306_UpdateScreen();   
 }
 
+/**
+ * @brief return what type of test the current page is
+*/
 enum test_type OLED_get_current_page_test_type() {
     return current_page->is_test;
 }

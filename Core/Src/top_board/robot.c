@@ -539,7 +539,7 @@ void init(void){
 
 	// Check if we are in test mode. If so, sound an alarm
 	if(TEST_MODE) {
-		LOG("[init:"STRINGIZE(__LINE__)"] In drain mode! Flip pin SW7 and reboot to disable.\n");
+		LOG("[init:"STRINGIZE(__LINE__)"] In test mode! Flip pin SW7 and reboot to disable.\n");
 		LOG_sendAll();
 		buzzer_Play_BatteryDrainWarning();
 		HAL_Delay(1000);
@@ -575,7 +575,7 @@ void init(void){
 
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
 	// SX1280 section 10.7 Transceiver Circuit Modes Graphical Illustration
-	// Ignore packets when we're in test- or battery drain mode by simply never entering this receive-respond loop
+	// Ignore packets when we're in test mode by simply never entering this receive-respond loop
 	if(!TEST_MODE) WaitForPacket(SX);
 
 
@@ -678,7 +678,7 @@ void loop(void){
     /* === Determine HALT state === */
     xsens_CalibrationDone = (MTi->statusword & (0x18)) == 0; // if bits 3 and 4 of status word are zero, calibration is done
     halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
-    if(get_system_test_running()) halt = false;
+    if(get_system_test_running() || DRAIN_BATTERY) halt = false;
 
     if (halt) {
         // LOG_printf("HALT %d %d %d\n", xsens_CalibrationDone, checkWirelessConnection(), isSerialConnected);
@@ -979,7 +979,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.rateOfTurn = MTi->gyr[2];
 		stateEstimation_Update(&stateInfo);
 
-		if(halt || (TEST_MODE && OLED_get_current_page_test_type() != NON_BLOCKING_TEST)){
+		if(halt || (TEST_MODE && OLED_get_current_page_test_type() != NON_BLOCKING_TEST) || test_is_finished){
 			unix_initalized = false;
 			wheels_Stop();
 			return;
@@ -1005,17 +1005,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		//
 		// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
 		//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
-		// if(DRAIN_BATTERY){
+		if(DRAIN_BATTERY){
 
-		// 	// Instruct each wheel to go 30 rad/s
-		// 	float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
-		// 	wheels_set_command_speed(wheel_speeds);
+			// TODO Instruct each wheel to go 30 rad/s
+			float wheel_speeds[4] = {10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI};
+			wheels_set_command_speed(wheel_speeds);
 
-		// 	// If the gyroscope detects some rotational movement, we stop the drainage program.
-		// 	if (fabs(MTi->gyr[2]) > 0.3f) {
-		// 		DRAIN_BATTERY = false;
-		// 	}
-		// }
+			// If the gyroscope detects some rotational movement, we stop the drainage program.
+			if (fabs(MTi->gyr[2]) > 0.3f) {
+				end_of_test();
+				DRAIN_BATTERY = false;
+			}
+		}
 		wheels_Update();
 
 		/* == Fill robotFeedback packet == */ {
