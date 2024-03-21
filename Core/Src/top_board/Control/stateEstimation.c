@@ -3,7 +3,7 @@
 #include <math.h>
 
 #define RoT_BUFFER_SIZE 5
-#define CUTOFF_FREQ 5 // Cutoff frequency for rate of turn high pass filter: 5Hz 
+#define CUTOFF_FREQ 5.0f // Cutoff frequency for rate of turn high pass filter: 5Hz 
 
 ///////////////////////////////////////////////////// VARIABLES
 
@@ -140,7 +140,7 @@ float smoothen_rateOfTurn(float rateOfTurn){
     RoT_buffer[RoT_idx] = rateOfTurn;
 	RoT_idx = (RoT_idx+1) % 2;
 
-	float RC = 1.0/(CUTOFF_FREQ*2*3.14159); // use 3.14 for pi and not M_PI (always get issues with math libraries)
+	float RC = 1.0/(CUTOFF_FREQ*2.0*3.14159); // use 3.14 for pi and not M_PI (always get issues with math libraries)
     float alpha = RC/(RC + TIME_DIFF);
 
 	filteredArray[0] = RoT_buffer[0];
@@ -161,7 +161,7 @@ float smoothen_rateOfTurn(float rateOfTurn){
     for (int i=0; i<RoT_BUFFER_SIZE; i++){
         avg += buffer[i];
     }
-	
+
 	float smoothed_rateOfTurn = avg / RoT_BUFFER_SIZE;
     return smoothed_rateOfTurn;
 } 
