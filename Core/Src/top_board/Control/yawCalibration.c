@@ -97,24 +97,24 @@ void yaw_ResetCalibration(){
 };
 
 // Rate of Turn calibration only meant to be used when robot stands still for 1 second, calculate its offset (we have a negative offset sometimes) and is put to zero
-void RoT_calibration_noMotion(float rateofTurn) {
-	static bool CalibrationDone_RoT = false;
-	static bool CalibrationNeeded_RoT = false;
-	float offset_RoT = 0.0f;
-	for (int counter = 0; counter < 50; counter++){ // should run for 50 time steps (500 ms)
-		if (rateofTurn > 0.001) {
-			offset_RoT = rateofTurn;
-			rateofTurn = 0;
-			CalibrationDone_RoT = true;
-			CalibrationNeeded_RoT = true;
-		} else {
-			CalibrationDone_RoT = true;
-			CalibrationNeeded_RoT = false;
-		}
-	}
-	return CalibrationDone_RoT;
-	LOG_printf("CalibrationDone_RoT: %s\n", CalibrationDone_RoT);
-}
+// void RoT_calibration_noMotion(float rateofTurn) {
+// 	static bool CalibrationDone_RoT = false;
+// 	static bool CalibrationNeeded_RoT = false;
+// 	float offset_RoT = 0.0f;
+// 	for (int counter = 0; counter < 50; counter++){ // should run for 50 time steps (500 ms)
+// 		if (rateofTurn > 0.001) {
+// 			offset_RoT = rateofTurn;
+// 			rateofTurn = 0;
+// 			CalibrationDone_RoT = true;
+// 			CalibrationNeeded_RoT = true;
+// 		} else {
+// 			CalibrationDone_RoT = true;
+// 			CalibrationNeeded_RoT = false;
+// 		}
+// 	}
+// 	return CalibrationDone_RoT;
+// 	LOG_printf("CalibrationDone_RoT: %s\n", CalibrationDone_RoT);
+// }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 

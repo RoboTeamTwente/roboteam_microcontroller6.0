@@ -1,7 +1,9 @@
 #include "stateEstimation.h"
 #include "logging.h"
+#include <math.h>
 
 #define RoT_BUFFER_SIZE 5
+#define CUTOFF_FREQ 5 // Cutoff frequency for rate of turn high pass filter: 5Hz 
 
 ///////////////////////////////////////////////////// VARIABLES
 
@@ -129,6 +131,25 @@ static void wheels2Body(float wheelSpeeds[4], float output[3]){
 }
 
 float smoothen_rateOfTurn(float rateOfTurn){
+
+	// HIGH PASS FILTER 
+	static float RoT_buffer[2] = {0.0f}; // RoT buffer = 2, prev and current values
+    static int RoT_idx = 0; // holds current index of buffer
+	static float filteredArray[2] = {0.0f};
+
+    RoT_buffer[RoT_idx] = rateOfTurn;
+	RoT_idx = (RoT_idx+1) % 2;
+
+	float RC = 1.0/(CUTOFF_FREQ*2*3.14159); // use 3.14 for pi and not M_PI (always get issues with math libraries)
+    float alpha = RC/(RC + TIME_DIFF);
+
+	filteredArray[0] = RoT_buffer[0];
+    for (int i = 1; i<2; i++){
+        filteredArray[i] = alpha * (filteredArray[i-1] + RoT_buffer[i] - RoT_buffer[i-1]);
+    }
+    rateOfTurn = filteredArray[1]; // get the new rate Of turn ! We might be delayed by 1 time step
+
+	// AVERAGE FILTER
     static float buffer[RoT_BUFFER_SIZE] = {0.0f}; // circular buffer
     static int idx = 0; // holds current index of buffer
 
@@ -140,5 +161,7 @@ float smoothen_rateOfTurn(float rateOfTurn){
     for (int i=0; i<RoT_BUFFER_SIZE; i++){
         avg += buffer[i];
     }
-    return avg / RoT_BUFFER_SIZE;
+	
+	float smoothed_rateOfTurn = avg / RoT_BUFFER_SIZE;
+    return smoothed_rateOfTurn;
 } 

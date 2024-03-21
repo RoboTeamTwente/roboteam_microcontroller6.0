@@ -809,9 +809,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.rateOfTurn = MTi->gyr[2];
 
 		//Robot standing still for 1second for RoT calibration (gyroscope drift)
-		wheels_Brake();
-		RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
-		wheels_Unbrake();
+		// wheels_Brake();
+		// RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
+		// wheels_Unbrake();
 
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
