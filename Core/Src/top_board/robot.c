@@ -950,9 +950,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		calculateButtonTime(BUTTON_DOWN);
 	}else if(GPIO_Pin == BTN_SW3_Pin) {
 		calculateButtonTime(BUTTON_OK);
-	}/*else if(GPIO_Pin == BTN_SW4_Pin) {
+	}else if(GPIO_Pin == BTN_SW4_Pin) {
 		calculateButtonTime(BUTTON_UP);
-	}*/
+	}
 }
 
 // Handles the interrupts of the different timers.

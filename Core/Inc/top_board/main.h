@@ -197,7 +197,7 @@ void Error_Handler(void);
 #define SPI1_NSS_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
-
+extern CAN_HandleTypeDef hcan1;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
