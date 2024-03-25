@@ -53,7 +53,6 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-extern CAN_HandleTypeDef hcan1;
 
 /* USER CODE BEGIN EFP */
 
@@ -142,18 +141,21 @@ extern CAN_HandleTypeDef hcan1;
 #define SPI4_IRQ_Pin GPIO_PIN_11
 #define SPI4_IRQ_GPIO_Port GPIOB
 #define SPI4_IRQ_EXTI_IRQn EXTI15_10_IRQn
-#define BTN_SW0_Pin GPIO_PIN_15
+#define BTN_SW0_Pin GPIO_PIN_14
 #define BTN_SW0_GPIO_Port GPIOB
 #define BTN_SW0_EXTI_IRQn EXTI15_10_IRQn
-#define BTN_SW1_Pin GPIO_PIN_8
-#define BTN_SW1_GPIO_Port GPIOD
-#define BTN_SW1_EXTI_IRQn EXTI9_5_IRQn
-#define BTN_SW2_Pin GPIO_PIN_9
+#define BTN_SW1_Pin GPIO_PIN_15
+#define BTN_SW1_GPIO_Port GPIOB
+#define BTN_SW1_EXTI_IRQn EXTI15_10_IRQn
+#define BTN_SW2_Pin GPIO_PIN_8
 #define BTN_SW2_GPIO_Port GPIOD
 #define BTN_SW2_EXTI_IRQn EXTI9_5_IRQn
-#define BTN_SW3_Pin GPIO_PIN_10
+#define BTN_SW3_Pin GPIO_PIN_9
 #define BTN_SW3_GPIO_Port GPIOD
-#define BTN_SW3_EXTI_IRQn EXTI15_10_IRQn
+#define BTN_SW3_EXTI_IRQn EXTI9_5_IRQn
+#define BTN_SW4_Pin GPIO_PIN_10
+#define BTN_SW4_GPIO_Port GPIOD
+#define BTN_SW4_EXTI_IRQn EXTI15_10_IRQn
 #define RB_CHA_Pin GPIO_PIN_12
 #define RB_CHA_GPIO_Port GPIOD
 #define RB_CHB_Pin GPIO_PIN_13
