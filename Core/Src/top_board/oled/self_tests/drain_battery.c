@@ -69,7 +69,16 @@ void drain_battery_run(float target) {
         SSD1306_UpdateScreen();
         DRAIN_BATTERY = false;
     } else if (target == 18.0f || target > powerboard_voltage) {
-        start_of_test();
         DRAIN_BATTERY = true;
+    } else {
+        DRAIN_BATTERY = true;
+        end_of_test();
     }
+}
+
+void drain_battery_update_screen(page_struct *p) {
+    strcpy(p->line0, "Current voltage");
+    char temp[MAX_STRING_LENGTH];
+    sprintf(temp, "%dV", powerboard_voltage);
+    strcpy(p->line1, temp);    
 }

@@ -3,6 +3,7 @@
 
 #include "pages.h"
 #include "time_page.h"
+#include "drain_battery.h"
 
 void update_variables(page_struct *page);
 

@@ -57,6 +57,7 @@ extern uint64_t unix_timestamp;
 extern bool DISABLE_BUZZER;
 extern uint16_t powerboard_voltage;
 extern bool powerBoard_alive;
+extern bool TEST_MODE;
 
 void init(void);
 void loop(void);

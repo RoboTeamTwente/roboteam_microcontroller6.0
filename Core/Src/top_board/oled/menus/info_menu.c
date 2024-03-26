@@ -19,5 +19,6 @@ void info_menu_initChildren(page_struct *parent) {
     time_page.id = 22;
     strcpy(time_page.page_name, "Robot time");
     time_page.parent = parent;
+    time_page.has_variables = true;
     add_child_to_parent(&time_page);
 }

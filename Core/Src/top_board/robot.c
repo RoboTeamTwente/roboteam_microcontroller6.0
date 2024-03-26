@@ -7,7 +7,7 @@ WIRELESS_CHANNEL ROBOT_CHANNEL;
 uint16_t MTi_MAX_INIT_ATTEMPTS = 5;
 
 volatile bool ROBOT_INITIALIZED = false;
-volatile bool TEST_MODE = false;
+bool TEST_MODE = false;
 bool DISABLE_BUZZER = false;
 
 /*
@@ -959,7 +959,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED) return;
+		if(!ROBOT_INITIALIZED || (TEST_MODE && OLED_get_current_page_test_type() != NON_BLOCKING_TEST)) return;
 
 		if (!unix_initalized && activeRobotCommand.timestamp != 0){
 			unix_timestamp = activeRobotCommand.timestamp;
@@ -979,7 +979,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.rateOfTurn = MTi->gyr[2];
 		stateEstimation_Update(&stateInfo);
 
-		if(halt || (TEST_MODE && OLED_get_current_page_test_type() != NON_BLOCKING_TEST) || test_is_finished){
+		if(halt || test_is_finished){
 			unix_initalized = false;
 			wheels_Stop();
 			return;

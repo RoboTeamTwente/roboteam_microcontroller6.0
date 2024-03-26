@@ -155,12 +155,13 @@ enum test_type OLED_get_current_page_test_type() {
  * @brief actions after button press for menu page
 */
 static void onButtonPressMenu(button_id_t button) {
+    int nomiator = current_page->n_of_childeren + 1;
     switch(button){
         case BUTTON_UP:
-            item_selector = (item_selector - 1) % (current_page->n_of_childeren + 1);
+            item_selector = (item_selector - 1 + nomiator) % nomiator;
             break;
         case BUTTON_DOWN:
-            item_selector = (item_selector + 1) % (current_page->n_of_childeren + 1);
+            item_selector = (item_selector + 1 + nomiator) % nomiator;
             break;
         case BUTTON_LEFT:
             menu_move_sideways(-1);
