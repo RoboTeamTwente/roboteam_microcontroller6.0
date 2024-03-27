@@ -2,6 +2,7 @@
 
 struct page_struct general_info;
 struct page_struct time_page;
+struct page_struct mcp_page;
 
 /**
  * @brief initialize the pages that are the children of info menu
@@ -21,4 +22,11 @@ void info_menu_initChildren(page_struct *parent) {
     time_page.parent = parent;
     time_page.has_variables = true;
     add_child_to_parent(&time_page);
+
+    pages_set_default_values(&mcp_page);
+    mcp_page.id = 23;
+    strcpy(mcp_page.page_name, "MCP Alive");
+    mcp_page.parent = parent;
+    mcp_page.has_variables = true;
+    add_child_to_parent(&mcp_page);
 }

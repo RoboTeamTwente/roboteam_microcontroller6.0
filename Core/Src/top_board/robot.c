@@ -569,6 +569,7 @@ void init(void){
 		buzzer_Play_WarningFour();
 		HAL_Delay(1000);
 	}
+	mcp_page_check_alive();
 }
 	
 	set_Pin(LED6_pin, 1);

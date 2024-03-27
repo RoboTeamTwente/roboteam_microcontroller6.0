@@ -27,6 +27,7 @@
 #include "CanDriver.h"
 #include "system_test.h"
 #include "drain_battery.h"
+#include "mcp_page.h"
 
 #include "rem.h"
 
@@ -58,6 +59,7 @@ extern bool DISABLE_BUZZER;
 extern uint16_t powerboard_voltage;
 extern bool powerBoard_alive;
 extern bool TEST_MODE;
+extern bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
 
 void init(void);
 void loop(void);
