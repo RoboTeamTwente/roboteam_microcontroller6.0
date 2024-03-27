@@ -1,6 +1,6 @@
 #include "main_menu.h"
 
-struct page_struct self_test_menu;
+struct page_struct self_test_menu; //DO NOT DELETE THIS ONE
 struct page_struct info_menu;
 struct page_struct drain_battery_menu;
 

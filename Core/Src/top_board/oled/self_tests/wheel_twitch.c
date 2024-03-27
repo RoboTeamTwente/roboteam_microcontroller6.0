@@ -11,6 +11,7 @@ char* number_to_status(int num);
  * @note id 112x
 */
 void wheel_twitch_init(page_struct *parent) {
+    //Display warning
     pages_set_default_values(&wheel_twitch_warning);
     wheel_twitch_warning.id = 1121;
     strcpy(wheel_twitch_warning.page_name, "Wheel twitch");
@@ -22,6 +23,7 @@ void wheel_twitch_init(page_struct *parent) {
     strcpy(wheel_twitch_warning.line3, "\"OK\" to run");
     add_child_to_parent(&wheel_twitch_warning);
 
+    //running test
     pages_set_default_values(&wheel_twitch_running);
     wheel_twitch_running.id = 1122;
     strcpy(wheel_twitch_running.page_name, "Wheel twitch");
@@ -29,6 +31,7 @@ void wheel_twitch_init(page_struct *parent) {
     wheel_twitch_running.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_running);
 
+    //results
     pages_set_default_values(&wheel_twitch_result);
     wheel_twitch_result.id = 1123;
     strcpy(wheel_twitch_result.page_name, "Wheel twitch");
@@ -81,6 +84,7 @@ void wheel_twitch_run() {
 	wheels_Brake();
     end_of_test();
 
+    //Prepping results to be displayed
     char temp[MAX_STRING_LENGTH];
     sprintf(temp, "RF: %s", number_to_status(working[0]));
     strcpy(wheel_twitch_result.line0, temp);

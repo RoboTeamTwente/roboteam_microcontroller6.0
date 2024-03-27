@@ -12,12 +12,11 @@ void buzzer_test_init(page_struct *parent) {
     buzzer_test.is_test = BLOCKING_TEST;
     strcpy(buzzer_test.line0, "Robot is");
     strcpy(buzzer_test.line1, "Rick Rolling you");
-    strcpy(buzzer_test.line2, "Press any button");
-    strcpy(buzzer_test.line3, "to return when done");
     add_child_to_parent(&buzzer_test);
 }
 
 void buzzer_test_run() {
     buzzer_Play_RickRoll();
     HAL_Delay(120000);
+    end_of_test();
 }
