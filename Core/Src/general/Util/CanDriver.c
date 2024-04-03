@@ -1,14 +1,22 @@
 /*
  * CanDriver.c
+ * This file contains the implementation of a CAN driver for communication between different components of a system.
  */
-#include "CanDriver.h"
 
-mailbox_buffer MailBox_one	 = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-mailbox_buffer MailBox_two 	 = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};;
+#include "CanDriver.h"
+#include "logging.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
+// Definition of mailbox buffers
+mailbox_buffer MailBox_one    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
+mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-char str[75];
 bool CAN_to_process = false;
 
+// Function to initialize CAN communication
 void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
 
     // Configuration of CAN filter
@@ -24,15 +32,17 @@ void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
     canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
     canfilterconfig.SlaveStartFilterBank = 0;
 
-	HAL_CAN_ConfigFilter(hcan, &canfilterconfig);
+    // Configure CAN filter
+    HAL_CAN_ConfigFilter(hcan, &canfilterconfig);
 
-	HAL_CAN_Start(hcan);
-	HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+    // Start CAN communication
+    HAL_CAN_Start(hcan);
+    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
+// Function to handle CAN errors
 void CAN_error_LOG(CAN_TxHeaderTypeDef *Header){
-	LOG("[CAN] Failed to transmit message\n");
-	LOG_send();
+    return;  // Placeholder function, not implemented
 }
 
 // Function to send an acknowledgment message
@@ -137,7 +147,7 @@ void set_request_power_state(uint8_t payload[8], bool request_State){
 // Function to set the header for "Voltage Response" message
 void set_voltage_response_header(CAN_TxHeaderTypeDef *TxHeader){
     TxHeader->DLC = 2;
-    TxHeader->StdId = (POWER_ID << RECEIVER_ID_LOCATION) | VOLTAGE_RESPONSE;
+    TxHeader->StdId = (TOP_ID << RECEIVER_ID_LOCATION) | VOLTAGE_RESPONSE;
 }
 
 // Function to get the voltage response from a payload
@@ -339,7 +349,7 @@ bool get_capacitor_sensor_state(uint8_t payload[8]){
 
 // Function to set the capacitor charging state in a payload
 void set_capacitor_charging_state(uint8_t payload[8], bool charging_state){
-    payload[0] = payload[0] | (charging_state << CAPACITOR_CHARGING_INDEX);
+    payload[0] =   payload[0] | (charging_state << CAPACITOR_CHARGING_INDEX);
 }
 
 // Function to get the capacitor charging state from a payload
