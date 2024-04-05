@@ -28,6 +28,8 @@ void system_test_run() {
             system_test_running = false;
         }
     }
+    HAL_Delay(1500);
+    CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
 }
 
 uint32_t get_system_test_time_started() {
