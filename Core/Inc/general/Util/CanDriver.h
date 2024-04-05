@@ -228,9 +228,9 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 
 	bool get_do_Force(uint8_t payload[8]);
 
-	void set_shoot_power(uint8_t payload[8], uint8_t power);
+	void set_shoot_power(uint8_t payload[8], uint16_t power);
 
-	uint8_t get_shoot_power(uint8_t payload[8]);
+	uint16_t get_shoot_power(uint8_t payload[8]);
 
 	void set_header_chip(CAN_TxHeaderTypeDef *TxHeader);
 

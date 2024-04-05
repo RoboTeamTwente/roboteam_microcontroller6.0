@@ -3,6 +3,7 @@
 struct page_struct general_info;
 struct page_struct time_page;
 struct page_struct mcp_page;
+struct page_struct encoder_values;
 
 /**
  * @brief initialize the pages that are the children of info menu
@@ -29,4 +30,15 @@ void info_menu_initChildren(page_struct *parent) {
     mcp_page.parent = parent;
     mcp_page.has_variables = true;
     add_child_to_parent(&mcp_page);
+
+    pages_set_default_values(&encoder_values);
+    encoder_values.id = 24;
+    strcpy(encoder_values.page_name, "Encoder");
+    strcpy(encoder_values.line0, "LF:0");
+    strcpy(encoder_values.line1, "RF:0");
+    strcpy(encoder_values.line2, "LB:0");
+    strcpy(encoder_values.line3, "RB:0");
+    encoder_values.parent = parent;
+    encoder_values.has_variables = true;
+    add_child_to_parent(&encoder_values);
 }
