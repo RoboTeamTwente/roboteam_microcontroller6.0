@@ -138,7 +138,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 			set_header_kick(&CAN_TxHeader);
 			set_kick_state(payload, true);
 			set_do_Force(payload, doForce_CAN);
-			set_shoot_power(payload, 2);
+			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == CHIP_MESSAGE) {
 			set_header_chip(&CAN_TxHeader);
 			set_chip_state(payload, true);

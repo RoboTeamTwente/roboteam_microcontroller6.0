@@ -60,6 +60,7 @@ extern uint16_t powerboard_voltage;
 extern bool powerBoard_alive;
 extern bool TEST_MODE;
 extern bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
+extern uint8_t shoot_power;
 
 void init(void);
 void loop(void);
