@@ -5,8 +5,8 @@
 #include "main.h"
 
 uint64_t TxMailbox[1]; 
-bool voltage_meter_state = false;
-bool capcitor_charging_state = false;
+bool voltage_meter_state = true;
+bool capcitor_charging_state = true;
 uint16_t voltage_reading;
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
