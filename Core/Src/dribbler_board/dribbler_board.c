@@ -53,6 +53,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
         if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION){
             //TODO send a message or something saying that incorrect
         }
+        CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, hcan);
 
     }
     else if (to_Process->message_id == DRIBBLER_SPEED){
