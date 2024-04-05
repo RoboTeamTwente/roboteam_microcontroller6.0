@@ -282,7 +282,7 @@ void set_shoot_power(uint8_t payload[8], uint16_t power){
 }
 
 // Function to get the shoot power from a payload
-uint16_t get_shoot_power(uint16_t payload[8]){
+uint16_t get_shoot_power(uint8_t payload[8]){
     return ( payload[0] & bit_shiftMask(SHOOT_POWER_INDEX, SHOOT_POWER_LENGTH) ) >> SHOOT_POWER_INDEX;
 }
 
