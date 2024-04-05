@@ -209,6 +209,8 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		ballsensor_sees_ball = get_sensor_sees_ball(to_Process->data_Frame);
 	} else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE) {
 		kicker_capacitor_voltage = get_capacitor_voltage_response(to_Process->data_Frame);;
+	} else {
+		LOG_printf("CAN_PWM :: PWM reading %d", get_dribbler_speed(to_Process->data_Frame));
 	}
 	LOG_sendAll();
 	to_Process->empty = true; // reset the mailbox to the empty state
@@ -602,8 +604,8 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	// dribbler_speed = 0.4;
-	// CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	dribbler_speed = 0.4;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
 	// HAL_Delay(1000);
 	// dribbler_speed = 1;
 	// CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
