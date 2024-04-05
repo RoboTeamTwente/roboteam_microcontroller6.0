@@ -602,15 +602,15 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	dribbler_speed = 0.4;
-	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
-	HAL_Delay(1000);
-	dribbler_speed = 1;
-	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
-	HAL_Delay(1000);
-	dribbler_speed = 0.6;
-	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
-	HAL_Delay(1000);
+	// dribbler_speed = 0.4;
+	// CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	// HAL_Delay(1000);
+	// dribbler_speed = 1;
+	// CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	// HAL_Delay(1000);
+	// dribbler_speed = 0.6;
+	// CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	// HAL_Delay(1000);
 
 
 }

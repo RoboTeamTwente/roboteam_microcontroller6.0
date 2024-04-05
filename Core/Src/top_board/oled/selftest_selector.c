@@ -12,6 +12,27 @@ void run_test(page_struct *page) {
         case 1122:
             wheel_twitch_run();
             break;
+        case 1111:
+            motor_test_initChildren(&page);
+            break;
+        case 1112:
+            speedMotor_OLED(0.0f);
+            break;
+        case 1113:
+            speedMotor_OLED(0.2f);
+            break;
+        case 1114:
+            speedMotor_OLED(0.4f);
+            break;
+        case 1115:
+            speedMotor_OLED(0.6f);
+            break;
+        case 1116:
+            speedMotor_OLED(0.8f);
+            break;
+        case 1117:
+            speedMotor_OLED(1.0f);
+            break;
         case 1511:
             system_test_run();
             break;

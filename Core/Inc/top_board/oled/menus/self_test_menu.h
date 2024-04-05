@@ -6,6 +6,7 @@
 #include "wheel_twitch.h"
 #include "system_test.h"
 #include "kicker_test.h"
+#include "motor_test.h"
 
 void self_test_menu_initChildren(page_struct *parent);
 

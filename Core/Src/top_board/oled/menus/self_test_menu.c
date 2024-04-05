@@ -28,6 +28,8 @@ void self_test_menu_initChildren(page_struct *parent) {
     add_child_to_parent(&self_test_top_menu);
     buzzer_test_init(&self_test_top_menu);
     wheel_twitch_init(&self_test_top_menu);
+    motor_test_initChildren(&self_test_top_menu);
+
 
     pages_set_default_values(&self_test_power_menu);
     self_test_power_menu.id = 12;
