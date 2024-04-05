@@ -30,6 +30,7 @@ bool dribbler_sees_ball, ballsensor_sees_ball;
 uint16_t powerboard_voltage, kicker_capacitor_voltage;
 float dribbler_speed = 0;
 uint8_t shoot_power = 0;
+bool chip_state, kick_state = true;
 bool doForce_CAN;
 bool kill_robot = false; 
 bool powerboard_request = false;
@@ -136,14 +137,14 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 	} else if (reciever_ID == KICK_CHIP_ID) {
 		if (sending_message_ID == KICK_MESSAGE) {
 			set_header_kick(&CAN_TxHeader);
-			set_kick_state(payload, true);
+			set_kick_state(payload, kick_state);
 			set_do_Force(payload, doForce_CAN);
 			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == CHIP_MESSAGE) {
 			set_header_chip(&CAN_TxHeader);
 			set_chip_state(payload, true);
 			set_do_Force(payload, doForce_CAN);
-			set_shoot_power(payload, 2);
+			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == DISCHARGE_MESSAGE) {
 			set_header_discharge(&CAN_TxHeader);
 		} else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
