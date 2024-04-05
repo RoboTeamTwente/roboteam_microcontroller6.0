@@ -81,7 +81,7 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
-	damping_term = 0.00136666f;
+	damping_term = 0.00145f;
 	// damping_term = 0.0f;
 	friction_term = 0.0f;
 
