@@ -8,6 +8,9 @@
 static FFparameters feedforwardParameters;
 
 ///////////////////////////////////////////////////// VARIABLES
+float friction_term;
+float damping_term;
+
  bool wheels_initialized = false;
 
 // The current status of the system.
@@ -78,34 +81,9 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
-	feedforwardParameters.a[0] = 0.8264f;
-	feedforwardParameters.a[1] = 0.8264f;
-	feedforwardParameters.a[2] = 0.8264f;
-	feedforwardParameters.a[3] = 0.8264f;
-
-	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f;
-	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f;
-	feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f;
-	feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f;
-
-	feedforwardParameters.c[0] = 60.0f*(M_PI/180.0f);
-	feedforwardParameters.c[1] = -60.0f*(M_PI/180.0f);
-	feedforwardParameters.c[2] = -150.0f*(M_PI/180.0f);
-	feedforwardParameters.c[3] = 150.0f*(M_PI/180.0f);
-
-	feedforwardParameters.d[0] = 0.3f;
-	feedforwardParameters.d[1] = 0.3f;
-	feedforwardParameters.d[2] = 0.3f;
-	feedforwardParameters.d[3] = 0.3f;
-
-	feedforwardParameters.rotation_feedforward_value[0] = 0.8f;
-	feedforwardParameters.rotation_feedforward_value[1] = 0.8f;
-	feedforwardParameters.rotation_feedforward_value[2] = 0.8f;
-	feedforwardParameters.rotation_feedforward_value[3] = 0.8f;
-
-	feedforwardParameters.identified_damping = 0.0888f;
-
-	feedforwardParameters.vw_max_round_to_rotational_scaling = 1.0f;
+	damping_term = 0.00136666f;
+	// damping_term = 0.0f;
+	friction_term = 0.0f;
 
 	status = on;
 	initPID(&stateLocalK[vel_u], default_P_gain_u, default_I_gain_u, default_D_gain_u);
@@ -194,21 +172,27 @@ void wheels_Update() {
 		}
 
 		// FEEDFOWARD of robot 5.0
-		// float feed_forward = 0.0f;
-		// float threshold = 0.05f;
+		float feed_forward = 0.0f;
+		float threshold = 0.05f;
 
-		// if (fabs(wheels_commanded_speeds[motor]) < threshold) {
-    	// 	feed_forward = 0;
-		// } 
-		// else if (wheels_commanded_speeds[motor] > 0) {
-		// 	feed_forward = wheels_commanded_speeds[motor] + 13;
-    	// }
-		// else if (wheels_commanded_speeds[motor] < 0) {
-		// 	feed_forward = wheels_commanded_speeds[motor] - 13;
-    	// }
+		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
+    		feed_forward = 0;
+		} 
+		else if (wheels_commanded_speeds[motor] > 0) {
+			feed_forward = damping_term*wheels_commanded_speeds[motor] + friction_term;
+    	}
+		else if (wheels_commanded_speeds[motor] < 0) {
+			feed_forward = damping_term*wheels_commanded_speeds[motor] - friction_term;
+    	}
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-		float wheel_speed_percentage = OMEGAtoPWM * (wheels_commanded_speeds[motor] + PID(angular_velocity_error, &wheelsK[motor])); 
+		// float voltage_list = 0*feed_forward + 0.3987 * (PID(angular_velocity_error, &wheelsK[motor]));
+		float wheel_speed_percentage = feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor]));
+		// 0.04f * 22.2f
+
+		// float batteryVoltage = 1.0f;
+
+		// float wheel_speed_percentage = (voltage_list*(1.0f/batteryVoltage));
 
 		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
 	}
@@ -251,9 +235,17 @@ void wheels_Stop() {
 
 void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 	for(wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++){
-		wheelsK[wheel].kP = PIDGains->Pwheels;
-		wheelsK[wheel].kI = PIDGains->Iwheels;
-    	wheelsK[wheel].kD = PIDGains->Dwheels;
+		float threshold_REM_message = 2.0f;
+		float threshold_compare_value = PIDGains->DbodyYaw;
+		if (threshold_compare_value > threshold_REM_message) {
+			float akndosad = 0;
+		}
+		else {
+			wheelsK[wheel].kP = PIDGains->Pwheels;
+			wheelsK[wheel].kI = PIDGains->Iwheels;
+			wheelsK[wheel].kD = PIDGains->Dwheels;
+		}
+		
 	}
 }
 
@@ -318,28 +310,10 @@ void stateControl_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 	if (threshold_compare_value > threshold_REM_message) {
 
 		float a = PIDGains->PbodyX;
-		feedforwardParameters.a[0] = a;
-		feedforwardParameters.a[1] = a;
-		feedforwardParameters.a[2] = a;
-		feedforwardParameters.a[3] = a;
-
+		damping_term = a/100.0f;
 		float d = PIDGains->IbodyX;
-		feedforwardParameters.d[0] = d;
-		feedforwardParameters.d[1] = d;
-		feedforwardParameters.d[2] = d;
-		feedforwardParameters.d[3] = d;
+		friction_term = d/100.0f;
 
-		float rotational_ff = PIDGains->DbodyX;
-		feedforwardParameters.rotation_feedforward_value[0] = rotational_ff;
-		feedforwardParameters.rotation_feedforward_value[1] = rotational_ff;
-		feedforwardParameters.rotation_feedforward_value[2] = rotational_ff;
-		feedforwardParameters.rotation_feedforward_value[3] = rotational_ff;
-
-		float damping_value = PIDGains->PbodyY;
-		feedforwardParameters.identified_damping = damping_value;
-
-		float rotational_scaling = PIDGains->IbodyY;
-		feedforwardParameters.vw_max_round_to_rotational_scaling = rotational_scaling;
 	}
 	else {
 		stateLocalK[vel_u].kP = PIDGains->PbodyX;
