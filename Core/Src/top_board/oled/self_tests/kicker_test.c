@@ -2,6 +2,8 @@
 #include "robot.h"
 
 struct page_struct one_five_ms;
+struct page_struct no_charge;
+struct page_struct charge;
 struct page_struct three_five_ms;
 struct page_struct four_five_ms;
 struct page_struct six_five_ms;
@@ -41,17 +43,42 @@ void kicker_test_initChildren(page_struct *parent) {
     six_five_ms.has_variables = false;
     add_child_to_parent(&six_five_ms);
 
+    pages_set_default_values(&no_charge);
+    no_charge.id = 1315;
+    strcpy(no_charge.page_name, "No Charging!");
+    no_charge.parent = parent;
+    no_charge.is_test = BLOCKING_TEST;
+    no_charge.has_variables = false;
+    add_child_to_parent(&no_charge);
+
+    pages_set_default_values(&charge);
+    charge.id = 1316;
+    strcpy(charge.page_name, "Charging!");
+    charge.parent = parent;
+    charge.is_test = BLOCKING_TEST;
+    charge.has_variables = false;
+    add_child_to_parent(&charge);
 }
 
 void kicker_shoot_run(float speed){
 
-   
     shoot_power = speed;  // set the speed
-    
+    kick_state = true;
     start_of_test(); // Display that we are running a test
     
     CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1); // send the command to the kicker board 
-    HAL_Delay(2000);
+    HAL_Delay(500);
+    end_of_test();
+
+}
+
+void kicker_changeState(bool newState){
+
+    kick_state = newState;
+    shoot_power = 0;
+
+    CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1); // send the command to the kicker board 
+    HAL_Delay(500);
     end_of_test();
 
 }

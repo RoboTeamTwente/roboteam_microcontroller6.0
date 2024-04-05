@@ -142,7 +142,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == CHIP_MESSAGE) {
 			set_header_chip(&CAN_TxHeader);
-			set_chip_state(payload, true);
+			set_chip_state(payload, kick_state);
 			set_do_Force(payload, doForce_CAN);
 			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == DISCHARGE_MESSAGE) {
@@ -355,6 +355,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	if(0.95 < period_fraction){
 		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
 	}
+
 }
 
 

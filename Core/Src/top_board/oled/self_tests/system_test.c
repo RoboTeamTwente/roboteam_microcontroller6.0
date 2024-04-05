@@ -21,6 +21,7 @@ void system_test_run() {
     if (!system_test_running && !test_is_finished) {
         start_of_test();
         wheels_Unbrake();
+        shoot_power = 1.5f;
         time_started = current_time;
         system_test_running = true;
     } else if (system_test_running) {
@@ -31,8 +32,6 @@ void system_test_run() {
             system_test_running = false;
         }
     }
-    HAL_Delay(1500);
-    CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
 }
 
 uint32_t get_system_test_time_started() {
