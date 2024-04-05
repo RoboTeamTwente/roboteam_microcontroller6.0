@@ -3,6 +3,10 @@
 #include "stateEstimation.h"
 #include "logging.h"
 
+///////////////////////////////////////////////////// STRUCTS
+
+static FFparameters feedforwardParameters;
+
 ///////////////////////////////////////////////////// VARIABLES
  bool wheels_initialized = false;
 
@@ -74,6 +78,35 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
+	feedforwardParameters.a[0] = 0.8264f;
+	feedforwardParameters.a[1] = 0.8264f;
+	feedforwardParameters.a[2] = 0.8264f;
+	feedforwardParameters.a[3] = 0.8264f;
+
+	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f;
+
+	feedforwardParameters.c[0] = 60.0f*(M_PI/180.0f);
+	feedforwardParameters.c[1] = -60.0f*(M_PI/180.0f);
+	feedforwardParameters.c[2] = -150.0f*(M_PI/180.0f);
+	feedforwardParameters.c[3] = 150.0f*(M_PI/180.0f);
+
+	feedforwardParameters.d[0] = 0.3f;
+	feedforwardParameters.d[1] = 0.3f;
+	feedforwardParameters.d[2] = 0.3f;
+	feedforwardParameters.d[3] = 0.3f;
+
+	feedforwardParameters.rotation_feedforward_value[0] = 0.8f;
+	feedforwardParameters.rotation_feedforward_value[1] = 0.8f;
+	feedforwardParameters.rotation_feedforward_value[2] = 0.8f;
+	feedforwardParameters.rotation_feedforward_value[3] = 0.8f;
+
+	feedforwardParameters.identified_damping = 0.0888f;
+
+	feedforwardParameters.vw_max_round_to_rotational_scaling = 1.0f;
+
 	status = on;
 	initPID(&stateLocalK[vel_u], default_P_gain_u, default_I_gain_u, default_D_gain_u);
 	initPID(&stateLocalK[vel_v], default_P_gain_v, default_I_gain_v, default_D_gain_v);
@@ -280,21 +313,51 @@ void stateControl_useAbsoluteAngle(bool angularControl){
 }
 
 void stateControl_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
-    stateLocalK[vel_u].kP = PIDGains->PbodyX;
-    stateLocalK[vel_u].kI = PIDGains->IbodyX;
-    stateLocalK[vel_u].kD = PIDGains->DbodyX;
+	float threshold_REM_message = 2.0f;
+	float threshold_compare_value = PIDGains->DbodyYaw;
+	if (threshold_compare_value > threshold_REM_message) {
 
-    stateLocalK[vel_v].kP = PIDGains->PbodyY;
-    stateLocalK[vel_v].kI = PIDGains->IbodyY;
-    stateLocalK[vel_v].kD = PIDGains->DbodyY;
+		float a = PIDGains->PbodyX;
+		feedforwardParameters.a[0] = a;
+		feedforwardParameters.a[1] = a;
+		feedforwardParameters.a[2] = a;
+		feedforwardParameters.a[3] = a;
 
-    stateLocalK[vel_w].kP = PIDGains->PbodyW;
-    stateLocalK[vel_w].kI = PIDGains->IbodyW;
-    stateLocalK[vel_w].kD = PIDGains->DbodyW;
+		float d = PIDGains->IbodyX;
+		feedforwardParameters.d[0] = d;
+		feedforwardParameters.d[1] = d;
+		feedforwardParameters.d[2] = d;
+		feedforwardParameters.d[3] = d;
 
-    stateLocalK[yaw].kP = PIDGains->PbodyYaw;
-    stateLocalK[yaw].kI = PIDGains->IbodyYaw;
-    stateLocalK[yaw].kD = PIDGains->DbodyYaw;
+		float rotational_ff = PIDGains->DbodyX;
+		feedforwardParameters.rotation_feedforward_value[0] = rotational_ff;
+		feedforwardParameters.rotation_feedforward_value[1] = rotational_ff;
+		feedforwardParameters.rotation_feedforward_value[2] = rotational_ff;
+		feedforwardParameters.rotation_feedforward_value[3] = rotational_ff;
+
+		float damping_value = PIDGains->PbodyY;
+		feedforwardParameters.identified_damping = damping_value;
+
+		float rotational_scaling = PIDGains->IbodyY;
+		feedforwardParameters.vw_max_round_to_rotational_scaling = rotational_scaling;
+	}
+	else {
+		stateLocalK[vel_u].kP = PIDGains->PbodyX;
+		stateLocalK[vel_u].kI = PIDGains->IbodyX;
+		stateLocalK[vel_u].kD = PIDGains->DbodyX;
+
+		stateLocalK[vel_v].kP = PIDGains->PbodyY;
+		stateLocalK[vel_v].kI = PIDGains->IbodyY;
+		stateLocalK[vel_v].kD = PIDGains->DbodyY;
+
+		stateLocalK[vel_w].kP = PIDGains->PbodyW;
+		stateLocalK[vel_w].kI = PIDGains->IbodyW;
+		stateLocalK[vel_w].kD = PIDGains->DbodyW;
+
+		stateLocalK[yaw].kP = PIDGains->PbodyYaw;
+		stateLocalK[yaw].kI = PIDGains->IbodyYaw;
+		stateLocalK[yaw].kD = PIDGains->DbodyYaw;
+	}
 }
 
 void stateControl_ResetAngleI(){

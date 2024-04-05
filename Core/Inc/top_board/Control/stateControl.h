@@ -42,6 +42,19 @@
 #define default_I_gain_wheels 0.0f
 #define default_D_gain_wheels 0.0f
 
+///////////////////////////////////////////////////// STRUCTS
+struct FFstruct{
+	float a[4]; // Sine amplitude
+	float b[4]; // Sine frequency
+	float c[4]; // Sine phase
+	float d[4]; // Constant offset
+	float rotation_feedforward_value[4]; // d equivalent for pure rotation
+	float identified_damping;
+	float vw_max_round_to_rotational_scaling; // Factor to determine when you switch to rotational ff gains
+};
+
+typedef struct FFstruct FFparameters;
+
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
 /**
