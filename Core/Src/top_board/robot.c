@@ -600,6 +600,10 @@ void init(void){
 	heartbeat_100ms  = timestamp_initialized + 100;
 	heartbeat_1000ms = timestamp_initialized + 1000;
 
+	dribbler_speed = 0.5;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	HAL_Delay(5000);
+
 	ROBOT_INITIALIZED = true;
 }
 
