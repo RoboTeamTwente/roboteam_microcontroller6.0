@@ -1,4 +1,4 @@
-#include "drain_battery.h"
+#include "kicker_test.h"
 #include "robot.h"
 
 struct page_struct one_five_ms;
@@ -81,4 +81,10 @@ void kicker_changeState(bool newState){
     HAL_Delay(500);
     end_of_test();
 
+}
+
+void kicker_discharge() {
+    CAN_Send_Message(DISCHARGE_MESSAGE, KICK_CHIP_ID, &hcan1);
+    HAL_Delay(500);
+    end_of_test();
 }
