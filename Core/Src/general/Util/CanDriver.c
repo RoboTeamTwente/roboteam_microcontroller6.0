@@ -277,12 +277,12 @@ bool get_do_Force(uint8_t payload[8]){
 }
 
 // Function to set the shoot power in a payload
-void set_shoot_power(uint8_t payload[8], uint8_t power){
+void set_shoot_power(uint8_t payload[8], uint16_t power){
     payload[0] = payload[0] | ( power << SHOOT_POWER_INDEX ) ;
 }
 
 // Function to get the shoot power from a payload
-uint8_t get_shoot_power(uint8_t payload[8]){
+uint16_t get_shoot_power(uint8_t payload[8]){
     return ( payload[0] & bit_shiftMask(SHOOT_POWER_INDEX, SHOOT_POWER_LENGTH) ) >> SHOOT_POWER_INDEX;
 }
 
