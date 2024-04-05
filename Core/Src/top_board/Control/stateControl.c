@@ -4,6 +4,9 @@
 #include "logging.h"
 
 ///////////////////////////////////////////////////// VARIABLES
+float friction_term;
+float damping_term;
+
  bool wheels_initialized = false;
 
 // The current status of the system.
@@ -75,6 +78,10 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
+	damping_term = 0.00136666f;
+	// damping_term = 0.0f;
+	friction_term = 0.0f;
+
 	status = on;
 	initPID(&stateLocalK[vel_u], default_P_gain_u, default_I_gain_u, default_D_gain_u);
 	initPID(&stateLocalK[vel_v], default_P_gain_v, default_I_gain_v, default_D_gain_v);
@@ -161,6 +168,7 @@ void wheels_Update() {
 			wheelsK[motor].I = 0;
 		}
 
+		// FEEDFOWARD of robot 5.0
 		float feed_forward = 0.0f;
 		float threshold = 0.05f;
 
@@ -168,14 +176,20 @@ void wheels_Update() {
     		feed_forward = 0;
 		} 
 		else if (wheels_commanded_speeds[motor] > 0) {
-			feed_forward = wheels_commanded_speeds[motor] + 13;
+			feed_forward = damping_term*wheels_commanded_speeds[motor] + friction_term;
     	}
 		else if (wheels_commanded_speeds[motor] < 0) {
-			feed_forward = wheels_commanded_speeds[motor] - 13;
+			feed_forward = damping_term*wheels_commanded_speeds[motor] - friction_term;
     	}
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-		float wheel_speed_percentage = OMEGAtoPWM * (feed_forward + PID(angular_velocity_error, &wheelsK[motor])); 
+		// float voltage_list = 0*feed_forward + 0.3987 * (PID(angular_velocity_error, &wheelsK[motor]));
+		float wheel_speed_percentage = feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor]));
+		// 0.04f * 22.2f
+
+		// float batteryVoltage = 1.0f;
+
+		// float wheel_speed_percentage = (voltage_list*(1.0f/batteryVoltage));
 
 		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
 	}
@@ -218,9 +232,17 @@ void wheels_Stop() {
 
 void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 	for(wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++){
-		wheelsK[wheel].kP = PIDGains->Pwheels;
-		wheelsK[wheel].kI = PIDGains->Iwheels;
-    	wheelsK[wheel].kD = PIDGains->Dwheels;
+		float threshold_REM_message = 2.0f;
+		float threshold_compare_value = PIDGains->DbodyYaw;
+		if (threshold_compare_value > threshold_REM_message) {
+			float akndosad = 0;
+		}
+		else {
+			wheelsK[wheel].kP = PIDGains->Pwheels;
+			wheelsK[wheel].kI = PIDGains->Iwheels;
+			wheelsK[wheel].kD = PIDGains->Dwheels;
+		}
+		
 	}
 }
 
@@ -280,21 +302,33 @@ void stateControl_useAbsoluteAngle(bool angularControl){
 }
 
 void stateControl_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
-    stateLocalK[vel_u].kP = PIDGains->PbodyX;
-    stateLocalK[vel_u].kI = PIDGains->IbodyX;
-    stateLocalK[vel_u].kD = PIDGains->DbodyX;
+	float threshold_REM_message = 2.0f;
+	float threshold_compare_value = PIDGains->DbodyYaw;
+	if (threshold_compare_value > threshold_REM_message) {
 
-    stateLocalK[vel_v].kP = PIDGains->PbodyY;
-    stateLocalK[vel_v].kI = PIDGains->IbodyY;
-    stateLocalK[vel_v].kD = PIDGains->DbodyY;
+		float a = PIDGains->PbodyX;
+		damping_term = a/100.0f;
+		float d = PIDGains->IbodyX;
+		friction_term = d/100.0f;
 
-    stateLocalK[vel_w].kP = PIDGains->PbodyW;
-    stateLocalK[vel_w].kI = PIDGains->IbodyW;
-    stateLocalK[vel_w].kD = PIDGains->DbodyW;
+	}
+	else {
+		stateLocalK[vel_u].kP = PIDGains->PbodyX;
+		stateLocalK[vel_u].kI = PIDGains->IbodyX;
+		stateLocalK[vel_u].kD = PIDGains->DbodyX;
 
-    stateLocalK[yaw].kP = PIDGains->PbodyYaw;
-    stateLocalK[yaw].kI = PIDGains->IbodyYaw;
-    stateLocalK[yaw].kD = PIDGains->DbodyYaw;
+		stateLocalK[vel_v].kP = PIDGains->PbodyY;
+		stateLocalK[vel_v].kI = PIDGains->IbodyY;
+		stateLocalK[vel_v].kD = PIDGains->DbodyY;
+
+		stateLocalK[vel_w].kP = PIDGains->PbodyW;
+		stateLocalK[vel_w].kI = PIDGains->IbodyW;
+		stateLocalK[vel_w].kD = PIDGains->DbodyW;
+
+		stateLocalK[yaw].kP = PIDGains->PbodyYaw;
+		stateLocalK[yaw].kI = PIDGains->IbodyYaw;
+		stateLocalK[yaw].kD = PIDGains->DbodyYaw;
+	}
 }
 
 void stateControl_ResetAngleI(){
