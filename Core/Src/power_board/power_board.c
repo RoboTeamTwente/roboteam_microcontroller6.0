@@ -7,7 +7,7 @@
 uint32_t heartbeat_10000ms = 0;
 bool kill_flag, voltage_request = false;
 uint16_t voltage_reading = 0;
-uint64_t TxMailbox[0];  
+uint64_t TxMailbox[1];  
 
 
 
