@@ -178,13 +178,23 @@ void set_response_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){
 
 // Function to set the dribbler speed in a payload
 void set_dribbler_speed(uint8_t payload[], float dribbler_speed){
-    payload[0] = dribbler_speed;
+    uint8_t *bytes = (uint8_t *)&dribbler_speed;
+    for (int i = 0; i < 4; i++) {
+        payload[i] = bytes[i];
+    }
 }
 
 // Function to get the dribbler speed from a payload
 float get_dribbler_speed(uint8_t payload[8]){
-    return (payload[0] & 0b11111111) * 0.0039215686274510F;
-}
+    float dribbler_speed;
+    uint8_t *bytes = (uint8_t *)&dribbler_speed;
+
+    for (int i = 0; i < 4; i++) {
+        bytes[i] = payload[i];
+    }
+    
+    return dribbler_speed;
+} 
 
 // Function to set the header for "Dribbler Sees Ball" message
 void set_dribbler_sees_ball_header(CAN_TxHeaderTypeDef *TxHeader){

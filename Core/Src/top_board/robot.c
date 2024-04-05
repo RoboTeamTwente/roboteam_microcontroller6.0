@@ -588,7 +588,7 @@ void init(void){
 	/* Reset the watchdog timer and set the threshold at 200ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
-		IWDG_Init(iwdg, 1000);
+		IWDG_Init(iwdg, 50000);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
@@ -601,6 +601,18 @@ void init(void){
 	heartbeat_1000ms = timestamp_initialized + 1000;
 	
 	ROBOT_INITIALIZED = true;
+
+	dribbler_speed = 0.4;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	HAL_Delay(1000);
+	dribbler_speed = 1;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	HAL_Delay(1000);
+	dribbler_speed = 0.6;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	HAL_Delay(1000);
+
+
 }
 
 uint8_t robot_get_ID(){
