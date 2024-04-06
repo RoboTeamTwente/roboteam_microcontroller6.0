@@ -187,12 +187,16 @@ void set_dribbler_speed(uint8_t payload[], float dribbler_speed){
 // Function to get the dribbler speed from a payload
 float get_dribbler_speed(uint8_t payload[8]){
     float dribbler_speed;
-    uint8_t *bytes = (uint8_t *)&dribbler_speed;
+    uint8_t bytes[4];
 
+    // Copy bytes from payload to local array
     for (int i = 0; i < 4; i++) {
         bytes[i] = payload[i];
     }
-    
+
+    // Copy bytes from local array to float variable
+    memcpy(&dribbler_speed, bytes, sizeof(float));
+
     return dribbler_speed;
 } 
 
