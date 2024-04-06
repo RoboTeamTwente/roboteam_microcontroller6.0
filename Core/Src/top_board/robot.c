@@ -367,6 +367,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 /* ======================================================== */
 void init(void){
 
+	HAL_Delay(1000);
 	// Turn off all leds. Use leds to indicate init() progress
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	
