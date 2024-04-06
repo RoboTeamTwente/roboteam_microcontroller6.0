@@ -28,7 +28,7 @@ uint32_t TxMailbox[1];
 bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
 bool dribbler_sees_ball, ballsensor_sees_ball;
 uint16_t powerboard_voltage, kicker_capacitor_voltage;
-float dribbler_speed = 0;
+bool dribbler_speed = true;
 uint8_t shoot_power = 0;
 bool chip_state, kick_state = true;
 bool doForce_CAN;
@@ -132,7 +132,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 	} else if (reciever_ID == DRIBBLER_ID) {
 		if (sending_message_ID == DRIBBLER_SPEED) {
 			set_request_dribbler_speed_header(&CAN_TxHeader);
-			set_dribbler_speed(payload, dribbler_speed);
+			set_dribbler_sees_ball(payload, dribbler_speed);
 		}
 	} else if (reciever_ID == KICK_CHIP_ID) {
 		if (sending_message_ID == KICK_MESSAGE) {
@@ -188,20 +188,19 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		}
 	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
 	{
-		// if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-		// 	LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-		// 	dribblerBoard_alive = false;
-		// } else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
-		// 	LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
-		// 	dribblerBoard_alive = false;
-		// } else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
-		// 	LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
-		// 	dribblerBoard_alive = false;
-		// } else {
-		// 	LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
-		// 	dribblerBoard_alive = true;
-		// }
-		LOG_printf("CAN_PWM :: %d", get_ball_sensor_state(to_Process->data_Frame) ? true : false);
+		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
+			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+			dribblerBoard_alive = false;
+		} else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
+			LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
+			dribblerBoard_alive = false;
+		} else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
+			LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
+			dribblerBoard_alive = false;
+		} else {
+			LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
+			dribblerBoard_alive = true;
+		}
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
@@ -589,7 +588,7 @@ void init(void){
 	/* Reset the watchdog timer and set the threshold at 200ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
-		IWDG_Init(iwdg, 50000);
+		IWDG_Init(iwdg, 500000);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
@@ -603,9 +602,15 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	dribbler_speed = 0.4;
+	dribbler_speed = true;
 	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
-	// HAL_Delay(1000);
+	HAL_Delay(5000);
+	dribbler_speed = false;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	HAL_Delay(5000);
+	dribbler_speed = true;
+	CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+	HAL_Delay(5000);
 	// dribbler_speed = 1;
 	// CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
 	// HAL_Delay(1000);
