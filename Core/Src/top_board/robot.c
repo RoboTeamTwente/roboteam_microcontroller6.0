@@ -366,10 +366,9 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(void){
-
-	HAL_Delay(1000); //time to give all components power
+	
 	// Turn off all leds. Use leds to indicate init() progress
-	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
+	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 1);
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
 	int wheels_init_attemps = 0;
