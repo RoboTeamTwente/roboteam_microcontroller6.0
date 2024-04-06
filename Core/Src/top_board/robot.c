@@ -202,6 +202,10 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		// 	dribblerBoard_alive = true;
 		// }
 		//LOG_printf("CAN PWM :: %f",  get_dribbler_speed(to_Process->data_Frame));
+		uint32_t tt = get_dribbler_speed(to_Process->data_Frame);
+		char ff[64];
+		sprintf(ff, "Float :: %d", tt);
+		LOG_printf(ff);
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
@@ -605,13 +609,15 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	dribbler_speed = 0.9f;
-	float tt;
-	uint8_t py[8];
-	set_dribbler_speed(py, dribbler_speed);
-	tt = get_dribbler_speed(py);
-	LOG_printf("%9.2f ",tt);
-	LOG_sendAll();
+	// uint32_t temp = 1234567890;
+	// uint32_t tt;
+	// uint8_t py[8];
+	// set_dribbler_speed(py, temp);
+	// tt = get_dribbler_speed(py);
+	// char ff[64];
+	// sprintf(ff, "Float :: %d", tt);
+	// LOG_printf(ff);
+	// LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){

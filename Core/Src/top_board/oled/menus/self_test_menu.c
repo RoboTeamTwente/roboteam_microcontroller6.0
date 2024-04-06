@@ -49,9 +49,10 @@ void self_test_menu_initChildren(page_struct *parent) {
 
     pages_set_default_values(&self_test_dribbler_menu);
     self_test_dribbler_menu.id = 14;
-    strcpy(self_test_dribbler_menu.page_name, "Dribbler board");
+    strcpy(self_test_dribbler_menu.page_name, "Drib board");
     self_test_dribbler_menu.parent = parent;
     self_test_dribbler_menu.is_menu = true;
     add_child_to_parent(&self_test_dribbler_menu);
+    dribbler_test_InitChildren(&self_test_dribbler_menu);
 
 }

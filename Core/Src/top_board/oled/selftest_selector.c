@@ -30,6 +30,12 @@ void run_test(page_struct *page) {
         case 1117:
             speedMotor_OLED(1.0f);
             break;
+        case 1411:
+            dribbler_test_run(true);
+            break;
+        case 1412:
+            dribbler_test_run(false);
+            break;
         case 1511:
             system_test_run();
             break;

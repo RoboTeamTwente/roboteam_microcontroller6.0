@@ -61,6 +61,7 @@ extern bool powerBoard_alive;
 extern bool TEST_MODE;
 extern bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive, chip_state, kick_state;
 extern uint8_t shoot_power;
+extern bool dribbler_speed;
 
 void init(void);
 void loop(void);
