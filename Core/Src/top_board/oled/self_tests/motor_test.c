@@ -14,8 +14,7 @@ void motor_test_init(page_struct *parent){
     motor_page.id = 1111;
     strcpy(motor_page.page_name, "Motor Tests!");
     motor_page.parent = parent;
-    motor_page.is_test = BLOCKING_TEST;
-    motor_page.has_variables = false;
+    motor_page.is_menu = true;
     motor_test_initChildren(&motor_page);
 }
 
@@ -26,7 +25,6 @@ void motor_test_initChildren(page_struct *parent){
     strcpy(step_one.page_name, "0.0");
     step_one.parent = parent;
     step_one.is_test = BLOCKING_TEST;
-    step_one.has_variables = false;
     add_child_to_parent(&step_one);
 
     pages_set_default_values(&step_two);
@@ -34,7 +32,6 @@ void motor_test_initChildren(page_struct *parent){
     strcpy(step_two.page_name, "0.2");
     step_two.parent = parent;
     step_two.is_test = BLOCKING_TEST;
-    step_two.has_variables = false;
     add_child_to_parent(&step_two);
 
     pages_set_default_values(&step_three);
@@ -42,7 +39,6 @@ void motor_test_initChildren(page_struct *parent){
     strcpy(step_three.page_name, "0.4");
     step_three.parent = parent;
     step_three.is_test = BLOCKING_TEST;
-    step_three.has_variables = false;
     add_child_to_parent(&step_three);
 
     pages_set_default_values(&step_four);
@@ -50,7 +46,6 @@ void motor_test_initChildren(page_struct *parent){
     strcpy(step_four.page_name, "0.6");
     step_four.parent = parent;
     step_four.is_test = BLOCKING_TEST;
-    step_four.has_variables = false;
     add_child_to_parent(&step_four);
 
     pages_set_default_values(&step_five);
@@ -58,7 +53,6 @@ void motor_test_initChildren(page_struct *parent){
     strcpy(step_five.page_name, "0.8");
     step_five.parent = parent;
     step_five.is_test = BLOCKING_TEST;
-    step_five.has_variables = false;
     add_child_to_parent(&step_five);
 
     pages_set_default_values(&step_six);
@@ -66,7 +60,6 @@ void motor_test_initChildren(page_struct *parent){
     strcpy(step_six.page_name, "1.0");
     step_six.parent = parent;
     step_six.is_test = BLOCKING_TEST;
-    step_six.has_variables = false;
     add_child_to_parent(&step_six);
 
 
