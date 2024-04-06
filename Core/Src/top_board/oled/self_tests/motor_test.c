@@ -8,6 +8,8 @@ struct page_struct step_four;
 struct page_struct step_five;
 struct page_struct step_six;
 
+void motor_test_initChildren(page_struct *parent);
+
 void motor_test_init(page_struct *parent){
 
     pages_set_default_values(&motor_page);
@@ -15,6 +17,7 @@ void motor_test_init(page_struct *parent){
     strcpy(motor_page.page_name, "Motor Tests!");
     motor_page.parent = parent;
     motor_page.is_menu = true;
+    add_child_to_parent(&motor_page);
     motor_test_initChildren(&motor_page);
 }
 
@@ -67,7 +70,7 @@ void motor_test_initChildren(page_struct *parent){
 
 
 void speedMotor_OLED(float per){
-
+    start_of_test();
     wheels_Unbrake();
 
     wheels_SetSpeed_PWM(RF, per);
