@@ -14,7 +14,6 @@
 mailbox_buffer MailBox_one    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-char str[75];
 bool CAN_to_process = false;
 
 // Function to initialize CAN communication
@@ -356,11 +355,6 @@ void set_capacitor_charging_state(uint8_t payload[8], bool charging_state){
 // Function to get the capacitor charging state from a payload
 bool get_capacitor_charging_state(uint8_t payload[8]){
     return (bool) ((payload[0] & bit_shiftMask(CAPACITOR_CHARGING_INDEX, 1)) >> CAPACITOR_CHARGING_INDEX);
-}
-
-// Function to perform a kill operation
-void kill(){
-    //HAL_GPIO_WritePin(Kill_GPIO_Port, Kill_Pin, GPIO_PIN_RESET);
 }
 
 // Function to initialize CAN header structure

@@ -9,6 +9,8 @@ bool kill_flag, voltage_request = false;
 uint16_t voltage_reading = 0;
 uint64_t TxMailbox[1];  
 
+void kill();
+
 
 
 /* ======================================================== */
@@ -17,7 +19,7 @@ uint64_t TxMailbox[1];
 void init() {
     // Set power circuit pin to HIGH, meaning on. When pulled again to LOW, it signals the power circuit to turn off, and power is then cut off instantly.
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
-	//set_Pin(BAT_KILL_pin, 0); //0 SHOULD BE 1 BUT ELECTRONICS NEEDS TO FIX IT
+	set_Pin(BAT_KILL_pin, 1);
 
 	CAN_Init(&hcan, POWER_ID);
 	
@@ -33,6 +35,11 @@ uint8_t robot_get_ID(){
 
 uint8_t robot_get_Channel(){
   return 0;
+}
+
+// Function to perform a kill operation
+void kill() {
+    set_Pin(BAT_KILL_pin, 0);
 }
 
 /* =================================================== */
@@ -105,6 +112,8 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		voltage_request = get_request_power_state(to_Process->data_Frame[0]);
 		if (voltage_request) {
 			CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
+		} else if (kill_flag) {
+			kill();
 		}
 	}
 	else if (to_Process->message_id == ARE_YOU_ALIVE)
