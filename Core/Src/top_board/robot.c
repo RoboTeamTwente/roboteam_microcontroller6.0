@@ -201,7 +201,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		// 	LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
 		// 	dribblerBoard_alive = true;
 		// }
-		LOG_printf("CAN_PWM :: PWM reading %d", get_dribbler_speed(to_Process->data_Frame));
+		LOG_printf("CAN_PWM :: PWM reading %f", get_dribbler_speed(to_Process->data_Frame));
 
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
