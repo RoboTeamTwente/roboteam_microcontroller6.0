@@ -188,19 +188,21 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		}
 	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
 	{
-		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-			dribblerBoard_alive = false;
-		} else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
-			LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
-			dribblerBoard_alive = false;
-		} else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
-			LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
-			dribblerBoard_alive = false;
-		} else {
-			LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
-			dribblerBoard_alive = true;
-		}
+		// if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
+		// 	LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+		// 	dribblerBoard_alive = false;
+		// } else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
+		// 	LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
+		// 	dribblerBoard_alive = false;
+		// } else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
+		// 	LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
+		// 	dribblerBoard_alive = false;
+		// } else {
+		// 	LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
+		// 	dribblerBoard_alive = true;
+		// }
+		LOG_printf("CAN_PWM :: PWM reading %d", get_dribbler_speed(to_Process->data_Frame));
+
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
@@ -209,9 +211,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		ballsensor_sees_ball = get_sensor_sees_ball(to_Process->data_Frame);
 	} else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE) {
 		kicker_capacitor_voltage = get_capacitor_voltage_response(to_Process->data_Frame);;
-	} else {
-		LOG_printf("CAN_PWM :: PWM reading %d", get_dribbler_speed(to_Process->data_Frame));
-	}
+	} 
 	LOG_sendAll();
 	to_Process->empty = true; // reset the mailbox to the empty state
 	*to_Process->data_Frame  = 0;
