@@ -998,6 +998,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			return;
 		}
 
+		if(counter_TIM_CONTROL < 50) {
+			if(!yaw_hasCalibratedOnce()) {
+				wheels_Stop();
+				return;
+			}
+		}
+
 		// State control
 		float stateLocal[4] = {0.0f};
 		stateEstimation_GetState(stateLocal);
