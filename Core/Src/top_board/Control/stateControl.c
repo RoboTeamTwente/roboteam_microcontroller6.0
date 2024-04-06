@@ -83,7 +83,7 @@ static float absoluteAngleControl(float angleRef, float angle);
 int stateControl_Init(){
 	damping_term = 0.00145f;
 	// damping_term = 0.0f;
-	friction_term = 0.0f;
+	friction_term = 0.02f;
 
 	status = on;
 	initPID(&stateLocalK[vel_u], default_P_gain_u, default_I_gain_u, default_D_gain_u);
