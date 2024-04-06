@@ -366,7 +366,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(void){
-	
+
 	// Turn off all leds. Use leds to indicate init() progress
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 1);
 	
@@ -590,7 +590,6 @@ void init(void){
 	/* Reset the watchdog timer and set the threshold at 200ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
-		IWDG_Init(iwdg, 50000);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
