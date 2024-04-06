@@ -35,7 +35,6 @@ bool test_is_finished = false;
 */
 void OLED_Init() {
     clear_screen();
-    boot_screen();
     current_page = getRootPage();
     item_selector = 0;
     oled_initialized = true;
@@ -43,6 +42,7 @@ void OLED_Init() {
     id_self_test_menu = getSelfTestMenuID();
     id_error_no_children = getErrorNoChildren()->id;
     id_root_page = current_page->id;
+    boot_screen();
 }
 
 /**
@@ -220,7 +220,20 @@ static void clear_screen(){
  * @brief draw RoboTeam logo
 */
 static void boot_screen(){
-	SSD1306_DrawBitmap(0, 0, rtt_logo, 128, 64, 1);
+	//SSD1306_DrawBitmap(0, 0, rtt_logo, 128, 64, 1);
+    char temp[MAX_STRING_LENGTH];
+    sprintf(temp, "ID: %d", robot_get_ID());
+    strcpy(current_page->line0, temp);
+    if (robot_get_Channel()) {
+        strcpy(current_page->line1, "Team: Blue");
+    } else {
+        strcpy(current_page->line1, "Team: Yellow");
+    }
+    if (TEST_MODE) {
+        strcpy(current_page->line2, "IN TESTMODE");
+    }
+
+    display_text();
 	SSD1306_UpdateScreen(); // update screen
 }
 
