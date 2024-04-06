@@ -210,6 +210,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
 		dribbler_sees_ball = get_dribbler_sees_ball(to_Process->data_Frame);
+		LOG_printf("CAN :: Drib state %s", dribbler_sees_ball ? "TRUE" : "FALSE");
 	} else if (to_Process->message_id == BALLSENSOR_MESSAGE) {
 		ballsensor_sees_ball = get_sensor_sees_ball(to_Process->data_Frame);
 	} else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE) {
@@ -811,7 +812,7 @@ void loop(void){
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
     set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
-    //set_Pin(LED4_pin, dribbler_GetHasBall());       // On when the dribbler detects the ball
+    set_Pin(LED4_pin, dribbler_sees_ball);       // On when the dribbler detects the ball
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
 	// LED6 Toggled when a REM packet is received
     // LED7 Wireless_Readpacket_Cplt : toggled when a MCP packet is received
@@ -1071,7 +1072,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.theta = atan2(vu, vv);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-			// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
+			robotFeedback.dribblerSeesBall = dribbler_sees_ball;
 		}
 		
 		/* == Fill robotStateInfo packet == */ {	
