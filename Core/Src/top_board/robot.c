@@ -286,7 +286,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateControl_SetRef(stateReference);
 
 	if (robotCommand->dribbler != dribbler_speed) {
-		if (robotCommand->dribbler == 0)
+		if (robotCommand->dribbler == 0.0f)
 			dribbler_speed = false;
 		else 
 			dribbler_speed = true;
