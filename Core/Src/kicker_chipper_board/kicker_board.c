@@ -89,7 +89,8 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		shoot_SetPower(get_shoot_power(to_Process->data_Frame));
 		if (get_kick_state(to_Process->data_Frame)) shoot_Shoot(shoot_Chip);
 	} else if (to_Process->message_id == DISCHARGE_MESSAGE) {
-		
+		shoot_SetPower(6.5f);
+		shoot_DeInit();
 	} else if (to_Process->message_id == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
 		CAN_Send_Message(CAPACITOR_VOLTAGE_MESSAGE, TOP_ID, &hcan);
 	} 
