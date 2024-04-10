@@ -1,6 +1,6 @@
 #ifndef LOGGING_H_
 #define LOGGING_H_
-
+ 
 /**
  * @file logging.h
  * @author Emiel Steerneman
