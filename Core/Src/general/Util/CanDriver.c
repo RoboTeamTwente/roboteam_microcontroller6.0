@@ -1,9 +1,16 @@
 /*
  * CanDriver.c
  * This file contains the implementation of a CAN driver for communication between different components of a system.
+ * This file contains the implementation of a CAN driver for communication between different components of a system.
  */
 
+
 #include "CanDriver.h"
+#include "logging.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "logging.h"
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,6 +23,7 @@ mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 bool CAN_to_process = false;
 
+// Function to initialize CAN communication
 // Function to initialize CAN communication
 void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
 
