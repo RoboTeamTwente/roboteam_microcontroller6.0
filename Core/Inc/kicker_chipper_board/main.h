@@ -36,12 +36,12 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+CAN_HandleTypeDef hcan;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-extern CAN_HandleTypeDef hcan;
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -58,22 +58,16 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 #define APB 8
-#define Charge_done_Pin GPIO_PIN_1
+#define Kick_Pin GPIO_PIN_1
+#define Kick_GPIO_Port GPIOA
+#define Chip_Pin GPIO_PIN_2
+#define Chip_GPIO_Port GPIOA
+#define Charge_done_Pin GPIO_PIN_3
 #define Charge_done_GPIO_Port GPIOA
-#define Fault_Pin GPIO_PIN_2
+#define Fault_Pin GPIO_PIN_4
 #define Fault_GPIO_Port GPIOA
 #define Charge_Pin GPIO_PIN_5
 #define Charge_GPIO_Port GPIOA
-#define Kick_Pin GPIO_PIN_6
-#define Kick_GPIO_Port GPIOA
-#define Chip_Pin GPIO_PIN_7
-#define Chip_GPIO_Port GPIOA
-#define Temp_Sens_Pin GPIO_PIN_1
-#define Temp_Sens_GPIO_Port GPIOB
-#define Cap_VoltageN_Pin GPIO_PIN_6
-#define Cap_VoltageN_GPIO_Port GPIOB
-#define Cap_VoltageP_Pin GPIO_PIN_7
-#define Cap_VoltageP_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

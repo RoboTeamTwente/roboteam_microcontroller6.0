@@ -12,8 +12,50 @@ void run_test(page_struct *page) {
         case 1122:
             wheel_twitch_run();
             break;
+        case 1112:
+            speedMotor_OLED(0.0f);
+            break;
+        case 1113:
+            speedMotor_OLED(0.2f);
+            break;
+        case 1114:
+            speedMotor_OLED(0.4f);
+            break;
+        case 1115:
+            speedMotor_OLED(0.6f);
+            break;
+        case 1116:
+            speedMotor_OLED(0.8f);
+            break;
+        case 1117:
+            speedMotor_OLED(1.0f);
+            break;
+        case 1411:
+            dribbler_test_run(true);
+            break;
+        case 1412:
+            dribbler_test_run(false);
+            break;
         case 1511:
             system_test_run();
+            break;
+        case 1311: 
+            kicker_shoot_run(1.5f);
+            break;
+        case 1312: 
+            kicker_shoot_run(3.5f);
+            break;
+        case 1313: 
+            kicker_shoot_run(4.5f);
+            break;
+        case 1314: 
+            kicker_shoot_run(6.5f);
+            break;
+        case 1315:
+            kicker_discharge();
+            break;
+        case 1316:
+            kicker_changeState(true);
             break;
         case 31:
             drain_battery_run(18.0f);

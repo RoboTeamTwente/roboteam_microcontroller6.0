@@ -139,9 +139,9 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 
 	void set_response_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader);
 
-	void set_dribbler_speed(uint8_t payload[8], float dribbler_speed);
+	void set_dribbler_speed(uint8_t payload[8], uint32_t dribbler_speed);
 
-	float get_dribbler_speed(uint8_t payload[8]);
+	uint32_t get_dribbler_speed(uint8_t payload[8]);
 
 	void set_dribbler_sees_ball_header(CAN_TxHeaderTypeDef *TxHeader);
 
@@ -225,9 +225,9 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 
 	bool get_do_Force(uint8_t payload[8]);
 
-	void set_shoot_power(uint8_t payload[8], uint8_t power);
+	void set_shoot_power(uint8_t payload[8], uint16_t power);
 
-	uint8_t get_shoot_power(uint8_t payload[8]);
+	uint16_t get_shoot_power(uint8_t payload[8]);
 
 	void set_header_chip(CAN_TxHeaderTypeDef *TxHeader);
 

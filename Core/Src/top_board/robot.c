@@ -28,8 +28,9 @@ uint32_t TxMailbox[1];
 bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
 bool dribbler_sees_ball, ballsensor_sees_ball;
 uint16_t powerboard_voltage, kicker_capacitor_voltage;
-float dribbler_speed = 0;
+bool dribbler_speed = true;
 uint8_t shoot_power = 0;
+bool chip_state, kick_state = true;
 bool doForce_CAN;
 bool kill_robot = false; 
 bool powerboard_request = false;
@@ -131,19 +132,19 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 	} else if (reciever_ID == DRIBBLER_ID) {
 		if (sending_message_ID == DRIBBLER_SPEED) {
 			set_request_dribbler_speed_header(&CAN_TxHeader);
-			set_dribbler_speed(payload, dribbler_speed);
+			set_dribbler_sees_ball(payload, dribbler_speed);
 		}
 	} else if (reciever_ID == KICK_CHIP_ID) {
 		if (sending_message_ID == KICK_MESSAGE) {
 			set_header_kick(&CAN_TxHeader);
-			set_kick_state(payload, true);
+			set_kick_state(payload, kick_state);
 			set_do_Force(payload, doForce_CAN);
-			set_shoot_power(payload, 2);
+			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == CHIP_MESSAGE) {
 			set_header_chip(&CAN_TxHeader);
-			set_chip_state(payload, true);
+			set_chip_state(payload, kick_state);
 			set_do_Force(payload, doForce_CAN);
-			set_shoot_power(payload, 2);
+			set_shoot_power(payload, shoot_power);
 		} else if (sending_message_ID == DISCHARGE_MESSAGE) {
 			set_header_discharge(&CAN_TxHeader);
 		} else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
@@ -187,28 +188,34 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		}
 	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
 	{
-		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-			dribblerBoard_alive = false;
-		} else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
-			LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
-			dribblerBoard_alive = false;
-		} else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
-			LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
-			dribblerBoard_alive = false;
-		} else {
-			LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
-			dribblerBoard_alive = true;
-		}
+		// if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
+		// 	LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+		// 	dribblerBoard_alive = false;
+		// } else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
+		// 	LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
+		// 	dribblerBoard_alive = false;
+		// } else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
+		// 	LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
+		// 	dribblerBoard_alive = false;
+		// } else {
+		// 	LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
+		// 	dribblerBoard_alive = true;
+		// }
+		//LOG_printf("CAN PWM :: %f",  get_dribbler_speed(to_Process->data_Frame));
+		uint32_t tt = get_dribbler_speed(to_Process->data_Frame);
+		char ff[64];
+		sprintf(ff, "Float :: %d", tt);
+		LOG_printf(ff);
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
 		dribbler_sees_ball = get_dribbler_sees_ball(to_Process->data_Frame);
+		LOG_printf("CAN :: Drib state %s", dribbler_sees_ball ? "TRUE" : "FALSE");
 	} else if (to_Process->message_id == BALLSENSOR_MESSAGE) {
 		ballsensor_sees_ball = get_sensor_sees_ball(to_Process->data_Frame);
 	} else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE) {
 		kicker_capacitor_voltage = get_capacitor_voltage_response(to_Process->data_Frame);;
-	}
+	} 
 	LOG_sendAll();
 	to_Process->empty = true; // reset the mailbox to the empty state
 	*to_Process->data_Frame  = 0;
@@ -285,7 +292,10 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateControl_SetRef(stateReference);
 
 	if (robotCommand->dribbler != dribbler_speed) {
-		dribbler_speed = robotCommand->dribbler;
+		if (robotCommand->dribbler == 0.0f)
+			dribbler_speed = false;
+		else 
+			dribbler_speed = true;
 		CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
 	}
 	
@@ -354,6 +364,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	if(0.95 < period_fraction){
 		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
 	}
+
 }
 
 
@@ -364,7 +375,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 void init(void){
 
 	// Turn off all leds. Use leds to indicate init() progress
-	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
+	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 1);
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
 	int wheels_init_attemps = 0;
@@ -586,7 +597,6 @@ void init(void){
 	/* Reset the watchdog timer and set the threshold at 200ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
-		IWDG_Init(iwdg, 1000);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
@@ -597,8 +607,18 @@ void init(void){
 	heartbeat_17ms   = timestamp_initialized + 17;
 	heartbeat_100ms  = timestamp_initialized + 100;
 	heartbeat_1000ms = timestamp_initialized + 1000;
-
+	
 	ROBOT_INITIALIZED = true;
+
+	// uint32_t temp = 1234567890;
+	// uint32_t tt;
+	// uint8_t py[8];
+	// set_dribbler_speed(py, temp);
+	// tt = get_dribbler_speed(py);
+	// char ff[64];
+	// sprintf(ff, "Float :: %d", tt);
+	// LOG_printf(ff);
+	// LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){
@@ -792,7 +812,7 @@ void loop(void){
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
     set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
-    //set_Pin(LED4_pin, dribbler_GetHasBall());       // On when the dribbler detects the ball
+    set_Pin(LED4_pin, dribbler_sees_ball);       // On when the dribbler detects the ball
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
 	// LED6 Toggled when a REM packet is received
     // LED7 Wireless_Readpacket_Cplt : toggled when a MCP packet is received
@@ -826,8 +846,8 @@ void handleRobotSetPIDGains(uint8_t* packet_buffer){
 	REM_RobotSetPIDGainsPayload* rspidgp = (REM_RobotSetPIDGainsPayload*) (packet_buffer);
 	REM_last_packet_had_correct_version &= REM_RobotSetPIDGains_get_remVersion(rspidgp) == REM_LOCAL_VERSION;
 	decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
-	// stateControl_SetPIDGains(&robotSetPIDGains);
-	// wheels_SetPIDGains(&robotSetPIDGains);
+	stateControl_SetPIDGains(&robotSetPIDGains);
+	wheels_SetPIDGains(&robotSetPIDGains);
 }
 
 void handleRobotMusicCommand(uint8_t* packet_buffer){
@@ -969,7 +989,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		counter_TIM_CONTROL++;
 
-		//state estimation
+		// State Info
 		stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
 		stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
 		
@@ -978,12 +998,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
 		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
 		stateInfo.rateOfTurn = MTi->gyr[2];
+
+		//Robot standing still for 1second for RoT calibration (gyroscope drift)
+		wheels_Brake();
+		RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
+		wheels_Unbrake();
+
+		// State Estimation
 		stateEstimation_Update(&stateInfo);
 
 		if(halt || test_is_finished){
 			unix_initalized = false;
 			wheels_Stop();
 			return;
+		}
+
+		if(counter_TIM_CONTROL < 50) {
+			if(!yaw_hasCalibratedOnce()) {
+				wheels_Stop();
+				return;
+			}
 		}
 
 		// State control
@@ -1038,7 +1072,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.theta = atan2(vu, vv);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-			// robotFeedback.dribblerSeesBall = dribbler_GetHasBall();
+			robotFeedback.dribblerSeesBall = dribbler_sees_ball;
 		}
 		
 		/* == Fill robotStateInfo packet == */ {	

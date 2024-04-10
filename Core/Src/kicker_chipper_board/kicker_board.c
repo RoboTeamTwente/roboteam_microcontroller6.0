@@ -5,8 +5,8 @@
 #include "main.h"
 
 uint64_t TxMailbox[1]; 
-bool voltage_meter_state = false;
-bool capcitor_charging_state = false;
+bool voltage_meter_state = true;
+bool capcitor_charging_state = true;
 uint16_t voltage_reading;
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -89,7 +89,8 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		shoot_SetPower(get_shoot_power(to_Process->data_Frame));
 		if (get_kick_state(to_Process->data_Frame)) shoot_Shoot(shoot_Chip);
 	} else if (to_Process->message_id == DISCHARGE_MESSAGE) {
-		
+		shoot_SetPower(6.5f);
+		shoot_DeInit();
 	} else if (to_Process->message_id == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
 		CAN_Send_Message(CAPACITOR_VOLTAGE_MESSAGE, TOP_ID, &hcan);
 	} 

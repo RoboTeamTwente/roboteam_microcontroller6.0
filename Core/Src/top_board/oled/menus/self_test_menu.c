@@ -28,6 +28,8 @@ void self_test_menu_initChildren(page_struct *parent) {
     add_child_to_parent(&self_test_top_menu);
     buzzer_test_init(&self_test_top_menu);
     wheel_twitch_init(&self_test_top_menu);
+    motor_test_init(&self_test_top_menu);
+
 
     pages_set_default_values(&self_test_power_menu);
     self_test_power_menu.id = 12;
@@ -42,12 +44,15 @@ void self_test_menu_initChildren(page_struct *parent) {
     self_test_kicker_menu.parent = parent;
     self_test_kicker_menu.is_menu = true;
     add_child_to_parent(&self_test_kicker_menu);
+    kicker_test_initChildren(&self_test_kicker_menu);
+    
 
     pages_set_default_values(&self_test_dribbler_menu);
     self_test_dribbler_menu.id = 14;
-    strcpy(self_test_dribbler_menu.page_name, "Dribbler board");
+    strcpy(self_test_dribbler_menu.page_name, "Drib board");
     self_test_dribbler_menu.parent = parent;
     self_test_dribbler_menu.is_menu = true;
     add_child_to_parent(&self_test_dribbler_menu);
+    dribbler_test_InitChildren(&self_test_dribbler_menu);
 
 }

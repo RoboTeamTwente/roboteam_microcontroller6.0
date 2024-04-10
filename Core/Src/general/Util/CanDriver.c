@@ -1,9 +1,16 @@
 /*
  * CanDriver.c
  * This file contains the implementation of a CAN driver for communication between different components of a system.
+ * This file contains the implementation of a CAN driver for communication between different components of a system.
  */
 
+
 #include "CanDriver.h"
+#include "logging.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "logging.h"
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,6 +23,7 @@ mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 bool CAN_to_process = false;
 
+// Function to initialize CAN communication
 // Function to initialize CAN communication
 void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
 
@@ -187,13 +195,23 @@ void set_response_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){
 }
 
 // Function to set the dribbler speed in a payload
-void set_dribbler_speed(uint8_t payload[], float dribbler_speed){
-    payload[0] = dribbler_speed;
+void set_dribbler_speed(uint8_t payload[], uint32_t dribbler_speed){
+    uint8_t *bytes = (uint8_t *)&dribbler_speed;
+    for (int i = 0; i < 4; i++) {
+        payload[i] = bytes[i];
+    }
 }
 
 // Function to get the dribbler speed from a payload
-float get_dribbler_speed(uint8_t payload[8]){
-    return (payload[0] & 0b11111111) * 0.0039215686274510F;
+uint32_t get_dribbler_speed(uint8_t payload[4]) {
+    uint32_t dribbler_speed;
+    uint8_t *bytes = (uint8_t *)&dribbler_speed;
+
+    for (int i = 0; i < 4; i++) {
+        bytes[i] = payload[i];
+    }
+    
+    return dribbler_speed;
 }
 
 // Function to set the header for "Dribbler Sees Ball" message
@@ -277,12 +295,12 @@ bool get_do_Force(uint8_t payload[8]){
 }
 
 // Function to set the shoot power in a payload
-void set_shoot_power(uint8_t payload[8], uint8_t power){
+void set_shoot_power(uint8_t payload[8], uint16_t power){
     payload[0] = payload[0] | ( power << SHOOT_POWER_INDEX ) ;
 }
 
 // Function to get the shoot power from a payload
-uint8_t get_shoot_power(uint8_t payload[8]){
+uint16_t get_shoot_power(uint8_t payload[8]){
     return ( payload[0] & bit_shiftMask(SHOOT_POWER_INDEX, SHOOT_POWER_LENGTH) ) >> SHOOT_POWER_INDEX;
 }
 
@@ -355,11 +373,6 @@ void set_capacitor_charging_state(uint8_t payload[8], bool charging_state){
 // Function to get the capacitor charging state from a payload
 bool get_capacitor_charging_state(uint8_t payload[8]){
     return (bool) ((payload[0] & bit_shiftMask(CAPACITOR_CHARGING_INDEX, 1)) >> CAPACITOR_CHARGING_INDEX);
-}
-
-// Function to perform a kill operation
-void kill(){
-    //HAL_GPIO_WritePin(Kill_GPIO_Port, Kill_Pin, GPIO_PIN_RESET);
 }
 
 // Function to initialize CAN header structure
