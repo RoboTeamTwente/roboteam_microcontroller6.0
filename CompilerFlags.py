@@ -14,7 +14,7 @@ Import("env")
 conf = configparser.ConfigParser()
 conf.read("platformio.ini")
 env_name = "env:" + env.subst("$PIOENV")
-opt = conf.get(env_name, "optimization") #TODO use the enviornment which is build
+opt = conf.get(env_name, "optimization")
 
 git_branch_name = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('ascii').strip()
 git_commit_date = subprocess.check_output(['git', 'show', '-s', '--date=format:%d/%m/%Y', '--format=%cd', 'HEAD']).decode('ascii').strip()
@@ -84,9 +84,9 @@ else:
       "-mcpu=cortex-m4",
       "-mfloat-abi=hard",
       "-mfpu=fpv4-sp-d16",
-      "-D __FPU_PRESENT",
       "-D ARM_MATH_CM4",
       "-DARM_MATH_MATRIX_CHECK",
+      "-D __FPU_PRESENT",
       "-mthumb",
       "-mthumb-interwork",
       "-ffunction-sections",
