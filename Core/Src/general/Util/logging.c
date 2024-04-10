@@ -1,4 +1,3 @@
-#include "power_board.h"
 #include "logging.h"
 #include "main.h"
 #include "REM_BaseTypes.h"
