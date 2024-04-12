@@ -1,4 +1,4 @@
-from boards import board
+from mcp_boards import board
 '''
 from : {
     to : {
@@ -72,12 +72,12 @@ packets = {
                 ["sensorWorking", 1, None, "voltage sensor working"]
             ],
             "powerVoltage" : [
-                ["voltagePowerBoard", 16, [0, 26], "power board voltage"]
+                ["voltagePowerBoard", 8, [20, 30], "power board voltage"]
             ]
         },
         board.DRIBBLER : {
             "powerVoltage" : [
-                ["voltagePowerBoard", 16, [0, 26], "power board voltage"]
+                ["voltagePowerBoard", 8, [20, 30], "power board voltage"]
             ]
         }
     }

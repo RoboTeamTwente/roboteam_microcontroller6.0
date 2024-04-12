@@ -637,7 +637,7 @@ void check_otherboards(uint8_t board_ID, bool *board_state){
 	{
 		MAX_ATTEMPTS++;
 		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
-		HAL_Delay(500);
+		HAL_Delay(500); //TODO make delay shorter
 		if (CAN_to_process){ 
 			if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
 			if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
