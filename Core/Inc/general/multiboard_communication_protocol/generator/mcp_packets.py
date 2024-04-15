@@ -5,49 +5,49 @@ data is as follows
 use [min, max] only for floats
 '''
 packets = {
-    "areYouAlive" : {
+    "MCP_AreYouAlive" : {
         "from" : board.TOP,
         "to" : [board.POWER, board.KICKER, board.DRIBBLER],
         "data" : [
             ["mcpVersion", 4, None, "version of mcp"]
         ]
     },
-    "setDribblerSpeed" : {
+    "MCP_SetDribblerSpeed" : {
         "from" : board.TOP,
         "to" : [board.DRIBBLER],
         "data" : [
                 ["speed", 8, [0, 1], "desired speed of the dribbler"],
             ]
     },
-    "kickerCharge" : {
+    "MCP_KickerCharge" : {
         "from" : board.TOP,
         "to" : [board.KICKER],
         "data" : [
             ["voltage", 10, None, "target voltage"]
         ],
     },
-    "kickerStopCharge" : {
+    "MCP_KickerStopCharge" : {
         "from" : board.TOP,
         "to" : [board.KICKER],
         "data" : [
 
         ]
     },
-    "kick" : {
+    "MCP_Kick" : {
         "from" : board.TOP,
         "to" : [board.KICKER],
         "data" : [
             ["shootPower", 4, [0, 6.5], "desired speed of the ball"]
         ]
     },
-    "chip" : {
+    "MCP_Chip" : {
         "from" : board.TOP,
         "to" : [board.KICKER],
         "data" : [
             ["shootPower", 4, [0, 6.5], "desired speed of the ball"]
         ]
     },
-    "dribblerAlive" : {
+    "MCP_DribblerAlive" : {
         "from" : board.DRIBBLER,
         "to" : [board.TOP],
         "data" : [
@@ -56,7 +56,7 @@ packets = {
             ["ballsensorWorking", 1, None, "status of ballsensor"]
         ],
     },
-    "seesBall" : {
+    "MCP_SeesBall" : {
         "from" : board.DRIBBLER,
         "to" : [board.TOP],
         "data" : [
@@ -64,7 +64,7 @@ packets = {
             ["ballsensorSeesBall", 1, None, "true if ball sensor detects ball"]
         ]
     },
-    "kickerAlive" : {
+    "MCP_KickerAlive" : {
         "from" : board.KICKER,
         "to" : [board.TOP],
         "data" : [
@@ -72,14 +72,14 @@ packets = {
             ["sensorWorking", 1, None, "capacitor voltage sensor working"]
         ],
     },
-    "kickerCapacitorVoltage" : {
+    "MCP_KickerCapacitorVoltage" : {
         "from" : board.KICKER,
         "to" : [board.TOP],
         "data" : [
             ["voltage", 10, None, "capacitor voltage"]
         ]
     },
-    "powerAlive" : {
+    "MCP_PowerAlive" : {
         "from" : board.POWER,
         "to" : [board.TOP],
         "data" : [
@@ -87,7 +87,7 @@ packets = {
             ["sensorWorking", 1, None, "voltage sensor working"]
         ]
     },
-    "powerVoltage" : {
+    "MCP_PowerVoltage" : {
         "from" : board.POWER,
         "to" : [board.TOP, board.DRIBBLER],
         "data" : [

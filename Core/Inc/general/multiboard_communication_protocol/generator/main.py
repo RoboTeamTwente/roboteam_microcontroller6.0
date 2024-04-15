@@ -4,8 +4,10 @@ from datetime import datetime
 import math
 import shutil
 
+import mcp_generator
 from mcp_boards import board
 from mcp_packets import packets
+import mcp_BaseTypeGenerator
 
 def read_version():
 	return int(open("latest_mcp_version.txt", "r").read())
@@ -39,8 +41,22 @@ for to_board in board:
 	os.makedirs(f"generated_{folder_name}", exist_ok=True)
 
 #generate files
-for packet in packets:
-	continue
+for packet_name in packets:
+	variables = packets[packet_name]["data"]
+
+	generator_ = mcp_generator.Generator()
+	generated = generator_.generate(packet_name, variables)
+
+	filename = f"{packet_name}.h"
+	folder_name = packets[packet_name]["from"].name.lower()
+	with open(os.path.join(f"generated_from_{folder_name}", filename), "w+") as file:
+		file.write(generated)
+
+	for to_board in packets[packet_name]["to"]:
+		with open(os.path.join(f"generated_to_{to_board.name.lower()}", filename), "w+") as file:
+			file.write(generated)
+
+	print(f"Generated file {filename}")
 
 #move files to correct location	
 for folder in folders:
@@ -48,6 +64,15 @@ for folder in folders:
 	os.makedirs(f"../{folder}", exist_ok=True)
 	for file in os.listdir(f"generated_{folder}"):
 		shutil.move(f"generated_{folder}/{file}", f"../{folder}/{file}")
+
+basetypegenerator = mcp_BaseTypeGenerator.BaseTypeGenerator()
+filename = "MCP_BaseTypes.h"
+if (os.path.exists(f"../{filename}")):
+	os.remove(f"../{filename}")
+with open(os.path.join("../", filename), "w") as file:
+	file.write(basetypegenerator.generate(packets, version))
+print(f"Generated file {filename}")
+
 
 write_version(version)
 
