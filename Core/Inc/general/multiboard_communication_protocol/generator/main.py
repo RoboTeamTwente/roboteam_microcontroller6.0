@@ -28,27 +28,19 @@ folders = []
 #prep folders
 for from_board in board:
 	from_board_formatted = from_board.name.lower()
-	for to_board in board:
-		if from_board == to_board:
-			continue
-		to_board_formatted = to_board.name.lower()
-		folder_name = f"{from_board_formatted}_to_{to_board_formatted}"
-		folders.append(folder_name)
-		os.makedirs(f"generated_{folder_name}", exist_ok=True)
+	folder_name = f"from_{from_board_formatted}"
+	folders.append(folder_name)
+	os.makedirs(f"generated_{folder_name}", exist_ok=True)
+
+for to_board in board:
+	to_board_formatted = to_board.name.lower()
+	folder_name = f"to_{to_board_formatted}"
+	folders.append(folder_name)
+	os.makedirs(f"generated_{folder_name}", exist_ok=True)
 
 #generate files
-for from_board in packets:
-	from_board_formatted = from_board.name.lower()
-	for to_board in packets[from_board]:
-		to_board_formatted = to_board.name.lower()
-
-		to_board_actual = []
-		
-		for packet_name in packets[from_board][to_board]:
-			filename = f"{packet_name}.h"
-			with open(os.path.join(f"generated_{from_board_formatted}_to_{to_board_formatted}", filename), "w") as file:
-				file.write("HELLO WORLD")
-			print(f"Generated file {filename}")	
+for packet in packets:
+	continue
 
 #move files to correct location	
 for folder in folders:

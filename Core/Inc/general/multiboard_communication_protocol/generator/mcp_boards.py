@@ -5,4 +5,3 @@ class board(Enum):
     DRIBBLER = 4
     KICKER = 7
     POWER = 15
-    ANY = 16
