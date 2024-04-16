@@ -23,8 +23,6 @@
 #include "AssuredPacketManager.h"
 #include "drivers.h"
 #include "pages.h"
-
-#include "CanDriver.h"
 #include "system_test.h"
 #include "drain_battery.h"
 #include "mcp_page.h"
@@ -43,6 +41,10 @@
 #include "REM_RobotMusicCommand.h"
 #include "REM_Log.h"
 #include "REM_RobotKillCommand.h"
+
+#include "MCP_Driver.h"
+#include "MCP_to_top.h"
+#include "MCP_from_top.h"
 
 #include <time.h>
 #include <unistd.h>

@@ -58,6 +58,19 @@ for packet_name in packets:
 
 	print(f"Generated file {filename}")
 
+#generate general include files
+generator_ = mcp_generator.Include_Generator()
+for b in board:
+	filename = f"MCP_from_{b.name.lower()}.h"
+	folder_name = b.name.lower()
+	with open(os.path.join(f"generated_from_{folder_name}", filename), "w") as file:
+		file.write(generator_.generate(packets, b, False))
+		print("Generated file", filename)
+	filename = f"MCP_to_{b.name.lower()}.h"
+	with open(os.path.join(f"generated_to_{folder_name}", filename), "w") as file:
+		file.write(generator_.generate(packets, b, True))
+		print("Generated file", filename)
+
 #move files to correct location	
 for folder in folders:
 	shutil.rmtree(f"../{folder}")
