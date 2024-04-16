@@ -16,6 +16,6 @@ EWARM/
 Drivers
 *.ld
 
-Core/Inc/general/multiboard_communication_protocol/generator/__pycache__
+Core/Inc/general/microcontroller_communication_protocol/generator/__pycache__
 python_utils/rem/*
 *.code-workspace

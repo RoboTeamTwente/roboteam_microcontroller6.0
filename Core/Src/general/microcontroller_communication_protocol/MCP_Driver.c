@@ -4,6 +4,7 @@
 mailbox_buffer MailBox_one    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
+uint32_t TxMailbox[1];
 bool CAN_to_process = false;
 
 /**

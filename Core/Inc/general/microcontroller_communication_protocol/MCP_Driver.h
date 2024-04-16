@@ -15,6 +15,7 @@ typedef struct _mailbox_buffer{
 extern mailbox_buffer MailBox_one;
 extern mailbox_buffer MailBox_two;
 extern mailbox_buffer MailBox_three;
+extern uint32_t TxMailbox[1];
 extern bool CAN_to_process;
 
 void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id);
