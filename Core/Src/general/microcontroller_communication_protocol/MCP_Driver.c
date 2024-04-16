@@ -5,12 +5,12 @@ mailbox_buffer MailBox_one    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
 uint32_t TxMailbox[1];
-bool CAN_to_process = false;
+bool MCP_to_process = false;
 
 /**
  * @brief initialize CAN communication
 */
-void CAN_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
+void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
 
     // Configuration of CAN filter
     CAN_FilterTypeDef canfilterconfig;
@@ -40,11 +40,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
 
     // Extract and process the received command
-    CAN_to_process = extract_command(RxData, &RxHeader);
+    MCP_to_process = extract_command(RxData, &RxHeader);
 }
 
 // Function to handle CAN errors
-void CAN_error_LOG(CAN_TxHeaderTypeDef *Header){
+void MCP_error_LOG(CAN_TxHeaderTypeDef *Header){
     return;  // Placeholder function, not implemented
 }
 
@@ -81,8 +81,10 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
     return false;
 }
 
-// Function to initialize CAN header structure
-CAN_TxHeaderTypeDef CAN_Initalize_Header(uint16_t type, uint8_t receiving_board){
+/**
+ * @brief Function to initialize CAN header structure
+*/
+CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board){
 
     CAN_TxHeaderTypeDef TxHeader;
 
@@ -95,7 +97,7 @@ CAN_TxHeaderTypeDef CAN_Initalize_Header(uint16_t type, uint8_t receiving_board)
     return TxHeader;
 }
 
-void CAN_Send_Message(CAN_HandleTypeDef *hcan, uint8_t* payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
-    if (CAN_TxHeader.StdId == 0x0001) CAN_error_LOG(&CAN_TxHeader);
-    else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
+void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t* payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
+    if (CAN_TxHeader.StdId == 0x0001) MCP_error_LOG(&CAN_TxHeader);
+    else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
 }

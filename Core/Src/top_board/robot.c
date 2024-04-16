@@ -21,6 +21,32 @@ MTi_data* MTi;
 /* MCP */
 
 //headers outgoing packets
+CAN_TxHeaderTypeDef areYouAliveHeaderToPower = {0};
+CAN_TxHeaderTypeDef areYouAliveHeaderToKicker = {0};
+CAN_TxHeaderTypeDef areYouAliveHeaderToDribbler = {0};
+CAN_TxHeaderTypeDef chipHeader = {0};
+CAN_TxHeaderTypeDef kickHeader = {0};
+CAN_TxHeaderTypeDef kickerChargeHeader = {0};
+CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
+CAN_TxHeaderTypeDef killHeader = {0};
+CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
+
+//payload outgoing packets
+MCP_AreYouAlivePayload areYouAlivePayload = {0};
+MCP_ChipPayload chipPayload = {0};
+MCP_KickPayload kickPayload = {0};
+MCP_KickerChargePayload kickerChargePayload = {0};
+MCP_KickerStopChargePayload kickerStopChargePayload = {0};
+MCP_KillPayload killPayload = {0};
+MCP_SetDribblerSpeedPayload setDribblerSpeedPayload = {0};
+
+//payload incoming packets
+MCP_DribblerAlivePayload dribblerAlivePayload = {0};
+MCP_KickerAlivePayload kickerAlivePayload = {0};
+MCP_KickerCapacitorVoltagePayload kickerCapacitorVoltagePayload = {0};
+MCP_PowerAlivePayload powerAlivePayload= {0};
+MCP_PowerVoltagePayload powerVoltagePayload = {0};
+MCP_SeesBallPayload seesBallPayload = {0};
 
 /* REM */
 
@@ -84,6 +110,9 @@ bool halt = true;
 bool xsens_CalibrationDone = false;
 bool xsens_CalibrationDoneFirst = true;
 volatile bool REM_last_packet_had_correct_version = true;
+bool powerBoard_alive = false;
+bool dribblerBoard_alive = false;
+bool kickerBoard_alive = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -448,13 +477,23 @@ void init(void){
 	buzzer_Play_ID(ROBOT_ID);
 
 
-{	// ====== Check if communication if other boards is working
-  	CAN_Init(&hcan1, TOP_ID); // this is required for the CAN filter
-	check_otherboards(POWER_ID, &powerBoard_alive);
+{	// ====== Initialiaze MCP and check if communication if other boards is working
+  	MCP_Init(&hcan1, TOP_ID); // this is required for the CAN filter
+	areYouAliveHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_POWER_BOARD);
+	areYouAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_DRIBBLER_BOARD);
+	areYouAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_KICKER_BOARD);
+	chipHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_CHIP, MCP_KICKER_BOARD);
+	kickHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICK, MCP_KICKER_BOARD);
+	kickerChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CHARGE, MCP_KICKER_BOARD);
+	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
+	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
+	setDribblerSpeedHeader = MPC_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
+
+	check_otherboards(areYouAliveHeaderToPower, powerBoard_alive);
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(DRIBBLER_ID, &dribblerBoard_alive);
+	check_otherboards(areYouAliveHeaderToKicker, dribblerBoard_alive);
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(KICK_CHIP_ID, &kickerBoard_alive);
+	check_otherboards(areYouAliveHeaderToDribbler, kickerBoard_alive);
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
 	if (!(powerBoard_alive && dribblerBoard_alive && kickerBoard_alive)) {
 		buzzer_Play_WarningFour();
@@ -509,22 +548,24 @@ uint8_t robot_get_Channel(){
 	return ROBOT_CHANNEL == YELLOW_CHANNEL ? 0 : 1;
 }
 
-void check_otherboards(uint8_t board_ID, bool *board_state){
+void check_otherboards(CAN_TxHeaderTypeDef board_header, bool board_state){
 
 	//We check if the board is alive three times, which means we send the message thrice
 	uint8_t MAX_ATTEMPTS = 0;
-	while (MAX_ATTEMPTS < 3 && *board_state == false)
-	{
+	while (MAX_ATTEMPTS < 3 && board_state == false) {
 		MAX_ATTEMPTS++;
-		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
-		HAL_Delay(500); //TODO make delay shorter
-		if (CAN_to_process){ 
+		//TODO set areYouAlivePayload
+		CAN_Send_Message(&hcan1, areYouAlivePayload, board_header);
+		HAL_Delay(10);
+		if (CAN_to_process){
+			//TODO process
 			if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
 			if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
 			if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
 			CAN_to_process = false;
 		}
 	}	
+	//TODO change this
 	char *name =  board_ID == POWER_ID ? "Power Board" : (board_ID == DRIBBLER_ID ? "Dribbler Board" : "Kickker Board");
 	if (*board_state == false) LOG_printf("CAN_ERROR :: The %s is not alive \n", name);
 }
@@ -550,8 +591,6 @@ void loop(void){
 		if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
 		CAN_to_process = false;
 	}
-
-	OLED_Update(getRecentlyPressedButton(), TEST_MODE);
 
     // Play a warning if a REM packet with an incorrect version was received
     if(!REM_last_packet_had_correct_version) {
