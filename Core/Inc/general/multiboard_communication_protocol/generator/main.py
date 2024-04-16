@@ -65,6 +65,7 @@ for folder in folders:
 	for file in os.listdir(f"generated_{folder}"):
 		shutil.move(f"generated_{folder}/{file}", f"../{folder}/{file}")
 
+#generate MCP_BaseTypes.h
 basetypegenerator = mcp_BaseTypeGenerator.BaseTypeGenerator()
 filename = "MCP_BaseTypes.h"
 if (os.path.exists(f"../{filename}")):
