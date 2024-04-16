@@ -35,7 +35,7 @@ def doubleIndent():
 def tripleIndent():
     return indent() + doubleIndent()
 
-type_to_id = {}
+type_to_id, type_to_size = {}, {}
 
 class BaseTypeGenerator:
 
@@ -71,6 +71,8 @@ class BaseTypeGenerator:
         file_string += self.define_boards() + "\n"
 
         file_string += self.defines_per_packet(packets) + "\n"
+
+        file_string += self.type_to_size(type_to_size) + "\n"
 
         file_string += self.type_to_id_mapping(type_to_id) + "\n"
 
@@ -114,6 +116,7 @@ class BaseTypeGenerator:
             tti_string += indent() + "}"
             first_round = False
 
+        tti_string += "\n" + indent() + "return 0x0001; //one of the unused ID's that symbolises that there is an error"
         tti_string += "\n}\n"
         return tti_string
     
@@ -126,6 +129,18 @@ class BaseTypeGenerator:
             type_to_id[VARIABLE_NAME_BOARD] = []
 
         return db_string
+    
+    def type_to_size(self, type_to_size):
+        tts_string = "static uint8_t MCP_TYPE_TO_SIZE(uint16_t type) {\n"
+
+        for type in type_to_size:
+            tts_string += indent() + f"if (type == {type})".ljust(60)
+            tts_string += f"return {type_to_size[type]};\n"
+
+        tts_string += indent() + "return 1;\n"
+        tts_string += "}\n" 
+
+        return tts_string
     
     def defines_per_packet(self, packets):
         index = 0
@@ -168,6 +183,10 @@ class BaseTypeGenerator:
                 dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(60), message_id_str) + "\n"
                 VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"
                 type_to_id[VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
+
+            VARIABLE_NAME_SIZE = f"MCP_PACKET_SIZE_{PACKET_NAME}"
+            type_to_size[VARIABLE_NAME_TYPE] = VARIABLE_NAME_SIZE
+            dpp_string += self.to_constant(VARIABLE_NAME_SIZE.ljust(60), max(packet_to_size_in_bytes(packets[packet_name]), 1)) + "\n"
 
             dpp_string += "\n"
         return dpp_string
