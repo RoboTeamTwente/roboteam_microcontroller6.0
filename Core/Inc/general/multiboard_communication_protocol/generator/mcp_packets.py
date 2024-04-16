@@ -94,4 +94,11 @@ packets = {
             ["voltagePowerBoard", 8, [20, 30], "power board voltage"]
         ]
     },
+    "MCP_Kill" : {
+        "from" : board.TOP,
+        "to" : [board.POWER],
+        "data" : [
+
+        ]
+    },
 }
