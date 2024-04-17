@@ -54,7 +54,7 @@ void drain_battery_initChildren(page_struct *parent) {
 }
 
 void drain_battery_run(float target) {
-    if (!powerBoard_alive && target > 20.0f) {
+    if (!flag_PowerBoard_alive && target > 20.0f) {
         SSD1306_Fill(0);
         SSD1306_GotoXY (5,0);
         SSD1306_Puts("ERROR", &Font_11x18, 1);
@@ -68,7 +68,7 @@ void drain_battery_run(float target) {
         SSD1306_Puts("doable\" works", &Font_7x10, 1);
         SSD1306_UpdateScreen();
         DRAIN_BATTERY = false;
-    } else if (target == 18.0f || target > powerboard_voltage) {
+    } else if (target == 18.0f || target > powerVoltage.voltagePowerBoard) {
         DRAIN_BATTERY = true;
     } else {
         DRAIN_BATTERY = true;
@@ -79,6 +79,6 @@ void drain_battery_run(float target) {
 void drain_battery_update_screen(page_struct *p) {
     strcpy(p->line0, "Current voltage");
     char temp[MAX_STRING_LENGTH];
-    sprintf(temp, "%dV", powerboard_voltage);
+    sprintf(temp, "%fV", powerVoltage.voltagePowerBoard);
     strcpy(p->line1, temp);    
 }

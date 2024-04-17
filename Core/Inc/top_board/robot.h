@@ -58,18 +58,33 @@ REM_RobotCommand myRobotCommand;
 
 extern uint64_t unix_timestamp;
 extern bool DISABLE_BUZZER;
-extern uint16_t powerboard_voltage;
-extern bool powerBoard_alive;
 extern bool TEST_MODE;
-extern bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive, chip_state, kick_state;
-extern uint8_t shoot_power;
-extern bool dribbler_speed;
+extern bool flag_PowerBoard_alive, flag_DribblerBoard_alive, flag_KickerBoard_alive;
+
+//headers outgoing packets
+extern CAN_TxHeaderTypeDef areYouAliveHeaderToPower ;
+extern CAN_TxHeaderTypeDef areYouAliveHeaderToKicker ;
+extern CAN_TxHeaderTypeDef areYouAliveHeaderToDribbler;
+extern CAN_TxHeaderTypeDef chipHeader;
+extern CAN_TxHeaderTypeDef kickHeader;
+extern CAN_TxHeaderTypeDef kickerChargeHeader;
+extern CAN_TxHeaderTypeDef kickerStopChargeHeader;
+extern CAN_TxHeaderTypeDef killHeader;
+extern CAN_TxHeaderTypeDef setDribblerSpeedHeader;
+
+//payload incoming packets
+extern MCP_DribblerAlive dribblerAlive;
+extern MCP_KickerAlive kickerAlive;
+extern MCP_KickerCapacitorVoltage kickerCapacitorVoltage;
+extern MCP_PowerAlive powerAlive;
+extern MCP_PowerVoltage powerVoltage;
+extern MCP_SeesBall seesBall;
+
 
 void init(void);
 void loop(void);
 uint8_t robot_get_ID();
 uint8_t robot_get_Channel();
-void check_otherboards(uint8_t board_ID, bool *board_state);
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp);
 void robot_setRobotMusicCommandPayload(REM_RobotMusicCommandPayload* rmcp);
