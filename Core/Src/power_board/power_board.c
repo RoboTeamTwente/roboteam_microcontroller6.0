@@ -7,6 +7,7 @@
 uint32_t heartbeat_10000ms = 0;
 
 void kill();
+void MCP_Process_Message(mailbox_buffer *to_Process);
 
 //Outgoing MCP headers
 CAN_TxHeaderTypeDef powerAliveHeader = {0};
@@ -14,7 +15,7 @@ CAN_TxHeaderTypeDef powerVoltageHeader = {0};
 
 //Incoming MCP payload
 MCP_AreYouAlive areYouAlive = {0};
-MCP_Kill mcp_kill = {0};
+MCP_Kill mcp_kill = {};
 
 
 /* ======================================================== */
@@ -89,10 +90,15 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 
 	if (to_Process->message_id == MCP_PACKET_ID_TO_POWER_MCP_ARE_YOU_ALIVE) {
 		MCP_AreYouAlivePayload* ayap = (MCP_AreYouAlivePayload*) to_Process->data_Frame;
-		decodeMCP_AreYouAlive(&areYouAlive, &ayap);
+		decodeMCP_AreYouAlive(&areYouAlive, ayap);
 		//TODO what if wrong version
-	}
-	else if (to_Process->message_id == MCP_PACKET_ID_TO_POWER_MCP_KILL) {
+		MCP_PowerAlive pa = {0};
+		MCP_PowerAlivePayload pap = {0};
+		pa.mcpVersion = MCP_LOCAL_VERSION;
+		pa.sensorWorking = false;
+		encodeMCP_PowerAlive(&pap, &pa);
+		MCP_Send_Message(&hcan, &pap, powerAliveHeader);
+	} else if (to_Process->message_id == MCP_PACKET_ID_TO_POWER_MCP_KILL) {
 		kill();
 	}
 	

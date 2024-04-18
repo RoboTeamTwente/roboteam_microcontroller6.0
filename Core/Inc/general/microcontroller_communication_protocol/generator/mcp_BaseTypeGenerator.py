@@ -116,7 +116,7 @@ class BaseTypeGenerator:
             tti_string += indent() + "}"
             first_round = False
 
-        tti_string += "\n" + indent() + "return 0x0001; //one of the unused ID's that symbolises that there is an error"
+        tti_string += "\n" + indent() + "return 0xFFFF;\n"
         tti_string += "\n}\n"
         return tti_string
     
@@ -159,26 +159,26 @@ class BaseTypeGenerator:
 
             '''
             message id
-            [  00  ] [  01  ]
-            1111---- -------- TO_BOARD ID
-            ----1111 111----- MESSAGE_ID 
-            -------- ---11111 DO NOT USE
+            10000000 000 Decimal 1st digit
+            09876543 210 Decimal 2nd digit
+            1111---- --- TO_BOARD ID
+            ----1111 111 MESSAGE_ID 
 
-            the 11 MSB need to be unique to be able to tell messages apart
+            the message id needs to be unique to be able to tell messages apart
             '''
             for to_board in packets[packet_name]["to"]:
 
-                message_id = 0x0000 
-                message_id = message_id | (to_board.value << 12)
-                message_id = message_id | (message_id_per_board[to_board] << 5)
-                message_id = str(hex(message_id))
+                message_id = 0b00000000000 # 11 bits, length of standard ID
+                message_id = message_id | (to_board.value << 7)
+                message_id = message_id | message_id_per_board[to_board]
+                message_id = str(bin(message_id))
                 message_id_per_board[to_board] += 1
 
                 if (message_id_per_board[to_board] > 0b01111111):
                     print("TO MANY PACKETS FOR " + packets[packet_name]["to"])
                     exit()
 
-                message_id_str = '0x' + message_id[2:].zfill(4)
+                message_id_str = '0b' + message_id[2:].zfill(11)
                 VARIABLE_NAME_ID = f"MCP_PACKET_ID_TO_{to_board.name.upper()}_{PACKET_NAME}"
                 dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(60), message_id_str) + "\n"
                 VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"

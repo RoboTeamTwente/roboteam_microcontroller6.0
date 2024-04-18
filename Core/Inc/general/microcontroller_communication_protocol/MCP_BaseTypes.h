@@ -15,58 +15,58 @@
 #define MCP_POWER_BOARD                                              15
 
 #define MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE                            0
-#define MCP_PACKET_ID_TO_POWER_MCP_ARE_YOU_ALIVE                     0xf000
-#define MCP_PACKET_ID_TO_KICKER_MCP_ARE_YOU_ALIVE                    0x7000
-#define MCP_PACKET_ID_TO_DRIBBLER_MCP_ARE_YOU_ALIVE                  0x4000
+#define MCP_PACKET_ID_TO_POWER_MCP_ARE_YOU_ALIVE                     0b11110000000
+#define MCP_PACKET_ID_TO_KICKER_MCP_ARE_YOU_ALIVE                    0b01110000000
+#define MCP_PACKET_ID_TO_DRIBBLER_MCP_ARE_YOU_ALIVE                  0b01000000000
 #define MCP_PACKET_SIZE_MCP_ARE_YOU_ALIVE                            1
 
 #define MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED                       1
-#define MCP_PACKET_ID_TO_DRIBBLER_MCP_SET_DRIBBLER_SPEED             0x4020
+#define MCP_PACKET_ID_TO_DRIBBLER_MCP_SET_DRIBBLER_SPEED             0b01000000001
 #define MCP_PACKET_SIZE_MCP_SET_DRIBBLER_SPEED                       1
 
 #define MCP_PACKET_TYPE_MCP_KICKER_CHARGE                            2
-#define MCP_PACKET_ID_TO_KICKER_MCP_KICKER_CHARGE                    0x7020
+#define MCP_PACKET_ID_TO_KICKER_MCP_KICKER_CHARGE                    0b01110000001
 #define MCP_PACKET_SIZE_MCP_KICKER_CHARGE                            2
 
 #define MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE                       3
-#define MCP_PACKET_ID_TO_KICKER_MCP_KICKER_STOP_CHARGE               0x7040
+#define MCP_PACKET_ID_TO_KICKER_MCP_KICKER_STOP_CHARGE               0b01110000010
 #define MCP_PACKET_SIZE_MCP_KICKER_STOP_CHARGE                       1
 
 #define MCP_PACKET_TYPE_MCP_KICK                                     4
-#define MCP_PACKET_ID_TO_KICKER_MCP_KICK                             0x7060
+#define MCP_PACKET_ID_TO_KICKER_MCP_KICK                             0b01110000011
 #define MCP_PACKET_SIZE_MCP_KICK                                     1
 
 #define MCP_PACKET_TYPE_MCP_CHIP                                     5
-#define MCP_PACKET_ID_TO_KICKER_MCP_CHIP                             0x7080
+#define MCP_PACKET_ID_TO_KICKER_MCP_CHIP                             0b01110000100
 #define MCP_PACKET_SIZE_MCP_CHIP                                     1
 
 #define MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE                           6
-#define MCP_PACKET_ID_TO_TOP_MCP_DRIBBLER_ALIVE                      0x0000
+#define MCP_PACKET_ID_TO_TOP_MCP_DRIBBLER_ALIVE                      0b00000000000
 #define MCP_PACKET_SIZE_MCP_DRIBBLER_ALIVE                           1
 
 #define MCP_PACKET_TYPE_MCP_SEES_BALL                                7
-#define MCP_PACKET_ID_TO_TOP_MCP_SEES_BALL                           0x0020
+#define MCP_PACKET_ID_TO_TOP_MCP_SEES_BALL                           0b00000000001
 #define MCP_PACKET_SIZE_MCP_SEES_BALL                                1
 
 #define MCP_PACKET_TYPE_MCP_KICKER_ALIVE                             8
-#define MCP_PACKET_ID_TO_TOP_MCP_KICKER_ALIVE                        0x0040
+#define MCP_PACKET_ID_TO_TOP_MCP_KICKER_ALIVE                        0b00000000010
 #define MCP_PACKET_SIZE_MCP_KICKER_ALIVE                             1
 
 #define MCP_PACKET_TYPE_MCP_KICKER_CAPACITOR_VOLTAGE                 9
-#define MCP_PACKET_ID_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE            0x0060
+#define MCP_PACKET_ID_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE            0b00000000011
 #define MCP_PACKET_SIZE_MCP_KICKER_CAPACITOR_VOLTAGE                 2
 
 #define MCP_PACKET_TYPE_MCP_POWER_ALIVE                              10
-#define MCP_PACKET_ID_TO_TOP_MCP_POWER_ALIVE                         0x0080
+#define MCP_PACKET_ID_TO_TOP_MCP_POWER_ALIVE                         0b00000000100
 #define MCP_PACKET_SIZE_MCP_POWER_ALIVE                              1
 
 #define MCP_PACKET_TYPE_MCP_POWER_VOLTAGE                            11
-#define MCP_PACKET_ID_TO_TOP_MCP_POWER_VOLTAGE                       0x00a0
-#define MCP_PACKET_ID_TO_DRIBBLER_MCP_POWER_VOLTAGE                  0x4040
+#define MCP_PACKET_ID_TO_TOP_MCP_POWER_VOLTAGE                       0b00000000101
+#define MCP_PACKET_ID_TO_DRIBBLER_MCP_POWER_VOLTAGE                  0b01000000010
 #define MCP_PACKET_SIZE_MCP_POWER_VOLTAGE                            1
 
 #define MCP_PACKET_TYPE_MCP_KILL                                     12
-#define MCP_PACKET_ID_TO_POWER_MCP_KILL                              0xf020
+#define MCP_PACKET_ID_TO_POWER_MCP_KILL                              0b11110000001
 #define MCP_PACKET_SIZE_MCP_KILL                                     1
 
 
@@ -109,7 +109,8 @@ static uint16_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board) {
         if (type == MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE)                        return MCP_PACKET_ID_TO_POWER_MCP_ARE_YOU_ALIVE                       ;
         if (type == MCP_PACKET_TYPE_MCP_KILL)                                 return MCP_PACKET_ID_TO_POWER_MCP_KILL                                ;
     }
-    return 0x0001; //one of the unused ID's that symbolises that there is an error
+    return 0xFFFF;
+
 }
 
 #endif /*__MCP_BASETYPES_H*/

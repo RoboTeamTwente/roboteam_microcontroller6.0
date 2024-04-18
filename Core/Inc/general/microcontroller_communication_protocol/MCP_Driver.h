@@ -5,6 +5,8 @@
 #include "main.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+#include "logging.h"
 
 typedef struct _mailbox_buffer{
 	bool empty;

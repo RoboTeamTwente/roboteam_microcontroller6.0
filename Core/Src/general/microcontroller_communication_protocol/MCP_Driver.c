@@ -1,9 +1,9 @@
 #include "MCP_Driver.h"
 
 // Definition of mailbox buffers
-mailbox_buffer MailBox_one    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-mailbox_buffer MailBox_two    = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
-mailbox_buffer MailBox_three  = {true, {0, 0, 0, 0, 0, 0, 0, 0}, 0};
+mailbox_buffer MailBox_one;
+mailbox_buffer MailBox_two;
+mailbox_buffer MailBox_three;
 uint32_t TxMailbox[1];
 bool MCP_to_process = false;
 
@@ -24,6 +24,13 @@ void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
     canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
     canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
     canfilterconfig.SlaveStartFilterBank = 0;
+
+    MailBox_one.empty = true;
+    MailBox_one.message_id = 0;
+    MailBox_two.empty = true;
+    MailBox_two.message_id = 0;
+    MailBox_three.empty = true;
+    MailBox_three.message_id = 0;
 
     // Configure CAN filter
     HAL_CAN_ConfigFilter(hcan, &canfilterconfig);
@@ -89,7 +96,7 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
     CAN_TxHeaderTypeDef TxHeader;
 
     TxHeader.DLC = MCP_TYPE_TO_SIZE(type);
-    TxHeader.StdId = MCP_TYPE_TO_ID(type, receiving_board) >> 5;
+    TxHeader.StdId = MCP_TYPE_TO_ID(type, receiving_board);
     TxHeader.ExtId = 0;
     TxHeader.IDE = CAN_ID_STD;
     TxHeader.RTR = CAN_RTR_DATA;
@@ -98,6 +105,6 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
 }
 
 void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t* payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
-    if (CAN_TxHeader.StdId == 0x0001) MCP_error_LOG(&CAN_TxHeader);
+    if (CAN_TxHeader.StdId == 0xFFFF) MCP_error_LOG(&CAN_TxHeader);
     else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
 }
