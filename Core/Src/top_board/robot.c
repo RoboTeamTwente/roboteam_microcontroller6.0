@@ -309,6 +309,10 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			decodeMCP_SeesBall(&seesBall, spb);
 			break;		
 	}
+
+	to_Process->empty = true;
+	*to_Process->data_Frame  = 0;
+	to_Process->message_id = 0;
 }
 
 

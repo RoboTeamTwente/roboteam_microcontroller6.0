@@ -3,7 +3,10 @@
 
 #include "logging.h"
 #include "peripheral_util.h"
-#include "CanDriver.h"
+#include "MCP_to_power.h"
+#include "MCP_from_power.h"
+#include "MCP_BaseTypes.h"
+#include "MCP_Driver.h"
 #include <string.h>
 
 void init();
