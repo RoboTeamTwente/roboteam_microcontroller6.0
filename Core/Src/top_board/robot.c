@@ -325,7 +325,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 void init(void){
 
 	// Turn off all leds. Use leds to indicate init() progress
-	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 1);
+	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
 	int wheels_init_attemps = 0;
@@ -608,7 +608,7 @@ void check_otherboards(CAN_TxHeaderTypeDef board_header, bool board_state, MCP_A
 	uint8_t MAX_ATTEMPTS = 0;
 	while (MAX_ATTEMPTS < 3 && board_state == false) {
 		MAX_ATTEMPTS++;
-		MCP_Send_Message(&hcan1, board_payload->payload, board_header);
+		MCP_Send_Message(&hcan1, board_payload, board_header);
 		HAL_Delay(10);
 		if (MCP_to_process){
 			if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);

@@ -41,6 +41,7 @@ void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+
     CAN_RxHeaderTypeDef RxHeader;
     uint8_t RxData[8];
     memset(RxData, 0, sizeof(RxData));

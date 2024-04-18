@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 
-#define MCP_LOCAL_VERSION 0
+#define MCP_LOCAL_VERSION 1
 #define MCP_LARGEST_PACKET_IN_BYTES 2
 
 #define MCP_TOP_BOARD                                                0
