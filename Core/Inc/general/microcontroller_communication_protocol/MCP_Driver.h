@@ -11,7 +11,7 @@
 typedef struct _mailbox_buffer{
 	bool empty;
 	uint8_t data_Frame[8];
-	uint8_t message_id;
+	uint16_t message_id;
 } mailbox_buffer;
 
 extern mailbox_buffer MailBox_one;

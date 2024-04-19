@@ -66,7 +66,7 @@ void loop() {
         MCP_to_process = false;
 	}
 
-	    // 10 seconds passed now we send the reading of the voltage meter to the top board
+	// 10 seconds passed now we send the reading of the voltage meter to the top board
     if (heartbeat_10000ms < current_time) {
 		// voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
 		MCP_PowerVoltage pv = {0};

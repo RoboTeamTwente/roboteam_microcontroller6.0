@@ -58,7 +58,7 @@ void MCP_error_LOG(CAN_TxHeaderTypeDef *Header){
 
 // Function to extract command from received CAN data
 bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
-    uint8_t message_ID = Header->StdId;
+    uint16_t message_ID = Header->StdId;
     uint8_t data[8];
     memset(data, 0, sizeof(data));
 
