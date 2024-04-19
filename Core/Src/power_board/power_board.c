@@ -71,9 +71,9 @@ void loop() {
 		// voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
-		pv.voltagePowerBoard = 24.0f; //TODO call method and check for min/max
+		pv.voltagePowerBoard = 22.0f; //TODO call method and check for min/max
 		encodeMCP_PowerVoltage(&pvp, &pv);
-		MCP_Send_Message(&hcan, &pvp, powerVoltageHeader);
+		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader);
 
     	heartbeat_10000ms = current_time + 10000;
     }
@@ -97,7 +97,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		pa.mcpVersion = MCP_LOCAL_VERSION;
 		pa.sensorWorking = false;
 		encodeMCP_PowerAlive(&pap, &pa);
-		MCP_Send_Message(&hcan, &pap, powerAliveHeader);
+		MCP_Send_Message(&hcan, pap.payload, powerAliveHeader);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TO_POWER_MCP_KILL) {
 		kill();
 	}

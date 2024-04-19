@@ -281,7 +281,6 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 void MCP_Process_Message(mailbox_buffer *to_Process) {
 	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
 	LOG_printf("[CAN] message id: %u\n", to_Process->message_id);
-	LOG_sendAll();
 	switch (to_Process->message_id) {
 		case MCP_PACKET_ID_TO_TOP_MCP_POWER_ALIVE: ;
 			MCP_PowerAlivePayload* pap = (MCP_PowerAlivePayload*) to_Process->data_Frame;
@@ -312,6 +311,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			break;		
 	}
 
+	LOG_sendAll();
 	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;

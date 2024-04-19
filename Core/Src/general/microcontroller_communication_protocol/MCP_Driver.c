@@ -105,7 +105,7 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
     return TxHeader;
 }
 
-void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t* payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
+void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
     if (CAN_TxHeader.StdId == 0xFFFF) MCP_error_LOG(&CAN_TxHeader);
-    else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
+    else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
 }
