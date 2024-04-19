@@ -71,7 +71,12 @@ void loop() {
 		// voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
-		pv.voltagePowerBoard = 22.0f; //TODO call method and check for min/max
+		pv.voltagePowerBoard = 22.0f; //TODO get actual voltage from sensor
+		if (pv.voltagePowerBoard < MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN) {
+			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN;
+		} else if (pv.voltagePowerBoard > MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX) {
+			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX;
+		}
 		encodeMCP_PowerVoltage(&pvp, &pv);
 		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader);
 

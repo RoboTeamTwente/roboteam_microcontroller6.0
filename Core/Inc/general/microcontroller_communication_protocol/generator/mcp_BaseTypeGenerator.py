@@ -36,6 +36,7 @@ def tripleIndent():
     return indent() + doubleIndent()
 
 type_to_id, type_to_size = {}, {}
+l_just_ = 75
 
 class BaseTypeGenerator:
 
@@ -43,8 +44,7 @@ class BaseTypeGenerator:
 
         timestamp = datetime.now()
         timestamp_string = timestamp.strftime("%B %d %Y, %H:%M:%S")
-
-
+        
         
         file_string = ""
 
@@ -109,9 +109,9 @@ class BaseTypeGenerator:
             
             for id, name in type_to_id[b]:
                 tti_string += doubleIndent()
-                tti_string += f"if (type == {name})".ljust(70)
+                tti_string += f"if (type == {name})".ljust(l_just_)
 
-                tti_string += f"return {id}".ljust(70) + ";\n"
+                tti_string += f"return {id}".ljust(l_just_) + ";\n"
 
             tti_string += indent() + "}"
             first_round = False
@@ -125,7 +125,7 @@ class BaseTypeGenerator:
 
         for b in board:
             VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(b.name)}_BOARD"
-            db_string += self.to_constant(VARIABLE_NAME_BOARD.ljust(60), b.value) + "\n"
+            db_string += self.to_constant(VARIABLE_NAME_BOARD.ljust(l_just_), b.value) + "\n"
             type_to_id[VARIABLE_NAME_BOARD] = []
 
         return db_string
@@ -134,7 +134,7 @@ class BaseTypeGenerator:
         tts_string = "static uint8_t MCP_TYPE_TO_SIZE(uint16_t type) {\n"
 
         for type in type_to_size:
-            tts_string += indent() + f"if (type == {type})".ljust(60)
+            tts_string += indent() + f"if (type == {type})".ljust(l_just_)
             tts_string += f"return {type_to_size[type]};\n"
 
         tts_string += indent() + "return 1;\n"
@@ -154,7 +154,7 @@ class BaseTypeGenerator:
             PACKET_NAME = CamelCaseToUpper(packet_name)
 
             VARIABLE_NAME_TYPE = f"MCP_PACKET_TYPE_{PACKET_NAME}"
-            dpp_string += self.to_constant(VARIABLE_NAME_TYPE.ljust(60), index) + "\n"
+            dpp_string += self.to_constant(VARIABLE_NAME_TYPE.ljust(l_just_), index) + "\n"
             index += 1
 
             '''
@@ -180,13 +180,26 @@ class BaseTypeGenerator:
 
                 message_id_str = '0b' + message_id[2:].zfill(11)
                 VARIABLE_NAME_ID = f"MCP_PACKET_ID_TO_{to_board.name.upper()}_{PACKET_NAME}"
-                dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(60), message_id_str) + "\n"
+                dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(l_just_), message_id_str) + "\n"
                 VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"
                 type_to_id[VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
 
+            # size
             VARIABLE_NAME_SIZE = f"MCP_PACKET_SIZE_{PACKET_NAME}"
             type_to_size[VARIABLE_NAME_TYPE] = VARIABLE_NAME_SIZE
-            dpp_string += self.to_constant(VARIABLE_NAME_SIZE.ljust(60), max(packet_to_size_in_bytes(packets[packet_name]), 1)) + "\n"
+            dpp_string += self.to_constant(VARIABLE_NAME_SIZE.ljust(l_just_), max(packet_to_size_in_bytes(packets[packet_name]), 1)) + "\n"
+            				
+            # min max
+            for variable, n_bits, _range, description, in packets[packet_name]["data"]:
+                VARIABLE_NAME = CamelCaseToUpper(variable)
+                range_min, range_max = 0, 2**n_bits-1
+                if _range is not None: range_min, range_max = _range
+                # Return simply 'x' if integer range, or 'x.[abcde]F' if float range
+				# So: float 8.4000 -> 8.4F | float 8.0000F -> 8.F | int 8 -> 8
+                get_value_string = lambda x: f"{x}" if _range is None else f"{x:.16f}F".rstrip('0')
+
+                dpp_string += self.to_constant(f"MCP_PACKET_RANGE_{PACKET_NAME}_{VARIABLE_NAME}_MIN".ljust(l_just_), get_value_string(range_min)) + "\n"
+                dpp_string += self.to_constant(f"MCP_PACKET_RANGE_{PACKET_NAME}_{VARIABLE_NAME}_MAX".ljust(l_just_), get_value_string(range_max)) + "\n"
 
             dpp_string += "\n"
         return dpp_string
