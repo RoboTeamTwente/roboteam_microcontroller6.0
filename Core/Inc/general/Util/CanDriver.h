@@ -98,9 +98,9 @@ void CAN_error_LOG(CAN_TxHeaderTypeDef *Header);
 
 	void set_voltage_response_header(CAN_TxHeaderTypeDef *TxHeader);
 
-	uint16_t get_voltage_response(uint8_t payload[8]);
+	float get_voltage_response(uint8_t payload[8]);
 
-	void set_voltage_response(uint16_t voltage_reading, uint8_t payload[]);
+	void set_voltage_response(float voltage_reading, uint8_t payload[]);
 
 	void set_powerBoard_im_alive_header(CAN_TxHeaderTypeDef *TxHeader);
 

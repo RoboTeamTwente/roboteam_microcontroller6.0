@@ -7,7 +7,7 @@
 
 uint32_t heartbeat_10000ms = 0;
 bool kill_flag, voltage_request = false;
-uint16_t voltage_reading = 0;
+float voltage_reading = 0;
 uint64_t TxMailbox[1];  
 
 void kill();
@@ -23,7 +23,8 @@ void init() {
 	set_Pin(BAT_KILL_pin, 1);
 
 	CAN_Init(&hcan, POWER_ID);
-	
+
+	init_VPC_sensor();
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
 
@@ -59,10 +60,9 @@ void loop() {
         CAN_to_process = false;
 	}
 
-	    // 10 seconds passed now we send the reading of the voltage meter to the top board
-    if (heartbeat_10000ms < current_time)
-    {
-      // voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
+	// 10 seconds passed now we send the reading of the voltage meter to the top board
+    if (heartbeat_10000ms < current_time){
+      voltage_reading = getVoltage();  // Here we call the function to get the voltage from the sensor
 	  CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
       heartbeat_10000ms = current_time + 10000;
     }

@@ -2,6 +2,7 @@
 #define _POWER_BOARD_H_
 
 #include "logging.h"
+#include "VPC_Sensor.h"
 #include "peripheral_util.h"
 #include "CanDriver.h"
 #include <string.h>

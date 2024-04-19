@@ -159,14 +159,16 @@ void set_voltage_response_header(CAN_TxHeaderTypeDef *TxHeader){
 }
 
 // Function to get the voltage response from a payload
-uint16_t get_voltage_response(uint8_t payload[8]){
-    return ((payload[1] << 8) | payload[0]) & 0xFFFF;
+float get_voltage_response(uint8_t payload[8]){
+    int32_t _voltagePowerBoard = (payload[0]);
+    return (_voltagePowerBoard * 0.0392156862745098F) + 20.0000000000000000F;
 }
 
 // Function to set the voltage response in a payload
-void set_voltage_response(uint16_t voltage_reading, uint8_t payload[]){
-    payload[0] = voltage_reading;
-    payload[1] =  voltage_reading >> 8;
+void set_voltage_response(float voltage_reading, uint8_t payload[]){
+    uint32_t _voltagePowerBoard = (uint32_t)((voltage_reading -20.0000000000000000F) / 0.0392156862745098F);
+    payload[0] = _voltagePowerBoard;
+
 }
 
 // Function to set the header for "PowerBoard I'm Alive" message

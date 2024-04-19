@@ -56,7 +56,7 @@ REM_RobotCommand myRobotCommand;
 
 extern uint64_t unix_timestamp;
 extern bool DISABLE_BUZZER;
-extern uint16_t powerboard_voltage;
+extern float powerboard_voltage;
 extern bool powerBoard_alive;
 extern bool TEST_MODE;
 extern bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive, chip_state, kick_state;
