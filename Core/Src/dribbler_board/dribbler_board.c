@@ -16,6 +16,7 @@ bool ballsensor_functioning_state = true;
 // These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
 bool dribbler_state;
 bool ballsensor_state;
+uint8_t hearbeat_10ms = 0;
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -48,8 +49,6 @@ void loop(){
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
 	}
-    HAL_Delay(500);
-    CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
 }
 
 /* ============================================= */
@@ -65,10 +64,12 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
         CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
     }
     else if (to_Process->message_id == DRIBBLER_SPEED){
-        float new_dribbler_speed = get_dribbler_sees_ball(to_Process->data_Frame);
-        dribbler_SetSpeed(new_dribbler_speed); 
+        dribbler_state = get_dribbler_sees_ball(to_Process->data_Frame);
+        if (dribbler_state)
+            TIM3->CCR2 = 200;
+        else
+            TIM3->CCR2 = 0;
     }   
-
 }
 void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
 
@@ -124,8 +125,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 }
 
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-//     if (&htim == &htim3){
-//         dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
-//     }
-// }
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (&htim->Instance == &htim2.Instance){
+        CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
+        dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
+    }
+}

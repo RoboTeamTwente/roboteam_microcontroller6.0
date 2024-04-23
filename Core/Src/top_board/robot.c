@@ -132,7 +132,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 	} else if (reciever_ID == DRIBBLER_ID) {
 		if (sending_message_ID == DRIBBLER_SPEED) {
 			set_request_dribbler_speed_header(&CAN_TxHeader);
-			set_dribbler_sees_ball(payload, dribbler_speed);
+			set_dribbler_sees_ball(payload, true);
 		}
 	} else if (reciever_ID == KICK_CHIP_ID) {
 		if (sending_message_ID == KICK_MESSAGE) {
