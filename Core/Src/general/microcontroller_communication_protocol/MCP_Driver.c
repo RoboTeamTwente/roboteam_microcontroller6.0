@@ -97,15 +97,22 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
     CAN_TxHeaderTypeDef TxHeader;
 
     TxHeader.DLC = MCP_TYPE_TO_SIZE(type);
-    TxHeader.StdId = MCP_TYPE_TO_ID(type, receiving_board);
-    TxHeader.ExtId = 0;
+    uint16_t id = MCP_TYPE_TO_ID(type, receiving_board);
+    if (id == 0xFFFF) {
+        TxHeader.StdId = 0;
+        TxHeader.ExtId = id;
+    } else {
+        TxHeader.StdId = id;
+        TxHeader.ExtId = 0;
+    }
     TxHeader.IDE = CAN_ID_STD;
     TxHeader.RTR = CAN_RTR_DATA;
     TxHeader.TransmitGlobalTime = DISABLE;
+    
     return TxHeader;
 }
 
 void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
-    if (CAN_TxHeader.StdId == 0xFFFF) MCP_error_LOG(&CAN_TxHeader);
+    if (CAN_TxHeader.ExtId == 0xFFFF) MCP_error_LOG(&CAN_TxHeader);
     else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
 }
