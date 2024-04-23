@@ -12,7 +12,7 @@
 // List known GPIO pins
 
 // Dribbler
-GPIO_Pin Dribbler_PWM_pin	= { PWM_Dribbler_GPIO_Port	, PWM_Dribbler_Pin	};
+//GPIO_Pin Dribbler_PWM_pin	= { PWM_Dribbler_GPIO_Port	, PWM_Dribbler_Pin	};
 
 // Ballsensor
 GPIO_Pin BS_IRQ_pin = { BS_IRQ_GPIO_Port    , BS_IRQ_Pin   };

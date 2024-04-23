@@ -70,8 +70,6 @@ void Error_Handler(void);
 #define BS_IRQ_Pin GPIO_PIN_6
 #define BS_IRQ_GPIO_Port GPIOA
 #define BS_IRQ_EXTI_IRQn EXTI9_5_IRQn
-#define PWM_Dribbler_Pin GPIO_PIN_6
-#define PWM_Dribbler_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
