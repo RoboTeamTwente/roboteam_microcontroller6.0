@@ -161,28 +161,33 @@ class BaseTypeGenerator:
             message id
             10000000 000 Decimal 1st digit
             09876543 210 Decimal 2nd digit
-            1111---- --- TO_BOARD ID
-            ----1111 111 MESSAGE_ID 
+            111---- --- TO_BOARD ID
+            ---111- --- FROM_BOARD_ID
+            ------1 111 MESSAGE_ID 
 
             the message id needs to be unique to be able to tell messages apart
             '''
-            for to_board in packets[packet_name]["to"]:
+            for from_board in packets[packet_name]["from"]:
+                for to_board in packets[packet_name]["to"]:
+                    if from_board == to_board:
+                        continue
 
-                message_id = 0b00000000000 # 11 bits, length of standard ID
-                message_id = message_id | (to_board.value << 7)
-                message_id = message_id | message_id_per_board[to_board]
-                message_id = str(bin(message_id))
-                message_id_per_board[to_board] += 1
+                    message_id = 0b00000000000 # 11 bits, length of standard ID
+                    message_id = message_id | (to_board.value << 7)
+                    message_id = message_id | (from_board.value << 4)
+                    message_id = message_id | message_id_per_board[to_board]
+                    message_id = str(bin(message_id))
+                    message_id_per_board[to_board] += 1
 
-                if (message_id_per_board[to_board] > 0b01111111):
-                    print("TO MANY PACKETS FOR " + packets[packet_name]["to"])
-                    exit()
+                    if (message_id_per_board[to_board] > 0b00001111):
+                        print("TO MANY PACKETS FOR " + packets[packet_name]["to"])
+                        exit()
 
-                message_id_str = '0b' + message_id[2:].zfill(11)
-                VARIABLE_NAME_ID = f"MCP_PACKET_ID_TO_{to_board.name.upper()}_{PACKET_NAME}"
-                dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(l_just_), message_id_str) + "\n"
-                VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"
-                type_to_id[VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
+                    message_id_str = '0b' + message_id[2:].zfill(11)
+                    VARIABLE_NAME_ID = f"MCP_PACKET_ID_{from_board.name.upper()}_TO_{to_board.name.upper()}_{PACKET_NAME}"
+                    dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(l_just_), message_id_str) + "\n"
+                    VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"
+                    type_to_id[VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
 
             # size
             VARIABLE_NAME_SIZE = f"MCP_PACKET_SIZE_{PACKET_NAME}"

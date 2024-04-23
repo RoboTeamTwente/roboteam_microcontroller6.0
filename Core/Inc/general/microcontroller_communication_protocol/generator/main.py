@@ -48,9 +48,9 @@ for packet_name in packets:
 	generated = generator_.generate(packet_name, variables)
 
 	filename = f"{packet_name}.h"
-	folder_name = packets[packet_name]["from"].name.lower()
-	with open(os.path.join(f"generated_from_{folder_name}", filename), "w+") as file:
-		file.write(generated)
+	for from_board in packets[packet_name]["from"]:
+		with open(os.path.join(f"generated_from_{from_board.name.lower()}", filename), "w+") as file:
+			file.write(generated)
 
 	for to_board in packets[packet_name]["to"]:
 		with open(os.path.join(f"generated_to_{to_board.name.lower()}", filename), "w+") as file:

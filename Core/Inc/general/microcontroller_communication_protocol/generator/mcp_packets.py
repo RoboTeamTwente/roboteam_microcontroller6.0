@@ -5,50 +5,55 @@ data is as follows
 use [min, max] only for floats
 '''
 packets = {
+    "MCP_Ack" : {
+        "from" : [board.POWER, board.KICKER, board.DRIBBLER, board.TOP],
+        "to" : [board.POWER, board.KICKER, board.DRIBBLER, board.TOP],
+        "data" : []
+    },
     "MCP_AreYouAlive" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.POWER, board.KICKER, board.DRIBBLER],
         "data" : [
             ["mcpVersion", 4, None, "version of mcp"]
         ]
     },
     "MCP_SetDribblerSpeed" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.DRIBBLER],
         "data" : [
                 ["speed", 8, [0, 1], "desired speed of the dribbler"],
             ]
     },
     "MCP_KickerCharge" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
             ["voltage", 10, None, "target voltage"]
         ],
     },
     "MCP_KickerStopCharge" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
 
         ]
     },
     "MCP_Kick" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
             ["shootPower", 4, [0, 6.5], "desired speed of the ball"]
         ]
     },
     "MCP_Chip" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
             ["shootPower", 4, [0, 6.5], "desired speed of the ball"]
         ]
     },
     "MCP_DribblerAlive" : {
-        "from" : board.DRIBBLER,
+        "from" : [board.DRIBBLER],
         "to" : [board.TOP],
         "data" : [
             ["mcpVersion", 4, None, "version of mcp"],
@@ -57,7 +62,7 @@ packets = {
         ],
     },
     "MCP_SeesBall" : {
-        "from" : board.DRIBBLER,
+        "from" : [board.DRIBBLER],
         "to" : [board.TOP],
         "data" : [
             ["dribblerSeesBall", 1, None, "true if dribbler encoder detects ball"],
@@ -65,7 +70,7 @@ packets = {
         ]
     },
     "MCP_KickerAlive" : {
-        "from" : board.KICKER,
+        "from" : [board.KICKER],
         "to" : [board.TOP],
         "data" : [
             ["mcpVersion", 4, None, "version of mcp"],
@@ -73,14 +78,14 @@ packets = {
         ],
     },
     "MCP_KickerCapacitorVoltage" : {
-        "from" : board.KICKER,
+        "from" : [board.KICKER],
         "to" : [board.TOP],
         "data" : [
             ["voltage", 10, None, "capacitor voltage"]
         ]
     },
     "MCP_PowerAlive" : {
-        "from" : board.POWER,
+        "from" : [board.POWER],
         "to" : [board.TOP],
         "data" : [
             ["mcpVersion", 4, None, "version of mcp"],
@@ -88,17 +93,31 @@ packets = {
         ]
     },
     "MCP_PowerVoltage" : {
-        "from" : board.POWER,
+        "from" : [board.POWER],
         "to" : [board.TOP, board.DRIBBLER],
         "data" : [
             ["voltagePowerBoard", 8, [20, 30], "power board voltage"]
         ]
     },
     "MCP_Kill" : {
-        "from" : board.TOP,
+        "from" : [board.TOP],
         "to" : [board.POWER],
         "data" : [
 
         ]
     },
+    "MCP_DribblerEncoder" : {
+        "from" : [board.DRIBBLER],
+        "to" : [board.TOP],
+        "data" : [
+            ["value", 16, [0, 5000.0], "Dribbler speed"],
+        ]
+    }
 }
+
+generic_packet = [
+    ["ack_number", 8, None, "acknowledgements"]
+]
+
+for packet_name in packets:
+    packets[packet_name]["data"] = generic_packet + packets[packet_name]["data"]

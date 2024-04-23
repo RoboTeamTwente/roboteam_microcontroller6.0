@@ -2,6 +2,4 @@
 #ifndef __MCP_FROM_DRIBBLER_H
 #define __MCP_FROM_DRIBBLER_H
 
-#include "MCP_DribblerAlive.h"
-#include "MCP_SeesBall.h"
 #endif /* __MCP_FROM_DRIBBLER_H */
