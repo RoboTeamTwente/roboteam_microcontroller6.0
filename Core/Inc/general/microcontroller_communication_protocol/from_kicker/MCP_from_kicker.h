@@ -2,4 +2,7 @@
 #ifndef __MCP_FROM_KICKER_H
 #define __MCP_FROM_KICKER_H
 
+#include "MCP_Ack.h"
+#include "MCP_KickerAlive.h"
+#include "MCP_KickerCapacitorVoltage.h"
 #endif /* __MCP_FROM_KICKER_H */

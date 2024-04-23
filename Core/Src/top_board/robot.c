@@ -282,30 +282,30 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
 	LOG_printf("[CAN] message id: %u\n", to_Process->message_id);
 	switch (to_Process->message_id) {
-		case MCP_PACKET_ID_TO_TOP_MCP_POWER_ALIVE: ;
+		case MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE: ;
 			MCP_PowerAlivePayload* pap = (MCP_PowerAlivePayload*) to_Process->data_Frame;
 			decodeMCP_PowerAlive(&powerAlive, pap);
 			flag_PowerBoard_alive = true;
 			break;
-		case MCP_PACKET_ID_TO_TOP_MCP_DRIBBLER_ALIVE: ;
+		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE: ;
 			MCP_DribblerAlivePayload* dap = (MCP_DribblerAlivePayload*) to_Process->data_Frame;
 			decodeMCP_DribblerAlive(&dribblerAlive, dap);
 			flag_DribblerBoard_alive = true;
 			break;
-		case MCP_PACKET_ID_TO_TOP_MCP_KICKER_ALIVE: ;
+		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_ALIVE: ;
 			MCP_KickerAlivePayload* kap = (MCP_KickerAlivePayload*) to_Process->data_Frame;
 			decodeMCP_KickerAlive(&kickerAlive, kap);
 			flag_KickerBoard_alive = true;
 			break;
-		case MCP_PACKET_ID_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
+		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
 			MCP_KickerCapacitorVoltagePayload* kcvp = (MCP_KickerCapacitorVoltagePayload*) to_Process->data_Frame;
 			decodeMCP_KickerCapacitorVoltage(&kickerCapacitorVoltage, kcvp);
 			break;
-		case MCP_PACKET_ID_TO_TOP_MCP_POWER_VOLTAGE: ;
+		case MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_VOLTAGE: ;
 			MCP_PowerVoltagePayload* pvp = (MCP_PowerVoltagePayload*) to_Process->data_Frame;
 			decodeMCP_PowerVoltage(&powerVoltage, pvp);
 			break;
-		case MCP_PACKET_ID_TO_TOP_MCP_SEES_BALL: ;
+		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_SEES_BALL: ;
 			MCP_SeesBallPayload* spb = (MCP_SeesBallPayload*) to_Process->data_Frame;
 			decodeMCP_SeesBall(&seesBall, spb);
 			break;		
@@ -535,7 +535,6 @@ void init(void){
 	
 	//check if communication with other boards is working
 	MCP_AreYouAlive areYouAlive = {0};
-	areYouAlive.mcpVersion = MCP_LOCAL_VERSION;
 	MCP_AreYouAlivePayload ayap = {0};
 	encodeMCP_AreYouAlive(&ayap, &areYouAlive);
 

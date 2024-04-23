@@ -70,7 +70,7 @@ class BaseTypeGenerator:
 
         file_string += self.define_boards() + "\n"
 
-        file_string += self.defines_per_packet(packets) + "\n"
+        file_string += self.defines_per_packet(packets, version) + "\n"
 
         file_string += self.type_to_size(type_to_size) + "\n"
 
@@ -97,7 +97,7 @@ class BaseTypeGenerator:
         return f"#define {variable_name} {value}"
 
     def type_to_id_mapping(self, type_to_id):
-        tti_string = "static uint16_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board) {\n"
+        tti_string = "static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board) {\n"
         first_round = True
 
         for b in type_to_id:
@@ -116,7 +116,7 @@ class BaseTypeGenerator:
             tti_string += indent() + "}"
             first_round = False
 
-        tti_string += "\n" + indent() + "return 0xFFFF;\n"
+        tti_string += "\n" + indent() + "return 0x10000000;\n"
         tti_string += "\n}\n"
         return tti_string
     
@@ -142,7 +142,7 @@ class BaseTypeGenerator:
 
         return tts_string
     
-    def defines_per_packet(self, packets):
+    def defines_per_packet(self, packets, version):
         index = 0
         message_id_per_board = {}
         for b in board:
@@ -159,11 +159,14 @@ class BaseTypeGenerator:
 
             '''
             message id
-            10000000 000 Decimal 1st digit
-            09876543 210 Decimal 2nd digit
-            111---- --- TO_BOARD ID
-            ---111- --- FROM_BOARD_ID
-            ------1 111 MESSAGE_ID 
+            [  00  ] [  01  ] [  02  ] [  03  ]
+            111----- -------- -------- -------- RESERVED (DO NOT USE)
+            ---1---- -------- -------- -------- ERROR INDICATOR
+            ----1111 -------- -------- -------- MCP VERSION
+            -------- 11111111 -------- -------- UNUSED
+            -------- -------- 11111111 -------- MESSAGE ID
+            -------- -------- -------- 1111---- FROM ID
+            -------- -------- -------- ----1111 TO ID
 
             the message id needs to be unique to be able to tell messages apart
             '''
@@ -173,17 +176,18 @@ class BaseTypeGenerator:
                         continue
 
                     message_id = 0b00000000000 # 11 bits, length of standard ID
-                    message_id = message_id | (to_board.value << 7)
+                    message_id = message_id | (to_board.value)
                     message_id = message_id | (from_board.value << 4)
-                    message_id = message_id | message_id_per_board[to_board]
-                    message_id = str(bin(message_id))
+                    message_id = message_id | (message_id_per_board[to_board] << 8)
+                    message_id = message_id | (version << 24)
+                    message_id = str(hex(message_id))
                     message_id_per_board[to_board] += 1
 
-                    if (message_id_per_board[to_board] > 0b00001111):
+                    if (message_id_per_board[to_board] > 0xFF):
                         print("TO MANY PACKETS FOR " + packets[packet_name]["to"])
                         exit()
 
-                    message_id_str = '0b' + message_id[2:].zfill(11)
+                    message_id_str = '0x' + message_id[2:].zfill(8)
                     VARIABLE_NAME_ID = f"MCP_PACKET_ID_{from_board.name.upper()}_TO_{to_board.name.upper()}_{PACKET_NAME}"
                     dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(l_just_), message_id_str) + "\n"
                     VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"

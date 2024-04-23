@@ -533,7 +533,7 @@ class Include_Generator:
         file_string += "\n"
 
         for packet in packets:
-            if (not sending and packets[packet]["from"] == board) or (sending and board in packets[packet]["to"]):
+            if (not sending and board in packets[packet]["from"]) or (sending and board in packets[packet]["to"]):
                 file_string += f"#include \"{packet}.h\"\n"
 
         file_string += f"#endif /* __MCP_{c}_{board.name.upper()}_H */\n"

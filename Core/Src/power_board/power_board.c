@@ -93,17 +93,16 @@ void loop() {
  */
 void MCP_Process_Message(mailbox_buffer *to_Process){
 
-	if (to_Process->message_id == MCP_PACKET_ID_TO_POWER_MCP_ARE_YOU_ALIVE) {
+	if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE) {
 		MCP_AreYouAlivePayload* ayap = (MCP_AreYouAlivePayload*) to_Process->data_Frame;
 		decodeMCP_AreYouAlive(&areYouAlive, ayap);
 		//TODO what if wrong version
 		MCP_PowerAlive pa = {0};
 		MCP_PowerAlivePayload pap = {0};
-		pa.mcpVersion = MCP_LOCAL_VERSION;
 		pa.sensorWorking = false;
 		encodeMCP_PowerAlive(&pap, &pa);
 		MCP_Send_Message(&hcan, pap.payload, powerAliveHeader);
-	} else if (to_Process->message_id == MCP_PACKET_ID_TO_POWER_MCP_KILL) {
+	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
 	}
 	

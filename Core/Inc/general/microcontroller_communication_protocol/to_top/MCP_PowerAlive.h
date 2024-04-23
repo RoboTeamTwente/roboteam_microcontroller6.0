@@ -2,8 +2,7 @@
 /*
 [  0   ] [  1   ]
 11111111 -------- ack_number
--------- 1111---- mcpVersion
--------- ----1--- sensorWorking
+-------- 1------- sensorWorking
 */
 
 #ifndef __MCP_POWER_ALIVE_H
@@ -19,7 +18,6 @@ typedef struct _MCP_PowerAlivePayload {
 
 typedef struct _MCP_PowerAlive {
     uint32_t   ack_number          ; // integer [0, 255]             acknowledgements
-    uint32_t   mcpVersion          ; // integer [0, 15]              version of mcp
     bool       sensorWorking       ; // integer [0, 1]               voltage sensor working
 } MCP_PowerAlive;
 
@@ -28,12 +26,8 @@ static inline uint32_t MCP_PowerAlive_get_ack_number(MCP_PowerAlivePayload *mcpp
    return ((mcppap->payload[0]));
 }
 
-static inline uint32_t MCP_PowerAlive_get_mcpVersion(MCP_PowerAlivePayload *mcppap){
-   return ((mcppap->payload[1] & 0b11110000) >> 4);
-}
-
 static inline bool MCP_PowerAlive_get_sensorWorking(MCP_PowerAlivePayload *mcppap){
-    return (mcppap->payload[1] & 0b00001000) > 0;
+    return (mcppap->payload[1] & 0b10000000) > 0;
 }
 
 // ================================ SETTERS ================================
@@ -41,25 +35,19 @@ static inline void MCP_PowerAlive_set_ack_number(MCP_PowerAlivePayload *mcppap, 
     mcppap->payload[0] = ack_number;
 }
 
-static inline void MCP_PowerAlive_set_mcpVersion(MCP_PowerAlivePayload *mcppap, uint32_t mcpVersion){
-    mcppap->payload[1] = ((mcpVersion << 4) & 0b11110000) | (mcppap->payload[1] & 0b00001111);
-}
-
 static inline void MCP_PowerAlive_set_sensorWorking(MCP_PowerAlivePayload *mcppap, bool sensorWorking){
-    mcppap->payload[1] = ((sensorWorking << 3) & 0b00001000) | (mcppap->payload[1] & 0b11110111);
+    mcppap->payload[1] = ((sensorWorking << 7) & 0b10000000) | (mcppap->payload[1] & 0b01111111);
 }
 
 // ================================ ENCODE ================================
 static inline void encodeMCP_PowerAlive(MCP_PowerAlivePayload *mcppap, MCP_PowerAlive *mcppa){
     MCP_PowerAlive_set_ack_number          (mcppap, mcppa->ack_number);
-    MCP_PowerAlive_set_mcpVersion          (mcppap, mcppa->mcpVersion);
     MCP_PowerAlive_set_sensorWorking       (mcppap, mcppa->sensorWorking);
 }
 
 // ================================ DECODE ================================
 static inline void decodeMCP_PowerAlive(MCP_PowerAlive *mcppa, MCP_PowerAlivePayload *mcppap){
     mcppa->ack_number    = MCP_PowerAlive_get_ack_number(mcppap);
-    mcppa->mcpVersion    = MCP_PowerAlive_get_mcpVersion(mcppap);
     mcppa->sensorWorking = MCP_PowerAlive_get_sensorWorking(mcppap);
 }
 

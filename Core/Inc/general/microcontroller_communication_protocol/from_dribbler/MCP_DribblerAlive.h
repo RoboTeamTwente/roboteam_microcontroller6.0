@@ -2,9 +2,8 @@
 /*
 [  0   ] [  1   ]
 11111111 -------- ack_number
--------- 1111---- mcpVersion
--------- ----1--- dribblerEncoderWorking
--------- -----1-- ballsensorWorking
+-------- 1------- dribblerEncoderWorking
+-------- -1------ ballsensorWorking
 */
 
 #ifndef __MCP_DRIBBLER_ALIVE_H
@@ -20,7 +19,6 @@ typedef struct _MCP_DribblerAlivePayload {
 
 typedef struct _MCP_DribblerAlive {
     uint32_t   ack_number          ; // integer [0, 255]             acknowledgements
-    uint32_t   mcpVersion          ; // integer [0, 15]              version of mcp
     bool       dribblerEncoderWorking; // integer [0, 1]               status of dribbler encoder
     bool       ballsensorWorking   ; // integer [0, 1]               status of ballsensor
 } MCP_DribblerAlive;
@@ -30,16 +28,12 @@ static inline uint32_t MCP_DribblerAlive_get_ack_number(MCP_DribblerAlivePayload
    return ((mcpdap->payload[0]));
 }
 
-static inline uint32_t MCP_DribblerAlive_get_mcpVersion(MCP_DribblerAlivePayload *mcpdap){
-   return ((mcpdap->payload[1] & 0b11110000) >> 4);
-}
-
 static inline bool MCP_DribblerAlive_get_dribblerEncoderWorking(MCP_DribblerAlivePayload *mcpdap){
-    return (mcpdap->payload[1] & 0b00001000) > 0;
+    return (mcpdap->payload[1] & 0b10000000) > 0;
 }
 
 static inline bool MCP_DribblerAlive_get_ballsensorWorking(MCP_DribblerAlivePayload *mcpdap){
-    return (mcpdap->payload[1] & 0b00000100) > 0;
+    return (mcpdap->payload[1] & 0b01000000) > 0;
 }
 
 // ================================ SETTERS ================================
@@ -47,22 +41,17 @@ static inline void MCP_DribblerAlive_set_ack_number(MCP_DribblerAlivePayload *mc
     mcpdap->payload[0] = ack_number;
 }
 
-static inline void MCP_DribblerAlive_set_mcpVersion(MCP_DribblerAlivePayload *mcpdap, uint32_t mcpVersion){
-    mcpdap->payload[1] = ((mcpVersion << 4) & 0b11110000) | (mcpdap->payload[1] & 0b00001111);
-}
-
 static inline void MCP_DribblerAlive_set_dribblerEncoderWorking(MCP_DribblerAlivePayload *mcpdap, bool dribblerEncoderWorking){
-    mcpdap->payload[1] = ((dribblerEncoderWorking << 3) & 0b00001000) | (mcpdap->payload[1] & 0b11110111);
+    mcpdap->payload[1] = ((dribblerEncoderWorking << 7) & 0b10000000) | (mcpdap->payload[1] & 0b01111111);
 }
 
 static inline void MCP_DribblerAlive_set_ballsensorWorking(MCP_DribblerAlivePayload *mcpdap, bool ballsensorWorking){
-    mcpdap->payload[1] = ((ballsensorWorking << 2) & 0b00000100) | (mcpdap->payload[1] & 0b11111011);
+    mcpdap->payload[1] = ((ballsensorWorking << 6) & 0b01000000) | (mcpdap->payload[1] & 0b10111111);
 }
 
 // ================================ ENCODE ================================
 static inline void encodeMCP_DribblerAlive(MCP_DribblerAlivePayload *mcpdap, MCP_DribblerAlive *mcpda){
     MCP_DribblerAlive_set_ack_number          (mcpdap, mcpda->ack_number);
-    MCP_DribblerAlive_set_mcpVersion          (mcpdap, mcpda->mcpVersion);
     MCP_DribblerAlive_set_dribblerEncoderWorking(mcpdap, mcpda->dribblerEncoderWorking);
     MCP_DribblerAlive_set_ballsensorWorking   (mcpdap, mcpda->ballsensorWorking);
 }
@@ -70,7 +59,6 @@ static inline void encodeMCP_DribblerAlive(MCP_DribblerAlivePayload *mcpdap, MCP
 // ================================ DECODE ================================
 static inline void decodeMCP_DribblerAlive(MCP_DribblerAlive *mcpda, MCP_DribblerAlivePayload *mcpdap){
     mcpda->ack_number    = MCP_DribblerAlive_get_ack_number(mcpdap);
-    mcpda->mcpVersion    = MCP_DribblerAlive_get_mcpVersion(mcpdap);
     mcpda->dribblerEncoderWorking= MCP_DribblerAlive_get_dribblerEncoderWorking(mcpdap);
     mcpda->ballsensorWorking= MCP_DribblerAlive_get_ballsensorWorking(mcpdap);
 }

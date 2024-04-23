@@ -15,14 +15,15 @@ void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
     // Configuration of CAN filter
     CAN_FilterTypeDef canfilterconfig;
     canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
-    canfilterconfig.FilterBank = 10;
-    canfilterconfig.FilterFIFOAssignment = CAN_RX_FIFO0;
-    canfilterconfig.FilterIdHigh = board_id << 12;
-    canfilterconfig.FilterIdLow = 0x0000;
-    canfilterconfig.FilterMaskIdHigh = 0xF000;
-    canfilterconfig.FilterMaskIdLow = 0x0000;
     canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
     canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
+    canfilterconfig.FilterBank = 10;
+    canfilterconfig.FilterFIFOAssignment = CAN_RX_FIFO0;
+    canfilterconfig.FilterIdHigh = (MCP_LOCAL_VERSION << 24) | (board_id);
+    canfilterconfig.FilterIdLow = 0x00000000;
+    canfilterconfig.FilterMaskIdHigh = 0x0F00000F;
+    canfilterconfig.FilterMaskIdLow = 0x00000000;
+
     canfilterconfig.SlaveStartFilterBank = 0;
 
     MailBox_one.empty = true;
@@ -41,7 +42,6 @@ void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
-
     CAN_RxHeaderTypeDef RxHeader;
     uint8_t RxData[8];
     memset(RxData, 0, sizeof(RxData));
@@ -58,7 +58,7 @@ void MCP_error_LOG(CAN_TxHeaderTypeDef *Header){
 
 // Function to extract command from received CAN data
 bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
-    uint16_t message_ID = Header->StdId;
+    uint32_t message_ID = Header->ExtId;
     uint8_t data[8];
     memset(data, 0, sizeof(data));
 
@@ -97,15 +97,8 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
     CAN_TxHeaderTypeDef TxHeader;
 
     TxHeader.DLC = MCP_TYPE_TO_SIZE(type);
-    uint16_t id = MCP_TYPE_TO_ID(type, receiving_board);
-    if (id == 0xFFFF) {
-        TxHeader.StdId = 0;
-        TxHeader.ExtId = id;
-    } else {
-        TxHeader.StdId = id;
-        TxHeader.ExtId = 0;
-    }
-    TxHeader.IDE = CAN_ID_STD;
+    TxHeader.ExtId = MCP_TYPE_TO_ID(type, receiving_board);
+    TxHeader.IDE = CAN_ID_EXT;
     TxHeader.RTR = CAN_RTR_DATA;
     TxHeader.TransmitGlobalTime = DISABLE;
     
@@ -113,6 +106,6 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
 }
 
 void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
-    if (CAN_TxHeader.ExtId == 0xFFFF) MCP_error_LOG(&CAN_TxHeader);
+    if (CAN_TxHeader.ExtId >> 28 == 1) MCP_error_LOG(&CAN_TxHeader);
     else if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
 }

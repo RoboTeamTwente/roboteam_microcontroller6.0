@@ -14,7 +14,6 @@ packets = {
         "from" : [board.TOP],
         "to" : [board.POWER, board.KICKER, board.DRIBBLER],
         "data" : [
-            ["mcpVersion", 4, None, "version of mcp"]
         ]
     },
     "MCP_SetDribblerSpeed" : {
@@ -56,7 +55,6 @@ packets = {
         "from" : [board.DRIBBLER],
         "to" : [board.TOP],
         "data" : [
-            ["mcpVersion", 4, None, "version of mcp"],
             ["dribblerEncoderWorking", 1, None, "status of dribbler encoder"],
             ["ballsensorWorking", 1, None, "status of ballsensor"]
         ],
@@ -73,7 +71,6 @@ packets = {
         "from" : [board.KICKER],
         "to" : [board.TOP],
         "data" : [
-            ["mcpVersion", 4, None, "version of mcp"],
             ["sensorWorking", 1, None, "capacitor voltage sensor working"]
         ],
     },
@@ -88,7 +85,6 @@ packets = {
         "from" : [board.POWER],
         "to" : [board.TOP],
         "data" : [
-            ["mcpVersion", 4, None, "version of mcp"],
             ["sensorWorking", 1, None, "voltage sensor working"]
         ]
     },
