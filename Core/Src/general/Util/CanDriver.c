@@ -196,22 +196,15 @@ void set_response_dribbler_speed_header(CAN_TxHeaderTypeDef *TxHeader){
 
 // Function to set the dribbler speed in a payload
 void set_dribbler_speed(uint8_t payload[], uint32_t dribbler_speed){
-    uint8_t *bytes = (uint8_t *)&dribbler_speed;
-    for (int i = 0; i < 4; i++) {
-        payload[i] = bytes[i];
-    }
+    payload[0] = (dribbler_speed >> 24);
+    payload[1] = (dribbler_speed >> 16);
+    payload[2] = (dribbler_speed >> 8);
+    payload[3] = dribbler_speed;
 }
 
 // Function to get the dribbler speed from a payload
 uint32_t get_dribbler_speed(uint8_t payload[4]) {
-    uint32_t dribbler_speed;
-    uint8_t *bytes = (uint8_t *)&dribbler_speed;
-
-    for (int i = 0; i < 4; i++) {
-        bytes[i] = payload[i];
-    }
-    
-    return dribbler_speed;
+    return ( ((uint32_t) (payload[0] << 24)) | (payload[1] << 16) | (payload[2] << 8) | (payload[3]));
 }
 
 // Function to set the header for "Dribbler Sees Ball" message
@@ -247,6 +240,7 @@ bool get_sensor_sees_ball(uint8_t payload[8]){
 // Function to set the header for "Dribbler I'm Alive" message
 void set_dribbler_im_alive(CAN_TxHeaderTypeDef *TxHeader){
     TxHeader->StdId = (TOP_ID << RECEIVER_ID_LOCATION) | IM_ALIVE_DRIBBLER;
+    TxHeader->DLC = 8;
 }
 
 // Function to set the dribbler state in a payload

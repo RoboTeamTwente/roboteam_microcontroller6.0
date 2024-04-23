@@ -103,6 +103,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM3_Init();
   TIM3->CCR1 = 0;
+  __HAL_TIM_SET_COUNTER(&htim2, 150);
   /* USER CODE BEGIN 2 */
   init();
   /* USER CODE END 2 */
@@ -114,7 +115,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    //loop();
+    loop();
   }
   /* USER CODE END 3 */
 }

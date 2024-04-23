@@ -48,7 +48,8 @@ void loop(){
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
 	}
-
+    HAL_Delay(500);
+    CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
 }
 
 /* ============================================= */
@@ -92,8 +93,7 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
         else if (sending_message_ID == IM_ALIVE_DRIBBLER){
             set_dribbler_im_alive(&CAN_TxHeader);
             set_MCP_version(payload);
-            set_dribbler_state(payload, true);
-            set_ballsensor_state(payload, true);
+            set_dribbler_speed(payload, __HAL_TIM_GET_COUNTER(ENC_DRIBBLER));
         }
     }
 
