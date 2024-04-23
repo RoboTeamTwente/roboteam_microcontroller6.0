@@ -10,8 +10,8 @@ volatile bool BOARD_INITIALIZED = false;
 uint64_t TxMailbox[1];
 
 // These values are set depending on weither or not the dribbler initalizes correctly, used ONLY FOR INITLIZATION
-bool dribbler_functioning_state;
-bool ballsensor_functioning_state;
+bool dribbler_functioning_state = true;
+bool ballsensor_functioning_state = true;
 
 // These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
 bool dribbler_state;
@@ -62,7 +62,6 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
             //TODO send a message or something saying that incorrect
         }
         CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
-
     }
     else if (to_Process->message_id == DRIBBLER_SPEED){
         float new_dribbler_speed = get_dribbler_sees_ball(to_Process->data_Frame);
@@ -93,8 +92,8 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
         else if (sending_message_ID == IM_ALIVE_DRIBBLER){
             set_dribbler_im_alive(&CAN_TxHeader);
             set_MCP_version(payload);
-            set_dribbler_state(payload, dribbler_functioning_state);
-            set_ballsensor_state(payload, ballsensor_functioning_state);
+            set_dribbler_state(payload, true);
+            set_ballsensor_state(payload, true);
         }
     }
 
