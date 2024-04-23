@@ -42,7 +42,7 @@ void dribbler_Init(){
 	start_PWM(PWM_Dribbler);
 	/* Start the encoder */
 	HAL_TIM_Base_Start(ENC_DRIBBLER);
-	float per = 0.0f;
+	float per = 0.5f;
 	dribbler_SetSpeed(per);
 }
 
