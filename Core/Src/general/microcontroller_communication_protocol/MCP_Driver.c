@@ -25,12 +25,15 @@ void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
     canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
     canfilterconfig.FilterBank = 10;
     canfilterconfig.FilterFIFOAssignment = CAN_RX_FIFO0;
-    canfilterconfig.FilterIdHigh = ((MCP_LOCAL_VERSION << MCP_VERSION_BIT_SHIFT) | (sending_board_id << MCP_TO_ID_BIT_SHIFT)) << 3;
-    canfilterconfig.FilterIdLow = 0x00000000;
-    canfilterconfig.FilterMaskIdHigh = (MCP_VERSION_BIT_MASK | sending_board_id) << 3;
-    canfilterconfig.FilterMaskIdLow = 0x00000000;
-
     canfilterconfig.SlaveStartFilterBank = 0;
+    uint32_t total_filter = (MCP_LOCAL_VERSION << MCP_VERSION_BIT_SHIFT) | (sending_board_id << MCP_TO_ID_BIT_SHIFT);
+    uint32_t total_mask = MCP_VERSION_BIT_MASK | MCP_TO_ID_BIT_MASK;
+    // MSB bits 28:13
+    canfilterconfig.FilterIdHigh = (total_filter & 0x1FFFE000) >> 13;
+    canfilterconfig.FilterMaskIdHigh = (total_mask & 0x1FFFE000) >> 13;
+    // LSB bits 12:0
+    canfilterconfig.FilterIdLow = (total_filter & 0x1FFF) << 3;
+    canfilterconfig.FilterMaskIdLow = (total_mask & 0x1FFF) << 3;
 
     // Mailboxes
     MailBox_one.empty = true;
