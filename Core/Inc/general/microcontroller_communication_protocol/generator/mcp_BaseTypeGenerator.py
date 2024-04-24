@@ -66,7 +66,8 @@ class BaseTypeGenerator:
             exit()
 
         file_string += self.to_constant("MCP_LOCAL_VERSION", version) + "\n"
-        file_string += self.to_constant("MCP_LARGEST_PACKET_IN_BYTES", largest_packet_in_bytes) + "\n\n"
+        file_string += self.to_constant("MCP_LARGEST_PACKET_IN_BYTES", largest_packet_in_bytes) + "\n"
+        file_string += self.to_constant("MCP_MAX_ID_PLUS_ONE", 16) + "\n\n"
 
         file_string += self.define_boards() + "\n"
 
@@ -97,7 +98,7 @@ class BaseTypeGenerator:
         return f"#define {variable_name} {value}"
 
     def type_to_id_mapping(self, type_to_id):
-        tti_string = "static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board) {\n"
+        tti_string = "static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t sending_board) {\n"
         first_round = True
 
         for b in type_to_id:
@@ -105,16 +106,24 @@ class BaseTypeGenerator:
                 tti_string += " else "
             else :
                 tti_string += indent()
-            tti_string += f"if (receiving_board == {b})" + " {\n"
+            tti_string += f"if (sending_board == {b})" + "{\n"
+            first_round = True
+            for b2 in type_to_id[b]:
+                if not first_round:
+                    tti_string += " else "
+                else :
+                    tti_string += doubleIndent()
+                tti_string += f"if (receiving_board == {b2})" + " {\n"
             
-            for id, name in type_to_id[b]:
-                tti_string += doubleIndent()
-                tti_string += f"if (type == {name})".ljust(l_just_)
+                for id, name in type_to_id[b][b2]:
+                    tti_string += tripleIndent()
+                    tti_string += f"if (type == {name})".ljust(l_just_)
 
-                tti_string += f"return {id}".ljust(l_just_) + ";\n"
+                    tti_string += f"return {id}".ljust(l_just_) + ";\n"
 
-            tti_string += indent() + "}"
-            first_round = False
+                tti_string += doubleIndent() + "}"
+                first_round = False
+            tti_string += "\n" + indent() + "}"
 
         tti_string += "\n" + indent() + "return 0x10000000;\n"
         tti_string += "\n}\n"
@@ -126,7 +135,13 @@ class BaseTypeGenerator:
         for b in board:
             VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(b.name)}_BOARD"
             db_string += self.to_constant(VARIABLE_NAME_BOARD.ljust(l_just_), b.value) + "\n"
-            type_to_id[VARIABLE_NAME_BOARD] = []
+            type_to_id[VARIABLE_NAME_BOARD] = {}
+            for b2 in board:
+                if b == b2:
+                    continue
+                VARIABLE_NAME_BOARD2 = f"MCP_{CamelCaseToUpper(b2.name)}_BOARD"
+
+                type_to_id[VARIABLE_NAME_BOARD][VARIABLE_NAME_BOARD2] = []
 
         return db_string
     
@@ -149,6 +164,32 @@ class BaseTypeGenerator:
             message_id_per_board[b] = 0
         dpp_string = ""
 
+        '''
+        message id
+        [  00  ] [  01  ] [  02  ] [  03  ]
+        111----- -------- -------- -------- RESERVED (DO NOT USE)
+        ---1---- -------- -------- -------- ERROR INDICATOR
+        ----1111 -------- -------- -------- MCP VERSION
+        -------- 11111111 -------- -------- UNUSED
+        -------- -------- 11111111 -------- MESSAGE ID
+        -------- -------- -------- 1111---- FROM ID
+        -------- -------- -------- ----1111 TO ID
+
+        the message id needs to be unique to be able to tell messages apart
+        '''
+
+        # bit shift and masks
+        dpp_string += self.to_constant("MCP_ERROR_BIT_MASK".ljust(l_just_), "0x10000000") + "\n"
+        dpp_string += self.to_constant("MCP_ERROR_BIT_SHIFT".ljust(l_just_), 28) + "\n"
+        dpp_string += self.to_constant("MCP_VERSION_BIT_MASK".ljust(l_just_), "0x0F000000") + "\n"
+        dpp_string += self.to_constant("MCP_VERSION_BIT_SHIFT".ljust(l_just_), 24) + "\n"
+        dpp_string += self.to_constant("MCP_FROM_ID_BIT_MASK".ljust(l_just_), "0x000000F0") + "\n"
+        dpp_string += self.to_constant("MCP_FROM_ID_BIT_SHIFT".ljust(l_just_), 4) + "\n"
+        dpp_string += self.to_constant("MCP_TO_ID_BIT_MASK".ljust(l_just_), "0x0000000F") + "\n"
+        dpp_string += self.to_constant("MCP_TO_ID_BIT_SHIFT".ljust(l_just_), 0) + "\n"
+
+        dpp_string += "\n"
+
         for packet_name in packets:
             total_bytes = packet_to_size_in_bytes(packets[packet_name])
             PACKET_NAME = CamelCaseToUpper(packet_name)
@@ -157,25 +198,12 @@ class BaseTypeGenerator:
             dpp_string += self.to_constant(VARIABLE_NAME_TYPE.ljust(l_just_), index) + "\n"
             index += 1
 
-            '''
-            message id
-            [  00  ] [  01  ] [  02  ] [  03  ]
-            111----- -------- -------- -------- RESERVED (DO NOT USE)
-            ---1---- -------- -------- -------- ERROR INDICATOR
-            ----1111 -------- -------- -------- MCP VERSION
-            -------- 11111111 -------- -------- UNUSED
-            -------- -------- 11111111 -------- MESSAGE ID
-            -------- -------- -------- 1111---- FROM ID
-            -------- -------- -------- ----1111 TO ID
-
-            the message id needs to be unique to be able to tell messages apart
-            '''
             for from_board in packets[packet_name]["from"]:
                 for to_board in packets[packet_name]["to"]:
                     if from_board == to_board:
                         continue
 
-                    message_id = 0b00000000000 # 11 bits, length of standard ID
+                    message_id = 0x00000000
                     message_id = message_id | (to_board.value)
                     message_id = message_id | (from_board.value << 4)
                     message_id = message_id | (message_id_per_board[to_board] << 8)
@@ -191,7 +219,8 @@ class BaseTypeGenerator:
                     VARIABLE_NAME_ID = f"MCP_PACKET_ID_{from_board.name.upper()}_TO_{to_board.name.upper()}_{PACKET_NAME}"
                     dpp_string += self.to_constant(VARIABLE_NAME_ID.ljust(l_just_), message_id_str) + "\n"
                     VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"
-                    type_to_id[VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
+                    VARIABLE_NAME_FROM_BOARD = f"MCP_{CamelCaseToUpper(from_board.name)}_BOARD"
+                    type_to_id[VARIABLE_NAME_FROM_BOARD][VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
 
             # size
             VARIABLE_NAME_SIZE = f"MCP_PACKET_SIZE_{PACKET_NAME}"

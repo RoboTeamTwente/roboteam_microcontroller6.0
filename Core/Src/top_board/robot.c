@@ -196,7 +196,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	sds.speed = robotCommand->dribbler;
 	MCP_SetDribblerSpeedPayload sdsp = {0};
 	encodeMCP_SetDribblerSpeed(&sdsp, &sds);
-	MCP_Send_Message(&hcan1, sdsp.payload, setDribblerSpeedHeader);
+	MCP_Send_Message(&hcan1, sdsp.payload, setDribblerSpeedHeader, MCP_DRIBBLER_BOARD);
 	
 	if (seesBall.ballsensorSeesBall || robotCommand->doForce) {	
 		if (robotCommand->doChip) {
@@ -204,13 +204,13 @@ void executeCommands(REM_RobotCommand* robotCommand){
 			chip.shootPower = robotCommand->kickChipPower;
 			MCP_ChipPayload cp = {0};
 			encodeMCP_Chip(&cp, &chip);
-			MCP_Send_Message(&hcan1, cp.payload, chipHeader);
+			MCP_Send_Message(&hcan1, cp.payload, chipHeader, MCP_KICKER_BOARD);
 		} else if (robotCommand->doKick) {
 			MCP_Kick kick = {0};
 			kick.shootPower = robotCommand->kickChipPower;
 			MCP_KickPayload kp = {0};
 			encodeMCP_Kick(&kp, &kick);
-			MCP_Send_Message(&hcan1, kp.payload, kickHeader);
+			MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
 		} else if (robotCommand->kickAtAngle) {
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
@@ -219,7 +219,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 				kick.shootPower = robotCommand->kickChipPower;
 				MCP_KickPayload kp = {0};
 				encodeMCP_Kick(&kp, &kick);
-				MCP_Send_Message(&hcan1, kp.payload, kickHeader);
+				MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
 			}
 		}
 	}
@@ -496,7 +496,6 @@ void init(void){
 	set_Pin(LED4_pin, 1);
 
 {
-	LOG("[init:"STRINGIZE(__LINE__)"] Initialized\n");
 
 	// Check if we are in test mode. If so, sound an alarm
 	if(TEST_MODE) {
@@ -521,6 +520,7 @@ void init(void){
 {	// ====== MCP =====
   	//initialize MCP
 	MCP_Init(&hcan1, MCP_TOP_BOARD);
+	LOG_printf("[init:"STRINGIZE(__LINE__)"] CAN VERSION: %d\n", MCP_LOCAL_VERSION);
 	
 	//initialize headers
 	areYouAliveHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_POWER_BOARD);
@@ -556,6 +556,8 @@ void init(void){
 }
 	
 	set_Pin(LED6_pin, 1);
+
+	LOG("[init:"STRINGIZE(__LINE__)"] Initialized\n");
 
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
 	// SX1280 section 10.7 Transceiver Circuit Modes Graphical Illustration
@@ -607,7 +609,7 @@ void check_otherboards(CAN_TxHeaderTypeDef board_header, bool board_state, MCP_A
 	uint8_t MAX_ATTEMPTS = 0;
 	while (MAX_ATTEMPTS < 3 && board_state == false) {
 		MAX_ATTEMPTS++;
-		MCP_Send_Message(&hcan1, board_payload, board_header);
+		MCP_Send_Message_Always(&hcan1, board_payload, board_header);
 		HAL_Delay(10);
 		if (MCP_to_process){
 			if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);

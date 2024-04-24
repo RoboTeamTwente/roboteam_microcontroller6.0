@@ -78,7 +78,8 @@ void loop() {
 			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX;
 		}
 		encodeMCP_PowerVoltage(&pvp, &pv);
-		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader);
+		//MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
+		MCP_Send_Message_Always(&hcan, pvp.payload, powerVoltageHeader);
 
     	heartbeat_10000ms = current_time + 10000;
     }
@@ -101,7 +102,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		MCP_PowerAlivePayload pap = {0};
 		pa.sensorWorking = false;
 		encodeMCP_PowerAlive(&pap, &pa);
-		MCP_Send_Message(&hcan, pap.payload, powerAliveHeader);
+		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeader);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
 	}

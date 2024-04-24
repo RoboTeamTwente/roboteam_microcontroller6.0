@@ -22,7 +22,8 @@ extern bool MCP_to_process;
 
 void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id);
 bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header);
-void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader);
+void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader, uint8_t to_board);
+void MCP_Send_Message_Always(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader);
 CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board);
 void MCP_error_LOG(CAN_TxHeaderTypeDef *Header);
 
