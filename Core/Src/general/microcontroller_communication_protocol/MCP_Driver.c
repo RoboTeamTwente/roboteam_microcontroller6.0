@@ -156,12 +156,18 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
         uint8_t from_board = (message_ID & MCP_FROM_ID_BIT_MASK) >> MCP_FROM_ID_BIT_SHIFT;
         uint8_t received_number = data[0];
         if (ack_numbers[from_board] == received_number) {
+            ack_numbers[from_board] = (ack_numbers[from_board] + 1) % 0xFF;
             free_to_send[from_board] = true;
         }
 
         free(data);
         return false;
     }
+
+    if (MCP_ID_IS_TYPE_ALIVE(message_ID)) {
+        uint8_t from_board = (message_ID & MCP_FROM_ID_BIT_MASK) >> MCP_FROM_ID_BIT_SHIFT;
+        free_to_send[from_board] = true;
+    } 
 
     // Check and store the command in the appropriate mailbox
     if(MailBox_one.empty){

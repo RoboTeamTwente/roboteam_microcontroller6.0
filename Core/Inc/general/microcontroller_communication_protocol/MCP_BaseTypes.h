@@ -78,6 +78,10 @@
 #define MCP_PACKET_RANGE_MCP_KICK_ACK_NUMBER_MAX                                    255
 #define MCP_PACKET_RANGE_MCP_KICK_SHOOT_POWER_MIN                                   0.0000000000000000F
 #define MCP_PACKET_RANGE_MCP_KICK_SHOOT_POWER_MAX                                   6.5000000000000000F
+#define MCP_PACKET_RANGE_MCP_KICK_DO_FORCE_MIN                                      0
+#define MCP_PACKET_RANGE_MCP_KICK_DO_FORCE_MAX                                      1
+#define MCP_PACKET_RANGE_MCP_KICK_ON_SEES_BALL_MIN                                  0
+#define MCP_PACKET_RANGE_MCP_KICK_ON_SEES_BALL_MAX                                  1
 
 #define MCP_PACKET_TYPE_MCP_CHIP                                                    6
 #define MCP_PACKET_ID_TOP_TO_KICKER_MCP_CHIP                                        0x01000707
@@ -86,9 +90,15 @@
 #define MCP_PACKET_RANGE_MCP_CHIP_ACK_NUMBER_MAX                                    255
 #define MCP_PACKET_RANGE_MCP_CHIP_SHOOT_POWER_MIN                                   0.0000000000000000F
 #define MCP_PACKET_RANGE_MCP_CHIP_SHOOT_POWER_MAX                                   6.5000000000000000F
+#define MCP_PACKET_RANGE_MCP_CHIP_DO_FORCE_MIN                                      0
+#define MCP_PACKET_RANGE_MCP_CHIP_DO_FORCE_MAX                                      1
+#define MCP_PACKET_RANGE_MCP_CHIP_ON_SEES_BALL_MIN                                  0
+#define MCP_PACKET_RANGE_MCP_CHIP_ON_SEES_BALL_MAX                                  1
 
 #define MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE                                          7
 #define MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE                            0x01000340
+#define MCP_PACKET_ID_DRIBBLER_TO_KICKER_MCP_DRIBBLER_ALIVE                         0x01000847
+#define MCP_PACKET_ID_DRIBBLER_TO_POWER_MCP_DRIBBLER_ALIVE                          0x0100044f
 #define MCP_PACKET_SIZE_MCP_DRIBBLER_ALIVE                                          2
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ALIVE_ACK_NUMBER_MIN                          0
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ALIVE_ACK_NUMBER_MAX                          255
@@ -109,6 +119,8 @@
 
 #define MCP_PACKET_TYPE_MCP_KICKER_ALIVE                                            9
 #define MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_ALIVE                                0x01000570
+#define MCP_PACKET_ID_KICKER_TO_DRIBBLER_MCP_KICKER_ALIVE                           0x01000574
+#define MCP_PACKET_ID_KICKER_TO_POWER_MCP_KICKER_ALIVE                              0x0100057f
 #define MCP_PACKET_SIZE_MCP_KICKER_ALIVE                                            2
 #define MCP_PACKET_RANGE_MCP_KICKER_ALIVE_ACK_NUMBER_MIN                            0
 #define MCP_PACKET_RANGE_MCP_KICKER_ALIVE_ACK_NUMBER_MAX                            255
@@ -125,6 +137,8 @@
 
 #define MCP_PACKET_TYPE_MCP_POWER_ALIVE                                             11
 #define MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE                                  0x010007f0
+#define MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_ALIVE                             0x010006f4
+#define MCP_PACKET_ID_POWER_TO_KICKER_MCP_POWER_ALIVE                               0x010009f7
 #define MCP_PACKET_SIZE_MCP_POWER_ALIVE                                             2
 #define MCP_PACKET_RANGE_MCP_POWER_ALIVE_ACK_NUMBER_MIN                             0
 #define MCP_PACKET_RANGE_MCP_POWER_ALIVE_ACK_NUMBER_MAX                             255
@@ -133,7 +147,7 @@
 
 #define MCP_PACKET_TYPE_MCP_POWER_VOLTAGE                                           12
 #define MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_VOLTAGE                                0x010008f0
-#define MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_VOLTAGE                           0x010005f4
+#define MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_VOLTAGE                           0x010007f4
 #define MCP_PACKET_SIZE_MCP_POWER_VOLTAGE                                           2
 #define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_ACK_NUMBER_MIN                           0
 #define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_ACK_NUMBER_MAX                           255
@@ -141,7 +155,7 @@
 #define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX                  30.0000000000000000F
 
 #define MCP_PACKET_TYPE_MCP_KILL                                                    13
-#define MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL                                         0x0100040f
+#define MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL                                         0x0100060f
 #define MCP_PACKET_SIZE_MCP_KILL                                                    1
 #define MCP_PACKET_RANGE_MCP_KILL_ACK_NUMBER_MIN                                    0
 #define MCP_PACKET_RANGE_MCP_KILL_ACK_NUMBER_MAX                                    255
@@ -153,6 +167,14 @@
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_ACK_NUMBER_MAX                        255
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_VALUE_MIN                             0.0000000000000000F
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_VALUE_MAX                             5000.0000000000000000F
+
+#define MCP_PACKET_TYPE_MCP_STOP_SENDING                                            15
+#define MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_STOP_SENDING                              0x01000804
+#define MCP_PACKET_ID_TOP_TO_KICKER_MCP_STOP_SENDING                                0x01000a07
+#define MCP_PACKET_ID_TOP_TO_POWER_MCP_STOP_SENDING                                 0x0100070f
+#define MCP_PACKET_SIZE_MCP_STOP_SENDING                                            1
+#define MCP_PACKET_RANGE_MCP_STOP_SENDING_ACK_NUMBER_MIN                            0
+#define MCP_PACKET_RANGE_MCP_STOP_SENDING_ACK_NUMBER_MAX                            255
 
 
 static uint8_t MCP_TYPE_TO_SIZE(uint16_t type) {
@@ -171,6 +193,7 @@ static uint8_t MCP_TYPE_TO_SIZE(uint16_t type) {
     if (type == MCP_PACKET_TYPE_MCP_POWER_VOLTAGE)                             return MCP_PACKET_SIZE_MCP_POWER_VOLTAGE;
     if (type == MCP_PACKET_TYPE_MCP_KILL)                                      return MCP_PACKET_SIZE_MCP_KILL;
     if (type == MCP_PACKET_TYPE_MCP_DRIBBLER_ENCODER)                          return MCP_PACKET_SIZE_MCP_DRIBBLER_ENCODER;
+    if (type == MCP_PACKET_TYPE_MCP_STOP_SENDING)                              return MCP_PACKET_SIZE_MCP_STOP_SENDING;
     return 1;
 }
 
@@ -180,6 +203,7 @@ static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t s
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ACK                               ;
             if (type == MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE)                             return MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ARE_YOU_ALIVE                     ;
             if (type == MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED)                        return MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_SET_DRIBBLER_SPEED                ;
+            if (type == MCP_PACKET_TYPE_MCP_STOP_SENDING)                              return MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_STOP_SENDING                      ;
         } else if (receiving_board == MCP_KICKER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_TOP_TO_KICKER_MCP_ACK                                 ;
             if (type == MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE)                             return MCP_PACKET_ID_TOP_TO_KICKER_MCP_ARE_YOU_ALIVE                       ;
@@ -187,10 +211,12 @@ static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t s
             if (type == MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE)                        return MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_STOP_CHARGE                  ;
             if (type == MCP_PACKET_TYPE_MCP_KICK)                                      return MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICK                                ;
             if (type == MCP_PACKET_TYPE_MCP_CHIP)                                      return MCP_PACKET_ID_TOP_TO_KICKER_MCP_CHIP                                ;
+            if (type == MCP_PACKET_TYPE_MCP_STOP_SENDING)                              return MCP_PACKET_ID_TOP_TO_KICKER_MCP_STOP_SENDING                        ;
         } else if (receiving_board == MCP_POWER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_TOP_TO_POWER_MCP_ACK                                  ;
             if (type == MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE)                             return MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE                        ;
             if (type == MCP_PACKET_TYPE_MCP_KILL)                                      return MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL                                 ;
+            if (type == MCP_PACKET_TYPE_MCP_STOP_SENDING)                              return MCP_PACKET_ID_TOP_TO_POWER_MCP_STOP_SENDING                         ;
         }
     } else if (sending_board == MCP_DRIBBLER_BOARD){
         if (receiving_board == MCP_TOP_BOARD) {
@@ -200,8 +226,10 @@ static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t s
             if (type == MCP_PACKET_TYPE_MCP_DRIBBLER_ENCODER)                          return MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ENCODER                  ;
         } else if (receiving_board == MCP_KICKER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_DRIBBLER_TO_KICKER_MCP_ACK                            ;
+            if (type == MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE)                            return MCP_PACKET_ID_DRIBBLER_TO_KICKER_MCP_DRIBBLER_ALIVE                 ;
         } else if (receiving_board == MCP_POWER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_DRIBBLER_TO_POWER_MCP_ACK                             ;
+            if (type == MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE)                            return MCP_PACKET_ID_DRIBBLER_TO_POWER_MCP_DRIBBLER_ALIVE                  ;
         }
     } else if (sending_board == MCP_KICKER_BOARD){
         if (receiving_board == MCP_TOP_BOARD) {
@@ -210,8 +238,10 @@ static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t s
             if (type == MCP_PACKET_TYPE_MCP_KICKER_CAPACITOR_VOLTAGE)                  return MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE            ;
         } else if (receiving_board == MCP_DRIBBLER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_KICKER_TO_DRIBBLER_MCP_ACK                            ;
+            if (type == MCP_PACKET_TYPE_MCP_KICKER_ALIVE)                              return MCP_PACKET_ID_KICKER_TO_DRIBBLER_MCP_KICKER_ALIVE                   ;
         } else if (receiving_board == MCP_POWER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_KICKER_TO_POWER_MCP_ACK                               ;
+            if (type == MCP_PACKET_TYPE_MCP_KICKER_ALIVE)                              return MCP_PACKET_ID_KICKER_TO_POWER_MCP_KICKER_ALIVE                      ;
         }
     } else if (sending_board == MCP_POWER_BOARD){
         if (receiving_board == MCP_TOP_BOARD) {
@@ -220,9 +250,11 @@ static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t s
             if (type == MCP_PACKET_TYPE_MCP_POWER_VOLTAGE)                             return MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_VOLTAGE                        ;
         } else if (receiving_board == MCP_DRIBBLER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_ACK                             ;
+            if (type == MCP_PACKET_TYPE_MCP_POWER_ALIVE)                               return MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_ALIVE                     ;
             if (type == MCP_PACKET_TYPE_MCP_POWER_VOLTAGE)                             return MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_VOLTAGE                   ;
         } else if (receiving_board == MCP_KICKER_BOARD) {
             if (type == MCP_PACKET_TYPE_MCP_ACK)                                       return MCP_PACKET_ID_POWER_TO_KICKER_MCP_ACK                               ;
+            if (type == MCP_PACKET_TYPE_MCP_POWER_ALIVE)                               return MCP_PACKET_ID_POWER_TO_KICKER_MCP_POWER_ALIVE                       ;
         }
     }
     return 0x10000000;
@@ -250,8 +282,14 @@ static bool MCP_ID_IS_TYPE_ALIVE(uint32_t id) {
     if (id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_ARE_YOU_ALIVE) return true;
     if (id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ARE_YOU_ALIVE) return true;
     if (id == MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_DRIBBLER_TO_KICKER_MCP_DRIBBLER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_DRIBBLER_TO_POWER_MCP_DRIBBLER_ALIVE) return true;
     if (id == MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_KICKER_TO_DRIBBLER_MCP_KICKER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_KICKER_TO_POWER_MCP_KICKER_ALIVE) return true;
     if (id == MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_POWER_TO_KICKER_MCP_POWER_ALIVE) return true;
     return false; 
 }
 

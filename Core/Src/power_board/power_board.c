@@ -10,7 +10,9 @@ void kill();
 void MCP_Process_Message(mailbox_buffer *to_Process);
 
 //Outgoing MCP headers
-CAN_TxHeaderTypeDef powerAliveHeader = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToTop = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
 CAN_TxHeaderTypeDef powerVoltageHeader = {0};
 
 //Incoming MCP payload
@@ -28,7 +30,9 @@ void init() {
 
 	// MCP
 	MCP_Init(&hcan, MCP_POWER_BOARD);
-	powerAliveHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_TOP_BOARD);
+	powerAliveHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_TOP_BOARD);
+	powerAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_KICKER_BOARD);
+	powerAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_DRIBBLER_BOARD);
 	powerVoltageHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_VOLTAGE, MCP_TOP_BOARD);
 	
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
@@ -102,7 +106,9 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		MCP_PowerAlivePayload pap = {0};
 		pa.sensorWorking = false;
 		encodeMCP_PowerAlive(&pap, &pa);
-		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeader);
+		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
+		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
+		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();

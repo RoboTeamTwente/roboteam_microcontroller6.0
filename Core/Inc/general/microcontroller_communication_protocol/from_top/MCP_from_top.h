@@ -10,4 +10,5 @@
 #include "MCP_Kick.h"
 #include "MCP_Chip.h"
 #include "MCP_Kill.h"
+#include "MCP_StopSending.h"
 #endif /* __MCP_FROM_TOP_H */

@@ -41,19 +41,23 @@ packets = {
         "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
-            ["shootPower", 4, [0, 6.5], "desired speed of the ball"]
+            ["shootPower", 4, [0, 6.5], "desired speed of the ball"],
+            ["doForce", 1, None, "always kick"],
+            ["onSeesBall", 1, None, "kick once robot sees ball"],
         ]
     },
     "MCP_Chip" : {
         "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
-            ["shootPower", 4, [0, 6.5], "desired speed of the ball"]
+            ["shootPower", 4, [0, 6.5], "desired speed of the ball"],
+            ["doForce", 1, None, "always chip"],
+            ["onSeesBall", 1, None, "chip once robot sees ball"]
         ]
     },
     "MCP_DribblerAlive" : {
         "from" : [board.DRIBBLER],
-        "to" : [board.TOP],
+        "to" : [board.TOP, board.KICKER, board.POWER],
         "data" : [
             ["dribblerEncoderWorking", 1, None, "status of dribbler encoder"],
             ["ballsensorWorking", 1, None, "status of ballsensor"]
@@ -69,7 +73,7 @@ packets = {
     },
     "MCP_KickerAlive" : {
         "from" : [board.KICKER],
-        "to" : [board.TOP],
+        "to" : [board.TOP, board.DRIBBLER, board.POWER],
         "data" : [
             ["sensorWorking", 1, None, "capacitor voltage sensor working"]
         ],
@@ -83,7 +87,7 @@ packets = {
     },
     "MCP_PowerAlive" : {
         "from" : [board.POWER],
-        "to" : [board.TOP],
+        "to" : [board.TOP, board.DRIBBLER, board.KICKER],
         "data" : [
             ["sensorWorking", 1, None, "voltage sensor working"]
         ]
@@ -108,6 +112,11 @@ packets = {
         "data" : [
             ["value", 16, [0, 5000.0], "Dribbler speed"],
         ]
+    },
+    "MCP_StopSending" : {
+        "from" : [board.TOP],
+        "to" : [board.DRIBBLER, board.KICKER, board.POWER],
+        "data" : []
     }
 }
 

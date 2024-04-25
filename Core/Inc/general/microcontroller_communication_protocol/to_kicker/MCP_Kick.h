@@ -3,6 +3,8 @@
 [  0   ] [  1   ]
 11111111 -------- ack_number
 -------- 1111---- shootPower
+-------- ----1--- doForce
+-------- -----1-- onSeesBall
 */
 
 #ifndef __MCP_KICK_H
@@ -19,6 +21,8 @@ typedef struct _MCP_KickPayload {
 typedef struct _MCP_Kick {
     uint32_t   ack_number          ; // integer [0, 255]             acknowledgements
     float      shootPower          ; // float   [0.000, 6.500]       desired speed of the ball
+    bool       doForce             ; // integer [0, 1]               always kick
+    bool       onSeesBall          ; // integer [0, 1]               kick once robot sees ball
 } MCP_Kick;
 
 // ================================ GETTERS ================================
@@ -31,6 +35,14 @@ static inline float MCP_Kick_get_shootPower(MCP_KickPayload *mcpkp){
     return (_shootPower * 0.4333333333333333F);
 }
 
+static inline bool MCP_Kick_get_doForce(MCP_KickPayload *mcpkp){
+    return (mcpkp->payload[1] & 0b00001000) > 0;
+}
+
+static inline bool MCP_Kick_get_onSeesBall(MCP_KickPayload *mcpkp){
+    return (mcpkp->payload[1] & 0b00000100) > 0;
+}
+
 // ================================ SETTERS ================================
 static inline void MCP_Kick_set_ack_number(MCP_KickPayload *mcpkp, uint32_t ack_number){
     mcpkp->payload[0] = ack_number;
@@ -41,16 +53,28 @@ static inline void MCP_Kick_set_shootPower(MCP_KickPayload *mcpkp, float shootPo
     mcpkp->payload[1] = ((_shootPower << 4) & 0b11110000) | (mcpkp->payload[1] & 0b00001111);
 }
 
+static inline void MCP_Kick_set_doForce(MCP_KickPayload *mcpkp, bool doForce){
+    mcpkp->payload[1] = ((doForce << 3) & 0b00001000) | (mcpkp->payload[1] & 0b11110111);
+}
+
+static inline void MCP_Kick_set_onSeesBall(MCP_KickPayload *mcpkp, bool onSeesBall){
+    mcpkp->payload[1] = ((onSeesBall << 2) & 0b00000100) | (mcpkp->payload[1] & 0b11111011);
+}
+
 // ================================ ENCODE ================================
 static inline void encodeMCP_Kick(MCP_KickPayload *mcpkp, MCP_Kick *mcpk){
     MCP_Kick_set_ack_number          (mcpkp, mcpk->ack_number);
     MCP_Kick_set_shootPower          (mcpkp, mcpk->shootPower);
+    MCP_Kick_set_doForce             (mcpkp, mcpk->doForce);
+    MCP_Kick_set_onSeesBall          (mcpkp, mcpk->onSeesBall);
 }
 
 // ================================ DECODE ================================
 static inline void decodeMCP_Kick(MCP_Kick *mcpk, MCP_KickPayload *mcpkp){
     mcpk->ack_number     = MCP_Kick_get_ack_number(mcpkp);
     mcpk->shootPower     = MCP_Kick_get_shootPower(mcpkp);
+    mcpk->doForce        = MCP_Kick_get_doForce(mcpkp);
+    mcpk->onSeesBall     = MCP_Kick_get_onSeesBall(mcpkp);
 }
 
 #endif /*__MCP_KICK_H*/

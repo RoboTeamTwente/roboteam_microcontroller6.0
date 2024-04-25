@@ -5,5 +5,8 @@
 #include "MCP_Ack.h"
 #include "MCP_AreYouAlive.h"
 #include "MCP_SetDribblerSpeed.h"
+#include "MCP_KickerAlive.h"
+#include "MCP_PowerAlive.h"
 #include "MCP_PowerVoltage.h"
+#include "MCP_StopSending.h"
 #endif /* __MCP_TO_DRIBBLER_H */
