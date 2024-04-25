@@ -2,6 +2,8 @@
 
 /////////////////////////////////////////// VARIABLES
 
+bool ready_to_receive = false;
+
 // Definition of mailbox buffers
 mailbox_buffer MailBox_one;
 mailbox_buffer MailBox_two;
@@ -72,7 +74,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
 
     // Extract and process the received command
-    MCP_to_process = extract_command(RxData, &RxHeader);
+    if (ready_to_receive) {
+        MCP_to_process = extract_command(RxData, &RxHeader);
+    }
 }
 
 /**
@@ -128,6 +132,10 @@ void MCP_Send_Ack(CAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t
     MCP_AckPayload ack_payload = {0};
     encodeMCP_Ack(&ack_payload, &ack);
     MCP_Send_Message_Always(hcan, ack_payload.payload, TxHeader);
+}
+
+void MCP_SetReadyToReceive(bool b) {
+    ready_to_receive = b;
 }
 
 /////////////////////////////////////////// PRIVATE FUNCTION IMPEMENTATIONS

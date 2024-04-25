@@ -124,7 +124,7 @@ SX1280_Interface SX_Interface = {.SPI= COMM_SPI, .TXbuf= SX_TX_buffer, .RXbuf= S
 
 
 void updateTestCommand(REM_RobotCommand* rc, uint32_t time);
-void check_otherboards(CAN_TxHeaderTypeDef board_header, bool board_state, MCP_AreYouAlivePayload* board_payload);
+void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload);
 
 /* ============================================================ */
 /* ==================== WIRELESS CALLBACKS ==================== */
@@ -522,8 +522,8 @@ void init(void){
 	speaker_Stop();
 
 	// Play RobotID
-	HAL_Delay(50);
 	buzzer_Play_ID(ROBOT_ID);
+	HAL_Delay(1500);
 
 
 {	// ====== MCP =====
@@ -545,18 +545,20 @@ void init(void){
 	ackToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_DRIBBLER_BOARD);
 	ackToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_KICKER_BOARD);
 
+	MCP_SetReadyToReceive(true);
+
 	//check if communication with other boards is working
 	MCP_AreYouAlive areYouAlive = {0};
 	MCP_AreYouAlivePayload ayap = {0};
 	encodeMCP_AreYouAlive(&ayap, &areYouAlive);
 
-	check_otherboards(areYouAliveHeaderToPower, flag_PowerBoard_alive, &ayap);
+	check_otherboards(areYouAliveHeaderToPower, &flag_PowerBoard_alive, &ayap);
 	if (!flag_PowerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Powerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(areYouAliveHeaderToKicker, flag_DribblerBoard_alive, &ayap);
+	check_otherboards(areYouAliveHeaderToKicker, &flag_DribblerBoard_alive, &ayap);
 	if (!flag_DribblerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Dribblerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(areYouAliveHeaderToDribbler, flag_KickerBoard_alive, &ayap);
+	check_otherboards(areYouAliveHeaderToDribbler, &flag_KickerBoard_alive, &ayap);
 	if (!flag_KickerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Kickerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
 	if (!(flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive)) {
@@ -615,13 +617,13 @@ uint8_t robot_get_Channel() {
 	return ROBOT_CHANNEL == YELLOW_CHANNEL ? 0 : 1;
 }
 
-void check_otherboards(CAN_TxHeaderTypeDef board_header, bool board_state, MCP_AreYouAlivePayload* board_payload) {
+void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload) {
 
 	//We check if the board is alive three times, which means we send the message thrice
 	uint8_t MAX_ATTEMPTS = 0;
-	while (MAX_ATTEMPTS < 3 && board_state == false) {
+	while (MAX_ATTEMPTS < 3 && *board_state == false) {
 		MAX_ATTEMPTS++;
-		MCP_Send_Message_Always(&hcan1, board_payload, board_header);
+		MCP_Send_Message_Always(&hcan1, &board_payload, board_header);
 		HAL_Delay(10);
 		if (MCP_to_process){
 			if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);

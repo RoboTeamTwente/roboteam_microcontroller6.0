@@ -8,6 +8,7 @@ uint32_t heartbeat_10000ms = 0;
 
 void kill();
 void MCP_Process_Message(mailbox_buffer *to_Process);
+void MCP_Send_Im_Alive();
 
 //Outgoing MCP headers
 CAN_TxHeaderTypeDef powerAliveHeaderToTop = {0};
@@ -34,6 +35,9 @@ void init() {
 	powerAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_KICKER_BOARD);
 	powerAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_DRIBBLER_BOARD);
 	powerVoltageHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_VOLTAGE, MCP_TOP_BOARD);
+
+	MCP_SetReadyToReceive(true);
+	MCP_Send_Im_Alive();
 	
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
@@ -102,13 +106,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 	if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE) {
 		MCP_AreYouAlivePayload* ayap = (MCP_AreYouAlivePayload*) to_Process->data_Frame;
 		decodeMCP_AreYouAlive(&areYouAlive, ayap);
-		MCP_PowerAlive pa = {0};
-		MCP_PowerAlivePayload pap = {0};
-		pa.sensorWorking = false;
-		encodeMCP_PowerAlive(&pap, &pa);
-		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
-		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
-		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
+		MCP_Send_Im_Alive();
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
@@ -119,4 +117,14 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;
+}
+
+void MCP_Send_Im_Alive() {
+	MCP_PowerAlive pa = {0};
+	MCP_PowerAlivePayload pap = {0};
+	pa.sensorWorking = false;
+	encodeMCP_PowerAlive(&pap, &pa);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
 }
