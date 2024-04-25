@@ -229,4 +229,30 @@ static uint32_t MCP_TYPE_TO_ID(uint16_t type, uint8_t receiving_board, uint8_t s
 
 }
 
-#endif /*__MCP_BASETYPES_H*/
+static bool MCP_ID_IS_TYPE_ACK(uint32_t id) {
+    if (id == MCP_PACKET_ID_POWER_TO_KICKER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_POWER_TO_TOP_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_KICKER_TO_POWER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_KICKER_TO_DRIBBLER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_KICKER_TO_TOP_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_DRIBBLER_TO_POWER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_DRIBBLER_TO_KICKER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_ACK) return true;
+    if (id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ACK) return true;
+    return false; 
+}
+
+static bool MCP_ID_IS_TYPE_ALIVE(uint32_t id) {
+    if (id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE) return true;
+    if (id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_ARE_YOU_ALIVE) return true;
+    if (id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ARE_YOU_ALIVE) return true;
+    if (id == MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_ALIVE) return true;
+    if (id == MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE) return true;
+    return false; 
+}
+
+#endif /* __MCP_BASETYPES_H */

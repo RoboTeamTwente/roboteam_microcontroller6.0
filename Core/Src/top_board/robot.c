@@ -30,6 +30,9 @@ CAN_TxHeaderTypeDef kickerChargeHeader = {0};
 CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
 CAN_TxHeaderTypeDef killHeader = {0};
 CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
+CAN_TxHeaderTypeDef ackToPower = {0};
+CAN_TxHeaderTypeDef ackToDribbler = {0};
+CAN_TxHeaderTypeDef ackToKicker = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
@@ -281,21 +284,25 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 void MCP_Process_Message(mailbox_buffer *to_Process) {
 	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
 	LOG_printf("[CAN] message id: %u\n", to_Process->message_id);
+	bool send_ack = true;
 	switch (to_Process->message_id) {
 		case MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE: ;
 			MCP_PowerAlivePayload* pap = (MCP_PowerAlivePayload*) to_Process->data_Frame;
 			decodeMCP_PowerAlive(&powerAlive, pap);
 			flag_PowerBoard_alive = true;
+			send_ack = false;
 			break;
 		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE: ;
 			MCP_DribblerAlivePayload* dap = (MCP_DribblerAlivePayload*) to_Process->data_Frame;
 			decodeMCP_DribblerAlive(&dribblerAlive, dap);
 			flag_DribblerBoard_alive = true;
+			send_ack = false;
 			break;
 		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_ALIVE: ;
 			MCP_KickerAlivePayload* kap = (MCP_KickerAlivePayload*) to_Process->data_Frame;
 			decodeMCP_KickerAlive(&kickerAlive, kap);
 			flag_KickerBoard_alive = true;
+			send_ack = false;
 			break;
 		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
 			MCP_KickerCapacitorVoltagePayload* kcvp = (MCP_KickerCapacitorVoltagePayload*) to_Process->data_Frame;
@@ -310,6 +317,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			decodeMCP_SeesBall(&seesBall, spb);
 			break;		
 	}
+
+	if (send_ack) MCP_Send_Ack(&hcan1, to_Process->data_Frame[0], to_Process->message_id);
 
 	LOG_sendAll();
 	to_Process->empty = true;
@@ -469,28 +478,28 @@ void init(void){
 	Check whether the MTi is already intialized.
 	If the 3rd and 4th bit of the statusword are non-zero, then the initializion hasn't completed yet.
 	*/
-	// while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
-	// 	MTi = MTi_Init(1, XFP_VRU_general);
-	// 	if (!TEST_MODE) IWDG_Refresh(iwdg);
+	while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
+		MTi = MTi_Init(1, XFP_VRU_general);
+		if (!TEST_MODE) IWDG_Refresh(iwdg);
 
 
-	// 	if (MTi_made_init_attempts > 0) {
-	// 		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
-	// 	}
-	// 	MTi_made_init_attempts += 1;
-	// 	LOG_sendAll();
+		if (MTi_made_init_attempts > 0) {
+			LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi in attempt %d out of %d\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
+		}
+		MTi_made_init_attempts += 1;
+		LOG_sendAll();
 
-	// 	// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
-	// 	HAL_Delay(1100);
-	// }
+		// The MTi is allowed to take 1 second per attempt. Hence we wait a bit more and then check again whether the initialization succeeded.
+		HAL_Delay(1100);
+	}
 
-	// // If after the maximum number of attempts the calibration still failed, play a warning sound... :(
-	// if (MTi == NULL || (MTi->statusword & (0x18)) != 0) {
-	// 	LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
-	// 	buzzer_Play_WarningOne();
-	// 	HAL_Delay(1500); // The duration of the sound
-	// }
-	// LOG_sendAll();
+	// If after the maximum number of attempts the calibration still failed, play a warning sound... :(
+	if (MTi == NULL || (MTi->statusword & (0x18)) != 0) {
+		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
+		buzzer_Play_WarningOne();
+		HAL_Delay(1500); // The duration of the sound
+	}
+	LOG_sendAll();
 }
 	
 	set_Pin(LED4_pin, 1);
@@ -532,7 +541,10 @@ void init(void){
 	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
 	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
 	setDribblerSpeedHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
-	
+	ackToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_POWER_BOARD);
+	ackToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_DRIBBLER_BOARD);
+	ackToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_KICKER_BOARD);
+
 	//check if communication with other boards is working
 	MCP_AreYouAlive areYouAlive = {0};
 	MCP_AreYouAlivePayload ayap = {0};

@@ -78,8 +78,7 @@ void loop() {
 			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX;
 		}
 		encodeMCP_PowerVoltage(&pvp, &pv);
-		//MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
-		MCP_Send_Message_Always(&hcan, pvp.payload, powerVoltageHeader);
+		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
 
     	heartbeat_10000ms = current_time + 10000;
     }
@@ -94,18 +93,22 @@ void loop() {
  */
 void MCP_Process_Message(mailbox_buffer *to_Process){
 
+	bool send_ack = true;
+
 	if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE) {
 		MCP_AreYouAlivePayload* ayap = (MCP_AreYouAlivePayload*) to_Process->data_Frame;
 		decodeMCP_AreYouAlive(&areYouAlive, ayap);
-		//TODO what if wrong version
 		MCP_PowerAlive pa = {0};
 		MCP_PowerAlivePayload pap = {0};
 		pa.sensorWorking = false;
 		encodeMCP_PowerAlive(&pap, &pa);
 		MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeader);
+		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
 	}
+
+	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);
 	
 	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;

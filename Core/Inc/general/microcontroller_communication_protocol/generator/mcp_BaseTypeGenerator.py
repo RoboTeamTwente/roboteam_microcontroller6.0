@@ -36,6 +36,8 @@ def tripleIndent():
     return indent() + doubleIndent()
 
 type_to_id, type_to_size = {}, {}
+ack_id = []
+alive_id = []
 l_just_ = 75
 
 class BaseTypeGenerator:
@@ -77,6 +79,10 @@ class BaseTypeGenerator:
 
         file_string += self.type_to_id_mapping(type_to_id) + "\n"
 
+        file_string += self.is_ack() + "\n"
+
+        file_string += self.is_alive() + "\n"
+
         file_string += self.to_end() + "\n"
 
         return file_string
@@ -92,7 +98,7 @@ class BaseTypeGenerator:
         return begin_string
 
     def to_end(self):
-        return "#endif /*__MCP_BASETYPES_H*/"
+        return "#endif /* __MCP_BASETYPES_H */"
 
     def to_constant(self, variable_name, value):
         return f"#define {variable_name} {value}"
@@ -156,6 +162,26 @@ class BaseTypeGenerator:
         tts_string += "}\n" 
 
         return tts_string
+    
+    def is_ack(self):
+        is_ack_string = "static bool MCP_ID_IS_TYPE_ACK(uint32_t id) {\n"
+
+        for id in ack_id:
+            is_ack_string += indent() + f"if (id == {id}) return true;\n"
+
+        is_ack_string += indent() + "return false; \n}\n"
+
+        return is_ack_string
+    
+    def is_alive(self):
+        is_alive_string = "static bool MCP_ID_IS_TYPE_ALIVE(uint32_t id) {\n"
+
+        for id in alive_id:
+            is_alive_string += indent() + f"if (id == {id}) return true;\n"
+
+        is_alive_string += indent() + "return false; \n}\n"
+
+        return is_alive_string
     
     def defines_per_packet(self, packets, version):
         index = 0
@@ -221,6 +247,11 @@ class BaseTypeGenerator:
                     VARIABLE_NAME_BOARD = f"MCP_{CamelCaseToUpper(to_board.name)}_BOARD"
                     VARIABLE_NAME_FROM_BOARD = f"MCP_{CamelCaseToUpper(from_board.name)}_BOARD"
                     type_to_id[VARIABLE_NAME_FROM_BOARD][VARIABLE_NAME_BOARD].append([VARIABLE_NAME_ID, VARIABLE_NAME_TYPE])
+
+                    if "_ACK" in VARIABLE_NAME_ID:
+                        ack_id.append(VARIABLE_NAME_ID)                  
+                    if "ALIVE" in VARIABLE_NAME_ID:
+                        alive_id.append(VARIABLE_NAME_ID)
 
             # size
             VARIABLE_NAME_SIZE = f"MCP_PACKET_SIZE_{PACKET_NAME}"

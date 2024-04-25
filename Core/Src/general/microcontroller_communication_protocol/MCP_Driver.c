@@ -1,5 +1,7 @@
 #include "MCP_Driver.h"
 
+/////////////////////////////////////////// VARIABLES
+
 // Definition of mailbox buffers
 mailbox_buffer MailBox_one;
 mailbox_buffer MailBox_two;
@@ -11,6 +13,12 @@ bool MCP_to_process = false;
 uint8_t ack_numbers[MCP_MAX_ID_PLUS_ONE];
 bool free_to_send[MCP_MAX_ID_PLUS_ONE];
 uint8_t sending_board_id;
+
+/////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
+bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header);
+void MCP_error_LOG(CAN_TxHeaderTypeDef *Header);
+
+/////////////////////////////////////////// PUBLIC FUNCTIONS
 
 /**
  * @brief initialize CAN communication
@@ -67,44 +75,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
     MCP_to_process = extract_command(RxData, &RxHeader);
 }
 
-// Function to handle MCP errors
-void MCP_error_LOG(CAN_TxHeaderTypeDef *Header){
-    return;  // Placeholder function, not implemented
-}
-
-// Function to extract command from received MCP data
-bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
-    uint32_t message_ID = Header->ExtId;
-    uint8_t data[8];
-    memset(data, 0, sizeof(data));
-
-    // Copy received data to local array
-    for (int i = 0; i < Header->DLC; i++)
-        data[i] = RxData[i];
-
-    // Check and store the command in the appropriate mailbox
-    if(MailBox_one.empty){
-        MailBox_one.empty = false;
-        MailBox_one.message_id = message_ID;
-        memcpy(MailBox_one.data_Frame, data, sizeof(data));
-        return true;
-    } else if (MailBox_two.empty){
-        MailBox_two.empty = false;
-        MailBox_two.message_id = message_ID;
-        memcpy(MailBox_two.data_Frame, data, sizeof(data));
-        return true;
-    } else if (MailBox_three.empty){
-        MailBox_three.empty = false;
-        MailBox_three.message_id = message_ID;
-        memcpy(MailBox_three.data_Frame, data, sizeof(data));
-        return true;
-    }
-
-    // Free dynamically allocated memory and return false if mailboxes are full
-    free(data);
-    return false;
-}
-
 /**
  * @brief Function to initialize MCP header structure
 */
@@ -137,12 +107,77 @@ void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTyp
 }
 
 /**
- * @brief send messages that over CAN bus, disregarding acknowledgements
+ * @brief send messages over CAN bus, disregarding is_free_to send
+ * @note if ACK is actively used, set it manually
 */
 void MCP_Send_Message_Always(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
     if ((CAN_TxHeader.ExtId & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
     else {
-        payload[0] = 0;
         if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
     }
 }
+
+/**
+ * @brief send back an ackowledgement
+*/
+void MCP_Send_Ack(CAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t old_message_id) {
+    uint8_t to_board = (old_message_id & MCP_FROM_ID_BIT_MASK) >> MCP_FROM_ID_BIT_SHIFT; 
+    CAN_TxHeaderTypeDef TxHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, to_board);
+    MCP_Ack ack = {0};
+    ack.ack_number = received_ack_number;
+    MCP_AckPayload ack_payload = {0};
+    encodeMCP_Ack(&ack_payload, &ack);
+    MCP_Send_Message_Always(hcan, ack_payload.payload, TxHeader);
+}
+
+/////////////////////////////////////////// PRIVATE FUNCTION IMPEMENTATIONS
+
+/** 
+ * @brief Function to handle MCP errors
+ * TODO
+*/
+void MCP_error_LOG(CAN_TxHeaderTypeDef *Header){
+    return;  // Placeholder function, not implemented
+}
+
+/**
+ * @brief Function to extract command from received MCP data
+*/ 
+bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
+    uint32_t message_ID = Header->ExtId;
+    uint8_t data[8];
+    memset(data, 0, sizeof(data));
+
+    if (MCP_ID_IS_TYPE_ACK(message_ID)) {
+        //TODO process
+        free(data);
+        return false;
+    }
+
+    // Copy received data to local array
+    for (int i = 0; i < Header->DLC; i++)
+        data[i] = RxData[i];
+
+    // Check and store the command in the appropriate mailbox
+    if(MailBox_one.empty){
+        MailBox_one.empty = false;
+        MailBox_one.message_id = message_ID;
+        memcpy(MailBox_one.data_Frame, data, sizeof(data));
+        return true;
+    } else if (MailBox_two.empty){
+        MailBox_two.empty = false;
+        MailBox_two.message_id = message_ID;
+        memcpy(MailBox_two.data_Frame, data, sizeof(data));
+        return true;
+    } else if (MailBox_three.empty){
+        MailBox_three.empty = false;
+        MailBox_three.message_id = message_ID;
+        memcpy(MailBox_three.data_Frame, data, sizeof(data));
+        return true;
+    }
+
+    // Free dynamically allocated memory and return false if mailboxes are full
+    free(data);
+    return false;
+}
+
