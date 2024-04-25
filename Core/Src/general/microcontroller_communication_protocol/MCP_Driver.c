@@ -148,15 +148,20 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
     uint8_t data[8];
     memset(data, 0, sizeof(data));
 
-    if (MCP_ID_IS_TYPE_ACK(message_ID)) {
-        //TODO process
-        free(data);
-        return false;
-    }
-
     // Copy received data to local array
     for (int i = 0; i < Header->DLC; i++)
         data[i] = RxData[i];
+
+    if (MCP_ID_IS_TYPE_ACK(message_ID)) {
+        uint8_t from_board = (message_ID & MCP_FROM_ID_BIT_MASK) >> MCP_FROM_ID_BIT_SHIFT;
+        uint8_t received_number = data[0];
+        if (ack_numbers[from_board] == received_number) {
+            free_to_send[from_board] = true;
+        }
+
+        free(data);
+        return false;
+    }
 
     // Check and store the command in the appropriate mailbox
     if(MailBox_one.empty){
