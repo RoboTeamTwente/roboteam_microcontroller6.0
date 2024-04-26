@@ -2,26 +2,44 @@
 
 volatile bool BOARD_INITIALIZED = false;
 
-/* ====================================================================== */    
-/* ====================== CAN RELEATED VARIABLES ======================== */    
-/* ====================================================================== */    
+void MCP_Process_Message(mailbox_buffer *to_Process);
+void MCP_Send_Im_Alive();
 
-// Array used in transmission of messages in CAN bus
-uint64_t TxMailbox[1];
+// Outgoing MCP headers
+CAN_TxHeaderTypeDef dribblerAliveToTop = {0};
+CAN_TxHeaderTypeDef dribblerAliveToPower = {0};
+CAN_TxHeaderTypeDef dribblerAliveToKicker = {0};
+CAN_TxHeaderTypeDef dribblerEncoderHeader = {0};
+CAN_TxHeaderTypeDef seesBallHeaderToTop = {0};
+CAN_TxHeaderTypeDef seesBallHeaderToKicker = {0};
 
-// These values are set depending on weither or not the dribbler initalizes correctly, used ONLY FOR INITLIZATION
-bool dribbler_functioning_state;
-bool ballsensor_functioning_state;
+// Outgoing MCP 
+MCP_SeesBall mcp_seesBall = {0};
+MCP_DribblerEncoder mcp_encoder = {0};
 
-// These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
-bool dribbler_state;
-bool ballsensor_state;
+// Incoming MCP
+MCP_PowerVoltage mcp_power = {0};
+MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
+
+static bool sendSeesBall = false;
+
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(){
-    CAN_Init(&hcan, DRIBBLER_ID);
+    //MCP
+    MCP_Init(&hcan, MCP_DRIBBLER_BOARD);
+    dribblerAliveToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_TOP_BOARD);
+    dribblerAliveToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_KICKER_BOARD);
+    dribblerAliveToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_POWER_BOARD);
+    dribblerEncoderHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ENCODER, MCP_TOP_BOARD);
+    seesBallHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SEES_BALL, MCP_TOP_BOARD);
+    seesBallHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SEES_BALL, MCP_KICKER_BOARD);
+
+    MCP_SetReadyToReceive(true);
+	MCP_Send_Im_Alive();
+    
     //dribbler_Init();
     //ballSensor_Init();
     BOARD_INITIALIZED = true;
@@ -39,67 +57,69 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
-    if (CAN_to_process){
+    if (MCP_to_process){
         if (!MailBox_one.empty)
-            CAN_Process_Message(&MailBox_one);
+            MCP_Process_Message(&MailBox_one);
         if (!MailBox_two.empty)
-            CAN_Process_Message(&MailBox_two);
+            MCP_Process_Message(&MailBox_two);
         if (!MailBox_three.empty)
-            CAN_Process_Message(&MailBox_three);
-        CAN_to_process = false;
+            MCP_Process_Message(&MailBox_three);
+        MCP_to_process = false;
 	}
 
+    sendSeesBall = false;
+
+    if (mcp_seesBall.ballsensorSeesBall != bs_seesBall) {
+        mcp_seesBall.ballsensorSeesBall = bs_seesBall;
+        sendSeesBall = true;
+    }
+
+    if (mcp_seesBall.dribblerSeesBall != dribbler_GetHasBall()) {
+        mcp_seesBall.dribblerSeesBall = dribbler_GetHasBall();
+        sendSeesBall = true;
+    }
+
+    if (sendSeesBall) {
+        MCP_SeesBallPayload sbp = {0};
+        encodeMCP_SeesBall(&sbp, &mcp_seesBall);
+        //TODO what is free_to_send is false?
+        MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
+        MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
+        sendSeesBall = false;
+    }
+    
+
 }
 
 /* ============================================= */
-/* ==================== CAN ==================== */
+/* ==================== MCP ==================== */
 /* ============================================= */
-void CAN_Process_Message(mailbox_buffer *to_Process){
+void MCP_Process_Message(mailbox_buffer *to_Process){
+    bool send_ack = true;
 
-    if (to_Process->message_id == ARE_YOU_ALIVE){
-
-        if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION){
-            //TODO send a message or something saying that incorrect
-        }
-        CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
-
+    if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ARE_YOU_ALIVE) {
+        MCP_Send_Im_Alive();
+		send_ack = false;
+    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_SET_DRIBBLER_SPEED) {
+        //TODO
     }
-    else if (to_Process->message_id == DRIBBLER_SPEED){
-        float new_dribbler_speed = get_dribbler_sees_ball(to_Process->data_Frame);
-        dribbler_SetSpeed(new_dribbler_speed); 
-    }   
 
+    if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);
+	
+	to_Process->empty = true;
+	*to_Process->data_Frame  = 0;
+	to_Process->message_id = 0;
 }
-void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
 
-    uint8_t payload[8];
-    memset(payload, 0, sizeof(payload));
-    CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
-
-    if (reciever_ID == TOP_ID){
-
-        if (sending_message_ID == DRIBBLER_SEESBALL_MESSAGE){
-            return;
-            //set_dribbler_sees_ball_header(&CAN_TxHeader);
-            //set_dribbler_sees_ball(payload, dribbler_GetHasBall());
-        }
-
-        else if (sending_message_ID == BALLSENSOR_MESSAGE){
-            return;
-            //set_ballsensor_sees_ball_header(&CAN_TxHeader);
-	        //set_ballsensor_state(payload, ballsensor_state);        
-        }
-
-        else if (sending_message_ID == IM_ALIVE_DRIBBLER){
-            set_dribbler_im_alive(&CAN_TxHeader);
-            set_MCP_version(payload);
-            set_dribbler_state(payload, dribbler_functioning_state);
-            set_ballsensor_state(payload, ballsensor_functioning_state);
-        }
-    }
-
-    if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
-
+void MCP_Send_Im_Alive() {
+    MCP_DribblerAlive da = {0};
+    MCP_DribblerAlivePayload dap = {0};
+    da.ballsensorWorking = ballSensorIsWorking;
+    da.dribblerEncoderWorking = false;
+    encodeMCP_DribblerAlive(&dap, &da);
+    MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveToTop);
+	MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveToKicker);
+	MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveToPower);
 }
 
 /* =================================================== */
@@ -108,10 +128,6 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 void dribbler_CALLBACK_FUNCTION(){
     dribbler_Update();
     dribbler_CalculateHasBall();
-    if (dribbler_ChangeInState()){
-        CAN_Send_Message(DRIBBLER_SEESBALL_MESSAGE, TOP_ID, &hcan);
-        dribbler_set_State(dribbler_GetHasBall());
-    }
 }
 
 
@@ -119,10 +135,9 @@ void dribbler_CALLBACK_FUNCTION(){
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    if (GPIO_Pin == BS_IRQ_pin.PIN){
-		ballSensor_IRQ_Handler();
-        CAN_Send_Message(BALLSENSOR_MESSAGE, TOP_ID, &hcan);
-	}
+    // if (GPIO_Pin == BS_IRQ_pin.PIN){
+	// 	ballSensor_IRQ_Handler();
+	// }
 }
 
 // void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {

@@ -16,8 +16,7 @@ CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
 CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
 CAN_TxHeaderTypeDef powerVoltageHeader = {0};
 
-//Incoming MCP payload
-MCP_AreYouAlive areYouAlive = {0};
+//Incoming MCP
 MCP_Kill mcp_kill = {};
 
 
@@ -104,8 +103,6 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 	bool send_ack = true;
 
 	if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE) {
-		MCP_AreYouAlivePayload* ayap = (MCP_AreYouAlivePayload*) to_Process->data_Frame;
-		decodeMCP_AreYouAlive(&areYouAlive, ayap);
 		MCP_Send_Im_Alive();
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
