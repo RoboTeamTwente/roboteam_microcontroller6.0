@@ -27,7 +27,8 @@ bool DISABLE_BUZZER = false;
 uint32_t TxMailbox[1];
 bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
 bool dribbler_sees_ball, ballsensor_sees_ball;
-uint16_t powerboard_voltage, kicker_capacitor_voltage;
+uint16_t kicker_capacitor_voltage;
+float powerboard_voltage;
 bool dribbler_speed = true;
 uint8_t shoot_power = 0;
 bool chip_state, kick_state = true;
@@ -208,6 +209,7 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		LOG_printf(ff);
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
+		LOG_printf("CAN :: Voltage reading: %f \n", powerboard_voltage);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
 		dribbler_sees_ball = get_dribbler_sees_ball(to_Process->data_Frame);
 		LOG_printf("CAN :: Drib state %s", dribbler_sees_ball ? "TRUE" : "FALSE");

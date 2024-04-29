@@ -11,6 +11,9 @@ void update_variables(page_struct *page) {
         case 24:
             encoder_page_update(page);
             break;
+        case 25:
+            voltage_update_page(page);
+            break;
         case 31:
             drain_battery_update_screen(page);
             break;
