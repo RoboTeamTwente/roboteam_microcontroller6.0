@@ -2,6 +2,7 @@
 #define _POWER_BOARD_H_
 
 #include "logging.h"
+#include "VPC_Sensor.h"
 #include "peripheral_util.h"
 #include "MCP_to_power.h"
 #include "MCP_from_power.h"

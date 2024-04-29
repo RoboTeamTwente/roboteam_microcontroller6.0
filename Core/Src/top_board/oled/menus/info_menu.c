@@ -4,6 +4,7 @@ struct page_struct general_info;
 struct page_struct time_page;
 struct page_struct mcp_page;
 struct page_struct encoder_values;
+struct page_struct voltage_meter;
 
 /**
  * @brief initialize the pages that are the children of info menu
@@ -41,4 +42,13 @@ void info_menu_initChildren(page_struct *parent) {
     encoder_values.parent = parent;
     encoder_values.has_variables = true;
     add_child_to_parent(&encoder_values);
+
+    pages_set_default_values(&voltage_meter);
+    voltage_meter.id = 25;
+    strcpy(voltage_meter.page_name, "PB Voltage");
+    strcpy(voltage_meter.line0,"Reading:0");
+    voltage_meter.parent = parent;
+    voltage_meter.has_variables = true;
+    add_child_to_parent(&voltage_meter);
+    
 }

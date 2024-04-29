@@ -37,7 +37,8 @@ void init() {
 
 	MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
-	
+
+	init_VPC_sensor();
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
 
@@ -78,7 +79,7 @@ void loop() {
 		// voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
-		pv.voltagePowerBoard = 22.0f; //TODO get actual voltage from sensor
+		pv.voltagePowerBoard = getVoltage();
 		if (pv.voltagePowerBoard < MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN) {
 			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN;
 		} else if (pv.voltagePowerBoard > MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX) {

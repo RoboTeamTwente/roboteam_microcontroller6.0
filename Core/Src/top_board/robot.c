@@ -145,7 +145,10 @@ void Wireless_Readpacket_Cplt(void){
 	toggle_Pin(LED6_pin);
 	timestamp_last_packet_wireless = HAL_GetTick();
 	handlePacket(rxPacket.message, rxPacket.payloadLength);
+	Wireless_SendPacket();
+}
 
+void Wireless_SendPacket() {
 	txPacket.payloadLength = 0;
 
 	robotFeedback.messageId = activeRobotCommand.messageId;
@@ -169,7 +172,7 @@ void Wireless_Readpacket_Cplt(void){
 }
 
 void Wireless_Default(){
-	WaitForPacket(SX);
+	if (!TEST_MODE) WaitForPacket(SX);
 }
 
 void Wireless_RXDone(SX1280_Packet_Status *status){
@@ -730,6 +733,10 @@ void loop(void){
             updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
             flag_sdcard_write_command = true;
         }
+
+		if (TEST_MODE) {
+			Wireless_SendPacket();
+		}
     }	
 
     // Heartbeat every 100ms	
@@ -962,7 +969,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED || (TEST_MODE && OLED_get_current_page_test_type() != NON_BLOCKING_TEST)) return;
+		if(!ROBOT_INITIALIZED) return;
 
 		if (!unix_initalized && activeRobotCommand.timestamp != 0){
 			unix_timestamp = activeRobotCommand.timestamp;
@@ -1013,28 +1020,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		
 		float* pointerGlobalBodyRef;
 		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
+
+		if (!TEST_MODE || OLED_get_current_page_test_type() != NON_BLOCKING_TEST) {
 		
-		wheels_set_command_speed( stateControl_GetWheelRef() );
+			wheels_set_command_speed( stateControl_GetWheelRef() );
 
-		// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
-		// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
-		// only want to execute this on a roll of tape.
-		//
-		// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
-		//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
-		if(DRAIN_BATTERY){
+			// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
+			// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
+			// only want to execute this on a roll of tape.
+			//
+			// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
+			//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
+			if(DRAIN_BATTERY){
 
-			// TODO Instruct each wheel to go 30 rad/s
-			float wheel_speeds[4] = {10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI};
-			wheels_set_command_speed(wheel_speeds);
+				// TODO Instruct each wheel to go 30 rad/s
+				float wheel_speeds[4] = {10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI};
+				wheels_set_command_speed(wheel_speeds);
 
-			// If the gyroscope detects some rotational movement, we stop the drainage program.
-			if (fabs(MTi->gyr[2]) > 0.3f) {
-				end_of_test();
-				DRAIN_BATTERY = false;
+				// If the gyroscope detects some rotational movement, we stop the drainage program.
+				if (fabs(MTi->gyr[2]) > 0.3f) {
+					end_of_test();
+					DRAIN_BATTERY = false;
+				}
 			}
+			wheels_Update();
 		}
-		wheels_Update();
 
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
