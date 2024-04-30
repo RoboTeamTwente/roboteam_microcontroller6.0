@@ -138,6 +138,10 @@ void MCP_SetReadyToReceive(bool b) {
     ready_to_receive = b;
 }
 
+bool MCP_GetFreeToSend(uint8_t to_board) {
+    return free_to_send[to_board];
+}
+
 /////////////////////////////////////////// PRIVATE FUNCTION IMPEMENTATIONS
 
 /** 

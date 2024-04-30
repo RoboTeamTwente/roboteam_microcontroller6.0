@@ -22,6 +22,7 @@ MCP_PowerVoltage mcp_power = {0};
 MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
 
 static bool sendSeesBall = false;
+static uint32_t lastTimeSendSeesBall = 0;
 
 
 /* ======================================================== */
@@ -57,6 +58,8 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
+    uint32_t current_time = HAL_GetTick();
+
     if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
@@ -80,12 +83,16 @@ void loop(){
     }
 
     if (sendSeesBall) {
-        MCP_SeesBallPayload sbp = {0};
-        encodeMCP_SeesBall(&sbp, &mcp_seesBall);
-        //TODO what is free_to_send is false?
-        MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
-        MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
-        sendSeesBall = false;
+        // send seesBall if freeToSend for both top and kicker is free
+        // or after 250ms try to send to both in case one of them is not acknowledging
+        if (current_time + 250 > lastTimeSendSeesBall || (MCP_GetFreeToSend(MCP_TOP_BOARD) && MCP_GetFreeToSend(MCP_KICKER_BOARD))) {
+            MCP_SeesBallPayload sbp = {0};
+            encodeMCP_SeesBall(&sbp, &mcp_seesBall);
+            MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
+            MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
+            lastTimeSendSeesBall = current_time;
+            sendSeesBall = false;
+        }
     }
     
 

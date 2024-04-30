@@ -26,5 +26,6 @@ void MCP_Send_Message_Always(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHe
 CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board);
 void MCP_Send_Ack(CAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t old_message_id);
 void MCP_SetReadyToReceive(bool b);
+bool MCP_GetFreeToSend(uint8_t to_board);
 
 #endif /* _MCP_DRIVER_H_ */
