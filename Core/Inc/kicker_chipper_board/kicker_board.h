@@ -3,9 +3,13 @@
 
 #include "logging.h"
 #include "peripheral_util.h"
-#include "CanDriver.h"
+#include "capacitor_sensor.h"
+#include "main.h"
 #include <string.h>
 #include "shoot.h"
+#include "MCP_Driver.h"
+#include "MCP_to_kicker.h"
+#include "MCP_from_kicker.h"
 
 void init();
 void loop();
