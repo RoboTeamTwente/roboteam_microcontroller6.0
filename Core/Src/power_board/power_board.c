@@ -63,7 +63,7 @@ void loop() {
     if (heartbeat_10000ms < current_time)
     {
       // voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
-	  CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
+	  //CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
       heartbeat_10000ms = current_time + 10000;
     }
 }

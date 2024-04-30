@@ -87,6 +87,6 @@ void read_gpio() {
 					  otherwise will return GPIO_PIN_RESET
 		If GPIO_PIN_SET then set return to false, otherwise true
 	*/
-	GPIO_PinState portState = HAL_GPIO_ReadPin(BS_IRQ_GPIO_Port, BS_IRQ_Pin);
-	seesBall = portState == GPIO_PIN_RESET;
+	//GPIO_PinState portState = HAL_GPIO_ReadPin(BS_IRQ_GPIO_Port, BS_IRQ_Pin);
+	//seesBall = portState == GPIO_PIN_RESET;
 }

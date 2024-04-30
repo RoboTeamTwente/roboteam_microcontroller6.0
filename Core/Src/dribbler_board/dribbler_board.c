@@ -57,7 +57,7 @@ void loop(){
 void CAN_Process_Message(mailbox_buffer *to_Process){
 
     if (to_Process->message_id == ARE_YOU_ALIVE){
-
+        HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
         if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION){
             //TODO send a message or something saying that incorrect
         }
