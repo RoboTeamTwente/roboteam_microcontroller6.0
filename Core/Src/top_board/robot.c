@@ -290,8 +290,8 @@ Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_c
 void executeCommands(REM_RobotCommand* robotCommand){
 	stateControl_useAbsoluteAngle(robotCommand->useAbsoluteAngle);
 	float stateReference[4];
-	stateReference[vel_x] = (robotCommand->rho) * sinf(robotCommand->theta);
-	stateReference[vel_y] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
 	stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->angle;
 	stateControl_SetRef(stateReference);

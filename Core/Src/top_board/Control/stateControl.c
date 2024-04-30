@@ -371,8 +371,8 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[3]){
 
 static void global2Local(float global[4], float local[4]){
 	//trigonometry
-	local[vel_u] = cosf(global[yaw]) * global[vel_x] + sinf(global[yaw]) * global[vel_y];
-	local[vel_v] = -sinf(global[yaw]) * global[vel_x] + cosf(global[yaw]) * global[vel_y];
+	local[vel_u] = cosf(global[yaw]) * global[vel_x] - sinf(global[yaw]) * global[vel_y];
+	local[vel_v] = sinf(global[yaw]) * global[vel_x] + cosf(global[yaw]) * global[vel_y];
     local[vel_w] = global[vel_w];
 	local[yaw] = global[yaw];
 }
