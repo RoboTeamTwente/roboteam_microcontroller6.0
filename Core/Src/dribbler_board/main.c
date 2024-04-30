@@ -104,6 +104,7 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   init();
+  TIM3->CCR2 = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */

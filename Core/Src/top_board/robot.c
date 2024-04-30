@@ -188,24 +188,24 @@ void CAN_Process_Message(mailbox_buffer *to_Process){
 		}
 	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
 	{
-		// if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-		// 	LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-		// 	dribblerBoard_alive = false;
-		// } else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
-		// 	LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
-		// 	dribblerBoard_alive = false;
-		// } else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
-		// 	LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
-		// 	dribblerBoard_alive = false;
-		// } else {
-		// 	LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
-		// 	dribblerBoard_alive = true;
-		// }
+		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
+			LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
+			dribblerBoard_alive = false;
+		} else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
+			LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
+			dribblerBoard_alive = false;
+		} else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
+			LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
+			dribblerBoard_alive = false;
+		} else {
+			LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
+			dribblerBoard_alive = true;
+		}
 		// LOG_printf("CAN PWM :: %f",  get_dribbler_speed(to_Process->data_Frame));
-		uint32_t tt = get_dribbler_speed(to_Process->data_Frame);
-		char ff[64];
-		sprintf(ff, "Encoder :: %u\n", tt);
-		LOG_printf(ff);
+		// uint32_t tt = get_dribbler_speed(to_Process->data_Frame);
+		// char ff[64];
+		// sprintf(ff, "Encoder :: %u\n", tt);
+		// LOG_printf(ff);
 	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
 		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
 	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{

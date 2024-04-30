@@ -19,8 +19,8 @@ movingAverage moving_average = {0};
 static float speed = 0.0f;                       // Stores most recent measurement of dribbler speed in rad/s
 static float speed_filtered = 0.0f;              // Stores filtered measurement of dribbler speed in rad/s
 static float speed_filtered_previous = 0.0f;     // Stores the previous filtered measurement of dribbler speed in rad/s
-static bool has_ball = false;                    // Stores information if dribbler thinks it has the ball
-static bool sent_state_change = false;			 // Messages are sent when we go from not having to having the ball and the inverse
+static bool has_ball;                 // Stores information if dribbler thinks it has the ball
+static bool sent_state_change;			 // Messages are sent when we go from not having to having the ball and the inverse
 static uint32_t last_encoder_measurement = 0;    // Stores the last encoder measurement
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
@@ -97,9 +97,8 @@ void dribbler_CalculateHasBall(){
 	// check if moving average is moving up or down (speed reduces when dribbler gets the ball)
 	bool speed_reducing   = ((speed_filtered - speed_filtered_previous + 1) < 0); 
 	bool speed_increasing = ((speed_filtered - speed_filtered_previous - 1) > 0);
- 
-	float speed_command_average = get_buffer_average(moving_average.command_buf, MOVINGAVERAGE_BUFFER_SIZE);
 
+	float speed_command_average = get_buffer_average(moving_average.command_buf, MOVINGAVERAGE_BUFFER_SIZE);
 	// update speed of the dribbler until it thinks it has the ball. This is used as the threshold value
 	if (!has_ball){
 		// Check if data is in the reliable range
@@ -110,10 +109,8 @@ void dribbler_CalculateHasBall(){
 			// Use a delayed value as the threshold (before it loses speed)
 			moving_average.speedBeforeGotBall = next;
 		}
-	}
 
-	// check if all conditions are met, assume we have the ball if so
-	if (!has_ball){
+		// check if all conditions are met, assume we have the ball if so
 		if (speed_reducing && (speed_filtered > minimum_reliable_data) && (speed_command_average > 0)){
 			has_ball = true;
 			sent_state_change = true;
@@ -121,10 +118,10 @@ void dribbler_CalculateHasBall(){
 	}
 	
 	// Only say we lose the ball if the speed increases above the threshold value or if the dribbler turns off
-	if (has_ball){
+	else {
 		if ((speed_increasing && (speed_filtered > (moving_average.speedBeforeGotBall-5))) || speed_command_average < 0.05f){
-			has_ball = false;
 			sent_state_change = true;
+			has_ball = false;
 		}
 	}	
 

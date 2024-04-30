@@ -213,12 +213,12 @@ void set_dribbler_sees_ball_header(CAN_TxHeaderTypeDef *TxHeader){
 }
 
 // Function to set the dribbler sees ball state in a payload
-void set_dribbler_sees_ball(uint8_t payload[], bool dribbler_state){
+void set_dribbler_sees_ball(uint8_t *payload, bool dribbler_state){
     payload[0] = dribbler_state & bit_shiftMask(0, 1);
 }
 
 // Function to get the dribbler sees ball state from a payload
-bool get_dribbler_sees_ball(uint8_t payload[8]){
+bool get_dribbler_sees_ball(uint8_t *payload){
     return (bool) (payload[0] & bit_shiftMask(0, 1));
 }
 

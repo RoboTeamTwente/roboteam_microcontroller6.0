@@ -26,6 +26,8 @@ void init(){
     dribbler_Init();
     //ballSensor_Init();
     BOARD_INITIALIZED = true;
+    hearbeat_10ms = HAL_GetTick() + 10;
+    TIM3->CCR2 = 0;
 }
 
 uint8_t robot_get_ID(){
@@ -40,6 +42,16 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
+    // Dribbler callback
+    if (HAL_GetTick() > hearbeat_10ms){
+        hearbeat_10ms = HAL_GetTick() + 10;
+		dribbler_Update();
+		dribbler_CalculateHasBall();
+        // CAN_Send_Message(DRIBBLER_SEESBALL_MESSAGE, TOP_ID, &hcan);
+        CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
+        dribbler_set_State(false);
+	}
+
     if (CAN_to_process){
         if (!MailBox_one.empty)
             CAN_Process_Message(&MailBox_one);
@@ -49,6 +61,7 @@ void loop(){
             CAN_Process_Message(&MailBox_three);
         CAN_to_process = false;
 	}
+
 }
 
 /* ============================================= */
@@ -57,7 +70,6 @@ void loop(){
 void CAN_Process_Message(mailbox_buffer *to_Process){
 
     if (to_Process->message_id == ARE_YOU_ALIVE){
-
         if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION){
             //TODO send a message or something saying that incorrect
         }
@@ -81,8 +93,8 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 
         if (sending_message_ID == DRIBBLER_SEESBALL_MESSAGE){
             return;
-            //set_dribbler_sees_ball_header(&CAN_TxHeader);
-            //set_dribbler_sees_ball(payload, dribbler_GetHasBall());
+            set_dribbler_sees_ball_header(&CAN_TxHeader);
+            set_dribbler_sees_ball(&payload, dribbler_GetHasBall());
         }
 
         else if (sending_message_ID == BALLSENSOR_MESSAGE){
@@ -94,7 +106,9 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
         else if (sending_message_ID == IM_ALIVE_DRIBBLER){
             set_dribbler_im_alive(&CAN_TxHeader);
             set_MCP_version(payload);
-            set_dribbler_speed(payload, __HAL_TIM_GET_COUNTER(ENC_DRIBBLER));
+            set_dribbler_state(payload,true);
+            set_ballsensor_state(payload,true);
+            // set_dribbler_speed(payload, __HAL_TIM_GET_COUNTER(ENC_DRIBBLER));
         }
     }
 
@@ -114,7 +128,6 @@ void dribbler_CALLBACK_FUNCTION(){
     }
 }
 
-
 /* ============================================================ */
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
@@ -123,11 +136,4 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		ballSensor_IRQ_Handler();
         CAN_Send_Message(BALLSENSOR_MESSAGE, TOP_ID, &hcan);
 	}
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (&htim->Instance == &htim2.Instance){
-        CAN_Send_Message(IM_ALIVE_DRIBBLER, TOP_ID, &hcan);
-        dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
-    }
 }
