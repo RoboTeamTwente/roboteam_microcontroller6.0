@@ -1081,7 +1081,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			float vv = localState[vel_v];
 			robotFeedback.rho = sqrt(vu*vu + vv*vv);
 			robotFeedback.angle = localState[yaw];
-			robotFeedback.theta = atan2(vu, vv);
+			robotFeedback.theta = atan2(vv, vu);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
 			robotFeedback.dribblerSeesBall = dribbler_sees_ball;
