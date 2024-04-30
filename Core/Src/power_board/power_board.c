@@ -11,8 +11,8 @@ void MCP_Send_Im_Alive();
 
 //Outgoing MCP headers
 CAN_TxHeaderTypeDef powerAliveHeaderToTop = {0};
-// CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
-// CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
 CAN_TxHeaderTypeDef powerVoltageHeader = {0};
 
 //Incoming MCP
@@ -79,10 +79,9 @@ void loop() {
 
 	// 10 seconds passed now we send the reading of the voltage meter to the top board
     if (heartbeat_10000ms < current_time) {
-		// voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
-		//pv.voltagePowerBoard = VPC_getVoltage();
+		pv.voltagePowerBoard = VPC_getVoltage();
 		if (pv.voltagePowerBoard < MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN) {
 			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN;
 		} else if (pv.voltagePowerBoard > MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX) {
@@ -123,9 +122,9 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 void MCP_Send_Im_Alive() {
 	MCP_PowerAlive pa = {0};
 	MCP_PowerAlivePayload pap = {0};
-	// pa.sensorWorking = VPC_write_OK & VPC_read_OK;
+	pa.sensorWorking = VPC_write_OK & VPC_read_OK;
 	encodeMCP_PowerAlive(&pap, &pa);
 	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
-	// MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
-	// MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
 }
