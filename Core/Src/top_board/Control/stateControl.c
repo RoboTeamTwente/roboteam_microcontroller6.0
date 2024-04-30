@@ -97,17 +97,17 @@ int stateControl_Init(){
 	HAL_TIM_Base_Start_IT(TIM_CONTROL);
 
 	// Initialize the velocity coupling matrix.
-	D[0] = -sinFront;
-	D[1] = cosFront; 
+	D[0] = cosFront;
+	D[1] = sinFront; 
 	D[2] = 1;
-	D[3] = -sinFront;
-	D[4] = -cosFront;
+	D[3] = -cosFront;
+	D[4] = sinFront;
 	D[5] = 1;
-	D[6] = sinBack;
-	D[7] = -cosBack;
+	D[6] = -cosBack;
+	D[7] = -sinBack;
 	D[8] = 1;
-	D[9] = sinBack;
-	D[10] = cosBack;
+	D[9] = cosBack;
+	D[10] = -sinBack;
 	D[11] = 1;
 
 	return 0;
