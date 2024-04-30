@@ -1,5 +1,4 @@
 #include "power_board.h"
-#include "rem.h"
 #include "main.h"
 #include "gpio_util.h"
 
@@ -12,8 +11,8 @@ void MCP_Send_Im_Alive();
 
 //Outgoing MCP headers
 CAN_TxHeaderTypeDef powerAliveHeaderToTop = {0};
-CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
-CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
+// CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
+// CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
 CAN_TxHeaderTypeDef powerVoltageHeader = {0};
 
 //Incoming MCP
@@ -28,17 +27,21 @@ void init() {
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	//set_Pin(BAT_KILL_pin, 1);
 
-	// MCP
+	// MCP init
 	MCP_Init(&hcan, MCP_POWER_BOARD);
 	powerAliveHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_TOP_BOARD);
-	powerAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_KICKER_BOARD);
-	powerAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_DRIBBLER_BOARD);
+	// powerAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_KICKER_BOARD);
+	// powerAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_DRIBBLER_BOARD);
 	powerVoltageHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_VOLTAGE, MCP_TOP_BOARD);
 
+	// peripherals
+	init_VPC_sensor();
+	VPC_getVoltage(); // test to set write_OK and read_OK
+
+	// MCP Alive
 	MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
 
-	init_VPC_sensor();
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
 
@@ -79,7 +82,7 @@ void loop() {
 		// voltage_reading = some_function  // Here we call the function to get the voltage from the sensor
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
-		pv.voltagePowerBoard = getVoltage();
+		//pv.voltagePowerBoard = VPC_getVoltage();
 		if (pv.voltagePowerBoard < MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN) {
 			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN;
 		} else if (pv.voltagePowerBoard > MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX) {
@@ -120,9 +123,9 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 void MCP_Send_Im_Alive() {
 	MCP_PowerAlive pa = {0};
 	MCP_PowerAlivePayload pap = {0};
-	pa.sensorWorking = false;
+	// pa.sensorWorking = VPC_write_OK & VPC_read_OK;
 	encodeMCP_PowerAlive(&pap, &pa);
 	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
-	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
-	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
+	// MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
+	// MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
 }
