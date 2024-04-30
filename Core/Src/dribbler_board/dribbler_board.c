@@ -38,11 +38,15 @@ void init(){
     seesBallHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SEES_BALL, MCP_TOP_BOARD);
     seesBallHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SEES_BALL, MCP_KICKER_BOARD);
 
+    // Peripherals
+    //dribbler_Init();
+    //ballSensor_Init();
+
+    // MCP Alive
     MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
     
-    //dribbler_Init();
-    //ballSensor_Init();
+    
     BOARD_INITIALIZED = true;
 }
 
