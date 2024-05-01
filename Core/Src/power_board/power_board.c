@@ -91,9 +91,7 @@ void loop() {
 		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
 
     	heartbeat_10000ms = current_time + 10000;
-    } else {
-		HAL_Delay(1);
-	}
+    }
 }
 
 /*

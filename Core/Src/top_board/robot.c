@@ -90,7 +90,6 @@ uint32_t heartbeat_17ms_counter = 0;
 uint32_t heartbeat_17ms = 0;
 uint32_t heartbeat_100ms = 0;
 uint32_t heartbeat_1000ms = 0;
-uint32_t heartbeat_10000ms = 0; // used for sending request to powerboard every 10 seconds
 
 /* flags and bools */
 
@@ -457,11 +456,11 @@ void init(void){
 	if(ROBOT_CHANNEL == BLUE_CHANNEL){
 		Wireless_setChannel(SX, BLUE_CHANNEL);
 		LOG("[init:"STRINGIZE(__LINE__)"] BLUE CHANNEL\n");
-		buzzer_Play(beep_blue); HAL_Delay(350);
+		// buzzer_Play(beep_blue); HAL_Delay(350);
 	}else{
 		Wireless_setChannel(SX, YELLOW_CHANNEL);
 		LOG("[init:"STRINGIZE(__LINE__)"] YELLOW CHANNEL\n");
-		buzzer_Play(beep_yellow); HAL_Delay(350);
+		// buzzer_Play(beep_yellow); HAL_Delay(350);
 	}
 	LOG_sendAll();
     // SX1280 section 7.3 FLRC : Syncword is 4 bytes at the beginning of each transmission, that ensures that only the right robot / basestation listens to that transmission.
@@ -525,8 +524,8 @@ void init(void){
 	speaker_Stop();
 
 	// Play RobotID
-	buzzer_Play_ID(ROBOT_ID);
-	HAL_Delay(1500);
+	// buzzer_Play_ID(ROBOT_ID);
+	// HAL_Delay(1500);
 
 
 {	// ====== MCP =====
@@ -558,15 +557,14 @@ void init(void){
 	check_otherboards(areYouAliveHeaderToPower, &flag_PowerBoard_alive, &ayap);
 	if (!flag_PowerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Powerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(areYouAliveHeaderToKicker, &flag_DribblerBoard_alive, &ayap);
+	check_otherboards(areYouAliveHeaderToDribbler, &flag_DribblerBoard_alive, &ayap);
 	if (!flag_DribblerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Dribblerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(areYouAliveHeaderToDribbler, &flag_KickerBoard_alive, &ayap);
+	check_otherboards(areYouAliveHeaderToKicker, &flag_KickerBoard_alive, &ayap);
 	if (!flag_KickerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Kickerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
 	if (!(flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive)) {
 		buzzer_Play_WarningFour();
-		HAL_Delay(1000);
 	}
 	LOG_sendAll();
 	mcp_page_check_alive();
@@ -790,13 +788,6 @@ void loop(void){
 
     }
 
-	// Heartbeat every 10000ms (10sec)
-	if (heartbeat_10000ms < current_time) {
-		
-	} else {
-		//TODO send request to some other board?
-	}
-
     /* LEDs for debugging */
     // LED0 : toggled every second while alive
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
@@ -910,7 +901,7 @@ bool handlePacket(uint8_t* packet_buffer, uint8_t packet_length){
 
 
 			default:
-				LOG_printf("[SPI_TxRxCplt] Error! At %d of %d bytes. [@] = %d\n", total_bytes_processed, packet_length, packet_header);
+				LOG_printf("[REM Handler] Error! At %d of %d bytes. [Packet type] = %d\n", total_bytes_processed, packet_length, packet_header);
 				return false;
 		}
 	}

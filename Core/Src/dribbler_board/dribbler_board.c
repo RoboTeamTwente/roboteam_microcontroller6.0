@@ -6,9 +6,9 @@ void MCP_Process_Message(mailbox_buffer *to_Process);
 void MCP_Send_Im_Alive();
 
 // Outgoing MCP headers
-CAN_TxHeaderTypeDef dribblerAliveToTop = {0};
-CAN_TxHeaderTypeDef dribblerAliveToPower = {0};
-CAN_TxHeaderTypeDef dribblerAliveToKicker = {0};
+CAN_TxHeaderTypeDef dribblerAliveHeaderToTop = {0};
+CAN_TxHeaderTypeDef dribblerAliveHeaderToPower = {0};
+CAN_TxHeaderTypeDef dribblerAliveHeaderToKicker = {0};
 CAN_TxHeaderTypeDef dribblerEncoderHeader = {0};
 CAN_TxHeaderTypeDef seesBallHeaderToTop = {0};
 CAN_TxHeaderTypeDef seesBallHeaderToKicker = {0};
@@ -31,9 +31,9 @@ static uint32_t lastTimeSendSeesBall = 0;
 void init(){
     //MCP
     MCP_Init(&hcan, MCP_DRIBBLER_BOARD);
-    dribblerAliveToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_TOP_BOARD);
-    dribblerAliveToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_KICKER_BOARD);
-    dribblerAliveToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_POWER_BOARD);
+    dribblerAliveHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_TOP_BOARD);
+    dribblerAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_KICKER_BOARD);
+    dribblerAliveHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_POWER_BOARD);
     dribblerEncoderHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ENCODER, MCP_TOP_BOARD);
     seesBallHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SEES_BALL, MCP_TOP_BOARD);
     seesBallHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SEES_BALL, MCP_KICKER_BOARD);
@@ -128,9 +128,9 @@ void MCP_Send_Im_Alive() {
     da.ballsensorWorking = ballSensorIsWorking;
     da.dribblerEncoderWorking = false;
     encodeMCP_DribblerAlive(&dap, &da);
-    MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveToTop);
-	MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveToKicker);
-	MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveToPower);
+    MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveHeaderToTop);
+	MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveHeaderToKicker);
+	MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveHeaderToPower);
 }
 
 /* =================================================== */
