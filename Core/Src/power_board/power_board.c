@@ -25,7 +25,7 @@ MCP_Kill mcp_kill = {};
 void init() {
     // Set power circuit pin to HIGH, meaning on. When pulled again to LOW, it signals the power circuit to turn off, and power is then cut off instantly.
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
-	//set_Pin(BAT_KILL_pin, 1);
+	set_Pin(BAT_KILL_pin, 1);
 
 	// MCP init
 	MCP_Init(&hcan, MCP_POWER_BOARD);
@@ -58,7 +58,7 @@ uint8_t robot_get_Channel(){
 
 // Function to perform a kill operation
 void kill() {
-    //set_Pin(BAT_KILL_pin, 0);
+    set_Pin(BAT_KILL_pin, 0);
 }
 
 /* =================================================== */

@@ -838,10 +838,8 @@ void handleRobotMusicCommand(uint8_t* packet_buffer){
 }
 
 void handleRobotKillCommand(){
-	// TODO
-	// CAN_Send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
-	// before sending the message do we have to do something such as discharging the capacitors?
-	return;
+	MCP_KillPayload kp = {0};
+	MCP_Send_Message_Always(&hcan1, &kp, killHeader);
 }
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp){
