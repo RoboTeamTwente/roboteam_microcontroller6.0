@@ -171,8 +171,7 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
             ack_numbers[from_board] = (ack_numbers[from_board] + 1) % 0xFF;
             free_to_send[from_board] = true;
         }
-
-        free(data);
+        
         return false;
     }
 
@@ -200,7 +199,6 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
     }
 
     // Free dynamically allocated memory and return false if mailboxes are full
-    free(data);
     return false;
 }
 
