@@ -7,7 +7,7 @@
 
 
 #define MCP_LOCAL_VERSION 1
-#define MCP_LARGEST_PACKET_IN_BYTES 3
+#define MCP_LARGEST_PACKET_IN_BYTES 5
 #define MCP_MAX_ID_PLUS_ONE 16
 
 #define MCP_TOP_BOARD                                                               0
@@ -109,9 +109,11 @@
 
 #define MCP_PACKET_TYPE_MCP_SEES_BALL                                               8
 #define MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_SEES_BALL                                 0x01000440
-#define MCP_PACKET_SIZE_MCP_SEES_BALL                                               2
+#define MCP_PACKET_SIZE_MCP_SEES_BALL                                               4
 #define MCP_PACKET_RANGE_MCP_SEES_BALL_ACK_NUMBER_MIN                               0
 #define MCP_PACKET_RANGE_MCP_SEES_BALL_ACK_NUMBER_MAX                               255
+#define MCP_PACKET_RANGE_MCP_SEES_BALL_DRIBBLER_SPEED_BEFORE_MIN                    0.0000000000000000F
+#define MCP_PACKET_RANGE_MCP_SEES_BALL_DRIBBLER_SPEED_BEFORE_MAX                    5000.0000000000000000F
 #define MCP_PACKET_RANGE_MCP_SEES_BALL_DRIBBLER_SEES_BALL_MIN                       0
 #define MCP_PACKET_RANGE_MCP_SEES_BALL_DRIBBLER_SEES_BALL_MAX                       1
 #define MCP_PACKET_RANGE_MCP_SEES_BALL_BALLSENSOR_SEES_BALL_MIN                     0
@@ -162,11 +164,13 @@
 
 #define MCP_PACKET_TYPE_MCP_DRIBBLER_ENCODER                                        14
 #define MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ENCODER                          0x01000940
-#define MCP_PACKET_SIZE_MCP_DRIBBLER_ENCODER                                        3
+#define MCP_PACKET_SIZE_MCP_DRIBBLER_ENCODER                                        5
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_ACK_NUMBER_MIN                        0
 #define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_ACK_NUMBER_MAX                        255
-#define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_VALUE_MIN                             0.0000000000000000F
-#define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_VALUE_MAX                             5000.0000000000000000F
+#define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_MEASURED_SPEED_MIN                    0.0000000000000000F
+#define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_MEASURED_SPEED_MAX                    5000.0000000000000000F
+#define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_FILTERED_SPEED_MIN                    0.0000000000000000F
+#define MCP_PACKET_RANGE_MCP_DRIBBLER_ENCODER_FILTERED_SPEED_MAX                    5000.0000000000000000F
 
 #define MCP_PACKET_TYPE_MCP_STOP_SENDING                                            15
 #define MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_STOP_SENDING                              0x01000804

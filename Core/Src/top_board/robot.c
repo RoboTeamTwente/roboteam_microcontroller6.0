@@ -41,6 +41,7 @@ MCP_KickerCapacitorVoltage kickerCapacitorVoltage = {0};
 MCP_PowerAlive powerAlive = {0};
 MCP_PowerVoltage powerVoltage = {0};
 MCP_SeesBall seesBall = {0};
+MCP_DribblerEncoder dribblerEncoder = {0};
 
 /* REM */
 
@@ -285,7 +286,6 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 /* ============================================================ */
 void MCP_Process_Message(mailbox_buffer *to_Process) {
 	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
-	LOG_printf("[CAN] message id: %u\n", to_Process->message_id);
 	bool send_ack = true;
 	switch (to_Process->message_id) {
 		case MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE: ;
@@ -1040,9 +1040,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
 			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			// robotFeedback.batteryLevel = powerboard_voltage;
-			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
-			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
+			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
+			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
 			// robotFeedback.capacitor_voltage = kicker_capacitor_voltage;
 
@@ -1068,9 +1068,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
 			robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
 			robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
-			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
-			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
-			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
+			robotStateInfo.dribbleSpeed = dribblerEncoder.measuredSpeed;
+			robotStateInfo.filteredDribbleSpeed = dribblerEncoder.filteredSpeed;
+			robotStateInfo.dribblespeedBeforeGotBall = seesBall.dribblerSpeedBefore;
 			robotStateInfo.bodyXIntegral = pointerGlobalBodyRef[vel_x]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
 			robotStateInfo.bodyYIntegral = pointerGlobalBodyRef[vel_y]; //
 			robotStateInfo.bodyWIntegral = pointerGlobalBodyRef[vel_w]; //

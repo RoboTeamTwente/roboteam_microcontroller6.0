@@ -23,6 +23,7 @@ MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
 
 static bool sendSeesBall = false;
 static uint32_t lastTimeSendSeesBall = 0;
+static uint32_t heartbeat_10ms;
 
 
 /* ======================================================== */
@@ -48,6 +49,7 @@ void init(){
     
     
     BOARD_INITIALIZED = true;
+    heartbeat_10ms = HAL_GetTick() + 10;
 }
 
 uint8_t robot_get_ID(){
@@ -83,6 +85,7 @@ void loop(){
 
     if (mcp_seesBall.dribblerSeesBall != dribbler_GetHasBall()) {
         mcp_seesBall.dribblerSeesBall = dribbler_GetHasBall();
+        mcp_seesBall.dribblerSpeedBefore = dribbler_GetSpeedBeforeGotBall();
         sendSeesBall = true;
     }
 
@@ -97,6 +100,15 @@ void loop(){
             lastTimeSendSeesBall = current_time;
             sendSeesBall = false;
         }
+    }
+
+    if (heartbeat_10ms < current_time && MCP_GetFreeToSend(MCP_TOP_BOARD)) {
+        heartbeat_10ms = current_time + 10;
+        mcp_encoder.measuredSpeed = dribbler_GetMeasuredSpeeds();
+        mcp_encoder.filteredSpeed = dribbler_GetFilteredSpeeds();
+        MCP_DribblerEncoderPayload dep = {0};
+        encodeMCP_DribblerEncoder(&dep, &mcp_encoder);
+        MCP_Send_Message(&hcan, &dep, dribblerEncoderHeader, MCP_TOP_BOARD);
     }
     
 

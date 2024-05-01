@@ -67,8 +67,9 @@ packets = {
         "from" : [board.DRIBBLER],
         "to" : [board.TOP],
         "data" : [
+            ["dribblerSpeedBefore", 16, [0, 5000.0], "dribbler speed before it got the ball"],
             ["dribblerSeesBall", 1, None, "true if dribbler encoder detects ball"],
-            ["ballsensorSeesBall", 1, None, "true if ball sensor detects ball"]
+            ["ballsensorSeesBall", 1, None, "true if ball sensor detects ball"],
         ]
     },
     "MCP_KickerAlive" : {
@@ -110,7 +111,8 @@ packets = {
         "from" : [board.DRIBBLER],
         "to" : [board.TOP],
         "data" : [
-            ["value", 16, [0, 5000.0], "Dribbler speed"],
+            ["measuredSpeed", 16, [0, 5000.0], "Measured dribbler speed"],
+            ["filteredSpeed", 16, [0, 5000.0], "Filtered dribbler speed"],
         ]
     },
     "MCP_StopSending" : {
