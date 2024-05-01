@@ -106,8 +106,7 @@ else:
       opt,
       "-mfloat-abi=hard",
       "-mfpu=fpv4-sp-d16",
-      #"-Wl,-u,_printf_float,-u,_scanf_float"
-      "-Wl,--print-memory-usage",
+      "-Wl,-u,_printf_float,-u,_scanf_float"
     ]
   )
 
