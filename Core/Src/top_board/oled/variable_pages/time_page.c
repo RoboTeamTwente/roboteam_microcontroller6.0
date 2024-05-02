@@ -1,6 +1,17 @@
 #include "time_page.h"
 #include "time.h"
 
+struct page_struct time_page;
+
+void time_page_init(page_struct* parent) {
+    pages_set_default_values(&time_page);
+    time_page.id = 221;
+    strcpy(time_page.page_name, "Robot time");
+    time_page.parent = parent;
+    time_page.has_variables = true;
+    add_child_to_parent(&time_page);
+}
+
 void time_page_update(page_struct *page) {
     if (TEST_MODE) {
         strcpy(page->line0, "Time not avail-");

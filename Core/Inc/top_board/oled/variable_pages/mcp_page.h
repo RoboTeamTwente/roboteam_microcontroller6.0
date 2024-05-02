@@ -4,6 +4,7 @@
 #include "pages.h"
 #include "robot.h"
 
+void mcp_page_init(page_struct *parent);
 void mcp_page_update(page_struct *page);
 void mcp_page_check_alive();
 

@@ -1,54 +1,31 @@
 #include "info_menu.h"
 
-struct page_struct general_info;
-struct page_struct time_page;
-struct page_struct mcp_page;
-struct page_struct encoder_values;
-struct page_struct voltage_meter;
+struct page_struct communication_menu;
+struct page_struct sensor_menu;
 
 /**
  * @brief initialize the pages that are the children of info menu
  * @note constraint for children of info menu: 20 < id < 30 
 */
 void info_menu_initChildren(page_struct *parent) {
-    pages_set_default_values(&general_info);
-    general_info.id = 21;
-    strcpy(general_info.page_name, "General");
-    general_info.parent = parent;
-    add_child_to_parent(&general_info);
-    general_info_init(&general_info);
+    general_info_init(parent);
 
-    pages_set_default_values(&time_page);
-    time_page.id = 22;
-    strcpy(time_page.page_name, "Robot time");
-    time_page.parent = parent;
-    time_page.has_variables = true;
-    add_child_to_parent(&time_page);
+    pages_set_default_values(&communication_menu);
+    communication_menu.id = 22;
+    strcpy(communication_menu.page_name, "Communication");
+    communication_menu.parent = parent;
+    communication_menu.is_menu = true;
+    add_child_to_parent(&communication_menu);
+    time_page_init(&communication_menu);
+    mcp_page_init(&communication_menu);
+    rem_page_init(&communication_menu);
 
-    pages_set_default_values(&mcp_page);
-    mcp_page.id = 23;
-    strcpy(mcp_page.page_name, "MCP Alive");
-    mcp_page.parent = parent;
-    mcp_page.has_variables = true;
-    add_child_to_parent(&mcp_page);
-
-    pages_set_default_values(&encoder_values);
-    encoder_values.id = 24;
-    strcpy(encoder_values.page_name, "Encoder");
-    strcpy(encoder_values.line0, "LF:0");
-    strcpy(encoder_values.line1, "RF:0");
-    strcpy(encoder_values.line2, "LB:0");
-    strcpy(encoder_values.line3, "RB:0");
-    encoder_values.parent = parent;
-    encoder_values.has_variables = true;
-    add_child_to_parent(&encoder_values);
-
-    pages_set_default_values(&voltage_meter);
-    voltage_meter.id = 25;
-    strcpy(voltage_meter.page_name, "PB Voltage");
-    strcpy(voltage_meter.line0,"Reading:0");
-    voltage_meter.parent = parent;
-    voltage_meter.has_variables = true;
-    add_child_to_parent(&voltage_meter);
-    
+    pages_set_default_values(&sensor_menu);
+    sensor_menu.id = 23;
+    strcpy(sensor_menu.page_name, "Sensors etc.");
+    sensor_menu.parent = parent;
+    sensor_menu.is_menu = true;
+    add_child_to_parent(&sensor_menu);
+    encoder_page_init(&sensor_menu);
+    voltage_reading_init(&sensor_menu);    
 }

@@ -996,6 +996,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			unix_initalized = true;
 		}
 
+		rem_page_add_timestamp(activeRobotCommand.timestamp);
+
 		counter_TIM_CONTROL++;
 
 		// State Info
