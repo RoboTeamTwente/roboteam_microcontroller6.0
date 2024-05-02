@@ -2,17 +2,17 @@
 
 void update_variables(page_struct *page) {
     switch (page->id) {
-        case 22:
+        case 221:
             time_page_update(page);
             break;
-        case 23:
+        case 222:
             mcp_page_update(page);
             break;
-        case 24:
-            encoder_page_update(page);
-            break;
-        case 25:
+        case 231:
             voltage_update_page(page);
+            break;
+        case 232:
+            encoder_page_update(page);
             break;
         case 31:
             drain_battery_update_screen(page);

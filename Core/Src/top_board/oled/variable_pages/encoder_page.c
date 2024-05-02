@@ -2,9 +2,9 @@
 
 struct page_struct encoder_values;
 
-void encode_page_init(page_struct *parent) {
+void encoder_page_init(page_struct *parent) {
     pages_set_default_values(&encoder_values);
-    encoder_values.id = 24;
+    encoder_values.id = 232;
     strcpy(encoder_values.page_name, "Encoder");
     strcpy(encoder_values.line0, "LF:0");
     strcpy(encoder_values.line1, "RF:0");

@@ -4,6 +4,7 @@
 #include "pages.h"
 #include "robot.h"
 
+void voltage_reading_init(page_struct *parent);
 void voltage_update_page(page_struct *page);
 
 #endif
