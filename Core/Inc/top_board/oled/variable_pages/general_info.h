@@ -4,6 +4,6 @@
 #include "pages.h"
 #include "robot.h"
 
-void general_info_init(page_struct *page);
+void general_info_init(page_struct *parent);
 
 #endif /* INC_GEN_INFO_H_ */
