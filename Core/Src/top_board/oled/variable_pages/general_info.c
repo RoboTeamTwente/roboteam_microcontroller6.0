@@ -18,5 +18,5 @@ void general_info_init(page_struct *parent) {
         strcpy(general_info.line1, "Team: Yellow");
     }
     sprintf(temp, "REM version: %d", REM_LOCAL_VERSION);
-    strcpy(general_infoline2, temp);
+    strcpy(general_info.line2, temp);
 }

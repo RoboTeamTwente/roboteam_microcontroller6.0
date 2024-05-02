@@ -1,9 +1,19 @@
 #include "mcp_page.h"
 
+struct page_struct mcp_page;
 static uint32_t time_last_change = 0;
 char board_names[6][MAX_STRING_LENGTH];
 int n_not_alive = 0;
 int mcp_state = 0;
+
+void mcp_page_init(page_struct *parent) {
+        pages_set_default_values(&mcp_page);
+    mcp_page.id = 23;
+    strcpy(mcp_page.page_name, "MCP Alive");
+    mcp_page.parent = parent;
+    mcp_page.has_variables = true;
+    add_child_to_parent(&mcp_page);
+}
 
 void mcp_page_update(page_struct *page) {
     if (n_not_alive == 0){
