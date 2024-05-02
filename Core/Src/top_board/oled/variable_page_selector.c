@@ -8,6 +8,9 @@ void update_variables(page_struct *page) {
         case 222:
             mcp_page_update(page);
             break;
+        case 223:
+            rem_page_update(page);
+            break;
         case 231:
             voltage_update_page(page);
             break;

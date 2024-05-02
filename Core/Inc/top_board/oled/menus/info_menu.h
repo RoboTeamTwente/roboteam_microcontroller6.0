@@ -7,6 +7,7 @@
 #include "mcp_page.h"
 #include "time_page.h"
 #include "voltage_reading.h"
+#include "rem_page.h"
 
 void info_menu_initChildren(page_struct *parent);
 

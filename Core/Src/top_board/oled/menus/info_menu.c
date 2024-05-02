@@ -18,6 +18,7 @@ void info_menu_initChildren(page_struct *parent) {
     add_child_to_parent(&communication_menu);
     time_page_init(&communication_menu);
     mcp_page_init(&communication_menu);
+    rem_page_init(&communication_menu);
 
     pages_set_default_values(&sensor_menu);
     sensor_menu.id = 23;
