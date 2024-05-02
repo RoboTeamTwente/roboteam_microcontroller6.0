@@ -15,6 +15,7 @@ static void menuHasNoChildrenException();
 static void menuHasTooManyChildrenException();
 static void putPageName();
 
+
 ///////////////////////////////////////////////////// VARIABLES
 static bool oled_initialized = false;
 static page_struct *current_page;
@@ -106,6 +107,36 @@ void OLED_Update(button_id_t button, bool test_mode) {
         refresh();
     }
     resetButtonState(button);
+}
+
+/**
+ * @display useful information after boot such as ID, team color, MCP alive, and test mode
+*/
+void end_of_boot_screen(bool MCP_OK) {
+    clear_screen();
+    char temp[MAX_STRING_LENGTH];
+    //ID
+    sprintf(temp, "ID: %d", robot_get_ID());
+    strcpy(current_page->line0, temp);
+    //TEAM COLOR
+    if (robot_get_Channel()) {
+        strcpy(current_page->line1, "TEAM: BLUE");
+    } else {
+        strcpy(current_page->line1, "TEAM: YELLOW");
+    }
+    //MCP ALIVE
+    if (MCP_OK) {
+        strcpy(current_page->line2, "MCP: OK");
+    } else {
+        strcpy(current_page->line2, "MCP: NOT OK");
+    }
+    //TEST_MODE
+    if (TEST_MODE) {
+        strcpy(current_page->line3, "IN TESTMODE");
+    }
+
+    display_text();
+	SSD1306_UpdateScreen(); // update screen
 }
 
 /**
@@ -220,21 +251,8 @@ static void clear_screen(){
  * @brief draw RoboTeam logo
 */
 static void boot_screen(){
-	//SSD1306_DrawBitmap(0, 0, rtt_logo, 128, 64, 1);
-    char temp[MAX_STRING_LENGTH];
-    sprintf(temp, "ID: %d", robot_get_ID());
-    strcpy(current_page->line0, temp);
-    if (robot_get_Channel()) {
-        strcpy(current_page->line1, "Team: Blue");
-    } else {
-        strcpy(current_page->line1, "Team: Yellow");
-    }
-    if (TEST_MODE) {
-        strcpy(current_page->line2, "IN TESTMODE");
-    }
-
-    display_text();
-	SSD1306_UpdateScreen(); // update screen
+	SSD1306_DrawBitmap(0, 0, rtt_logo, 128, 64, 1);
+    SSD1306_UpdateScreen();
 }
 
 /**

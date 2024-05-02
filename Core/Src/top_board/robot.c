@@ -563,10 +563,12 @@ void init(void){
 	check_otherboards(areYouAliveHeaderToKicker, &flag_KickerBoard_alive, &ayap);
 	if (!flag_KickerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Kickerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	if (!(flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive)) {
+	bool all_alive = flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive;
+	if (!all_alive) {
 		buzzer_Play_WarningFour();
 	}
 	LOG_sendAll();
+	end_of_boot_screen(all_alive);
 	mcp_page_check_alive();
 }
 	
