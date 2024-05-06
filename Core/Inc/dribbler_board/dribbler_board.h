@@ -3,9 +3,9 @@
 
 #include "main.h"
 #include "CanDriver.h"
-#include "ball_sensor.h"
 #include "dribbler.h"
 #include "logging.h"
+#include "ballSensor.h"
 
 #include "control_util.h"
 #include "gpio_util.h"

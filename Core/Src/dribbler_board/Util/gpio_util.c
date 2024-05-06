@@ -11,9 +11,9 @@
 #define DEFINE_PIN(label,pin_name) GPIO_Pin label = {pin_name##_GPIO_Port, pin_name##_Pin};
 // List known GPIO pins
 
-// Dribbler
-// GPIO_Pin Dribbler_PWM_pin	= { PWM_Dribbler_GPIO_Port	, PWM_Dribbler_Pin	};
+// LED pins
+GPIO_Pin LED1 = { LED1_GPIO_Port, LED1_Pin };
+GPIO_Pin LED2 = { LED2_GPIO_Port, LED2_Pin };
 
 // // Ballsensor
-// GPIO_Pin BS_IRQ_pin = { BS_IRQ_GPIO_Port    , BS_IRQ_Pin   };
-// GPIO_Pin IR_LED_pin = { IR_LED_GPIO_Port    , IR_LED_Pin   };
+GPIO_Pin IR_LED_pin = { Ball_sensor_out_GPIO_Port , Ball_sensor_out_Pin };

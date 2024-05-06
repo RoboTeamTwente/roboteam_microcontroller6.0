@@ -21,9 +21,10 @@ bool ballsensor_state;
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(){
-    CAN_Init(&hcan, DRIBBLER_ID);
-    //dribbler_Init();
-    //ballSensor_Init();
+    //CAN_Init(&hcan, DRIBBLER_ID);
+    dribbler_Init(&htim3, &hdac1);
+    ballsensor_init();
+    ballsensor_setIR_on();
     BOARD_INITIALIZED = true;
 }
 
@@ -118,10 +119,7 @@ void dribbler_CALLBACK_FUNCTION(){
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    if (GPIO_Pin == BS_IRQ_pin.PIN){
-		ballSensor_IRQ_Handler();
-        CAN_Send_Message(BALLSENSOR_MESSAGE, TOP_ID, &hcan);
-	}
+ 
 }
 
 // void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {

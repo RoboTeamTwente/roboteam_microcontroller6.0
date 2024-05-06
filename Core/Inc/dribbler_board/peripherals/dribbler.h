@@ -13,20 +13,23 @@
 #ifndef DRIBBLER_DRIBBLER_H_
 #define DRIBBLER_DRIBBLER_H_
 
-#include "main.h"
 #include "tim_util.h"
+#include "main.h"
 #include <math.h>
 #include "control_util.h"
-#include "logging.h"
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
-uint32_t set_speed;
+extern uint32_t encoder_value;
 
 // Initializes the PIDs / encoders / PWM timers
-void dribbler_Init();
+void dribbler_Init(HAL_TIM_StateTypeDef* timer, DAC_HandleTypeDef* dac);
+// Initializes the motor driver for the PWM
+void dribbler_motor_Init();
+// The Current value we set, limits acceleration
+void dribbler_setCurrentLimit(uint16_t value);
 // Denitializes the encoders / PWM timers
-void dribbler_DeInit();
+void dribbler_DeInit(HAL_TIM_StateTypeDef* timer);
 // Sets the dribbler speed and makes sure it's within [0,1]
 void dribbler_SetSpeed(float speed);
 // Updates the dribbler towards the commanded dribbler speed using the encoder and a PID controller.
