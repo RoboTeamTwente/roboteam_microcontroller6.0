@@ -22,9 +22,16 @@ void dribbler_test_InitChildren(page_struct *parent){
     add_child_to_parent(&drib_off);
 }
 void dribbler_test_run(bool state){
-
-    dribbler_speed = state;
-    CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
+    start_of_test();
+    MCP_SetDribblerSpeed sds = {0};
+    MCP_SetDribblerSpeedPayload sdsp = {0};
+    if (state) {
+        sds.speed = 0.5f;
+    } else {
+        sds.speed = 0.0f;
+    }
+    encodeMCP_SetDribblerSpeed(&sdsp, &sds);
+    MCP_Send_Message(&hcan1, &sdsp, setDribblerSpeedHeader, MCP_DRIBBLER_BOARD);
 
     HAL_Delay(500);
     end_of_test();

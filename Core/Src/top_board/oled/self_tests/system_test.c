@@ -21,7 +21,6 @@ void system_test_run() {
     if (!system_test_running && !test_is_finished) {
         start_of_test();
         wheels_Unbrake();
-        shoot_power = 1.5f;
         time_started = current_time;
         system_test_running = true;
     } else if (system_test_running) {

@@ -1,17 +1,22 @@
 #include "power_board.h"
-#include "CanDriver.h"
-#include "rem.h"
 #include "main.h"
 #include "gpio_util.h"
 
 
 uint32_t heartbeat_10000ms = 0;
-bool kill_flag, voltage_request = false;
-float voltage_reading = 0;
-uint64_t TxMailbox[1];  
 
 void kill();
+void MCP_Process_Message(mailbox_buffer *to_Process);
+void MCP_Send_Im_Alive();
 
+//Outgoing MCP headers
+CAN_TxHeaderTypeDef powerAliveHeaderToTop = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToDribbler = {0};
+CAN_TxHeaderTypeDef powerAliveHeaderToKicker = {0};
+CAN_TxHeaderTypeDef powerVoltageHeader = {0};
+
+//Incoming MCP
+MCP_Kill mcp_kill = {};
 
 
 /* ======================================================== */
@@ -22,9 +27,21 @@ void init() {
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	set_Pin(BAT_KILL_pin, 1);
 
-	CAN_Init(&hcan, POWER_ID);
+	// MCP init
+	MCP_Init(&hcan, MCP_POWER_BOARD);
+	powerAliveHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_TOP_BOARD);
+	powerAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_KICKER_BOARD);
+	powerAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_ALIVE, MCP_DRIBBLER_BOARD);
+	powerVoltageHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_POWER_VOLTAGE, MCP_TOP_BOARD);
 
+	// peripherals
 	init_VPC_sensor();
+	VPC_getVoltage(); // test to set write_OK and read_OK
+
+	// MCP Alive
+	MCP_SetReadyToReceive(true);
+	MCP_Send_Im_Alive();
+
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
 
@@ -50,52 +67,31 @@ void kill() {
 void loop() {
     uint32_t current_time = HAL_GetTick();
 	
-    if (CAN_to_process){
+    if (MCP_to_process){
         if (!MailBox_one.empty)
-            CAN_Process_Message(&MailBox_one);
+            MCP_Process_Message(&MailBox_one);
         if (!MailBox_two.empty)
-            CAN_Process_Message(&MailBox_two);
+            MCP_Process_Message(&MailBox_two);
         if (!MailBox_three.empty)
-            CAN_Process_Message(&MailBox_three);
-        CAN_to_process = false;
+            MCP_Process_Message(&MailBox_three);
+        MCP_to_process = false;
 	}
 
 	// 10 seconds passed now we send the reading of the voltage meter to the top board
-    if (heartbeat_10000ms < current_time){
-      voltage_reading = getVoltage();  // Here we call the function to get the voltage from the sensor
-	  CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
-      heartbeat_10000ms = current_time + 10000;
+    if (heartbeat_10000ms < current_time) {
+		MCP_PowerVoltage pv = {0};
+		MCP_PowerVoltagePayload pvp = {0};
+		pv.voltagePowerBoard = VPC_getVoltage();
+		if (pv.voltagePowerBoard < MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN) {
+			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN;
+		} else if (pv.voltagePowerBoard > MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX) {
+			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX;
+		}
+		encodeMCP_PowerVoltage(&pvp, &pv);
+		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
+
+    	heartbeat_10000ms = current_time + 10000;
     }
-}
-
-
-/*
- * Generate the message we want to transmit based on
- * ID arguments passed
- */
-void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcanP){
-
-    uint8_t payload[8];
-    memset(payload, 0, sizeof(payload));
-    CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
-
-	if (reciever_ID == TOP_ID){
-		if (sending_message_ID == VOLTAGE_RESPONSE)
-		{
-			set_voltage_response_header(&CAN_TxHeader);
-			set_voltage_response(voltage_reading, &payload);
-		}
-		else if (sending_message_ID == IM_ALIVE_VOLTAGE)
-		{
-			set_powerBoard_im_alive_header(&CAN_TxHeader);
-			set_MCP_version(payload);
-			set_powerBoard_sensor_state(payload, true);
-		}
-	}
-	if (HAL_CAN_AddTxMessage(hcanP, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) {
-		CAN_error_LOG(&CAN_TxHeader);
-	}
-
 }
 
 /*
@@ -105,28 +101,30 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
  * While the left most 4 bits is used as the ID of the receiver
  * The pay load will be a list of length 8 with 8 bit numbers, for a total of 64 bits or 8 bytes
  */
-void CAN_Process_Message(mailbox_buffer *to_Process){
+void MCP_Process_Message(mailbox_buffer *to_Process){
 
-	if (to_Process->message_id == KILL_REQUEST_VOLTAGE_MESSAGE)
-	{
-		kill_flag = get_kill_state(to_Process->data_Frame[0]);
-		voltage_request = get_request_power_state(to_Process->data_Frame[0]);
-		if (voltage_request) {
-			CAN_Send_Message(VOLTAGE_RESPONSE, TOP_ID, &hcan);
-		} else if (kill_flag) {
-			kill();
-		}
+	bool send_ack = true;
+
+	if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_ARE_YOU_ALIVE) {
+		MCP_Send_Im_Alive();
+		send_ack = false;
+	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
+		kill();
 	}
-	else if (to_Process->message_id == ARE_YOU_ALIVE)
-	{
-		CAN_Send_Message(IM_ALIVE_VOLTAGE, TOP_ID, &hcan);
-		// if (get_MCP_version(to_Process->data_Frame) != MCP_VERSION)
-		// {
-			
-		// }
-	}
+
+	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);
 	
 	to_Process->empty = true;
 	*to_Process->data_Frame  = 0;
 	to_Process->message_id = 0;
+}
+
+void MCP_Send_Im_Alive() {
+	MCP_PowerAlive pa = {0};
+	MCP_PowerAlivePayload pap = {0};
+	pa.sensorWorking = VPC_write_OK & VPC_read_OK;
+	encodeMCP_PowerAlive(&pap, &pa);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);
+	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToKicker);
 }

@@ -52,10 +52,10 @@ void run_test(page_struct *page) {
             kicker_shoot_run(6.5f);
             break;
         case 1315:
-            kicker_discharge();
+            kicker_stopCharge();
             break;
         case 1316:
-            kicker_changeState(true);
+            kicker_charge();
             break;
         case 31:
             drain_battery_run(18.0f);

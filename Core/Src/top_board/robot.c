@@ -1,42 +1,49 @@
 #include "robot.h"
 
+/* ============================================================ */
+/* ======================= VARIABLES ========================== */
+/* ============================================================ */
+
+/* Robot identity & mode */
 uint8_t ROBOT_ID;
 WIRELESS_CHANNEL ROBOT_CHANNEL;
-
-/* How often should the IMU try to calibrate before the robot gives up? */
-uint16_t MTi_MAX_INIT_ATTEMPTS = 5;
-
 volatile bool ROBOT_INITIALIZED = false;
 bool TEST_MODE = false;
 bool DISABLE_BUZZER = false;
+bool unix_initalized = false;
 
-/*
-	These variables are used for the CAN bus messaging
-	- TxMailBox is an array in which we place data to transmit
-	- powerBoard_alive, dribbler_alive, kicker_alive are used for the ARE YOU ALIVE 
-	- powerboard_voltage is used when we recieve the current voltage reading by the powerboard
-	- kicker_capacitor_voltage is used when we recieve the voltage from the kicker of the capacitor
-	- dribbler_sees_ball, ballsensor_sees_ball are used 
-	- dribbler_speed:
-		-- Used in transmitting to the dribbler board
-		-- We only want to transmit if there is an actual difference in the value, otherwise we are waisting time
-	- shoot_Power and doForce_CAN are for kicker
-	- doForce_CAN
-	- kill_robot, powerboard_request 
-*/
-uint32_t TxMailbox[1];
-bool powerBoard_alive, dribblerBoard_alive, kickerBoard_alive;
-bool dribbler_sees_ball, ballsensor_sees_ball;
-uint16_t kicker_capacitor_voltage;
-float powerboard_voltage;
-bool dribbler_speed = true;
-uint8_t shoot_power = 0;
-bool chip_state, kick_state = true;
-bool doForce_CAN;
-bool kill_robot = false; 
-bool powerboard_request = false;
+/* IMU */
 
-MTi_data* MTi;
+// How often should the IMU try to calibrate before the robot gives up? 
+uint16_t MTi_MAX_INIT_ATTEMPTS = 5;
+MTi_data* MTi; 
+
+/* MCP */
+
+//headers outgoing packets
+CAN_TxHeaderTypeDef areYouAliveHeaderToPower = {0};
+CAN_TxHeaderTypeDef areYouAliveHeaderToKicker = {0};
+CAN_TxHeaderTypeDef areYouAliveHeaderToDribbler = {0};
+CAN_TxHeaderTypeDef chipHeader = {0};
+CAN_TxHeaderTypeDef kickHeader = {0};
+CAN_TxHeaderTypeDef kickerChargeHeader = {0};
+CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
+CAN_TxHeaderTypeDef killHeader = {0};
+CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
+CAN_TxHeaderTypeDef ackToPower = {0};
+CAN_TxHeaderTypeDef ackToDribbler = {0};
+CAN_TxHeaderTypeDef ackToKicker = {0};
+
+//payload incoming packets
+MCP_DribblerAlive dribblerAlive = {0};
+MCP_KickerAlive kickerAlive = {0};
+MCP_KickerCapacitorVoltage kickerCapacitorVoltage = {0};
+MCP_PowerAlive powerAlive = {0};
+MCP_PowerVoltage powerVoltage = {0};
+MCP_SeesBall seesBall = {0};
+MCP_DribblerEncoder dribblerEncoder = {0};
+
+/* REM */
 
 // Incoming packets
 REM_RobotCommandPayload robotCommandPayload = {0};
@@ -57,12 +64,13 @@ REM_SX1280Filler sx1280filler = {0};
 REM_RobotCommand activeRobotCommand = {0};
 float activeStateReference[3];
 
-StateInfo stateInfo = {0.0f, false, {0.0}, 0.0f, 0.0f, {0.0}};
-bool halt = true;
-bool xsens_CalibrationDone = false;
-bool xsens_CalibrationDoneFirst = true;
-volatile bool REM_last_packet_had_correct_version = true;
+StateInfo stateInfo = {0.0f, false, {0.0f}, 0.0f, 0.0f, {0.0f}};
+
+/* Watchdog timer */
+
 IWDG_Handle* iwdg;
+
+/* Counters, timers & heartbeats */
 
 volatile uint32_t counter_loop = 0;
 volatile uint32_t counter_htim6 = 0;
@@ -71,17 +79,10 @@ volatile uint32_t counter_TIM_BUZZER = 0;
 volatile uint32_t counter_TIM_SHOOT = 0;
 volatile uint32_t counter_RobotCommand = 0;
 volatile uint32_t counter_RobotBuzzer = 0;
+uint8_t last_valid_RSSI = 0;
 uint32_t timestamp_initialized = 0;
 uint64_t unix_timestamp = 0;
-bool unix_initalized = false;
 
-bool flag_send_PID_gains = false;
-bool flag_sdcard_write_feedback = false;
-bool flag_sdcard_write_command = false;
-bool is_connected_serial = false;
-bool is_connected_wireless = false;
-bool is_connected_xsens = false;
-uint8_t last_valid_RSSI = 0;
 uint32_t timestamp_last_packet_serial = 0;
 uint32_t timestamp_last_packet_wireless = 0;
 uint32_t timestamp_last_packet_xsens = 0;
@@ -90,7 +91,22 @@ uint32_t heartbeat_17ms_counter = 0;
 uint32_t heartbeat_17ms = 0;
 uint32_t heartbeat_100ms = 0;
 uint32_t heartbeat_1000ms = 0;
-uint32_t heartbeat_10000ms = 0; // used for sending request to powerboard every 10 seconds
+
+/* flags and bools */
+
+bool flag_send_PID_gains = false;
+bool flag_sdcard_write_feedback = false;
+bool flag_sdcard_write_command = false;
+bool is_connected_serial = false;
+bool is_connected_wireless = false;
+bool is_connected_xsens = false;
+bool halt = true;
+bool xsens_CalibrationDone = false;
+bool xsens_CalibrationDoneFirst = true;
+volatile bool REM_last_packet_had_correct_version = true;
+bool flag_PowerBoard_alive = false;
+bool flag_DribblerBoard_alive = false;
+bool flag_KickerBoard_alive = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -106,123 +122,9 @@ static volatile Wireless_Packet rxPacket;
 SX1280_Interface SX_Interface = {.SPI= COMM_SPI, .TXbuf= SX_TX_buffer, .RXbuf= SX_RX_buffer /*, .logger=LOG_printf*/,};
 
 
+
 void updateTestCommand(REM_RobotCommand* rc, uint32_t time);
-
-
-/* ============================================================ */
-/* ==================== CAN BUS METHODS ======================= */
-/* ============================================================ */
-
-/**
- * @brief Generate the message we want to transmit based on ID arguments passed
- */
-void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan){
-	uint8_t payload[8];
-  	memset(payload, 0, sizeof(payload));
-	CAN_TxHeaderTypeDef CAN_TxHeader = CAN_Initalize_Header();
-
-	if (sending_message_ID == ARE_YOU_ALIVE) {
-		set_are_you_alive_message_header(&CAN_TxHeader, reciever_ID);
-		set_MCP_version(payload);
-	} else if (reciever_ID == POWER_ID) {
-		if(sending_message_ID == KILL_REQUEST_VOLTAGE_MESSAGE) {
-			set_kill_voltage_message_header(&CAN_TxHeader);
-			set_kill_state(payload, kill_robot);
-			set_request_power_state(payload, powerboard_request);
-		}
-	} else if (reciever_ID == DRIBBLER_ID) {
-		if (sending_message_ID == DRIBBLER_SPEED) {
-			set_request_dribbler_speed_header(&CAN_TxHeader);
-			set_dribbler_sees_ball(payload, dribbler_speed);
-		}
-	} else if (reciever_ID == KICK_CHIP_ID) {
-		if (sending_message_ID == KICK_MESSAGE) {
-			set_header_kick(&CAN_TxHeader);
-			set_kick_state(payload, kick_state);
-			set_do_Force(payload, doForce_CAN);
-			set_shoot_power(payload, shoot_power);
-		} else if (sending_message_ID == CHIP_MESSAGE) {
-			set_header_chip(&CAN_TxHeader);
-			set_chip_state(payload, kick_state);
-			set_do_Force(payload, doForce_CAN);
-			set_shoot_power(payload, shoot_power);
-		} else if (sending_message_ID == DISCHARGE_MESSAGE) {
-			set_header_discharge(&CAN_TxHeader);
-		} else if (sending_message_ID == REQUEST_CAPACITOR_VOLTAGE_MESSAGE) {
-			set_request_capacitor_voltage_header(&CAN_TxHeader);
-		}
-	}
-
-	if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, &payload, &TxMailbox[0]) != HAL_OK) CAN_error_LOG(&CAN_TxHeader);
-}
-
-/**
-	Here we process the messages we have recieved
-	This is done via the 
- */
-void CAN_Process_Message(mailbox_buffer *to_Process){
-	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
-	if (to_Process->message_id == IM_ALIVE_VOLTAGE)	{
-		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and POWER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-			powerBoard_alive = false;
-		} else if( (get_powerBoard_sensor_state(to_Process->data_Frame) == POWER_SENSOR_NOT_WORKING)) {
-			LOG_printf("CAN_ERROR :: Powerboard voltage meter is not working\n");
-			powerBoard_alive = false;
-		} else {
-			LOG_printf("CAN_INIT :: Power board is initalized correctly!\n");
-			powerBoard_alive = true;
-		}
-	} else if (to_Process->message_id == IM_ALIVE_KICKER) {
-		if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-			LOG_printf("CAN_ERROR :: Mismatch version between TOP and KICKER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-			kickerBoard_alive = false;
-		} else if ( (get_capacitor_charging_state(to_Process->data_Frame) == CAPACITOR_SENSOR_NOT_WORKING)) {
-			LOG_printf("CAN_ERROR :: Kicker is not charging\n");
-			kickerBoard_alive = false;
-		} else if( (get_capacitor_sensor_state(to_Process->data_Frame) == CAPACITOR_NOT_CHARGING)) {
-			LOG_printf("CAN_ERROR :: Kicker voltage meter is not working\n");
-			kickerBoard_alive = false;
-		} else {
-			LOG_printf("CAN_INIT :: Kicker board is initalized correctly!\n");
-			kickerBoard_alive = true;
-		}
-	} else if (to_Process->message_id == IM_ALIVE_DRIBBLER)
-	{
-		// if( get_MCP_version(to_Process->data_Frame) != MCP_VERSION) {
-		// 	LOG_printf("CAN_ERROR :: Mismatch version between TOP and DRIBBLER board || %d and %d respectively\n", MCP_VERSION, get_MCP_version(to_Process->data_Frame));
-		// 	dribblerBoard_alive = false;
-		// } else if( (get_ball_sensor_state(to_Process->data_Frame) == BALLSENSOR_NOT_WORKING) ) {
-		// 	LOG_printf("CAN_ERROR :: Ball sensor is not functioning\n");
-		// 	dribblerBoard_alive = false;
-		// } else if ( (get_dribbler_state(to_Process->data_Frame) == DRIBBLER_NOT_WORKING) ) {
-		// 	LOG_printf("CAN_ERROR :: Dribbler is not functioning\n");
-		// 	dribblerBoard_alive = false;
-		// } else {
-		// 	LOG_printf("CAN_INIT :: Dribbler board is initalized correctly!\n");
-		// 	dribblerBoard_alive = true;
-		// }
-		//LOG_printf("CAN PWM :: %f",  get_dribbler_speed(to_Process->data_Frame));
-		uint32_t tt = get_dribbler_speed(to_Process->data_Frame);
-		char ff[64];
-		sprintf(ff, "Float :: %d", tt);
-		LOG_printf(ff);
-	} else if (to_Process->message_id == VOLTAGE_RESPONSE) {
-		powerboard_voltage = get_voltage_response(to_Process->data_Frame);
-		LOG_printf("CAN :: Voltage reading: %f \n", powerboard_voltage);
-	} else if (to_Process->message_id == DRIBBLER_SEESBALL_MESSAGE)	{
-		dribbler_sees_ball = get_dribbler_sees_ball(to_Process->data_Frame);
-		LOG_printf("CAN :: Drib state %s", dribbler_sees_ball ? "TRUE" : "FALSE");
-	} else if (to_Process->message_id == BALLSENSOR_MESSAGE) {
-		ballsensor_sees_ball = get_sensor_sees_ball(to_Process->data_Frame);
-	} else if (to_Process->message_id == CAPACITOR_VOLTAGE_MESSAGE) {
-		kicker_capacitor_voltage = get_capacitor_voltage_response(to_Process->data_Frame);;
-	} 
-	LOG_sendAll();
-	to_Process->empty = true; // reset the mailbox to the empty state
-	*to_Process->data_Frame  = 0;
-	to_Process->message_id = 0;
-}
+void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload);
 
 /* ============================================================ */
 /* ==================== WIRELESS CALLBACKS ==================== */
@@ -296,29 +198,34 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateReference[yaw] = robotCommand->angle;
 	stateControl_SetRef(stateReference);
 
-	if (robotCommand->dribbler != dribbler_speed) {
-		if (robotCommand->dribbler == 0.0f)
-			dribbler_speed = false;
-		else 
-			dribbler_speed = true;
-		CAN_Send_Message(DRIBBLER_SPEED, DRIBBLER_ID, &hcan1);
-	}
+	MCP_SetDribblerSpeed sds = {0};
+	sds.speed = robotCommand->dribbler;
+	MCP_SetDribblerSpeedPayload sdsp = {0};
+	encodeMCP_SetDribblerSpeed(&sdsp, &sds);
+	MCP_Send_Message(&hcan1, sdsp.payload, setDribblerSpeedHeader, MCP_DRIBBLER_BOARD);
 	
-	/*====================== NEW SHOOTING CODE =====================*/
-	if (ballsensor_sees_ball || robotCommand->doForce) // maybe we remove the doForce here as we are sending it dribbler
-	{	
-		shoot_power = robotCommand->kickChipPower;
-		doForce_CAN = robotCommand->doForce;
-		if (robotCommand->doChip)
-			CAN_Send_Message(CHIP_MESSAGE, KICK_CHIP_ID, &hcan1);
-		else if (robotCommand->doKick)
-			CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
-		else if (robotCommand->kickAtAngle)
-		{
+	if (seesBall.ballsensorSeesBall || robotCommand->doForce) {	
+		if (robotCommand->doChip) {
+			MCP_Chip chip = {0};
+			chip.shootPower = robotCommand->kickChipPower;
+			MCP_ChipPayload cp = {0};
+			encodeMCP_Chip(&cp, &chip);
+			MCP_Send_Message(&hcan1, cp.payload, chipHeader, MCP_KICKER_BOARD);
+		} else if (robotCommand->doKick) {
+			MCP_Kick kick = {0};
+			kick.shootPower = robotCommand->kickChipPower;
+			MCP_KickPayload kp = {0};
+			encodeMCP_Kick(&kp, &kick);
+			MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
+		} else if (robotCommand->kickAtAngle) {
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
 			if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
-				CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+				MCP_Kick kick = {0};
+				kick.shootPower = robotCommand->kickChipPower;
+				MCP_KickPayload kp = {0};
+				encodeMCP_Kick(&kp, &kick);
+				MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
 			}
 		}
 	}
@@ -363,13 +270,62 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 
 	// Rotate around, slowly
 	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
-	// // Turn on dribbler
-	// rc->dribbler = period_fraction;
-	// // Kick a little every block
-	if(0.95 < period_fraction){
-		CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1);
+	// Turn on dribbler
+	rc->dribbler = period_fraction;
+	// Kick a little every block
+	if(0.95f < period_fraction){
+		rc->doKick = true;
+		rc->kickChipPower = 1;
+		rc->doForce = true;
+	}
+}
+
+
+/* ============================================================ */
+/* ====================== MCP CALLBACKS ======================= */
+/* ============================================================ */
+void MCP_Process_Message(mailbox_buffer *to_Process) {
+	if (ROBOT_INITIALIZED) toggle_Pin(LED7_pin);
+	bool send_ack = true;
+	switch (to_Process->message_id) {
+		case MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_ALIVE: ;
+			MCP_PowerAlivePayload* pap = (MCP_PowerAlivePayload*) to_Process->data_Frame;
+			decodeMCP_PowerAlive(&powerAlive, pap);
+			flag_PowerBoard_alive = true;
+			send_ack = false;
+			break;
+		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE: ;
+			MCP_DribblerAlivePayload* dap = (MCP_DribblerAlivePayload*) to_Process->data_Frame;
+			decodeMCP_DribblerAlive(&dribblerAlive, dap);
+			flag_DribblerBoard_alive = true;
+			send_ack = false;
+			break;
+		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_ALIVE: ;
+			MCP_KickerAlivePayload* kap = (MCP_KickerAlivePayload*) to_Process->data_Frame;
+			decodeMCP_KickerAlive(&kickerAlive, kap);
+			flag_KickerBoard_alive = true;
+			send_ack = false;
+			break;
+		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
+			MCP_KickerCapacitorVoltagePayload* kcvp = (MCP_KickerCapacitorVoltagePayload*) to_Process->data_Frame;
+			decodeMCP_KickerCapacitorVoltage(&kickerCapacitorVoltage, kcvp);
+			break;
+		case MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_VOLTAGE: ;
+			MCP_PowerVoltagePayload* pvp = (MCP_PowerVoltagePayload*) to_Process->data_Frame;
+			decodeMCP_PowerVoltage(&powerVoltage, pvp);
+			break;
+		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_SEES_BALL: ;
+			MCP_SeesBallPayload* spb = (MCP_SeesBallPayload*) to_Process->data_Frame;
+			decodeMCP_SeesBall(&seesBall, spb);
+			break;		
 	}
 
+	if (send_ack) MCP_Send_Ack(&hcan1, to_Process->data_Frame[0], to_Process->message_id);
+
+	LOG_sendAll();
+	to_Process->empty = true;
+	*to_Process->data_Frame  = 0;
+	to_Process->message_id = 0;
 }
 
 
@@ -380,7 +336,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 void init(void){
 
 	// Turn off all leds. Use leds to indicate init() progress
-	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 1);
+	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	
 	// Initialize (and break) the wheels as soon as possible. This prevents wheels from randomly spinning when powering up the robot.
 	int wheels_init_attemps = 0;
@@ -500,11 +456,11 @@ void init(void){
 	if(ROBOT_CHANNEL == BLUE_CHANNEL){
 		Wireless_setChannel(SX, BLUE_CHANNEL);
 		LOG("[init:"STRINGIZE(__LINE__)"] BLUE CHANNEL\n");
-		buzzer_Play(beep_blue); HAL_Delay(350);
+		// buzzer_Play(beep_blue); HAL_Delay(350);
 	}else{
 		Wireless_setChannel(SX, YELLOW_CHANNEL);
 		LOG("[init:"STRINGIZE(__LINE__)"] YELLOW CHANNEL\n");
-		buzzer_Play(beep_yellow); HAL_Delay(350);
+		// buzzer_Play(beep_yellow); HAL_Delay(350);
 	}
 	LOG_sendAll();
     // SX1280 section 7.3 FLRC : Syncword is 4 bytes at the beginning of each transmission, that ensures that only the right robot / basestation listens to that transmission.
@@ -551,7 +507,6 @@ void init(void){
 	set_Pin(LED4_pin, 1);
 
 {
-	LOG("[init:"STRINGIZE(__LINE__)"] Initialized\n");
 
 	// Check if we are in test mode. If so, sound an alarm
 	if(TEST_MODE) {
@@ -569,26 +524,57 @@ void init(void){
 	speaker_Stop();
 
 	// Play RobotID
-	HAL_Delay(50);
-	buzzer_Play_ID(ROBOT_ID);
+	// buzzer_Play_ID(ROBOT_ID);
+	// HAL_Delay(1500);
 
 
-{	// ====== Check if communication if other boards is working
-  	CAN_Init(&hcan1, TOP_ID); // this is required for the CAN filter
-	check_otherboards(POWER_ID, &powerBoard_alive);
+{	// ====== MCP =====
+  	//initialize MCP
+	MCP_Init(&hcan1, MCP_TOP_BOARD);
+	LOG_printf("[init:"STRINGIZE(__LINE__)"] CAN VERSION: %d\n", MCP_LOCAL_VERSION);
+	
+	//initialize headers
+	areYouAliveHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_POWER_BOARD);
+	areYouAliveHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_DRIBBLER_BOARD);
+	areYouAliveHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_KICKER_BOARD);
+	chipHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_CHIP, MCP_KICKER_BOARD);
+	kickHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICK, MCP_KICKER_BOARD);
+	kickerChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CHARGE, MCP_KICKER_BOARD);
+	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
+	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
+	setDribblerSpeedHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
+	ackToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_POWER_BOARD);
+	ackToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_DRIBBLER_BOARD);
+	ackToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_KICKER_BOARD);
+
+	MCP_SetReadyToReceive(true);
+
+	//check if communication with other boards is working
+	MCP_AreYouAlive areYouAlive = {0};
+	MCP_AreYouAlivePayload ayap = {0};
+	encodeMCP_AreYouAlive(&ayap, &areYouAlive);
+
+	check_otherboards(areYouAliveHeaderToPower, &flag_PowerBoard_alive, &ayap);
+	if (!flag_PowerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Powerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(DRIBBLER_ID, &dribblerBoard_alive);
+	check_otherboards(areYouAliveHeaderToDribbler, &flag_DribblerBoard_alive, &ayap);
+	if (!flag_DribblerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Dribblerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	check_otherboards(KICK_CHIP_ID, &kickerBoard_alive);
+	check_otherboards(areYouAliveHeaderToKicker, &flag_KickerBoard_alive, &ayap);
+	if (!flag_KickerBoard_alive) LOG("[init:"STRINGIZE(__LINE__)"] Kickerboard not alive\n");
 	if (!TEST_MODE) {IWDG_Refresh(iwdg);}
-	if (!(powerBoard_alive && dribblerBoard_alive && kickerBoard_alive)) {
+	bool all_alive = flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive;
+	if (!all_alive) {
 		buzzer_Play_WarningFour();
-		HAL_Delay(1000);
 	}
+	LOG_sendAll();
+	end_of_boot_screen(all_alive);
 	mcp_page_check_alive();
 }
 	
 	set_Pin(LED6_pin, 1);
+
+	LOG("[init:"STRINGIZE(__LINE__)"] Initialized\n");
 
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
 	// SX1280 section 10.7 Transceiver Circuit Modes Graphical Illustration
@@ -626,32 +612,29 @@ void init(void){
 	// LOG_sendAll();
 }
 
-uint8_t robot_get_ID(){
+uint8_t robot_get_ID() {
 	return ROBOT_ID;
 }
 
-uint8_t robot_get_Channel(){
+uint8_t robot_get_Channel() {
 	return ROBOT_CHANNEL == YELLOW_CHANNEL ? 0 : 1;
 }
 
-void check_otherboards(uint8_t board_ID, bool *board_state){
+void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload) {
 
 	//We check if the board is alive three times, which means we send the message thrice
 	uint8_t MAX_ATTEMPTS = 0;
-	while (MAX_ATTEMPTS < 3 && *board_state == false)
-	{
+	while (MAX_ATTEMPTS < 3 && *board_state == false) {
 		MAX_ATTEMPTS++;
-		CAN_Send_Message(ARE_YOU_ALIVE, board_ID, &hcan1);
-		HAL_Delay(500);
-		if (CAN_to_process){ 
-			if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
-			if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
-			if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
-			CAN_to_process = false;
+		MCP_Send_Message_Always(&hcan1, &board_payload, board_header);
+		HAL_Delay(10);
+		if (MCP_to_process){
+			if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);
+			if (!MailBox_two.empty) MCP_Process_Message(&MailBox_two);
+			if (!MailBox_three.empty) MCP_Process_Message(&MailBox_three);
+			MCP_to_process = false;
 		}
-	}	
-	char *name =  board_ID == POWER_ID ? "Power Board" : (board_ID == DRIBBLER_ID ? "Dribbler Board" : "Kickker Board");
-	if (*board_state == false) LOG_printf("CAN_ERROR :: The %s is not alive \n", name);
+	}
 }
 
 
@@ -669,14 +652,12 @@ void loop(void){
     LOG_send();
 
 	/* CAN BUS RELATED PROCESS */
-	if (CAN_to_process){
-		if (!MailBox_one.empty) CAN_Process_Message(&MailBox_one);
-		if (!MailBox_two.empty) CAN_Process_Message(&MailBox_two);
-		if (!MailBox_three.empty) CAN_Process_Message(&MailBox_three);
-		CAN_to_process = false;
+	if (MCP_to_process){
+		if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);
+		if (!MailBox_two.empty) MCP_Process_Message(&MailBox_two);
+		if (!MailBox_three.empty) MCP_Process_Message(&MailBox_three);
+		MCP_to_process = false;
 	}
-
-	OLED_Update(getRecentlyPressedButton(), TEST_MODE);
 
     // Play a warning if a REM packet with an incorrect version was received
     if(!REM_last_packet_had_correct_version) {
@@ -809,19 +790,12 @@ void loop(void){
 
     }
 
-	// Heartbeat every 10000ms (10sec)
-	if (heartbeat_10000ms < current_time) {
-		
-	} else {
-		//TODO send request to some other board?
-	}
-
     /* LEDs for debugging */
     // LED0 : toggled every second while alive
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
     set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
-    set_Pin(LED4_pin, dribbler_sees_ball);       // On when the dribbler detects the ball
+    set_Pin(LED4_pin, seesBall.ballsensorSeesBall || seesBall.dribblerSeesBall);       // On when the dribbler detects the ball
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
 	// LED6 Toggled when a REM packet is received
     // LED7 Wireless_Readpacket_Cplt : toggled when a MCP packet is received
@@ -866,11 +840,8 @@ void handleRobotMusicCommand(uint8_t* packet_buffer){
 }
 
 void handleRobotKillCommand(){
-	kill_robot = true;
-	powerboard_request = false;
-	// CAN_Send_Message(KILL_REQUEST_VOLTAGE_MESSAGE, POWER_ID, &hcan1);
-	// before sending the message do we have to do something such as discharging the capacitors?
-	return;
+	MCP_KillPayload kp = {0};
+	MCP_Send_Message_Always(&hcan1, &kp, killHeader);
 }
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp){
@@ -930,7 +901,7 @@ bool handlePacket(uint8_t* packet_buffer, uint8_t packet_length){
 
 
 			default:
-				LOG_printf("[SPI_TxRxCplt] Error! At %d of %d bytes. [@] = %d\n", total_bytes_processed, packet_length, packet_header);
+				LOG_printf("[REM Handler] Error! At %d of %d bytes. [Packet type] = %d\n", total_bytes_processed, packet_length, packet_header);
 				return false;
 		}
 	}
@@ -1071,9 +1042,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
 			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			// robotFeedback.batteryLevel = powerboard_voltage;
-			// robotFeedback.ballSensorWorking = ballSensor_isInitialized();
-			// robotFeedback.ballSensorSeesBall = ballPosition.canKickBall;
+			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
+			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
 			// robotFeedback.capacitor_voltage = kicker_capacitor_voltage;
 
@@ -1086,7 +1057,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.theta = atan2(vu, vv);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
-			robotFeedback.dribblerSeesBall = dribbler_sees_ball;
+			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
 		}
 		
 		/* == Fill robotStateInfo packet == */ {	
@@ -1099,9 +1070,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
 			robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
 			robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
-			// robotStateInfo.dribbleSpeed = dribbler_GetMeasuredSpeeds();
-			// robotStateInfo.filteredDribbleSpeed = dribbler_GetFilteredSpeeds();
-			// robotStateInfo.dribblespeedBeforeGotBall = dribbler_GetSpeedBeforeGotBall();
+			robotStateInfo.dribbleSpeed = dribblerEncoder.measuredSpeed;
+			robotStateInfo.filteredDribbleSpeed = dribblerEncoder.filteredSpeed;
+			robotStateInfo.dribblespeedBeforeGotBall = seesBall.dribblerSpeedBefore;
 			robotStateInfo.bodyXIntegral = pointerGlobalBodyRef[vel_x]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
 			robotStateInfo.bodyYIntegral = pointerGlobalBodyRef[vel_y]; //
 			robotStateInfo.bodyWIntegral = pointerGlobalBodyRef[vel_w]; //

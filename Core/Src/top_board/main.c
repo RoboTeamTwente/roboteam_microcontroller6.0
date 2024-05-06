@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "robot.h"
+#include "MCP_Driver.h"
 
 /* USER CODE END Includes */
 

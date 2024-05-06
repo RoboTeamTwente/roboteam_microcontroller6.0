@@ -44,15 +44,15 @@ void mcp_page_update(page_struct *page) {
 }
 
 void mcp_page_check_alive() {
-    if (!kickerBoard_alive) {
+    if (!flag_KickerBoard_alive) {
         strcpy(board_names[n_not_alive], "Kicker board");
         n_not_alive++;
     }
-    if (!powerBoard_alive) {
+    if (!flag_PowerBoard_alive) {
         strcpy(board_names[n_not_alive], "Power board");
         n_not_alive++;
     }
-    if (!dribblerBoard_alive) {
+    if (!flag_DribblerBoard_alive) {
         strcpy(board_names[n_not_alive], "Dribbler board");
         n_not_alive++;
     }

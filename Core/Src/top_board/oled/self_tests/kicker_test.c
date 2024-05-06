@@ -61,30 +61,31 @@ void kicker_test_initChildren(page_struct *parent) {
 }
 
 void kicker_shoot_run(float speed){
-
-    shoot_power = speed;  // set the speed
-    kick_state = true;
     start_of_test(); // Display that we are running a test
-    
-    CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1); // send the command to the kicker board 
+    MCP_Kick kick = {0};
+    MCP_KickPayload payload = {0};
+    kick.shootPower = speed;
+    encodeMCP_Kick(&payload, &kick);
+    MCP_Send_Message(&hcan1, &payload, kickHeader, MCP_KICKER_BOARD);
     HAL_Delay(500);
     end_of_test();
 
 }
 
-void kicker_changeState(bool newState){
-
-    kick_state = newState;
-    shoot_power = 0;
-
-    CAN_Send_Message(KICK_MESSAGE, KICK_CHIP_ID, &hcan1); // send the command to the kicker board 
+void kicker_charge() {
+    MCP_KickerCharge kc = {0};
+    MCP_KickerChargePayload kcp = {0};
+    encodeMCP_KickerCharge(&kcp, &kc);
+    MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
     HAL_Delay(500);
     end_of_test();
-
 }
 
-void kicker_discharge() {
-    CAN_Send_Message(DISCHARGE_MESSAGE, KICK_CHIP_ID, &hcan1);
+void kicker_stopCharge() {
+    MCP_KickerStopCharge ksc = {0};
+    MCP_KickerStopChargePayload kscp = {0};
+    encodeMCP_KickerStopCharge(&kscp, &ksc);
+    MCP_Send_Message(&hcan1, &kscp, kickerStopChargeHeader, MCP_KICKER_BOARD);
     HAL_Delay(500);
     end_of_test();
 }

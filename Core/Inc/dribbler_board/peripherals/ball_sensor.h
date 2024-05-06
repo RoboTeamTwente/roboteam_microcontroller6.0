@@ -13,4 +13,7 @@ void ballSensor_TestIfWorking();
 void ballSensor_IRQ_Handler();
 bool ballSensor_seesBall();
 
+extern bool bs_seesBall;
+extern bool ballSensorIsWorking;
+
 #endif /*_BALL_SENSOR_H*/

@@ -1,8 +1,7 @@
 #include "ball_sensor.h"
-#include "CanDriver.h"
 
-static bool seesBall = false; // ball sensor sees ball
-static bool ballSensorIsWorking = false;
+bool bs_seesBall = false; // ball sensor sees ball
+bool ballSensorIsWorking = false;
 
 // ================ PRIVATE FUNCTION DECLARATIONS ================ //
 void read_gpio();
@@ -11,13 +10,13 @@ void read_gpio();
 
 void ballSensor_Init() {
 	ballSensor_TestIfWorking();
-	seesBall = false;
+	bs_seesBall = false;
 }
 
 void ballSensor_DeInit() {
 	set_Pin(IR_LED_pin, 0);
 	ballSensorIsWorking = false;
-	seesBall = false;
+	bs_seesBall = false;
 }
 
 /**
@@ -33,7 +32,7 @@ void ballSensor_TestIfWorking() {
 	//Check 1: check if turning the LED off gives that the robot does see the ball, simulating that the robot got the ball
 	set_Pin(IR_LED_pin, 1);
 	HAL_Delay(100);
-	if (!seesBall) {
+	if (!bs_seesBall) {
 		ballSensorIsWorking = false;
 		set_Pin(IR_LED_pin, 0);
 		return;
@@ -42,7 +41,7 @@ void ballSensor_TestIfWorking() {
 	//Check 2: check if turning the LED on gives that the robot doesn't see the ball, simulating that the robot lost the ball
 	set_Pin(IR_LED_pin, 0);
 	HAL_Delay(100);
-	if (seesBall) {
+	if (bs_seesBall) {
 		ballSensorIsWorking = false;
 		return;
 	}
@@ -57,23 +56,21 @@ read from GPIO:
 	else low --> ball is present:
 		set seesball to true
 	write to LOG about current ball state
-	set LED to value of seesBall
+	set LED to value of bs_seesBall
 */
 void ballSensor_IRQ_Handler() {
 	if (!ballSensorIsWorking) return;
 	read_gpio();
-	if (!seesBall){
+	if (!bs_seesBall){
 		LOG("[BALLSENSOR]:: We lost the ball");
-		ballsensor_state = false;
 	} else{
 		LOG("[BALLSENSOR]:: We have the ball");
-		ballsensor_state = true;
 	}
 	LOG_sendAll();
 }
 
 bool ballSensor_seesBall() {
-	return seesBall;
+	return bs_seesBall;
 }
 
 bool ballSensor_isWorking() {
@@ -88,5 +85,5 @@ void read_gpio() {
 		If GPIO_PIN_SET then set return to false, otherwise true
 	*/
 	GPIO_PinState portState = HAL_GPIO_ReadPin(BS_IRQ_GPIO_Port, BS_IRQ_Pin);
-	seesBall = portState == GPIO_PIN_RESET;
+	bs_seesBall = portState == GPIO_PIN_RESET;
 }

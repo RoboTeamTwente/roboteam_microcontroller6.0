@@ -14,6 +14,6 @@ void voltage_reading_init(page_struct *parent) {
 
 void voltage_update_page(page_struct *page){
     char temp[MAX_STRING_LENGTH];
-    sprintf(temp, "Reading:%f", powerboard_voltage);
+    sprintf(temp, "Reading:%f", powerVoltage.voltagePowerBoard);
     strcpy(page->line0, temp);
 }
