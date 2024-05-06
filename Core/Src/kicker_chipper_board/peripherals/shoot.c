@@ -21,10 +21,10 @@ int calculateShootingTime(shoot_types type);
 
 void shoot_Init(){
 	charged = false;
-	shootState = shoot_Charging;
+	shootState = shoot_Off;
 	set_Pin(Kick_pin, 0);		// Kick off
 	set_Pin(Chip_pin, 0);		// Chip off
-	set_Pin(Charge_pin, 1);		// shoot_Charging on
+	set_Pin(Charge_pin, 0);		// shoot_Charging on
 	shoot_Callback(); 			// go to callback for the first time
 }
 

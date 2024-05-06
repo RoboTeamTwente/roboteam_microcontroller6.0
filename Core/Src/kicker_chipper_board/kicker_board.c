@@ -64,9 +64,11 @@ void loop() {
         MCP_to_process = false;
 	}
 
-	uint32_t sensor_value = 0;
-	if (MCP_CapacitorVoltage.voltage != sensor_value) {
-		MCP_CapacitorVoltage.voltage = sensor_value;
+	voltage_Read();
+	uint32_t capVoltage = roundf(voltage_Get());
+	if (capVoltage > MCP_PACKET_RANGE_MCP_KICKER_CAPACITOR_VOLTAGE_VOLTAGE_MAX) capVoltage = MCP_PACKET_RANGE_MCP_KICKER_CAPACITOR_VOLTAGE_VOLTAGE_MAX;
+	if (MCP_CapacitorVoltage.voltage != capVoltage) {
+		MCP_CapacitorVoltage.voltage = capVoltage;
 		send_CapVoltage = true;
 	}
 
