@@ -57,9 +57,9 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[3]);
  * 
  * @param global 	The global coordinates {vel_x, vel_y, vel_w, yaw}
  * @param local 	The local coordinates {vel_u, vel_v, vel_w, yaw}
- * @param yaw 		The current yaw angle (stateLocal[yaw])
+ * @param yaw_angle 		The current yaw angle (stateLocal[yaw])
  */
-static void global2Local(float global[4], float local[4], float yaw);
+static void global2Local(float global[4], float local[4], float yaw_angle);
 
 /**
  * Determines the desired wheel speeds given the desired velocities
@@ -370,12 +370,12 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[3]){
 	}
 }
 
-static void global2Local(float global[4], float local[4], float yaw){
+static void global2Local(float global[4], float local[4], float yaw_angle){
 	//trigonometry
-	local[vel_u] = cosf(yaw) * global[vel_x] + sinf(yaw) * global[vel_y];
-	local[vel_v] = -sinf(yaw) * global[vel_x] + cosf(yaw) * global[vel_y];
+	local[vel_u] = cosf(yaw_angle) * global[vel_x] + sinf(yaw_angle) * global[vel_y];
+	local[vel_v] = -sinf(yaw_angle) * global[vel_x] + cosf(yaw_angle) * global[vel_y];
     local[vel_w] = global[vel_w];
-	local[yaw] = yaw;
+	local[yaw] = yaw_angle;
 }
 
 static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]){
