@@ -45,8 +45,8 @@ typedef enum{
 #define MIN_CHIP_TIME 10 			// minimum time [ms] period of chipping
 #define MAX_CHIP_TIME 100 			// maximum time [ms] period of chipping
 #define TIMER_FREQ 10000 			// frequency [Hz] of TIM16  (Clock frequency divided by prescaler)
-#define READY_CALLBACK_FREQ 1 		// frequency [Hz] of callback when shootState is Ready
-#define CHARGING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Charging
+#define READY_CALLBACK_FREQ 10 		// frequency [Hz] of callback when shootState is Ready
+#define CHARGING_CALLBACK_FREQ 1 	// frequency [Hz] of callback when shootState is Charging
 #define SHOOTING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Shooting
 #define OFF_CALLBACK_FREQ 1 		// frequency [Hz] of callback when shootState is Off
 #define CHARGE_LIMIT 200			// voltage [V] capacitor should be charged to

@@ -41,7 +41,9 @@ void shoot_Callback()
 {
 	int callbackTime = 0;
 	float voltage = voltage_Get();
-	if (read_Pin(Fault_pin)) shoot_DeInit();
+	if (read_Pin(Fault_pin)) {
+		shoot_DeInit();
+	}
 
 	switch(shootState){
 	case shoot_Ready:
