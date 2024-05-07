@@ -118,8 +118,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 // Handles the interrupts of the different timers.
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM_SHOOT->Instance) {
-			shoot_Callback();
-		}
+		shoot_Callback();
+	}
 }
 
 void MCP_Send_Im_Alive() {
