@@ -30,8 +30,9 @@ void init() {
 	kickerCapacitorHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CAPACITOR_VOLTAGE, MCP_TOP_BOARD);
 
 	// Peripherals
+	//sensor_working =
+	voltage_Init();
 	shoot_Init();
-	sensor_working = init_sensor();
 
 	// MCP Alive
 	MCP_SetReadyToReceive(true);
@@ -102,7 +103,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		shoot_SetPower(mcp_kick.shootPower);
 		shoot_Shoot(shoot_Kick);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_CHARGE) {
-		//TODO when making new shoot.c
+		shoot_StartCharging();
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_STOP_CHARGE) {
 		shoot_DeInit();
 	}

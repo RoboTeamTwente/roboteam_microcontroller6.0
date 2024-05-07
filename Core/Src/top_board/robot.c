@@ -30,9 +30,6 @@ CAN_TxHeaderTypeDef kickerChargeHeader = {0};
 CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
 CAN_TxHeaderTypeDef killHeader = {0};
 CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
-CAN_TxHeaderTypeDef ackToPower = {0};
-CAN_TxHeaderTypeDef ackToDribbler = {0};
-CAN_TxHeaderTypeDef ackToKicker = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
@@ -543,9 +540,6 @@ void init(void){
 	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
 	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
 	setDribblerSpeedHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
-	ackToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_POWER_BOARD);
-	ackToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_DRIBBLER_BOARD);
-	ackToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_KICKER_BOARD);
 
 	MCP_SetReadyToReceive(true);
 
@@ -600,6 +594,11 @@ void init(void){
 	heartbeat_1000ms = timestamp_initialized + 1000;
 	
 	ROBOT_INITIALIZED = true;
+
+	MCP_KickerCharge kc = {0};
+	MCP_KickerChargePayload kcp = {0};
+	encodeMCP_KickerCharge(&kcp, &kc);
+	MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 
 	// uint32_t temp = 1234567890;
 	// uint32_t tt;

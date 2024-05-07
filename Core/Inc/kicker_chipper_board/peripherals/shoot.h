@@ -20,6 +20,7 @@
 #include "gpio_util.h"
 #include "tim_util.h"
 #include <stdbool.h>
+#include "voltage.h"
 
 ///////////////////////////////////////////////////// STRUCTS
 
@@ -48,6 +49,8 @@ typedef enum{
 #define CHARGING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Charging
 #define SHOOTING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Shooting
 #define OFF_CALLBACK_FREQ 1 		// frequency [Hz] of callback when shootState is Off
+#define CHARGE_LIMIT 200			// voltage [V] capacitor should be charged to
+#define START_REGHARGE_VOLT 190		// voltage [V] capacitor should start charging back up again
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
@@ -62,5 +65,7 @@ void shoot_Shoot(shoot_types type);
 shoot_states shoot_GetState();
 
 void shoot_SetPower(float input);
+
+void shoot_StartCharging();
 
 #endif /* __shoot_H */

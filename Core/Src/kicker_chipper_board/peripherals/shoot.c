@@ -40,31 +40,28 @@ void shoot_DeInit(){
 void shoot_Callback()
 {
 	int callbackTime = 0;
-	static int count = 0;
-	static bool charging = false;
+	float voltage = voltage_Get();
+	if (read_Pin(Fault_pin)) shoot_DeInit();
 
 	switch(shootState){
 	case shoot_Ready:
-		charging = !charging;
-		set_Pin(Charge_pin, charging); // Keep charging
+		if ((voltage > 50 && voltage <= START_REGHARGE_VOLT)) {
+			shootState = shoot_Charging;
+		}
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
 		break;
 	case shoot_Charging:
-		if (count >= 5) {
-			charged = true;
-			count = 0;
+		if (voltage >= 200 || read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
-		}
-		else {
-			set_Pin(Kick_pin, 0);
-			set_Pin(Chip_pin, 0);
+			charged = true;
+			set_Pin(Charge_pin, 0);
+		} else {
 			set_Pin(Charge_pin, 1);
-			charged = false;
-			count++;
 		}
 		callbackTime = TIMER_FREQ/CHARGING_CALLBACK_FREQ;
 		break;
 	case shoot_Shooting:
+		// Done with shooting, start charging again
 		set_Pin(Kick_pin, 0);		// Kick off
 		set_Pin(Chip_pin, 0);		// Chip off
 		shootState = shoot_Charging;
@@ -82,6 +79,10 @@ void shoot_Callback()
 
 shoot_states shoot_GetState(){
 	return shootState;
+}
+
+void shoot_StartCharging() {
+	shootState = shoot_Charging;
 }
 
 void shoot_SetPower(float meters_per_second){
