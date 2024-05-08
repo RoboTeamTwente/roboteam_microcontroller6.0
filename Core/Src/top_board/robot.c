@@ -595,20 +595,10 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	MCP_KickerCharge kc = {0};
-	MCP_KickerChargePayload kcp = {0};
-	encodeMCP_KickerCharge(&kcp, &kc);
-	MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
-
-	// uint32_t temp = 1234567890;
-	// uint32_t tt;
-	// uint8_t py[8];
-	// set_dribbler_speed(py, temp);
-	// tt = get_dribbler_speed(py);
-	// char ff[64];
-	// sprintf(ff, "Float :: %d", tt);
-	// LOG_printf(ff);
-	// LOG_sendAll();
+	// MCP_KickerCharge kc = {0};
+	// MCP_KickerChargePayload kcp = {0};
+	// encodeMCP_KickerCharge(&kcp, &kc);
+	// MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 }
 
 uint8_t robot_get_ID() {

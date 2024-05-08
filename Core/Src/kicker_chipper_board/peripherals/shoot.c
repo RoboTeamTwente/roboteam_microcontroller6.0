@@ -41,7 +41,8 @@ void shoot_Callback()
 {
 	int callbackTime = 0;
 	float voltage = voltage_Get();
-	if (read_Pin(Fault_pin)) {
+	//Fault pin is HIGH by default
+	if (!read_Pin(Fault_pin)) {
 		shoot_DeInit();
 	}
 
@@ -53,7 +54,8 @@ void shoot_Callback()
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
 		break;
 	case shoot_Charging:
-		if (voltage >= 200 || read_Pin(Charge_done_pin)) {
+		if (read_Pin(Charge_done_pin)) {
+		//if (voltage >= 200 || read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
 			charged = true;
 			set_Pin(Charge_pin, 0);
