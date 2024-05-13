@@ -544,6 +544,19 @@ void init(void){
 		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
 		buzzer_Play_WarningOne();
 		HAL_Delay(1500); // The duration of the sound
+	} else {
+		int maxCounts= 50;
+		float averagedRateOfTurn = 0.0f;
+		float rateOfTurn = 0.0f;
+		float rotOffset;
+
+		for (int counter = 0; counter < maxCounts; counter++){ // should run for maxCounts time steps (500 ms)
+			rateOfTurn = MTi->gyr[2];
+			averagedRateOfTurn += rateOfTurn/((float) maxCounts);
+			HAL_Delay(10);
+		}
+		set_rotOffset(rotOffset);
+		LOG_printf("[init:"STRINGIZE(__LINE__)"] RateOfRotation offset: %f\n", rotOffset);
 	}
 	LOG_sendAll();
 }
@@ -1008,11 +1021,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
 		stateInfo.rateOfTurn = MTi->gyr[2];
 
-		//Robot standing still for 1second for RoT calibration (gyroscope drift)
-		wheels_Brake();
-		RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
-		wheels_Unbrake();
-
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
 
@@ -1022,11 +1030,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			return;
 		}
 
-		if(counter_TIM_CONTROL < 50) {
-			if(!yaw_hasCalibratedOnce()) {
-				wheels_Stop();
-				return;
-			}
+		if(is_connected_wireless && activeRobotCommand.useCameraAngle && !yaw_hasCalibratedOnce()) {
+			wheels_Stop();
+			return;
 		}
 
 		// State control
