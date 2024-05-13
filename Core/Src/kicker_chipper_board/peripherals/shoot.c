@@ -54,7 +54,11 @@ void shoot_Callback()
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
 		break;
 	case shoot_Charging:
-		if (read_Pin(Charge_done_pin)) {
+		/**
+		 * Charge_done_pin true means not done
+		 * Charge_done_pin false means done
+		*/
+		if (!read_Pin(Charge_done_pin)) {
 		//if (voltage >= 200 || read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
 			charged = true;
