@@ -190,12 +190,12 @@ void Wireless_RXDone(SX1280_Packet_Status *status){
 Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_callback = &Wireless_Default };
 
 void executeCommands(REM_RobotCommand* robotCommand){
-	stateControl_useAbsoluteAngle(robotCommand->useAbsoluteAngle);
+	stateControl_useAbsoluteAngle(robotCommand->useYaw);
 	float stateReference[4];
 	stateReference[vel_x] = (robotCommand->rho) * sinf(robotCommand->theta);
 	stateReference[vel_y] = (robotCommand->rho) * cosf(robotCommand->theta);
 	stateReference[vel_w] = robotCommand->angularVelocity;
-	stateReference[yaw] = robotCommand->angle;
+	stateReference[yaw] = robotCommand->yaw;
 	stateControl_SetRef(stateReference);
 
 	MCP_SetDribblerSpeed sds = {0};
@@ -217,10 +217,10 @@ void executeCommands(REM_RobotCommand* robotCommand){
 			MCP_KickPayload kp = {0};
 			encodeMCP_Kick(&kp, &kick);
 			MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
-		} else if (robotCommand->kickAtAngle) {
+		} else if (robotCommand->kickAtYaw) {
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
-			if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+			if (fabs(localState[yaw] - robotCommand->yaw) < 0.025) {
 				MCP_Kick kick = {0};
 				kick.shootPower = robotCommand->kickChipPower;
 				MCP_KickPayload kp = {0};
@@ -236,7 +236,7 @@ void resetRobotCommand(REM_RobotCommand* robotCommand){
 }
 
 void initPacketHeader(REM_Packet* packet, uint8_t robot_id, uint8_t channel, uint8_t packet_type){
-	packet->header = packet_type;
+	packet->packetType = packet_type;
 	packet->toPC = true;
 	packet->fromColor = channel;
 	packet->remVersion = REM_LOCAL_VERSION;
@@ -259,7 +259,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	// First, empty the entire RobotCommand
 	resetRobotCommand(rc);
 	// Set the basic required stuff
-	rc->header = REM_PACKET_TYPE_REM_ROBOT_COMMAND;
+	rc->packetType = REM_PACKET_TYPE_REM_ROBOT_COMMAND;
 	rc->remVersion = REM_LOCAL_VERSION;
 	rc->toRobotId = ROBOT_ID;
 
@@ -271,7 +271,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	// Rotate around, slowly
 	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
 	// Turn on dribbler
-	rc->dribbler = period_fraction;
+	rc->dribblerOn = true;
 	// Kick a little every block
 	if(0.95f < period_fraction){
 		rc->doKick = true;
@@ -972,8 +972,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		counter_TIM_CONTROL++;
 
 		// State Info
-		stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
-		stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
+		stateInfo.visionAvailable = activeRobotCommand.useCameraYaw;
+		stateInfo.visionYaw = activeRobotCommand.cameraYaw; // TODO check if this is scaled properly with the new REM messages
 		
 		wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
 		stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
@@ -1053,10 +1053,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			float vu = localState[vel_u];
 			float vv = localState[vel_v];
 			robotFeedback.rho = sqrt(vu*vu + vv*vv);
-			robotFeedback.angle = localState[yaw];
+			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vu, vv);
-			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
-			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
 		}
 		
