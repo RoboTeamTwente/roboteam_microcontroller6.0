@@ -59,7 +59,6 @@ void shoot_Callback()
 		 * Charge_done_pin false means done
 		*/
 		if (!read_Pin(Charge_done_pin)) {
-		//if (voltage >= 200 || read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
 			charged = true;
 			set_Pin(Charge_pin, 0);
@@ -106,7 +105,6 @@ void shoot_Shoot(shoot_types type)
 		shootState = shoot_Shooting;
 		set_Pin(Charge_pin, 0); 									// Disable shoot_Charging
 		set_Pin(type == shoot_Kick ? Kick_pin : Chip_pin, 1); 		// Kick/Chip on
-
 		resetTimer(calculateShootingTime(type));
 	}
 }

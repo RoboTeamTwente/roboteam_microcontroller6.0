@@ -30,7 +30,6 @@ void init() {
 	kickerCapacitorHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CAPACITOR_VOLTAGE, MCP_TOP_BOARD);
 
 	// Peripherals
-	//sensor_working =
 	voltage_Init();
 	shoot_Init();
 
