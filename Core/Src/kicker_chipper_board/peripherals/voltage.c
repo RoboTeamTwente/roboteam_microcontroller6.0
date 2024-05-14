@@ -10,12 +10,7 @@ void voltage_Init() {
 }
 
 void voltage_Read() {
-    /**
-     * step 1: from unint to int
-     * step 2: from int to 0 to 1
-     * step 3: multiply by magic number
-    */
-    voltage = (((float)(2048 - adc_buffer[0])/4096)) * 800;
+    voltage = -0.2f * (float) adc_buffer[0] + 417;
 }
 
 float voltage_Get() {
