@@ -12,7 +12,7 @@
 
 static float calibratedYaw = 0.0f;				// The calibrated yaw
 static bool hasCalibratedOnce = false;			// Wether the yaw has been calibrated at least once. This variable is also used to enforce a new calibration
-static float rotOffSet = 0.0f;					// Rate of Turn offset
+static float rotOffset = 0.0f;					// Rate of Turn offset
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
