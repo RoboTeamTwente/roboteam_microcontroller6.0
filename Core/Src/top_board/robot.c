@@ -588,6 +588,12 @@ void init(void){
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	timestamp_initialized = HAL_GetTick();
 
+	/* Start charging the kicker */
+	MCP_KickerCharge kc = {0};
+    MCP_KickerChargePayload kcp = {0};
+    encodeMCP_KickerCharge(&kcp, &kc);
+    MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+
 	/* Set the heartbeat timers */
 	heartbeat_17ms   = timestamp_initialized + 17;
 	heartbeat_100ms  = timestamp_initialized + 100;
