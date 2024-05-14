@@ -9,6 +9,7 @@ static shoot_states shootState = shoot_Off;
 
 static bool charged = false;	// true if the capacitor is fully charged
 static float power = 0; 		// percentage of maximum shooting power [0,6.5]
+static bool chargingAllowed = false; 
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -48,7 +49,7 @@ void shoot_Callback()
 
 	switch(shootState){
 	case shoot_Ready:
-		if ((voltage > 50 && voltage <= START_REGHARGE_VOLT)) {
+		if (chargingAllowed && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) {
 			shootState = shoot_Charging;
 		}
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
@@ -71,7 +72,13 @@ void shoot_Callback()
 		// Done with shooting, start charging again
 		set_Pin(Kick_pin, 0);		// Kick off
 		set_Pin(Chip_pin, 0);		// Chip off
-		shootState = shoot_Charging;
+		if (chargingAllowed) {
+			shootState = shoot_Charging;
+		} else if (voltage >= MIN_VOLT_SHOOT) {
+			shootState = shoot_Ready;
+		} else {
+			shootState = shoot_Off;
+		}
 		callbackTime = TIMER_FREQ/SHOOTING_CALLBACK_FREQ;
 		break;
 	case shoot_Off:
@@ -90,6 +97,12 @@ shoot_states shoot_GetState(){
 
 void shoot_StartCharging() {
 	shootState = shoot_Charging;
+	chargingAllowed = true;
+}
+
+void shoot_DisableCharging() {
+	chargingAllowed = false;
+	if (shootState == shoot_Charging) shootState = shoot_Ready;
 }
 
 void shoot_SetPower(float meters_per_second){

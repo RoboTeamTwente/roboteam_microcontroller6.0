@@ -49,8 +49,8 @@ typedef enum{
 #define CHARGING_CALLBACK_FREQ 1 	// frequency [Hz] of callback when shootState is Charging
 #define SHOOTING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Shooting
 #define OFF_CALLBACK_FREQ 1 		// frequency [Hz] of callback when shootState is Off
-#define CHARGE_LIMIT 200			// voltage [V] capacitor should be charged to
-#define START_REGHARGE_VOLT 190		// voltage [V] capacitor should start charging back up again
+#define START_REGHARGE_VOLT 220		// voltage [V] capacitor should start charging back up again
+#define MIN_VOLT_SHOOT 80			// minimum voltage [V] for kicking
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
@@ -67,5 +67,7 @@ shoot_states shoot_GetState();
 void shoot_SetPower(float input);
 
 void shoot_StartCharging();
+
+void shoot_DisableCharging();
 
 #endif /* __shoot_H */

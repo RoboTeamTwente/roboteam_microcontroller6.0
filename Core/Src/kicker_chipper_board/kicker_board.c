@@ -104,7 +104,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_CHARGE) {
 		shoot_StartCharging();
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_STOP_CHARGE) {
-		shoot_DeInit();
+		shoot_DisableCharging();
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);
