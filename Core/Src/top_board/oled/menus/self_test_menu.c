@@ -44,7 +44,7 @@ void self_test_menu_initChildren(page_struct *parent) {
     self_test_kicker_menu.parent = parent;
     self_test_kicker_menu.is_menu = true;
     add_child_to_parent(&self_test_kicker_menu);
-    kicker_test_initChildren(&self_test_kicker_menu);
+    kicker_self_test_menu_initChildren(&self_test_kicker_menu);
     
 
     pages_set_default_values(&self_test_dribbler_menu);

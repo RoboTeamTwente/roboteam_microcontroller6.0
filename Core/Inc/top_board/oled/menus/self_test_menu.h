@@ -4,8 +4,7 @@
 #include "OLED_driver.h"
 #include "buzzer_test.h"
 #include "wheel_twitch.h"
-#include "system_test.h"
-#include "kicker_test.h"
+#include "kicker_self_test_menu.h"
 #include "motor_test.h"
 #include "dribbler_test.h"
 

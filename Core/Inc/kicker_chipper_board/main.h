@@ -37,6 +37,7 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 CAN_HandleTypeDef hcan;
+extern ADC_HandleTypeDef hadc2;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -68,6 +69,12 @@ void Error_Handler(void);
 #define Fault_GPIO_Port GPIOA
 #define Charge_Pin GPIO_PIN_5
 #define Charge_GPIO_Port GPIOA
+#define V_pos_Pin GPIO_PIN_6
+#define V_pos_GPIO_Port GPIOA
+#define V_neg_Pin GPIO_PIN_7
+#define V_neg_GPIO_Port GPIOA
+#define Temp_sensor_Pin GPIO_PIN_1
+#define Temp_sensor_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

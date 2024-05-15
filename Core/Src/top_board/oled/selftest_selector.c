@@ -40,22 +40,34 @@ void run_test(page_struct *page) {
             system_test_run();
             break;
         case 1311: 
-            kicker_shoot_run(1.5f);
-            break;
-        case 1312: 
             kicker_shoot_run(3.5f);
             break;
-        case 1313: 
+        case 1312: 
             kicker_shoot_run(4.5f);
+            break;
+        case 1313: 
+            kicker_shoot_run(5.5f);
             break;
         case 1314: 
             kicker_shoot_run(6.5f);
             break;
-        case 1315:
+        case 133:
             kicker_stopCharge();
             break;
-        case 1316:
+        case 134:
             kicker_charge();
+            break;
+        case 1321:
+            chip_shoot_run(3.5f);
+            break;
+        case 1322:
+            chip_shoot_run(4.5f);
+            break;
+        case 1323:
+            chip_shoot_run(5.5f);
+            break;
+        case 1324:
+            chip_shoot_run(6.5f);
             break;
         case 31:
             drain_battery_run(18.0f);

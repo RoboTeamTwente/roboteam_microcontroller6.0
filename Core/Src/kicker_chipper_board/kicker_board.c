@@ -30,8 +30,8 @@ void init() {
 	kickerCapacitorHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CAPACITOR_VOLTAGE, MCP_TOP_BOARD);
 
 	// Peripherals
+	voltage_Init();
 	shoot_Init();
-	sensor_working = init_sensor();
 
 	// MCP Alive
 	MCP_SetReadyToReceive(true);
@@ -64,9 +64,11 @@ void loop() {
         MCP_to_process = false;
 	}
 
-	uint32_t sensor_value = 0;
-	if (MCP_CapacitorVoltage.voltage != sensor_value) {
-		MCP_CapacitorVoltage.voltage = sensor_value;
+	voltage_Read();
+	uint32_t capVoltage = roundf(voltage_Get());
+	if (capVoltage > MCP_PACKET_RANGE_MCP_KICKER_CAPACITOR_VOLTAGE_VOLTAGE_MAX) capVoltage = MCP_PACKET_RANGE_MCP_KICKER_CAPACITOR_VOLTAGE_VOLTAGE_MAX;
+	if (MCP_CapacitorVoltage.voltage != capVoltage) {
+		MCP_CapacitorVoltage.voltage = capVoltage;
 		send_CapVoltage = true;
 	}
 
@@ -90,19 +92,19 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_CHIP) {
 		MCP_ChipPayload* cp = (MCP_ChipPayload*) to_Process->data_Frame;
 		MCP_Chip mcp_chip = {0};
-		decodeMCP_Chip(&mcp_chip, &cp);
+		decodeMCP_Chip(&mcp_chip, cp);
 		shoot_SetPower(mcp_chip.shootPower);
 		shoot_Shoot(shoot_Chip);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICK) {
 		MCP_KickPayload* kp = (MCP_KickPayload*) to_Process->data_Frame;
 		MCP_Kick mcp_kick = {0};
-		decodeMCP_Kick(&mcp_kick, &kp);
+		decodeMCP_Kick(&mcp_kick, kp);
 		shoot_SetPower(mcp_kick.shootPower);
 		shoot_Shoot(shoot_Kick);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_CHARGE) {
-		//TODO when making new shoot.c
+		shoot_StartCharging();
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_STOP_CHARGE) {
-		shoot_DeInit();
+		shoot_DisableCharging();
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);
@@ -115,8 +117,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 // Handles the interrupts of the different timers.
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM_SHOOT->Instance) {
-			shoot_Callback();
-		}
+		shoot_Callback();
+	}
 }
 
 void MCP_Send_Im_Alive() {

@@ -6,7 +6,5 @@
 
 void kicker_test_initChildren(page_struct *parent);
 void kicker_shoot_run(float speed);
-void kicker_charge();
-void kicker_stopCharge();
 
 #endif /* INC_KICKER_TEST_H_ */

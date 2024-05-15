@@ -7,8 +7,10 @@ static shoot_states shootState = shoot_Off;
 
 ///////////////////////////////////////////////////// VARIABLES
 
-static bool charged = false;	// true if the capacitor is fully charged
-static float power = 0; 		// percentage of maximum shooting power [0,6.5]
+static bool charged = false;			// true if the capacitor is fully charged
+static float power = 0; 				// percentage of maximum shooting power [0,6.5]
+static bool chargingAllowed = false; 	// true if capacitor is allowed to be charged
+static uint32_t lastChangeToReady = 0;	// most recent time shootState changed from charging to ready
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -21,10 +23,10 @@ int calculateShootingTime(shoot_types type);
 
 void shoot_Init(){
 	charged = false;
-	shootState = shoot_Charging;
+	shootState = shoot_Off;
 	set_Pin(Kick_pin, 0);		// Kick off
 	set_Pin(Chip_pin, 0);		// Chip off
-	set_Pin(Charge_pin, 1);		// shoot_Charging on
+	set_Pin(Charge_pin, 0);		// shoot_Charging on
 	shoot_Callback(); 			// go to callback for the first time
 }
 
@@ -40,34 +42,55 @@ void shoot_DeInit(){
 void shoot_Callback()
 {
 	int callbackTime = 0;
-	static int count = 0;
-	static bool charging = false;
+	float voltage = voltage_Get();
+	uint32_t current_time = HAL_GetTick();
+	//Fault pin is HIGH by default
+	if (!read_Pin(Fault_pin)) {
+		shoot_DeInit();
+	}
 
 	switch(shootState){
 	case shoot_Ready:
-		charging = !charging;
-		set_Pin(Charge_pin, charging); // Keep charging
+		/*
+		Start Charging again if:
+		1. Charging is allowed
+		2. Of of these two conditions is satisfied
+			2a. Voltage sensor works and MIN_VOLT_SHOOT <= voltage <= START_REGHARGE_VOLT
+			2b. Voltage sensor doesn't work and shootState changed to ready more than 15sec ago
+		*/
+		if (chargingAllowed && 
+			((voltage_sensor_working && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) ||
+			(!voltage_sensor_working && current_time >= lastChangeToReady + 15000))) {
+			shootState = shoot_Charging;
+		}
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
 		break;
 	case shoot_Charging:
-		if (count >= 5) {
-			charged = true;
-			count = 0;
+		/**
+		 * Charge_done_pin true means not done
+		 * Charge_done_pin false means done
+		*/
+		if (!read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
-		}
-		else {
-			set_Pin(Kick_pin, 0);
-			set_Pin(Chip_pin, 0);
+			charged = true;
+			lastChangeToReady = HAL_GetTick();
+			set_Pin(Charge_pin, 0);
+		} else {
 			set_Pin(Charge_pin, 1);
-			charged = false;
-			count++;
 		}
 		callbackTime = TIMER_FREQ/CHARGING_CALLBACK_FREQ;
 		break;
 	case shoot_Shooting:
+		// Done with shooting, start charging again
 		set_Pin(Kick_pin, 0);		// Kick off
 		set_Pin(Chip_pin, 0);		// Chip off
-		shootState = shoot_Charging;
+		if (chargingAllowed) {
+			shootState = shoot_Charging;
+		} else if (voltage >= MIN_VOLT_SHOOT) {
+			shootState = shoot_Ready;
+		} else {
+			shootState = shoot_Off;
+		}
 		callbackTime = TIMER_FREQ/SHOOTING_CALLBACK_FREQ;
 		break;
 	case shoot_Off:
@@ -84,6 +107,16 @@ shoot_states shoot_GetState(){
 	return shootState;
 }
 
+void shoot_StartCharging() {
+	shootState = shoot_Charging;
+	chargingAllowed = true;
+}
+
+void shoot_DisableCharging() {
+	chargingAllowed = false;
+	if (shootState == shoot_Charging) shootState = shoot_Ready;
+}
+
 void shoot_SetPower(float meters_per_second){
     // At some point, make a formula to convert m/s to power. For now, linear relation
     power = meters_per_second / REM_PACKET_RANGE_REM_ROBOT_COMMAND_KICK_CHIP_POWER_MAX;
@@ -97,7 +130,6 @@ void shoot_Shoot(shoot_types type)
 		shootState = shoot_Shooting;
 		set_Pin(Charge_pin, 0); 									// Disable shoot_Charging
 		set_Pin(type == shoot_Kick ? Kick_pin : Chip_pin, 1); 		// Kick/Chip on
-
 		resetTimer(calculateShootingTime(type));
 	}
 }

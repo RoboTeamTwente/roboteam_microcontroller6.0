@@ -30,9 +30,6 @@ CAN_TxHeaderTypeDef kickerChargeHeader = {0};
 CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
 CAN_TxHeaderTypeDef killHeader = {0};
 CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
-CAN_TxHeaderTypeDef ackToPower = {0};
-CAN_TxHeaderTypeDef ackToDribbler = {0};
-CAN_TxHeaderTypeDef ackToKicker = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
@@ -543,9 +540,6 @@ void init(void){
 	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
 	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
 	setDribblerSpeedHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
-	ackToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_POWER_BOARD);
-	ackToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_DRIBBLER_BOARD);
-	ackToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, MCP_KICKER_BOARD);
 
 	MCP_SetReadyToReceive(true);
 
@@ -594,6 +588,12 @@ void init(void){
 	set_Pin(LED0_pin, 0); set_Pin(LED1_pin, 0); set_Pin(LED2_pin, 0); set_Pin(LED3_pin, 0); set_Pin(LED4_pin, 0); set_Pin(LED5_pin, 0); set_Pin(LED6_pin, 0), set_Pin(LED7_pin, 0);
 	timestamp_initialized = HAL_GetTick();
 
+	/* Start charging the kicker */
+	MCP_KickerCharge kc = {0};
+    MCP_KickerChargePayload kcp = {0};
+    encodeMCP_KickerCharge(&kcp, &kc);
+    MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+
 	/* Set the heartbeat timers */
 	heartbeat_17ms   = timestamp_initialized + 17;
 	heartbeat_100ms  = timestamp_initialized + 100;
@@ -601,15 +601,10 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	// uint32_t temp = 1234567890;
-	// uint32_t tt;
-	// uint8_t py[8];
-	// set_dribbler_speed(py, temp);
-	// tt = get_dribbler_speed(py);
-	// char ff[64];
-	// sprintf(ff, "Float :: %d", tt);
-	// LOG_printf(ff);
-	// LOG_sendAll();
+	// MCP_KickerCharge kc = {0};
+	// MCP_KickerChargePayload kcp = {0};
+	// encodeMCP_KickerCharge(&kcp, &kc);
+	// MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 }
 
 uint8_t robot_get_ID() {

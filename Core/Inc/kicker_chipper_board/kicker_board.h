@@ -10,6 +10,8 @@
 #include "MCP_Driver.h"
 #include "MCP_to_kicker.h"
 #include "MCP_from_kicker.h"
+#include "voltage.h"
+#include <math.h>
 
 void init();
 void loop();
