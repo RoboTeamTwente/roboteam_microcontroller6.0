@@ -11,10 +11,12 @@
 #include "stm32f3xx_hal.h"
 
 // Timers 
+extern TIM_HandleTypeDef htim2;     // Voltage readings
 extern TIM_HandleTypeDef htim16;    // KickChipping
 
 // Timer Helpers
 #define TIM_SHOOT    (&htim16)
+#define TIM_VOLTAGE  (&htim2)
 
 
 // structs
