@@ -725,8 +725,14 @@ void loop(void){
         while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
 
         if(system_test_running){
-            updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
-            flag_sdcard_write_command = true;
+			// Test is running fine
+			if (OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
+				updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
+				flag_sdcard_write_command = true;
+			} else { 
+				// Test ended early so reset
+				system_test_reset();
+			}
         }
 
 		if (TEST_MODE) {

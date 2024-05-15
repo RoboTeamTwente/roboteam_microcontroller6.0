@@ -163,10 +163,18 @@ void start_of_test() {
 }
 
 /**
- * @brief display that the test has ended
+ * @brief display that the test has ended; brake wheels and other safety
 */
 void end_of_test() {
+    //safety
     test_is_finished = true;
+    wheels_Brake();
+    activeRobotCommand.doKick = false;
+    activeRobotCommand.doChip = false;
+    activeRobotCommand.kickAtAngle = false;
+    activeRobotCommand.dribbler = 0;
+    activeRobotCommand.angularVelocity = 0;
+    //screen
     clear_screen();
     putPageName();
     strcpy(current_page->line0, "Test is running");
@@ -175,8 +183,7 @@ void end_of_test() {
     strcpy(current_page->line3, "continue");
     strcpy(current_page->line3, "");
     display_text();
-    wheels_Brake();
-    SSD1306_UpdateScreen();   
+    SSD1306_UpdateScreen();
 }
 
 /**
@@ -228,6 +235,7 @@ static void onButtonPressMenu(button_id_t button) {
 static void onButtonPressSelfTest(button_id_t button) {
     if (current_page->n_of_childeren == 0 || button != BUTTON_OK) {
         //move up until back in a menu
+        end_of_test();
         while(!current_page->is_menu) {
             current_page = current_page->parent;
         }
