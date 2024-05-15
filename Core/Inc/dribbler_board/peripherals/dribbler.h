@@ -14,6 +14,7 @@
 #define DRIBBLER_DRIBBLER_H_
 
 #include "tim_util.h"
+#include "AC_DC_util.h"
 #include "main.h"
 #include <math.h>
 #include "control_util.h"
@@ -22,16 +23,29 @@
 
 extern uint32_t encoder_value;
 
+#define volt_Start 2000
+#define CURRENT_THRESHOLD 600
+#define current_Buffer_Size 10
+
 // Initializes the PIDs / encoders / PWM timers
-void dribbler_Init(HAL_TIM_StateTypeDef* timer, DAC_HandleTypeDef* dac);
+void dribbler_Init();
 // Initializes the motor driver for the PWM
 void dribbler_motor_Init();
-// The Current value we set, limits acceleration
-void dribbler_setCurrentLimit(uint16_t value);
+// The voltage value we set, limits acceleration
+void dribbler_setVoltage(uint16_t value);
+// Larger current implies we have the ball
+uint32_t dribbler_getCurrent();
+// If the current is above a certain threshold, it implies we have the ball
+bool dribbler_hasBall();
 // Denitializes the encoders / PWM timers
-void dribbler_DeInit(HAL_TIM_StateTypeDef* timer);
+void dribbler_DeInit();
 // Sets the dribbler speed and makes sure it's within [0,1]
 void dribbler_SetSpeed(float speed);
+// Returns the latest encoder measurement
+uint32_t dribbler_GetEncoderMeasurement();
+
+
+
 // Updates the dribbler towards the commanded dribbler speed using the encoder and a PID controller.
 void dribbler_Update();
 // Get the last measured dribbler speeds in rad/s
@@ -48,7 +62,6 @@ bool dribbler_GetHasBall();
 bool dribbler_ChangeInState();
 // Sets the value of the message boolean
 void dribbler_set_State(bool state);
-// Returns the latest encoder measurement
-uint32_t dribbler_GetEncoderMeasurement();
+
 
 #endif /* DRIBBLER_DRIBBLER_H_ */

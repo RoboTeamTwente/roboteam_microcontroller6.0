@@ -3,12 +3,13 @@
 uint16_t ADC2_buffer[DMA_bufferSize];
 
 void ballsensor_init(){
-    HAL_TIM_Base_Start(&htim6);
-    HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2_buffer, DMA_bufferSize);
+    HAL_TIM_Base_Start(DMA_TIMER);
+    HAL_ADC_Start_DMA(BALL_SENSOR_IN, (uint32_t*)ADC2_buffer, DMA_bufferSize);
+    ballsensor_setIR_on();
 }
 
 void ballsensor_deinit(){
-    HAL_TIM_Base_Stop(&htim6);
+    HAL_TIM_Base_Stop(DMA_TIMER);
 }
 
 void ballsensor_setIR_on(){

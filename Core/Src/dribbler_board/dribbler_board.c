@@ -22,10 +22,10 @@ bool ballsensor_state;
 /* ======================================================== */
 void init(){
     //CAN_Init(&hcan, DRIBBLER_ID);
-    dribbler_Init(&htim3, &hdac1);
+    dribbler_Init();
     ballsensor_init();
-    ballsensor_setIR_on();
     BOARD_INITIALIZED = true;
+    dribbler_SetSpeed(0.35f);
 }
 
 uint8_t robot_get_ID(){

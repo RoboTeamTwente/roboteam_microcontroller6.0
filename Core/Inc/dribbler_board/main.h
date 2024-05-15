@@ -40,7 +40,9 @@ extern CAN_HandleTypeDef hcan;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim6;
 extern DAC_HandleTypeDef hdac1;
+extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -63,13 +65,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define PWM_Resolution 1000
 #define ENC_A_Pin GPIO_PIN_0
 #define ENC_A_GPIO_Port GPIOA
 #define ENC_B_Pin GPIO_PIN_1
 #define ENC_B_GPIO_Port GPIOA
 #define Ball_sensor_out_Pin GPIO_PIN_2
 #define Ball_sensor_out_GPIO_Port GPIOA
+#define Drib_Current_Pin GPIO_PIN_3
+#define Drib_Current_GPIO_Port GPIOA
+#define Drib_Voltage_Pin GPIO_PIN_4
+#define Drib_Voltage_GPIO_Port GPIOA
 #define Ball_sensor_in_Pin GPIO_PIN_5
 #define Ball_sensor_in_GPIO_Port GPIOA
 #define Motor_In1_Pin GPIO_PIN_6
