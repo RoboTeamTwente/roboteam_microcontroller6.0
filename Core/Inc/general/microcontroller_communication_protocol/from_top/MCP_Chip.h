@@ -2,9 +2,7 @@
 /*
 [  0   ] [  1   ]
 11111111 -------- ack_number
--------- 1111---- shootPower
--------- ----1--- doForce
--------- -----1-- onSeesBall
+-------- 11111111 shootPower
 */
 
 #ifndef __MCP_CHIP_H
@@ -21,8 +19,6 @@ typedef struct _MCP_ChipPayload {
 typedef struct _MCP_Chip {
     uint32_t   ack_number          ; // integer [0, 255]             acknowledgements
     float      shootPower          ; // float   [0.000, 6.500]       desired speed of the ball
-    bool       doForce             ; // integer [0, 1]               always chip
-    bool       onSeesBall          ; // integer [0, 1]               chip once robot sees ball
 } MCP_Chip;
 
 // ================================ GETTERS ================================
@@ -31,16 +27,8 @@ static inline uint32_t MCP_Chip_get_ack_number(MCP_ChipPayload *mcpcp){
 }
 
 static inline float MCP_Chip_get_shootPower(MCP_ChipPayload *mcpcp){
-    uint32_t _shootPower = ((mcpcp->payload[1] & 0b11110000) >> 4);
-    return (_shootPower * 0.4333333333333333F);
-}
-
-static inline bool MCP_Chip_get_doForce(MCP_ChipPayload *mcpcp){
-    return (mcpcp->payload[1] & 0b00001000) > 0;
-}
-
-static inline bool MCP_Chip_get_onSeesBall(MCP_ChipPayload *mcpcp){
-    return (mcpcp->payload[1] & 0b00000100) > 0;
+    uint32_t _shootPower = ((mcpcp->payload[1]));
+    return (_shootPower * 0.0254901960784314F);
 }
 
 // ================================ SETTERS ================================
@@ -49,32 +37,20 @@ static inline void MCP_Chip_set_ack_number(MCP_ChipPayload *mcpcp, uint32_t ack_
 }
 
 static inline void MCP_Chip_set_shootPower(MCP_ChipPayload *mcpcp, float shootPower){
-    uint32_t _shootPower = (uint32_t)(shootPower / 0.4333333333333333F);
-    mcpcp->payload[1] = ((_shootPower << 4) & 0b11110000) | (mcpcp->payload[1] & 0b00001111);
-}
-
-static inline void MCP_Chip_set_doForce(MCP_ChipPayload *mcpcp, bool doForce){
-    mcpcp->payload[1] = ((doForce << 3) & 0b00001000) | (mcpcp->payload[1] & 0b11110111);
-}
-
-static inline void MCP_Chip_set_onSeesBall(MCP_ChipPayload *mcpcp, bool onSeesBall){
-    mcpcp->payload[1] = ((onSeesBall << 2) & 0b00000100) | (mcpcp->payload[1] & 0b11111011);
+    uint32_t _shootPower = (uint32_t)(shootPower / 0.0254901960784314F);
+    mcpcp->payload[1] = _shootPower;
 }
 
 // ================================ ENCODE ================================
 static inline void encodeMCP_Chip(MCP_ChipPayload *mcpcp, MCP_Chip *mcpc){
     MCP_Chip_set_ack_number          (mcpcp, mcpc->ack_number);
     MCP_Chip_set_shootPower          (mcpcp, mcpc->shootPower);
-    MCP_Chip_set_doForce             (mcpcp, mcpc->doForce);
-    MCP_Chip_set_onSeesBall          (mcpcp, mcpc->onSeesBall);
 }
 
 // ================================ DECODE ================================
 static inline void decodeMCP_Chip(MCP_Chip *mcpc, MCP_ChipPayload *mcpcp){
     mcpc->ack_number     = MCP_Chip_get_ack_number(mcpcp);
     mcpc->shootPower     = MCP_Chip_get_shootPower(mcpcp);
-    mcpc->doForce        = MCP_Chip_get_doForce(mcpcp);
-    mcpc->onSeesBall     = MCP_Chip_get_onSeesBall(mcpcp);
 }
 
 #endif /*__MCP_CHIP_H*/

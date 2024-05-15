@@ -16,12 +16,19 @@ packets = {
         "data" : [
         ]
     },
-    "MCP_SetDribblerSpeed" : {
+    "MCP_DribblerCommand" : {
         "from" : [board.TOP],
         "to" : [board.DRIBBLER],
         "data" : [
-                ["speed", 8, [0, 1], "desired speed of the dribbler"],
-            ]
+            ["dribblerOn",          1,  None, "Dribbler on/off"],
+            ["dribblerOption1",     1,  None, "Dribbler option 1"],
+            ["dribblerOption2",     1,  None, "Dribbler option 2"],
+            ["dribblerOption3",     1,  None, "Dribbler option 3"],
+            ["dribblerOption4",     1,  None, "Dribbler option 4"],
+            ["dribblerOption5",     1,  None, "Dribbler option 5"],
+            ["dribblerOption6",     1,  None, "Dribbler option 6"],
+            ["dribblerOption7",     1,  None, "Dribbler option 7"],
+        ]
     },
     "MCP_KickerCharge" : {
         "from" : [board.TOP],
@@ -41,18 +48,14 @@ packets = {
         "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
-            ["shootPower", 4, [0, 6.5], "desired speed of the ball"],
-            ["doForce", 1, None, "always kick"],
-            ["onSeesBall", 1, None, "kick once robot sees ball"],
+            ["shootPower", 8, [0, 6.5], "desired speed of the ball"],
         ]
     },
     "MCP_Chip" : {
         "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
-            ["shootPower", 4, [0, 6.5], "desired speed of the ball"],
-            ["doForce", 1, None, "always chip"],
-            ["onSeesBall", 1, None, "chip once robot sees ball"]
+            ["shootPower", 8, [0, 6.5], "desired speed of the ball"],
         ]
     },
     "MCP_DribblerAlive" : {
@@ -84,6 +87,15 @@ packets = {
         "to" : [board.TOP],
         "data" : [
             ["voltage", 10, None, "capacitor voltage"]
+        ]
+    },
+    "MCP_KickerStatus" : {
+        "from" : [board.KICKER],
+        "to" : [board.TOP],
+        "data" : [
+            ["kickerOn", 1, None, "If kicker is on & charging"],
+            ["kickerFault", 1, None, "If kicker return fault"],
+            ["kickerReady", 1, None, "Indicatei if kicker is ready to shoot"]
         ]
     },
     "MCP_PowerAlive" : {

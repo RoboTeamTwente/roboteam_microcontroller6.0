@@ -7,6 +7,7 @@
 #include "MCP_SeesBall.h"
 #include "MCP_KickerAlive.h"
 #include "MCP_KickerCapacitorVoltage.h"
+#include "MCP_KickerStatus.h"
 #include "MCP_PowerAlive.h"
 #include "MCP_PowerVoltage.h"
 #include "MCP_DribblerEncoder.h"

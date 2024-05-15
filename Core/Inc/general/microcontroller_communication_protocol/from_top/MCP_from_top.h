@@ -4,7 +4,7 @@
 
 #include "MCP_Ack.h"
 #include "MCP_AreYouAlive.h"
-#include "MCP_SetDribblerSpeed.h"
+#include "MCP_DribblerCommand.h"
 #include "MCP_KickerCharge.h"
 #include "MCP_KickerStopCharge.h"
 #include "MCP_Kick.h"
