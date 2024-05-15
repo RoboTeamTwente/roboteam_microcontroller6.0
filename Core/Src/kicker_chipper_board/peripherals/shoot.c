@@ -7,9 +7,10 @@ static shoot_states shootState = shoot_Off;
 
 ///////////////////////////////////////////////////// VARIABLES
 
-static bool charged = false;	// true if the capacitor is fully charged
-static float power = 0; 		// percentage of maximum shooting power [0,6.5]
-static bool chargingAllowed = false; 
+static bool charged = false;			// true if the capacitor is fully charged
+static float power = 0; 				// percentage of maximum shooting power [0,6.5]
+static bool chargingAllowed = false; 	// true if capacitor is allowed to be charged
+static uint32_t lastChangeToReady = 0;	// most recent time shootState changed from charging to ready
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -42,6 +43,7 @@ void shoot_Callback()
 {
 	int callbackTime = 0;
 	float voltage = voltage_Get();
+	uint32_t current_time = HAL_GetTick();
 	//Fault pin is HIGH by default
 	if (!read_Pin(Fault_pin)) {
 		shoot_DeInit();
@@ -49,7 +51,16 @@ void shoot_Callback()
 
 	switch(shootState){
 	case shoot_Ready:
-		if (chargingAllowed && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) {
+		/*
+		Start Charging again if:
+		1. Charging is allowed
+		2. Of of these two conditions is satisfied
+			2a. Voltage sensor works and MIN_VOLT_SHOOT <= voltage <= START_REGHARGE_VOLT
+			2b. Voltage sensor doesn't work and shootState changed to ready more than 15sec ago
+		*/
+		if (chargingAllowed && 
+			((voltage_sensor_working && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) ||
+			(!voltage_sensor_working && current_time >= lastChangeToReady + 15000))) {
 			shootState = shoot_Charging;
 		}
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
@@ -62,6 +73,7 @@ void shoot_Callback()
 		if (!read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
 			charged = true;
+			lastChangeToReady = HAL_GetTick();
 			set_Pin(Charge_pin, 0);
 		} else {
 			set_Pin(Charge_pin, 1);
