@@ -153,8 +153,12 @@ void OLED_set_error_too_many_children(char* page_name) {
 void start_of_test() {
     clear_screen();
     putPageName();
-    SSD1306_GotoXY (5,20);
-    SSD1306_Puts("Test is running", &Font_7x10, 1);
+    strcpy(current_page->line0, "Test is running");
+    strcpy(current_page->line1, "");
+    strcpy(current_page->line2, "");
+    strcpy(current_page->line3, "");
+    strcpy(current_page->line3, "");
+    display_text();
     SSD1306_UpdateScreen();   
 }
 
@@ -165,12 +169,12 @@ void end_of_test() {
     test_is_finished = true;
     clear_screen();
     putPageName();
-    SSD1306_GotoXY (5,20);
-    SSD1306_Puts("Test done!", &Font_7x10, 1);
-    SSD1306_GotoXY (5,31);
-    SSD1306_Puts("press \"OK\" to", &Font_7x10, 1);
-    SSD1306_GotoXY (5,42);
-    SSD1306_Puts("continue", &Font_7x10, 1);
+    strcpy(current_page->line0, "Test is running");
+    strcpy(current_page->line1, "Test done!");
+    strcpy(current_page->line2, "press \"OK\" to");
+    strcpy(current_page->line3, "continue");
+    strcpy(current_page->line3, "");
+    display_text();
     SSD1306_UpdateScreen();   
 }
 

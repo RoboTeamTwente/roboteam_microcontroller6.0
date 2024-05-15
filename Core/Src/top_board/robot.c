@@ -1009,16 +1009,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		float* pointerGlobalBodyRef;
 		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
 
-		if (!TEST_MODE || OLED_get_current_page_test_type() != NON_BLOCKING_TEST) {
+		if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
 		
 			wheels_set_command_speed( stateControl_GetWheelRef() );
 
 			// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
 			// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
 			// only want to execute this on a roll of tape.
-			//
-			// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
-			//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
 			if(DRAIN_BATTERY){
 
 				// TODO Instruct each wheel to go 30 rad/s
