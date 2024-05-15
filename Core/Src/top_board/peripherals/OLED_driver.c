@@ -175,6 +175,7 @@ void end_of_test() {
     strcpy(current_page->line3, "continue");
     strcpy(current_page->line3, "");
     display_text();
+    wheels_Brake();
     SSD1306_UpdateScreen();   
 }
 

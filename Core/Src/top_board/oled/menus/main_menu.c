@@ -30,7 +30,6 @@ void main_menu_initChildren(page_struct *parent) {
     strcpy(drain_battery_menu.page_name, "Drain battery");
     drain_battery_menu.parent = parent;
     drain_battery_menu.is_menu = true;
-    drain_battery_menu.is_test = BLOCKING_TEST;
     add_child_to_parent(&drain_battery_menu);
     drain_battery_initChildren(&drain_battery_menu);
 }
