@@ -43,9 +43,9 @@ void init() {
 	MCP_Send_Im_Alive();
 
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-	//REM_UARTinit(UART_PC);
-
 	heartbeat_10000ms = HAL_GetTick() + 10000;
+	LOG_init();
+	LOG_printf("[INIT]:: Powerboard initalization finished!\n");
 }
 
 uint8_t robot_get_ID(){
@@ -66,8 +66,8 @@ void kill() {
 /* =================================================== */
 void loop() {
     uint32_t current_time = HAL_GetTick();
-	
     if (MCP_to_process){
+		LOG_printf("[LOOP]:: Processing CAN!\r\n");
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
         if (!MailBox_two.empty)
@@ -89,7 +89,7 @@ void loop() {
 		}
 		encodeMCP_PowerVoltage(&pvp, &pv);
 		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
-
+		LOG_printf("[LOOP]:: Sent VPC reading!\r\n");
     	heartbeat_10000ms = current_time + 10000;
     }
 }

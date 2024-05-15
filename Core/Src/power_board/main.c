@@ -73,7 +73,8 @@ static void MX_USART1_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  uint8_t MSG[35] = {'\0'};
+  uint8_t X = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -110,6 +111,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    // sprintf(MSG, "Hello Dudes! Tracing X = %d\r\n", X);
+    // HAL_UART_Transmit(&huart1, MSG, sizeof(MSG), 100);
+    // HAL_Delay(50);
+    // X++;
   }
   /* USER CODE END 3 */
 }
