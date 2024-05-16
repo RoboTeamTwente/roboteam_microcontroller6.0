@@ -17,6 +17,10 @@ void wheel_twitch_init(page_struct *parent) {
     strcpy(wheel_twitch_warning.page_name, "Wheel twitch");
     wheel_twitch_warning.parent = parent;
     wheel_twitch_warning.is_test = BLOCKING_TEST;
+    strcpy(wheel_twitch_warning.line0, "Make sure that");
+    strcpy(wheel_twitch_warning.line1, "the wheels are");
+    strcpy(wheel_twitch_warning.line2, "off the ground!");
+    strcpy(wheel_twitch_warning.line3, "OK to continue");
     add_child_to_parent(&wheel_twitch_warning);
     //running test
     pages_set_default_values(&wheel_twitch_running);

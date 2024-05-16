@@ -41,4 +41,8 @@ bool get_system_test_running() {
     return system_test_running;
 }
 
+void system_test_reset() {
+    system_test_running = false;
+}
+
 
