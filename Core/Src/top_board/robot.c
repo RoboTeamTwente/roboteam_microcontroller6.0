@@ -29,12 +29,13 @@ CAN_TxHeaderTypeDef kickHeader = {0};
 CAN_TxHeaderTypeDef kickerChargeHeader = {0};
 CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
 CAN_TxHeaderTypeDef killHeader = {0};
-CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
+CAN_TxHeaderTypeDef dribblerCommandHeader = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
 MCP_KickerAlive kickerAlive = {0};
 MCP_KickerCapacitorVoltage kickerCapacitorVoltage = {0};
+MCP_KickerStatus kickerStatus = {0};
 MCP_PowerAlive powerAlive = {0};
 MCP_PowerVoltage powerVoltage = {0};
 MCP_SeesBall seesBall = {0};
@@ -195,11 +196,18 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateReference[yaw] = robotCommand->yaw;
 	stateControl_SetRef(stateReference);
 
-	MCP_SetDribblerSpeed sds = {0};
-	sds.speed = robotCommand->dribbler;
-	MCP_SetDribblerSpeedPayload sdsp = {0};
-	encodeMCP_SetDribblerSpeed(&sdsp, &sds);
-	MCP_Send_Message(&hcan1, sdsp.payload, setDribblerSpeedHeader, MCP_DRIBBLER_BOARD);
+	MCP_DribblerCommand dribCommand = {0};
+	dribCommand.dribblerOn = robotCommand->dribblerOn;
+	dribCommand.dribblerOption1 = robotCommand->dribblerOption1;
+	dribCommand.dribblerOption2 = robotCommand->dribblerOption2;
+	dribCommand.dribblerOption3 = robotCommand->dribblerOption3;
+	dribCommand.dribblerOption4 = robotCommand->dribblerOption4;
+	dribCommand.dribblerOption5 = robotCommand->dribblerOption5;
+	dribCommand.dribblerOption6 = robotCommand->dribblerOption6;
+	dribCommand.dribblerOption7 = robotCommand->dribblerOption7;
+	MCP_DribblerCommandPayload dcp = {0};
+	encodeMCP_DribblerCommand(&dcp, &dribCommand);
+	MCP_Send_Message(&hcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
 	
 	if (seesBall.ballsensorSeesBall || robotCommand->doForce) {	
 		if (robotCommand->doChip) {
@@ -539,7 +547,7 @@ void init(void){
 	kickerChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CHARGE, MCP_KICKER_BOARD);
 	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
 	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
-	setDribblerSpeedHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
+	dribblerCommandHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_COMMAND, MCP_DRIBBLER_BOARD);
 
 	MCP_SetReadyToReceive(true);
 
@@ -1036,12 +1044,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
-			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
-			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
-			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
-			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
-			// robotFeedback.capacitor_voltage = kicker_capacitor_voltage;
 
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
@@ -1050,7 +1052,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.rho = sqrt(vu*vu + vv*vv);
 			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vu, vv);
+
+			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
+			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
+			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
+			robotFeedback.kickerFault = kickerStatus.kickerFault;
+			robotFeedback.kickerOn = kickerStatus.kickerOn;
+			robotFeedback.capacitorCharged = kickerStatus.kickerReady;			
 		}
 		
 		/* == Fill robotStateInfo packet == */ {	
@@ -1074,10 +1084,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
 			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //
 			robotStateInfo.wheel4Integral = refSpeedWheelsPointer[3]; // 
-
+			robotStateInfo.kickerVoltage = kickerCapacitorVoltage.voltage;
 
 			flag_sdcard_write_feedback = true;
-			unix_timestamp += 1	;
+			unix_timestamp += (uint32_t) TIME_DIFF * 1000;
 		}
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {

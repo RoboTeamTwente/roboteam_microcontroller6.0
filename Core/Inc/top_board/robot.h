@@ -71,12 +71,13 @@ extern CAN_TxHeaderTypeDef kickHeader;
 extern CAN_TxHeaderTypeDef kickerChargeHeader;
 extern CAN_TxHeaderTypeDef kickerStopChargeHeader;
 extern CAN_TxHeaderTypeDef killHeader;
-extern CAN_TxHeaderTypeDef setDribblerSpeedHeader;
+extern CAN_TxHeaderTypeDef dribblerCommandHeader;
 
 //payload incoming packets
 extern MCP_DribblerAlive dribblerAlive;
 extern MCP_KickerAlive kickerAlive;
 extern MCP_KickerCapacitorVoltage kickerCapacitorVoltage;
+extern MCP_KickerStatus kickerStatus;
 extern MCP_PowerAlive powerAlive;
 extern MCP_PowerVoltage powerVoltage;
 extern MCP_SeesBall seesBall;
