@@ -10,6 +10,12 @@ packets = {
         "to" : [board.POWER, board.KICKER, board.DRIBBLER, board.TOP],
         "data" : []
     },
+    "MCP_Reboot" : {
+        "from" : [board.TOP],
+        "to" : [board.POWER, board.KICKER, board.DRIBBLER],
+        "data" : [
+        ]
+    },
     "MCP_AreYouAlive" : {
         "from" : [board.TOP],
         "to" : [board.POWER, board.KICKER, board.DRIBBLER],

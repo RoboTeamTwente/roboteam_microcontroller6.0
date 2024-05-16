@@ -3,6 +3,7 @@
 #define __MCP_TO_POWER_H
 
 #include "MCP_Ack.h"
+#include "MCP_Reboot.h"
 #include "MCP_AreYouAlive.h"
 #include "MCP_DribblerAlive.h"
 #include "MCP_KickerAlive.h"
