@@ -323,6 +323,10 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			MCP_SeesBallPayload* spb = (MCP_SeesBallPayload*) to_Process->data_Frame;
 			decodeMCP_SeesBall(&seesBall, spb);
 			break;		
+		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_STATUS: ;
+			MCP_KickerStatusPayload* ksp = (MCP_KickerStatusPayload*) to_Process->data_Frame;
+			decodeMCP_KickerStatus(&kickerStatus, ksp);
+			break;
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan1, to_Process->data_Frame[0], to_Process->message_id);

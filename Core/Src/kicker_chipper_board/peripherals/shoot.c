@@ -3,11 +3,12 @@
 
 ///////////////////////////////////////////////////// STRUCTS
 
-static shoot_states shootState = shoot_Off;
+shoot_states shootState = shoot_Off;
 
 ///////////////////////////////////////////////////// VARIABLES
 
-static bool charged = false;			// true if the capacitor is fully charged
+bool shoot_charged = false;			// true if the capacitor is fully charged
+bool shoot_fault = false;				// true if there is a fault indication by the hardware
 static float power = 0; 				// percentage of maximum shooting power [0,6.5]
 static bool chargingAllowed = false; 	// true if capacitor is allowed to be charged
 static uint32_t lastChangeToReady = 0;	// most recent time shootState changed from charging to ready
@@ -22,7 +23,8 @@ int calculateShootingTime(shoot_types type);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 void shoot_Init(){
-	charged = false;
+	shoot_charged = false;
+	shoot_fault = false;
 	shootState = shoot_Off;
 	set_Pin(Kick_pin, 0);		// Kick off
 	set_Pin(Chip_pin, 0);		// Chip off
@@ -31,7 +33,7 @@ void shoot_Init(){
 }
 
 void shoot_DeInit(){
-	charged = false;
+	shoot_charged = false;
 	shootState = shoot_Off;
 	set_Pin(Kick_pin, 0);		// Kick off
 	set_Pin(Chip_pin, 0);		// Chip off
@@ -46,6 +48,7 @@ void shoot_Callback()
 	uint32_t current_time = HAL_GetTick();
 	//Fault pin is HIGH by default
 	if (!read_Pin(Fault_pin)) {
+		shoot_fault = true;
 		shoot_DeInit();
 	}
 
@@ -62,6 +65,7 @@ void shoot_Callback()
 			((voltage_sensor_working && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) ||
 			(!voltage_sensor_working && current_time >= lastChangeToReady + 15000))) {
 			shootState = shoot_Charging;
+			shoot_charged = false;
 		}
 		callbackTime = TIMER_FREQ/READY_CALLBACK_FREQ;
 		break;
@@ -72,7 +76,7 @@ void shoot_Callback()
 		*/
 		if (!read_Pin(Charge_done_pin)) {
 			shootState = shoot_Ready;
-			charged = true;
+			shoot_charged = true;
 			lastChangeToReady = HAL_GetTick();
 			set_Pin(Charge_pin, 0);
 		} else {
@@ -86,10 +90,13 @@ void shoot_Callback()
 		set_Pin(Chip_pin, 0);		// Chip off
 		if (chargingAllowed) {
 			shootState = shoot_Charging;
+			shoot_charged = false;
 		} else if (voltage >= MIN_VOLT_SHOOT) {
 			shootState = shoot_Ready;
+			shoot_charged = true;
 		} else {
 			shootState = shoot_Off;
+			shoot_charged = false;
 		}
 		callbackTime = TIMER_FREQ/SHOOTING_CALLBACK_FREQ;
 		break;

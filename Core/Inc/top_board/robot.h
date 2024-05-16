@@ -81,6 +81,7 @@ extern MCP_KickerStatus kickerStatus;
 extern MCP_PowerAlive powerAlive;
 extern MCP_PowerVoltage powerVoltage;
 extern MCP_SeesBall seesBall;
+extern MCP_KickerStatus kickerStatus;
 
 
 void init(void);

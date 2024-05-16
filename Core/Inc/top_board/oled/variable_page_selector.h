@@ -6,6 +6,7 @@
 #include "drain_battery.h"
 #include "mcp_page.h"
 #include "rem_page.h"
+#include "kicker_status.h"
 
 void update_variables(page_struct *page);
 
