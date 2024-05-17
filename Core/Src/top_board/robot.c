@@ -699,8 +699,6 @@ void loop(void){
         stateControl_ResetAngleI();
         resetRobotCommand(&activeRobotCommand);
         initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
-
-        REM_last_packet_had_correct_version = true;
     }
 
     // Unbrake wheels when Xsens calibration is done
@@ -976,6 +974,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		rem_page_add_timestamp(activeRobotCommand.timestamp);
 
+		if(halt || test_is_finished){
+			unix_initalized = false;
+			wheels_Stop();
+			REM_last_packet_had_correct_version = true;
+			return;
+		}
+
 		counter_TIM_CONTROL++;
 
 		// State Info
@@ -995,12 +1000,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
-
-		if(halt || test_is_finished){
-			unix_initalized = false;
-			wheels_Stop();
-			return;
-		}
 
 		if(counter_TIM_CONTROL < 50) {
 			if(!yaw_hasCalibratedOnce()) {
