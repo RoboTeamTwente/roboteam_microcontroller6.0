@@ -31,6 +31,7 @@
 
 #include "REM_Packet.h"
 #include "REM_RobotCommand.h"
+#include "REM_RobotCommandTesting.h"
 #include "REM_RobotFeedback.h"
 #include "REM_RobotBuzzer.h"
 #include "REM_RobotStateInfo.h"

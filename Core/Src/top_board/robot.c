@@ -45,12 +45,13 @@ MCP_DribblerEncoder dribblerEncoder = {0};
 
 // Incoming packets
 REM_RobotCommandPayload robotCommandPayload = {0};
+REM_RobotCommandTestingPayload robotCommandTestingPayload = {0};
 REM_RobotBuzzerPayload robotBuzzerPayload = {0};
 REM_RobotMusicCommand RobotMusicCommand = {0};
 volatile bool RobotMusicCommand_received_flag = false;
 // Outgoing packets
 REM_RobotFeedback robotFeedback = {0};
-REM_RobotFeedbackPayload robotFeedbackPayload = {0};
+REM_RobotFeedbackPayload robotFeedbackPayload = {0}; 
 REM_RobotStateInfo robotStateInfo = {0};
 REM_RobotStateInfoPayload robotStateInfoPayload = {0};
 REM_RobotPIDGains robotPIDGains = {0};
@@ -60,6 +61,7 @@ REM_LogPayload robotLogPayload = {0};
 REM_SX1280Filler sx1280filler = {0};
 
 REM_RobotCommand activeRobotCommand = {0};
+REM_RobotCommandTesting activeTestingCommand = {0};
 float activeStateReference[3];
 
 StateInfo stateInfo = {0.0f, false, {0.0f}, 0.0f, 0.0f, {0.0f}};
@@ -105,6 +107,7 @@ volatile bool REM_last_packet_had_correct_version = true;
 bool flag_PowerBoard_alive = false;
 bool flag_DribblerBoard_alive = false;
 bool flag_KickerBoard_alive = false;
+bool flag_useStateInfo = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -153,10 +156,12 @@ void Wireless_SendPacket() {
 	encodeREM_RobotFeedback( (REM_RobotFeedbackPayload*) (txPacket.message + txPacket.payloadLength), &robotFeedback);
 	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_FEEDBACK;
 
-	encodeREM_RobotStateInfo( (REM_RobotStateInfoPayload*) (txPacket.message + txPacket.payloadLength), &robotStateInfo);
-	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
+	if (flag_useStateInfo) {
+		encodeREM_RobotStateInfo( (REM_RobotStateInfoPayload*) (txPacket.message + txPacket.payloadLength), &robotStateInfo);
+		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
+	}
 
-	if(flag_send_PID_gains){
+	if (flag_send_PID_gains){
 		encodeREM_RobotPIDGains( (REM_RobotPIDGainsPayload*) (txPacket.message + txPacket.payloadLength), &robotPIDGains);
 		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_PIDGAINS;
 		flag_send_PID_gains = false;
@@ -204,7 +209,6 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	dribCommand.dribblerOption4 = robotCommand->dribblerOption4;
 	dribCommand.dribblerOption5 = robotCommand->dribblerOption5;
 	dribCommand.dribblerOption6 = robotCommand->dribblerOption6;
-	dribCommand.dribblerOption7 = robotCommand->dribblerOption7;
 	MCP_DribblerCommandPayload dcp = {0};
 	encodeMCP_DribblerCommand(&dcp, &dribCommand);
 	MCP_Send_Message(&hcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
@@ -718,11 +722,11 @@ void loop(void){
     if(flag_sdcard_write_feedback){
         flag_sdcard_write_feedback = false;
         encodeREM_RobotFeedback( &robotFeedbackPayload, &robotFeedback );
-        encodeREM_RobotStateInfo( &robotStateInfoPayload, &robotStateInfo);
+		if (flag_useStateInfo) encodeREM_RobotStateInfo( &robotStateInfoPayload, &robotStateInfo);
 
         // Write to SD card
         SDCard_Write(robotFeedbackPayload.payload, REM_PACKET_SIZE_REM_ROBOT_FEEDBACK, true);
-        SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
+        if (flag_useStateInfo) SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
     }
     if(flag_sdcard_write_command){
         flag_sdcard_write_command = false;
@@ -967,6 +971,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if(htim->Instance == TIM_CONTROL->Instance) {
 		if(!ROBOT_INITIALIZED) return;
 
+		flag_useStateInfo = activeRobotCommand.sendStateInfo;
+
 		if (!unix_initalized && activeRobotCommand.timestamp != 0){
 			unix_timestamp = activeRobotCommand.timestamp;
 			unix_initalized = true;
@@ -1065,11 +1071,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.kickerOn = kickerStatus.kickerOn;
 			robotFeedback.capacitorCharged = kickerStatus.kickerReady;			
 		}
-		
-		/* == Fill robotStateInfo packet == */ {	
+
+		/* == Fill robotStateInfo packet == */
+		if (flag_useStateInfo) {
 			robotStateInfo.timestamp = unix_timestamp;
 			robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
 			robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
+			robotStateInfo.xsensAccFiltered1 = 0; //TODO
+			robotStateInfo.xsensAccFiltered2 = 0; //TODO
 			robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
 			robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
 			robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
@@ -1087,11 +1096,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
 			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //
 			robotStateInfo.wheel4Integral = refSpeedWheelsPointer[3]; // 
-			robotStateInfo.kickerVoltage = kickerCapacitorVoltage.voltage;
-
-			flag_sdcard_write_feedback = true;
-			unix_timestamp += (uint32_t) TIME_DIFF * 1000;
+			robotStateInfo.wheelSpeedRef1 = 0; //TODO
+			robotStateInfo.wheelSpeedRef2 = 0; //TODO
+			robotStateInfo.wheelSpeedRef3 = 0; //TODO
+			robotStateInfo.wheelSpeedRef4 = 0; //TODO
+			robotStateInfo.wheelController_1 = 0; //TODO
+			robotStateInfo.wheelController_2 = 0; //TODO
+			robotStateInfo.wheelController_3 = 0; //TODO
+			robotStateInfo.wheelController_4 = 0; //TODO
+			robotStateInfo.bodyController_u = 0; //TODO
+			robotStateInfo.bodyController_v = 0; //TODO
+			robotStateInfo.bodyController_w = 0; //TODO
+			robotStateInfo.bodyControllerRef_u = 0; //TODO
+			robotStateInfo.bodyControllerRef_v = 0; //TODO
+			robotStateInfo.bodyControllerRef_w = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered1 = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered2 = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered3 = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered4 = 0; //TODO
+			robotStateInfo.bodyXDerivativeFiltered = 0; //TODO
+			robotStateInfo.bodyYDerivativeFiltered = 0; //TODO
+			robotStateInfo.bodyZDerivativeFiltered = 0; //TODO
+			robotStateInfo.bodyYawDerivativeFiltered = 0; //TODO
+			robotStateInfo.kickerVoltage = kickerCapacitorVoltage.voltage;	
 		}
+		
+
+		flag_sdcard_write_feedback = true;
+		unix_timestamp += (uint32_t) TIME_DIFF * 1000;
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;
