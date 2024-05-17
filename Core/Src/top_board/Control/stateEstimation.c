@@ -41,21 +41,21 @@ int stateEstimation_Init(){
 	kalman_Init();
 
 	// Initialize the pseudoinverse of the velocity coupling matrix.
-	float divisor_a = sinBack + sinFront;
-	Dinv[0] = -0.5 / divisor_a;
-	Dinv[1] = Dinv[0];
-	Dinv[2] = -Dinv[0];
-	Dinv[3] = -Dinv[0];
+	float divisor_a = cosFront * cosFront + cosBack * cosBack;
+	Dinv[0] = 0.5 *(cosFront/divisor_a);
+	Dinv[1] = -Dinv[0];
+	Dinv[2] = -0.5 *(cosBack/divisor_a);
+	Dinv[3] = -Dinv[2];
 
-	float divisor_b = cosBack * cosBack + cosFront * cosFront;
-	Dinv[4] = 0.5 * cosFront / divisor_b;
-	Dinv[5] = -Dinv[4];
-	Dinv[6] = -0.5 * cosBack / divisor_b;
-	Dinv[7] = -Dinv[6];
+	float divisor_b = sinBack + sinFront;
+	Dinv[4] = 0.5 * (1/divisor_b);
+	Dinv[5] = Dinv[4];
+	Dinv[6] = -Dinv[4];
+	Dinv[7] = -Dinv[4];
 
-	Dinv[8] = 0.5 * sinBack / divisor_a;
+	Dinv[8] = 0.5 * (sinBack / divisor_b);
 	Dinv[9] = Dinv[8];
-	Dinv[10] = 0.5 * sinFront / divisor_a;
+	Dinv[10] = 0.5 * (sinFront / divisor_b);
 	Dinv[11] = Dinv[10];
 
 	return 0;

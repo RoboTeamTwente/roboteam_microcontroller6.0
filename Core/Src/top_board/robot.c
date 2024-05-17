@@ -189,8 +189,8 @@ Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_c
 void executeCommands(REM_RobotCommand* robotCommand){
 	stateControl_useAbsoluteAngle(robotCommand->useAbsoluteAngle);
 	float stateReference[4];
-	stateReference[vel_x] = (robotCommand->rho) * sinf(robotCommand->theta);
-	stateReference[vel_y] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
 	stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->angle;
 	stateControl_SetRef(stateReference);
@@ -497,6 +497,19 @@ void init(void){
 		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
 		buzzer_Play_WarningOne();
 		HAL_Delay(1500); // The duration of the sound
+	} else {
+		int maxCounts= 50;
+		float averagedRateOfTurn = 0.0f;
+		float rateOfTurn = 0.0f;
+		float rotOffset;
+
+		for (int counter = 0; counter < maxCounts; counter++){ // should run for maxCounts time steps (500 ms)
+			rateOfTurn = MTi->gyr[2];
+			averagedRateOfTurn += rateOfTurn/((float) maxCounts);
+			HAL_Delay(10);
+		}
+		set_rotOffset(rotOffset);
+		LOG_printf("[init:"STRINGIZE(__LINE__)"] RateOfRotation offset: %f\n", rotOffset);
 	}
 	LOG_sendAll();
 }
@@ -982,11 +995,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
 		stateInfo.rateOfTurn = MTi->gyr[2];
 
-		//Robot standing still for 1second for RoT calibration (gyroscope drift)
-		wheels_Brake();
-		RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
-		wheels_Unbrake();
-
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
 
@@ -996,11 +1004,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			return;
 		}
 
-		if(counter_TIM_CONTROL < 50) {
-			if(!yaw_hasCalibratedOnce()) {
-				wheels_Stop();
-				return;
-			}
+		if(is_connected_wireless && activeRobotCommand.useCameraAngle && !yaw_hasCalibratedOnce()) {
+			wheels_Stop();
+			return;
 		}
 
 		// State control
@@ -1052,7 +1058,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			float vv = localState[vel_v];
 			robotFeedback.rho = sqrt(vu*vu + vv*vv);
 			robotFeedback.angle = localState[yaw];
-			robotFeedback.theta = atan2(vu, vv);
+			robotFeedback.theta = atan2(vv, vu);
 			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
 			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
