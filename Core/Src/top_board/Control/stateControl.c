@@ -11,7 +11,9 @@ static FFparameters feedforwardParameters;
 float friction_term;
 float damping_term;
 
- bool wheels_initialized = false;
+bool wheels_initialized = false;
+float stateLocalRef_PID[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+float wheel_speed_fraction[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 // The current status of the system.
 static PID_states status = off;
@@ -50,7 +52,7 @@ static PIDvariables wheelsK[4];
  * @param wheelSpeed The speed to be achieved for each wheel [rad/s]
  * @param stateLocal The velocities to be achieved seen from the body perspective {vel_u, vel_v, vel_w} [m/s]
  */
-static void body2Wheels(float wheelSpeed[4], float stateLocal[3]);
+static void body2Wheels(float wheelSpeed[4], float stateLocal[4]);
 
 /**
  * Translates the global coordinate frame to the local coordinate frame.
@@ -67,7 +69,7 @@ static void global2Local(float global[4], float local[4]);
  * @param stateGlobalRef 			The instructed global x, y, w and yaw speeds
  * @param velocityWheelRef 	The resulting wheel speeds that should be achieved for each wheel
  */
-static void velocityControl(float stateLocal[3], float stateGlobalRef[4], float velocityWheelRef[4]);
+static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]);
 
 /**
  * Determine the speed that the wheels should achieve in order to move towards a desired angle.
@@ -187,14 +189,14 @@ void wheels_Update() {
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
 		// float voltage_list = 0*feed_forward + 0.3987 * (PID(angular_velocity_error, &wheelsK[motor]));
-		float wheel_speed_percentage = feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor]));
+		wheel_speed_fraction[motor] = feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor]));
 		// 0.04f * 22.2f
 
 		// float batteryVoltage = 1.0f;
 
 		// float wheel_speed_percentage = (voltage_list*(1.0f/batteryVoltage));
 
-		wheels_SetSpeed_PWM(motor, wheel_speed_percentage);
+		wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
 	}
 }
 
@@ -287,12 +289,28 @@ float stateControl_GetIntegral(robot_axes direction) {
 	return stateLocalK[direction].I;
 }
 
+float stateControl_GetWheelIntegral(wheel_names wheel) {
+	return wheelsK[wheel].I;
+}
+
 float* stateControl_GetWheelRef() {
 	return wheelRef;
 }
 
-float* stateControl_GetBodyGlobalRef() {
-	return stateGlobalRef;
+float stateControl_GetIndividualWheelRef(wheel_names wheel) {
+	return wheelRef[wheel];
+}
+
+float stateControl_GetBodyGlobalRef(robot_axes direction) {
+	return stateGlobalRef[direction];
+}
+
+float stateControl_GetBodyControllerOutput(robot_axes direction) {
+	return stateLocalRef_PID[direction];
+}
+
+float stateControl_GetWheelControllerOutput(wheel_names wheel) {
+	return wheel_speed_fraction[wheel];
 }
 
 void stateControl_useAbsoluteAngle(bool angularControl){
@@ -348,7 +366,7 @@ void stateControl_ResetPID(){
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 
-static void body2Wheels(float wheelSpeed[4], float stateLocal[3]){
+static void body2Wheels(float wheelSpeed[4], float stateLocal[4]){
 
 	// Translate the local u, v, and omega velocities into wheel velocities.
 	wheelSpeed[wheels_RF] = stateLocal[vel_u] * D[0] + stateLocal[vel_v] * D[1];
@@ -379,7 +397,7 @@ static void global2Local(float global[4], float local[4]){
 
 static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]){
 	float stateLocalRef[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	float stateLocalRef_PID[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	
 	global2Local(stateGlobalRef, stateLocalRef); //transfer global to local
 
 	// Local control
@@ -404,5 +422,6 @@ static float absoluteAngleControl(float angleRef, float angle){
 		stateLocalK[yaw].I = 0;
 	}
 	prevangleErr = angleErr;
-	return PID(angleErr, &stateLocalK[yaw]);// PID control from control_util.h
+	stateLocalRef_PID[yaw] = PID(angleErr, &stateLocalK[yaw]);
+	return stateLocalRef_PID[yaw];// PID control from control_util.h
 }

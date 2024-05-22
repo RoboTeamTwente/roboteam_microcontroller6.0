@@ -1020,12 +1020,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateControl_SetState(stateLocal);
 		stateControl_Update();
 
-		float* refSpeedWheelsPointer;
-		refSpeedWheelsPointer = stateControl_GetWheelRef();
-		
-		float* pointerGlobalBodyRef;
-		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
-
 		if (!TEST_MODE || OLED_get_current_page_test_type() != NON_BLOCKING_TEST) {
 		
 			wheels_set_command_speed( stateControl_GetWheelRef() );
@@ -1088,28 +1082,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.dribbleSpeed = dribblerEncoder.measuredSpeed;
 			robotStateInfo.filteredDribbleSpeed = dribblerEncoder.filteredSpeed;
 			robotStateInfo.dribblespeedBeforeGotBall = seesBall.dribblerSpeedBefore;
-			robotStateInfo.bodyXIntegral = pointerGlobalBodyRef[vel_x]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
-			robotStateInfo.bodyYIntegral = pointerGlobalBodyRef[vel_y]; //
-			robotStateInfo.bodyWIntegral = pointerGlobalBodyRef[vel_w]; //
-			robotStateInfo.bodyYawIntegral = pointerGlobalBodyRef[yaw]; //
-			robotStateInfo.wheel1Integral = refSpeedWheelsPointer[0]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
-			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
-			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //
-			robotStateInfo.wheel4Integral = refSpeedWheelsPointer[3]; // 
-			robotStateInfo.wheelSpeedRef1 = 0; //TODO
-			robotStateInfo.wheelSpeedRef2 = 0; //TODO
-			robotStateInfo.wheelSpeedRef3 = 0; //TODO
-			robotStateInfo.wheelSpeedRef4 = 0; //TODO
-			robotStateInfo.wheelController_1 = 0; //TODO
-			robotStateInfo.wheelController_2 = 0; //TODO
-			robotStateInfo.wheelController_3 = 0; //TODO
-			robotStateInfo.wheelController_4 = 0; //TODO
-			robotStateInfo.bodyController_u = 0; //TODO
-			robotStateInfo.bodyController_v = 0; //TODO
-			robotStateInfo.bodyController_w = 0; //TODO
-			robotStateInfo.bodyControllerRef_u = 0; //TODO
-			robotStateInfo.bodyControllerRef_v = 0; //TODO
-			robotStateInfo.bodyControllerRef_w = 0; //TODO
+			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_u);
+			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_v);
+			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
+			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
+			robotStateInfo.wheel1Integral = stateControl_GetWheelIntegral(wheels_RF);
+			robotStateInfo.wheel2Integral = stateControl_GetWheelIntegral(wheels_LF);
+			robotStateInfo.wheel3Integral = stateControl_GetWheelIntegral(wheels_LB);
+			robotStateInfo.wheel4Integral = stateControl_GetWheelIntegral(wheels_RB);
+			robotStateInfo.wheelSpeedRef1 = stateControl_GetIndividualWheelRef(wheels_RF);
+			robotStateInfo.wheelSpeedRef2 = stateControl_GetIndividualWheelRef(wheels_LF);
+			robotStateInfo.wheelSpeedRef3 = stateControl_GetIndividualWheelRef(wheels_LB);
+			robotStateInfo.wheelSpeedRef4 = stateControl_GetIndividualWheelRef(wheels_RB);
+			robotStateInfo.wheelController_1 = stateControl_GetWheelControllerOutput(wheels_RF);
+			robotStateInfo.wheelController_2 = stateControl_GetWheelControllerOutput(wheels_LF);
+			robotStateInfo.wheelController_3 = stateControl_GetWheelControllerOutput(wheels_LB);
+			robotStateInfo.wheelController_4 = stateControl_GetWheelControllerOutput(wheels_RB);
+			robotStateInfo.bodyController_u = stateControl_GetBodyControllerOutput(vel_u);
+			robotStateInfo.bodyController_v = stateControl_GetBodyControllerOutput(vel_v);
+			robotStateInfo.bodyController_w = stateControl_GetBodyControllerOutput(vel_w);
+			robotStateInfo.bodyController_yaw = stateControl_GetBodyControllerOutput(yaw);
+			robotStateInfo.bodyControllerRef_u = stateControl_GetBodyGlobalRef(vel_u);
+			robotStateInfo.bodyControllerRef_v = stateControl_GetBodyGlobalRef(vel_v);
+			robotStateInfo.bodyControllerRef_w = stateControl_GetBodyGlobalRef(vel_w);
+			robotStateInfo.bodyControllerRef_yaw  = stateControl_GetBodyGlobalRef(yaw);
 			robotStateInfo.wheelSpeedDerivativeFiltered1 = 0; //TODO
 			robotStateInfo.wheelSpeedDerivativeFiltered2 = 0; //TODO
 			robotStateInfo.wheelSpeedDerivativeFiltered3 = 0; //TODO
