@@ -42,7 +42,7 @@ void pages_init() {
 }
 
 void pages_set_default_values(page_struct *p) {
-    p -> n_of_childeren = 0;
+    p -> n_of_children = 0;
     p -> is_menu = false;
     p -> is_test = NOT_A_TEST;
     p -> has_variables = false;
@@ -65,9 +65,9 @@ page_struct* getErrorNoChildren() {
 */
 void add_child_to_parent(page_struct *current) {
     page_struct *parent = current->parent;
-    if(parent->n_of_childeren < MAX_CHILDEREN) {
-        parent->childeren[parent->n_of_childeren] = current;
-        parent->n_of_childeren++;
+    if(parent->n_of_children < MAX_CHILDEREN) {
+        parent->children[parent->n_of_children] = current;
+        parent->n_of_children++;
     } else {
         OLED_set_error_too_many_children(parent->page_name);
     }
