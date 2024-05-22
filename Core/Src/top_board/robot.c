@@ -1123,7 +1123,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		
 
 		flag_sdcard_write_feedback = true;
-		unix_timestamp += (uint32_t) TIME_DIFF * 1000;
+		unix_timestamp += (uint32_t) (TIME_DIFF * 1000);
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;
