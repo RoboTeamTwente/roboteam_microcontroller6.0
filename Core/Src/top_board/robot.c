@@ -617,10 +617,6 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	// MCP_KickerCharge kc = {0};
-	// MCP_KickerChargePayload kcp = {0};
-	// encodeMCP_KickerCharge(&kcp, &kc);
-	// MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 }
 
 uint8_t robot_get_ID() {
