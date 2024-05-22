@@ -62,6 +62,7 @@ extern uint64_t unix_timestamp;
 extern bool DISABLE_BUZZER;
 extern bool TEST_MODE;
 extern bool flag_PowerBoard_alive, flag_DribblerBoard_alive, flag_KickerBoard_alive;
+extern REM_RobotCommand activeRobotCommand;
 
 //headers outgoing packets
 extern CAN_TxHeaderTypeDef areYouAliveHeaderToPower ;

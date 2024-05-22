@@ -195,8 +195,8 @@ Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_c
 void executeCommands(REM_RobotCommand* robotCommand){
 	stateControl_useAbsoluteAngle(robotCommand->useYaw);
 	float stateReference[4];
-	stateReference[vel_x] = (robotCommand->rho) * sinf(robotCommand->theta);
-	stateReference[vel_y] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
+	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
 	stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->yaw;
 	stateControl_SetRef(stateReference);
@@ -513,6 +513,19 @@ void init(void){
 		LOG_printf("[init:"STRINGIZE(__LINE__)"] Failed to initialize MTi after %d out of %d attempts\n", MTi_made_init_attempts, MTi_MAX_INIT_ATTEMPTS);
 		buzzer_Play_WarningOne();
 		HAL_Delay(1500); // The duration of the sound
+	} else {
+		int maxCounts= 50;
+		float averagedRateOfTurn = 0.0f;
+		float rateOfTurn = 0.0f;
+		float rotOffset;
+
+		for (int counter = 0; counter < maxCounts; counter++){ // should run for maxCounts time steps (500 ms)
+			rateOfTurn = MTi->gyr[2];
+			averagedRateOfTurn += rateOfTurn/((float) maxCounts);
+			HAL_Delay(10);
+		}
+		set_rotOffset(rotOffset);
+		LOG_printf("[init:"STRINGIZE(__LINE__)"] RateOfRotation offset: %f\n", rotOffset);
 	}
 	LOG_sendAll();
 }
@@ -735,8 +748,14 @@ void loop(void){
         while (heartbeat_17ms < current_time) heartbeat_17ms += 17;
 
         if(system_test_running){
-            updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
-            flag_sdcard_write_command = true;
+			// Test is running fine
+			if (OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
+				updateTestCommand(&activeRobotCommand, current_time - timestamp_initialized);
+				flag_sdcard_write_command = true;
+			} else { 
+				// Test ended early so reset
+				system_test_reset();
+			}
         }
 
 		if (TEST_MODE) {
@@ -965,7 +984,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED) return;
+		if(!ROBOT_INITIALIZED || OLED_get_current_page_test_type() == BLOCKING_TEST) return;
 
 		flag_useStateInfo = activeRobotCommand.sendStateInfo;
 
@@ -995,19 +1014,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateInfo.xsensYaw = (MTi->angles[2]*M_PI/180); //Gradients to Radians
 		stateInfo.rateOfTurn = MTi->gyr[2];
 
-		//Robot standing still for 1second for RoT calibration (gyroscope drift)
-		wheels_Brake();
-		RoT_calibration_noMotion(stateInfo.rateOfTurn); // watch out now only based on stateInfo (doesn't include the smoothen RoT)
-		wheels_Unbrake();
-
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
 
-		if(counter_TIM_CONTROL < 50) {
-			if(!yaw_hasCalibratedOnce()) {
-				wheels_Stop();
-				return;
-			}
+		if(is_connected_wireless && activeRobotCommand.useCameraYaw && !yaw_hasCalibratedOnce()) {
+			wheels_Stop();
+			return;
 		}
 
 		// State control
@@ -1016,16 +1028,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateControl_SetState(stateLocal);
 		stateControl_Update();
 
-		if (!TEST_MODE || OLED_get_current_page_test_type() != NON_BLOCKING_TEST) {
+		if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
 		
 			wheels_set_command_speed( stateControl_GetWheelRef() );
 
 			// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
 			// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
 			// only want to execute this on a roll of tape.
-			//
-			// TODO: Once the battery meter has been implemented in software, it would perhaps be nice to stop the drainaige at programmable level.
-			//       Currently you are stuck on the automated shutdown value that is controlled by the powerboard.
 			if(DRAIN_BATTERY){
 
 				// TODO Instruct each wheel to go 30 rad/s
@@ -1050,7 +1059,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			float vv = localState[vel_v];
 			robotFeedback.rho = sqrt(vu*vu + vv*vv);
 			robotFeedback.yaw = localState[yaw];
-			robotFeedback.theta = atan2(vu, vv);
+			robotFeedback.theta = atan2(vv, vu);
 
 			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
 			robotFeedback.XsensCalibrated = xsens_CalibrationDone;

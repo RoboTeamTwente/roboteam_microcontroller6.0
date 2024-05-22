@@ -59,8 +59,9 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[4]);
  * 
  * @param global 	The global coordinates {vel_x, vel_y, vel_w, yaw}
  * @param local 	The local coordinates {vel_u, vel_v, vel_w, yaw}
+ * @param yaw_angle 		The current yaw angle (stateLocal[yaw])
  */
-static void global2Local(float global[4], float local[4]);
+static void global2Local(float global[4], float local[4], float yaw_angle);
 
 /**
  * Determines the desired wheel speeds given the desired velocities
@@ -99,17 +100,17 @@ int stateControl_Init(){
 	HAL_TIM_Base_Start_IT(TIM_CONTROL);
 
 	// Initialize the velocity coupling matrix.
-	D[0] = -sinFront;
-	D[1] = cosFront; 
+	D[0] = cosFront;
+	D[1] = sinFront; 
 	D[2] = 1;
-	D[3] = -sinFront;
-	D[4] = -cosFront;
+	D[3] = -cosFront;
+	D[4] = sinFront;
 	D[5] = 1;
-	D[6] = sinBack;
-	D[7] = -cosBack;
+	D[6] = -cosBack;
+	D[7] = -sinBack;
 	D[8] = 1;
-	D[9] = sinBack;
-	D[10] = cosBack;
+	D[9] = cosBack;
+	D[10] = -sinBack;
 	D[11] = 1;
 
 	return 0;
@@ -387,18 +388,18 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[4]){
 	}
 }
 
-static void global2Local(float global[4], float local[4]){
+static void global2Local(float global[4], float local[4], float yaw_angle){
 	//trigonometry
-	local[vel_u] = cosf(global[yaw]) * global[vel_x] + sinf(global[yaw]) * global[vel_y];
-	local[vel_v] = -sinf(global[yaw]) * global[vel_x] + cosf(global[yaw]) * global[vel_y];
+	local[vel_u] = cosf(yaw_angle) * global[vel_x] + sinf(yaw_angle) * global[vel_y];
+	local[vel_v] = -sinf(yaw_angle) * global[vel_x] + cosf(yaw_angle) * global[vel_y];
     local[vel_w] = global[vel_w];
-	local[yaw] = global[yaw];
+	local[yaw] = yaw_angle;
 }
 
 static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]){
 	float stateLocalRef[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	
-	global2Local(stateGlobalRef, stateLocalRef); //transfer global to local
+	global2Local(stateGlobalRef, stateLocalRef, stateLocal[yaw]); //transfer global to local
 
 	// Local control
 	float veluErr = (stateLocalRef[vel_u] - stateLocal[vel_u]);

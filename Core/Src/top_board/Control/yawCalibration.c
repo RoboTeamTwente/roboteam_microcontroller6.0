@@ -12,6 +12,7 @@
 
 static float calibratedYaw = 0.0f;				// The calibrated yaw
 static bool hasCalibratedOnce = false;			// Wether the yaw has been calibrated at least once. This variable is also used to enforce a new calibration
+static float rotOffset = 0.0f;					// Rate of Turn offset
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -96,32 +97,19 @@ void yaw_ResetCalibration(){
 	hasCalibratedOnce = false;
 };
 
-// Rate of Turn calibration only meant to be used when robot stands still for 1 second, calculate its offset (we have a negative offset sometimes) and is put to zero
-void RoT_calibration_noMotion(float rateofTurn) {
-	static bool CalibrationDone_RoT = false;
-	static bool CalibrationNeeded_RoT = false;
-	float offset_RoT = 0.0f;
-	for (int counter = 0; counter < 50; counter++){ // should run for 50 time steps (500 ms)
-		if (rateofTurn > 0.001) {
-			offset_RoT = rateofTurn;
-			rateofTurn = 0;
-			CalibrationDone_RoT = true;
-			CalibrationNeeded_RoT = true;
-		} else {
-			CalibrationDone_RoT = true;
-			CalibrationNeeded_RoT = false;
-		}
-	}
-	return CalibrationDone_RoT;
-	LOG_printf("CalibrationDone_RoT: %s\n", CalibrationDone_RoT);
+void set_rotOffset(float _rotOffset) {
+	rotOffset = _rotOffset;
 }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 
 static bool isCalibrationNeeded(float visionYaw, float xsensYaw, float yawOffset) {
-
 	static bool calibrationNeeded = false;
 	static int checkCounter = 0;
+	if (!hasCalibratedOnce){
+		return true;
+	}
+
 	if (fabs(constrainAngle(visionYaw - (xsensYaw + yawOffset))) > M_PI/180/4) { // require 0.25 degree accuracy
 		checkCounter++;
 	} else {
@@ -131,9 +119,6 @@ static bool isCalibrationNeeded(float visionYaw, float xsensYaw, float yawOffset
 	if (checkCounter > 10) {
 		checkCounter = 0;
 		calibrationNeeded = true;
-	}
-	if (!hasCalibratedOnce){
-		return true;
 	}
 	return calibrationNeeded;
 }

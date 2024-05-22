@@ -56,11 +56,11 @@ float WHEEL_REF_LIMIT; 							// [rad/s] Limit the maximum wheel reference to le
 *   they refer to the global frame and u and v for the local frame.
 */
 typedef enum {
-	vel_x = 0,		// The global velocity in the sideways direction
-	vel_y = 1,		// The global velocity in the forward/backward direction
+	vel_x = 0,		// The global velocity in the forward/backward direction
+	vel_y = 1,		// The global velocity in the sideways direction
 	vel_w = 2,		// The angular velocity
-	vel_u = 0,      // The local velocity in the sideways direction
-	vel_v = 1,      // The local velocity in the forward/backward direction
+	vel_u = 0,      // The local velocity in the forward/backward direction
+	vel_v = 1,      // The local velocity in the sideways direction
 	yaw = 3,		// The angle
 }robot_axes;
 
