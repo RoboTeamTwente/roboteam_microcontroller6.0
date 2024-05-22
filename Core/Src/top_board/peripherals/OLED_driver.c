@@ -14,16 +14,19 @@ static void display_text();
 static void menuHasNoChildrenException();
 static void menuHasTooManyChildrenException();
 static void putPageName();
+static void initNotInTestMode();
 
 
 ///////////////////////////////////////////////////// VARIABLES
 static bool oled_initialized = false;
 static page_struct *current_page;
+struct page_struct not_in_test_mode;
+struct page_struct error_no_children;
+struct page_struct error_menu_has_too_many_children;
+struct page_struct error_menu_has_no_children;
+struct page_struct page_root; 
 static int item_selector;
-static int id_not_in_test_mode;
 static int id_self_test_menu;
-static int id_error_no_children;
-static int id_root_page;
 bool flag_error_too_many_children = false;
 bool flag_error_too_many_children_page_init = false;
 char* page_name_error_too_many_children;
@@ -35,14 +38,29 @@ bool test_is_finished = false;
  * @brief initialize the OLED screen
 */
 void OLED_Init() {
+    pages_set_default_values(&error_menu_has_no_children);
+    error_menu_has_no_children.id = 50;
+    strcpy(error_menu_has_no_children.page_name, "Error");
+    error_menu_has_no_children.parent = NULL;
+
+    pages_set_default_values(&error_no_children);
+    error_no_children.id = 30;
+    strcpy(error_no_children.page_name, "Error");
+    error_no_children.parent = NULL;
+
+    //ROOT
+    pages_set_default_values(&page_root);
+    page_root.id = 0;
+    strcpy(page_root.page_name, "Root");
+    page_root.parent = NULL;
+
+    pages_init(&page_root);
+
     clear_screen();
-    current_page = getRootPage();
+    current_page = &page_root;
     item_selector = 0;
     oled_initialized = true;
-    id_not_in_test_mode = getNotInTestMode()->id;
     id_self_test_menu = getSelfTestMenuID();
-    id_error_no_children = getErrorNoChildren()->id;
-    id_root_page = current_page->id;
     boot_screen();
 }
 
@@ -84,8 +102,8 @@ void OLED_Update(button_id_t button, bool test_mode) {
     }
 
     /* find out what to do on button press */
-    if (current_page->id == id_root_page || current_page->id == id_not_in_test_mode || current_page->id == id_error_no_children) {
-        current_page = getRootPage()->children[0];
+    if (current_page->id == page_root.id || current_page->id == not_in_test_mode.id || current_page->id == error_no_children.id) {
+        current_page = page_root.children[0];
         item_selector = 0;
     } else if (current_page->is_menu) {
         onButtonPressMenu(button);
@@ -97,7 +115,7 @@ void OLED_Update(button_id_t button, bool test_mode) {
 
     /* Prevent user from going into test menu if robot not in test mode*/
     if (!test_mode && (current_page->id == id_self_test_menu || current_page->is_test != NOT_A_TEST)) {
-        current_page = getNotInTestMode();
+        current_page = &not_in_test_mode;
     }
 
     /* Check if menu has items, otherwise throw error */
@@ -147,6 +165,7 @@ void OLED_set_error_too_many_children(char* page_name) {
     page_name_error_too_many_children = page_name;
 }
 
+
 /**
  * @brief display that the test has started
 */
@@ -156,7 +175,6 @@ void start_of_test() {
     strcpy(current_page->line0, "Test is running");
     strcpy(current_page->line1, "");
     strcpy(current_page->line2, "");
-    strcpy(current_page->line3, "");
     strcpy(current_page->line3, "");
     display_text();
     SSD1306_UpdateScreen();   
@@ -411,7 +429,7 @@ static void display_text() {
 static void menuHasNoChildrenException() {
     clear_screen();
     page_struct* page = current_page;
-    current_page = getErrorNoChildren();
+    current_page = &error_menu_has_no_children;
     SSD1306_GotoXY (5,0);
     SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
     SSD1306_GotoXY (5,20);
@@ -451,4 +469,15 @@ static void menuHasTooManyChildrenException() {
 static void putPageName() {
     SSD1306_GotoXY (5,0);
     SSD1306_Puts(current_page->page_name, &Font_11x18, 1);
+}
+
+static void initNotInTestMode() {
+    pages_set_default_values(&not_in_test_mode);
+    not_in_test_mode.id = 20;
+    strcpy(not_in_test_mode.page_name, "WARNING");
+    not_in_test_mode.parent = NULL;
+    strcpy(not_in_test_mode.line0, "Robot is not");
+    strcpy(not_in_test_mode.line1, "test-mode. Flip");
+    strcpy(not_in_test_mode.line2, "switch 7 and");
+    strcpy(not_in_test_mode.line3, "reboot the robot");
 }

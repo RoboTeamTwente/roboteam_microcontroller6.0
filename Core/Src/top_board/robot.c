@@ -419,7 +419,6 @@ void init(void){
     stateControl_Init();
     stateEstimation_Init();
 
-	pages_init();
 	SSD1306_Init(); // init oled
 	OLED_Init();//start the menu
 
