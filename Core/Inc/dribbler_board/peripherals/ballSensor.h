@@ -5,6 +5,9 @@
 #include "gpio_util.h"
 
 #define DMA_bufferSize 1
+#define state_bufferSize 10
+
+extern bool ball_state;
 
 void ballsensor_init();
 

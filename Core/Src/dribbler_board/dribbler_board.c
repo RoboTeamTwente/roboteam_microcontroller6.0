@@ -17,6 +17,14 @@ bool ballsensor_functioning_state = true;
 bool dribbler_state;
 bool ballsensor_state;
 
+// Checks for how long we lost the ball
+uint8_t ball_counter = 0;
+
+// Heart Beats
+uint32_t current_beat = 0;
+uint32_t heart_beat_10ms = 0;
+
+
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
@@ -25,7 +33,7 @@ void init(){
     dribbler_Init();
     ballsensor_init();
     BOARD_INITIALIZED = true;
-    dribbler_SetSpeed(0.35f);
+    dribbler_SetSpeed(0.0f);
 }
 
 uint8_t robot_get_ID(){
@@ -40,16 +48,18 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
-    if (CAN_to_process){
-        if (!MailBox_one.empty)
-            CAN_Process_Message(&MailBox_one);
-        if (!MailBox_two.empty)
-            CAN_Process_Message(&MailBox_two);
-        if (!MailBox_three.empty)
-            CAN_Process_Message(&MailBox_three);
-        CAN_to_process = false;
-	}
+    uint32_t current_beat = HAL_GetTick();
 
+    // if (CAN_to_process){
+    //     if (!MailBox_one.empty)
+    //         CAN_Process_Message(&MailBox_one);
+    //     if (!MailBox_two.empty)
+    //         CAN_Process_Message(&MailBox_two);
+    //     if (!MailBox_three.empty)
+    //         CAN_Process_Message(&MailBox_three);
+    //     CAN_to_process = false;
+	// }
+    
 }
 
 /* ============================================= */
@@ -102,6 +112,24 @@ void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_Handl
 
 }
 
+
+void control_dribbler_callback(){    
+    if(ballsensor_hasBall()){
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);
+        ball_counter = 0;
+        dribbler_SetSpeed(1.0f);
+    }
+    else if (ball_counter < 50){
+        ball_counter = ball_counter + 1;
+        dribbler_SetSpeed(0.35f);
+    }else{
+        dribbler_SetSpeed(0.0);
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
+    }
+    current_beat = HAL_GetTick();
+}
+
+
 /* =================================================== */
 /* ===================== METHODS ===================== */
 /* =================================================== */
@@ -118,12 +146,22 @@ void dribbler_CALLBACK_FUNCTION(){
 /* ============================================================ */
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
  
 }
 
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-//     if (&htim == &htim3){
-//         dribbler_CALLBACK_FUNCTION(); // 10Hz has elapsed
-//     }
-// }
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+    if (hadc == CUR_DRIBBLER){
+        control_dribbler_callback(); 
+    }
+    // HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1);
+}
+
+
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    // if (htim == &htim6)
+    //     control_dribbler_callback(); // 100Hz has elapsed
+    
+}

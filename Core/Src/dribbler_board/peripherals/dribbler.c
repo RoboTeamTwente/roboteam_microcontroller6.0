@@ -1,7 +1,7 @@
 #include "dribbler.h"
 
 
-uint32_t dribbler_current_Buffer[current_Buffer_Size];
+uint16_t dribbler_current_Buffer[current_Buffer_Size];
 
 void dribbler_Init(){
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
@@ -12,14 +12,14 @@ void dribbler_Init(){
 
 void dribbler_motor_Init(){
 	// Start the DMA for current of the motor
-	HAL_TIM_Base_Start(DMA_TIMER);
+	//HAL_TIM_Base_Start_IT(ADC_TIMER);
 	HAL_ADC_Start_DMA(CUR_DRIBBLER, (uint32_t*)dribbler_current_Buffer, current_Buffer_Size);
+
 	// For the voltage
-	HAL_DAC_Start(VOLT_DRIBBLER, DAC1_CHANNEL_1);
- 	HAL_DAC_SetValue(VOLT_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, volt_Start);
+	dribbler_setCurrentLimit(1500);
 }
 
-void dribbler_setVoltage(uint16_t value){
+void dribbler_setCurrentLimit(uint16_t value){
 	HAL_DAC_Start(VOLT_DRIBBLER, DAC1_CHANNEL_1);
 	HAL_DAC_SetValue(VOLT_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, value);
 }
@@ -31,11 +31,12 @@ uint32_t dribbler_getCurrent(){
 
 bool dribbler_hasBall(){
 	uint32_t current = dribbler_getCurrent();
-	return current >  CURRENT_THRESHOLD;
+	return current > CURRENT_THRESHOLD;
 }
 
 void dribbler_DeInit(){
 	HAL_TIM_Base_Stop(PWM_DRIBBLER);
+	HAL_TIM_Base_Stop_IT(ADC_TIMER);
 	stop_PWM(PWM_Dribbler_a);
 	stop_PWM(PWM_Dribbler_b);
 }

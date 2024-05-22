@@ -23,7 +23,6 @@
 
 extern uint32_t encoder_value;
 
-#define volt_Start 2000
 #define CURRENT_THRESHOLD 600
 #define current_Buffer_Size 10
 
@@ -31,8 +30,8 @@ extern uint32_t encoder_value;
 void dribbler_Init();
 // Initializes the motor driver for the PWM
 void dribbler_motor_Init();
-// The voltage value we set, limits acceleration
-void dribbler_setVoltage(uint16_t value);
+// The current value we set, limits acceleration
+void dribbler_setCurrentLimit(uint16_t value);
 // Larger current implies we have the ball
 uint32_t dribbler_getCurrent();
 // If the current is above a certain threshold, it implies we have the ball

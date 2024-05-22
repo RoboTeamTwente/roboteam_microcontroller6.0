@@ -115,36 +115,18 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   init();
-
-  // HAL_TIM_Base_Start(&htim3);
-  // TIM3->CCR1 = 0;
-  // TIM3->CCR2 = 0;
-  // HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  // HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-
-  //TIM3->CCR2 = 350;
-
-  // HAL_DAC_Start(&hdac1, DAC1_CHANNEL_1);
-  // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, 400);
-
-  // HAL_TIM_Base_Start(&htim6);
-  // HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2_buffer, buflen);
-  // HAL_GPIO_WritePin(Ball_sensor_out_GPIO_Port, Ball_sensor_out_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // HAL_GPIO_TogglePin(Ball_sensor_out_GPIO_Port, Ball_sensor_out_Pin);
-    // HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-    // HAL_Delay(1000);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,(ballsensor_hasBall()));
-    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin,(dribbler_hasBall()));
-    //loop();
+    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, (dribbler_hasBall()));
+    // loop();
   }
   /* USER CODE END 3 */
 }
@@ -210,6 +192,7 @@ static void MX_ADC1_Init(void)
 
   ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
+  ADC_InjectionConfTypeDef sConfigInjected = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -253,6 +236,25 @@ static void MX_ADC1_Init(void)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Injected Channel
+  */
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_4;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+  sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
+  sConfigInjected.InjectedNbrOfConversion = 1;
+  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
+  sConfigInjected.ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START;
+  sConfigInjected.AutoInjectedConv = DISABLE;
+  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
+  sConfigInjected.QueueInjectedContext = DISABLE;
+  sConfigInjected.InjectedOffset = 0;
+  sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
+  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
   {
     Error_Handler();
   }
@@ -420,6 +422,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -432,6 +435,15 @@ static void MX_TIM3_Init(void)
   htim3.Init.Period = 1000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {
     Error_Handler();

@@ -34,7 +34,7 @@ extern PWM_struct PWM_Dribbler_b;
 // Encoders
 #define ENC_DRIBBLER (&htim2)
 #define PWM_DRIBBLER (&htim3)
-#define DMA_TIMER (&htim6)
+#define ADC_TIMER (&htim6)
 
 // PWM
 
