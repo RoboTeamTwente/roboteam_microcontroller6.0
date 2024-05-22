@@ -29,7 +29,7 @@ uint32_t heart_beat_10ms = 0;
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(){
-    //CAN_Init(&hcan, DRIBBLER_ID);
+    CAN_Init(&hcan, DRIBBLER_ID);
     dribbler_Init();
     ballsensor_init();
     BOARD_INITIALIZED = true;
@@ -50,15 +50,15 @@ uint8_t robot_get_Channel(){
 void loop(){
     uint32_t current_beat = HAL_GetTick();
 
-    // if (CAN_to_process){
-    //     if (!MailBox_one.empty)
-    //         CAN_Process_Message(&MailBox_one);
-    //     if (!MailBox_two.empty)
-    //         CAN_Process_Message(&MailBox_two);
-    //     if (!MailBox_three.empty)
-    //         CAN_Process_Message(&MailBox_three);
-    //     CAN_to_process = false;
-	// }
+    if (CAN_to_process){
+        if (!MailBox_one.empty)
+            CAN_Process_Message(&MailBox_one);
+        if (!MailBox_two.empty)
+            CAN_Process_Message(&MailBox_two);
+        if (!MailBox_three.empty)
+            CAN_Process_Message(&MailBox_three);
+        CAN_to_process = false;
+	}
     
 }
 
@@ -152,7 +152,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-    if (hadc == CUR_DRIBBLER){
+    if (hadc == CUR_DRIBBLER){// hadc == &hadc1
         control_dribbler_callback(); 
     }
     // HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1);
@@ -161,7 +161,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    // if (htim == &htim6)
-    //     control_dribbler_callback(); // 100Hz has elapsed
+
     
 }
