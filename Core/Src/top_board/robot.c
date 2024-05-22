@@ -617,10 +617,6 @@ void init(void){
 	
 	ROBOT_INITIALIZED = true;
 
-	// MCP_KickerCharge kc = {0};
-	// MCP_KickerChargePayload kcp = {0};
-	// encodeMCP_KickerCharge(&kcp, &kc);
-	// MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 }
 
 uint8_t robot_get_ID() {
@@ -1119,7 +1115,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		
 
 		flag_sdcard_write_feedback = true;
-		unix_timestamp += (uint32_t) TIME_DIFF * 1000;
+		unix_timestamp += (uint32_t) (TIME_DIFF * 1000);
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;
