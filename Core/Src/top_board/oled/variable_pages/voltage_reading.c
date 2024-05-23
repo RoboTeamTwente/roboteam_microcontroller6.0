@@ -3,10 +3,9 @@
 struct page_struct voltage_meter;
 
 void voltage_reading_init(page_struct *parent) {
-    pages_set_default_values(&voltage_meter);
+    pages_set_default_values(&voltage_meter, parent);
     voltage_meter.id = 231;
     strcpy(voltage_meter.page_name, "Voltages");
-    voltage_meter.parent = parent;
     voltage_meter.has_variables = true;
     add_child_to_parent(&voltage_meter);
 }

@@ -5,13 +5,12 @@ static uint32_t time_started = 0;
 struct page_struct system_test_running_page;
 
 void system_test_init(page_struct *parent) {
-    pages_set_default_values(&system_test_running_page);
+    pages_set_default_values(&system_test_running_page, parent);
     system_test_running_page.id = 1511;
     strcpy(system_test_running_page.page_name, "System test");
     strcpy(system_test_running_page.line0,"Robot is off");
     strcpy(system_test_running_page.line1,"the ground");
     strcpy(system_test_running_page.line3,"Kicker!!");
-    system_test_running_page.parent = parent;
     system_test_running_page.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&system_test_running_page);
 }

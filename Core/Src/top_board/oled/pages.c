@@ -7,20 +7,20 @@ struct page_struct main_menu;
 
 void pages_init(page_struct *p) {    
     //MAIN MENU
-    pages_set_default_values(&main_menu);
+    pages_set_default_values(&main_menu, p);
     main_menu.id = 10;
     strcpy(main_menu.page_name, "Main menu");
-    main_menu.parent = p;
     main_menu.is_menu = true;
     add_child_to_parent(&main_menu);
     main_menu_initChildren(&main_menu);
 }
 
-void pages_set_default_values(page_struct *p) {
-    p -> n_of_children = 0;
-    p -> is_menu = false;
-    p -> is_test = NOT_A_TEST;
-    p -> has_variables = false;
+void pages_set_default_values(page_struct *page, page_struct *parent) {
+    page -> n_of_children = 0;
+    page -> is_menu = false;
+    page -> is_test = NOT_A_TEST;
+    page -> has_variables = false;
+    page -> parent = parent;
 }
 
 /**

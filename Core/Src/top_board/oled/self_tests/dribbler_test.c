@@ -5,18 +5,16 @@ struct page_struct drib_off;
 
 void dribbler_test_InitChildren(page_struct *parent){
 
-    pages_set_default_values(&drib_on);
+    pages_set_default_values(&drib_on, parent);
     drib_on.id = 1411;
     strcpy(drib_on.page_name, "Drib on");
-    drib_on.parent = parent;
     drib_on.is_test = BLOCKING_TEST;
     drib_on.has_variables = false;
     add_child_to_parent(&drib_on);
 
-    pages_set_default_values(&drib_off);
+    pages_set_default_values(&drib_off, parent);
     drib_off.id = 1412;
     strcpy(drib_off.page_name, "Drib off");
-    drib_off.parent = parent;
     drib_off.is_test = BLOCKING_TEST;
     drib_off.has_variables = false;
     add_child_to_parent(&drib_off);
