@@ -46,6 +46,7 @@ void OLED_Init() {
     strcpy(root_page.page_name, "Root");
 
     pages_init(&root_page);
+    initNotInTestMode();
 
     clear_screen();
     current_page = &root_page;
@@ -107,6 +108,7 @@ void OLED_Update(button_id_t button, bool test_mode) {
     /* Prevent user from going into test menu if robot not in test mode*/
     if (!test_mode && (current_page->id == id_self_test_menu || current_page->is_test != NOT_A_TEST)) {
         current_page = &not_in_test_mode;
+        display_text();
     }
 
     /* Check if menu has items, otherwise throw error */
