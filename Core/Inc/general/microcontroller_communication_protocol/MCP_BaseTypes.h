@@ -176,10 +176,10 @@
 #define MCP_PACKET_TYPE_MCP_POWER_VOLTAGE                                           14
 #define MCP_PACKET_ID_POWER_TO_TOP_MCP_POWER_VOLTAGE                                0x020009f0
 #define MCP_PACKET_ID_POWER_TO_DRIBBLER_MCP_POWER_VOLTAGE                           0x020008f4
-#define MCP_PACKET_SIZE_MCP_POWER_VOLTAGE                                           2
+#define MCP_PACKET_SIZE_MCP_POWER_VOLTAGE                                           3
 #define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_ACK_NUMBER_MIN                           0
 #define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_ACK_NUMBER_MAX                           255
-#define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN                  20.0000000000000000F
+#define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN                  15.0000000000000000F
 #define MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX                  30.0000000000000000F
 
 #define MCP_PACKET_TYPE_MCP_KILL                                                    15

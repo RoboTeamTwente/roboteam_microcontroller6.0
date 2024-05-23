@@ -115,7 +115,7 @@ packets = {
         "from" : [board.POWER],
         "to" : [board.TOP, board.DRIBBLER],
         "data" : [
-            ["voltagePowerBoard", 8, [20, 30], "power board voltage"]
+            ["voltagePowerBoard", 16, [15, 30], "power board voltage"]
         ]
     },
     "MCP_Kill" : {
