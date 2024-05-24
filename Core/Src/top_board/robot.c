@@ -779,7 +779,7 @@ void loop(void){
         while (heartbeat_1000ms < current_time) heartbeat_1000ms += 1000;
 
 		// Play warning if battery is getting low
-		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 24.0f) {
+		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 22.0f) {
 			if(!buzzer_IsPlaying()) {
 				buzzer_Play_QuickBeepDown();
 			}
