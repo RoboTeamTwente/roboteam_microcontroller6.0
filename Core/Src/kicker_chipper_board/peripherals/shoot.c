@@ -45,9 +45,9 @@ void shoot_Callback()
 	float voltage = voltage_Get();
 	uint32_t current_time = HAL_GetTick();
 	//Fault pin is HIGH by default
-	if (!read_Pin(Fault_pin)) {
-		shoot_DeInit();
-	}
+	// if (!read_Pin(Fault_pin)) {
+	// 	shoot_DeInit();
+	// }
 
 	switch(shootState){
 	case shoot_Ready:
