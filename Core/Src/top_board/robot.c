@@ -561,6 +561,7 @@ void init(void){
   	//initialize MCP
 	MCP_Init(&hcan1, MCP_TOP_BOARD);
 	LOG_printf("[init:"STRINGIZE(__LINE__)"] CAN VERSION: %d\n", MCP_LOCAL_VERSION);
+	powerVoltage.voltagePowerBoard = 24.0f; //making sure control code runs, even if powerboard doesn't send the voltage
 	
 	//initialize headers
 	areYouAliveHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_POWER_BOARD);

@@ -190,14 +190,16 @@ void wheels_Update() {
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
 		// float voltage_list = 0*feed_forward + 0.3987 * (PID(angular_velocity_error, &wheelsK[motor]));
-		wheel_speed_fraction[motor] = feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor]));
+		float wheel_voltage_to_be_applied = 24.0f*(feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
 		// 0.04f * 22.2f
 
 		// float batteryVoltage = 1.0f;
 
 		// float wheel_speed_percentage = (voltage_list*(1.0f/batteryVoltage));
+		wheel_speed_fraction[motor] = wheel_voltage_to_be_applied/powerVoltage.voltagePowerBoard;
 
 		wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
+		// wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
 	}
 }
 
