@@ -147,13 +147,15 @@ void resetTimer(int timePeriod)
 
 int calculateShootingTime(shoot_types type) {
 	if (type == shoot_Kick) {
-		int kickTime = MIN_KICK_TIME + power * (MAX_KICK_TIME-MIN_KICK_TIME);
+		//int kickTime = MIN_KICK_TIME + power * (MAX_KICK_TIME-MIN_KICK_TIME);
+		int kickTime = (int)(power * power*2400 + 2609 * power + 800);
 		if(kickTime < MIN_KICK_TIME) kickTime = MIN_KICK_TIME;
 		if(MAX_KICK_TIME < kickTime) kickTime = MAX_KICK_TIME;
 		return kickTime;
 
 	} else if (type == shoot_Chip) {
-		int chipTime = MIN_CHIP_TIME + power * (MAX_KICK_TIME-MIN_KICK_TIME);
+		// int chipTime = MIN_CHIP_TIME + power * (MAX_KICK_TIME-MIN_KICK_TIME);
+		int chipTime = (int)(power * power*2400 + 2609 * power + 800);
 		if(chipTime < MIN_CHIP_TIME) chipTime = MIN_CHIP_TIME;
 		if(MAX_CHIP_TIME < chipTime) chipTime = MAX_CHIP_TIME;
 		return chipTime;

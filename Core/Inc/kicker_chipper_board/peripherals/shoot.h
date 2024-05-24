@@ -40,10 +40,10 @@ typedef enum{
 ///////////////////////////////////////////////////// DEFINITIONS
 
 
-#define MIN_KICK_TIME 100000 			// minimum time [us] period of kicking
-#define MAX_KICK_TIME 250000 			// maximum time [us] period of kicking
-#define MIN_CHIP_TIME 100000 			// minimum time [us] period of chipping
-#define MAX_CHIP_TIME 250000 			// maximum time [us] period of chipping
+#define MIN_KICK_TIME 0 			// minimum time [us] period of kicking
+#define MAX_KICK_TIME 6000 			// maximum time [us] period of kicking
+#define MIN_CHIP_TIME 0			// minimum time [us] period of chipping
+#define MAX_CHIP_TIME 6000 			// maximum time [us] period of chipping
 #define TIMER_FREQ 1000000 			// frequency [Hz] of TIM16  (Clock frequency divided by prescaler)
 #define READY_CALLBACK_FREQ 10 		// frequency [Hz] of callback when shootState is Ready
 #define CHARGING_CALLBACK_FREQ 1 	// frequency [Hz] of callback when shootState is Charging
