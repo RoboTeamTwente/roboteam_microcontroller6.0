@@ -8,16 +8,15 @@ static shoot_states shootState = shoot_Off;
 ///////////////////////////////////////////////////// VARIABLES
 
 static bool charged = false;			// true if the capacitor is fully charged
-static float power = 0; 				// percentage of maximum shooting power [0,6.5]
 static bool chargingAllowed = false; 	// true if capacitor is allowed to be charged
 static uint32_t lastChangeToReady = 0;	// most recent time shootState changed from charging to ready
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
 // Stops and starts the timer for a certain period of time
-void resetTimer(int timePeriod);
+void resetTimer(int timePeriod); //set timer to timePeriod in us.
 
-int calculateShootingTime(shoot_types type);
+int calculateShootingTime(shoot_types type, float speed);
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
@@ -117,20 +116,14 @@ void shoot_DisableCharging() {
 	if (shootState == shoot_Charging) shootState = shoot_Ready;
 }
 
-void shoot_SetPower(float meters_per_second){
-    // At some point, make a formula to convert m/s to power. For now, linear relation
-    power = meters_per_second / REM_PACKET_RANGE_REM_ROBOT_COMMAND_KICK_CHIP_POWER_MAX;
-    if(power < 0) power = 0;
-    if(1 < power) power = 1;
-}
 
-void shoot_Shoot(shoot_types type)
+void shoot_Shoot(shoot_types type, float speed)
 {
 	if(shootState == shoot_Ready){
 		shootState = shoot_Shooting;
 		set_Pin(Charge_pin, 0); 									// Disable shoot_Charging
 		set_Pin(type == shoot_Kick ? Kick_pin : Chip_pin, 1); 		// Kick/Chip on
-		resetTimer(calculateShootingTime(type));
+		resetTimer(calculateShootingTime(type,speed));
 	}
 }
 
@@ -145,19 +138,17 @@ void resetTimer(int timePeriod)
 	HAL_TIM_Base_Start_IT(TIM_SHOOT);						// Start timer
 }
 
-int calculateShootingTime(shoot_types type) {
+int calculateShootingTime(shoot_types type, float speed) {
+
+	if(speed < MIN_BALL_SPEED) speed = MIN_BALL_SPEED;
+    if(MAX_BALL_SPEED < speed) speed = MAX_BALL_SPEED;
+
 	if (type == shoot_Kick) {
-		//int kickTime = MIN_KICK_TIME + power * (MAX_KICK_TIME-MIN_KICK_TIME);
-		int kickTime = (int)(power * power*2400 + 2609 * power + 800);
-		if(kickTime < MIN_KICK_TIME) kickTime = MIN_KICK_TIME;
-		if(MAX_KICK_TIME < kickTime) kickTime = MAX_KICK_TIME;
+		int kickTime = (int)(speed * speed * 56.5f + 401 * speed + 798); //transfer function to convert m/s to time in us
 		return kickTime;
 
 	} else if (type == shoot_Chip) {
-		// int chipTime = MIN_CHIP_TIME + power * (MAX_KICK_TIME-MIN_KICK_TIME);
-		int chipTime = (int)(power * power*2400 + 2609 * power + 800);
-		if(chipTime < MIN_CHIP_TIME) chipTime = MIN_CHIP_TIME;
-		if(MAX_CHIP_TIME < chipTime) chipTime = MAX_CHIP_TIME;
+		int chipTime = (int)(speed * speed * 56.5f + 401 * speed + 798);
 		return chipTime;
 	}
 	return 0;
