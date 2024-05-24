@@ -30,6 +30,9 @@ CAN_TxHeaderTypeDef kickerChargeHeader = {0};
 CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
 CAN_TxHeaderTypeDef killHeader = {0};
 CAN_TxHeaderTypeDef dribblerCommandHeader = {0};
+CAN_TxHeaderTypeDef rebootHeaderToPower = {0};
+CAN_TxHeaderTypeDef rebootHeaderToKicker = {0};
+CAN_TxHeaderTypeDef rebootHeaderToDribbler = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
@@ -569,6 +572,9 @@ void init(void){
 	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
 	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
 	dribblerCommandHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_COMMAND, MCP_DRIBBLER_BOARD);
+	rebootHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_REBOOT, MCP_POWER_BOARD);
+	rebootHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_REBOOT, MCP_KICKER_BOARD);
+	rebootHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_REBOOT, MCP_DRIBBLER_BOARD);
 
 	MCP_SetReadyToReceive(true);
 
@@ -684,6 +690,14 @@ void loop(void){
         if(!buzzer_IsPlaying()) {
             buzzer_Play_WarningTwo();
 		}
+	}
+
+	if (activeRobotCommand.reboot) {
+		MCP_RebootPayload reboot = {0};
+		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToPower);
+		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToDribbler);
+		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToKicker);
+		HAL_Delay(1000);
 	}
 
     // Check for connection to serial, wireless, and xsens
@@ -1028,7 +1042,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateControl_SetState(stateLocal);
 		stateControl_Update();
 
-		if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
+		if (activeRobotCommand.wheelsOff) {
+			wheels_Stop();
+		} else if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
 		
 			wheels_set_command_speed( stateControl_GetWheelRef() );
 
