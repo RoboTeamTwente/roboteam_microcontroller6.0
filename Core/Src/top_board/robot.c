@@ -159,10 +159,10 @@ void Wireless_SendPacket() {
 	encodeREM_RobotFeedback( (REM_RobotFeedbackPayload*) (txPacket.message + txPacket.payloadLength), &robotFeedback);
 	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_FEEDBACK;
 
-	if (flag_useStateInfo) {
+	// if (flag_useStateInfo) {
 		encodeREM_RobotStateInfo( (REM_RobotStateInfoPayload*) (txPacket.message + txPacket.payloadLength), &robotStateInfo);
 		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
-	}
+	// }
 
 	if (flag_send_PID_gains){
 		encodeREM_RobotPIDGains( (REM_RobotPIDGainsPayload*) (txPacket.message + txPacket.payloadLength), &robotPIDGains);
@@ -1141,7 +1141,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		
 
 		flag_sdcard_write_feedback = true;
-		unix_timestamp += (uint32_t) (TIME_DIFF * 1000);
+		unix_timestamp += (uint64_t) (TIME_DIFF * 1000);
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;
