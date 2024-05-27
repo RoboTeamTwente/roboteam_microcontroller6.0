@@ -159,10 +159,10 @@ void Wireless_SendPacket() {
 	encodeREM_RobotFeedback( (REM_RobotFeedbackPayload*) (txPacket.message + txPacket.payloadLength), &robotFeedback);
 	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_FEEDBACK;
 
-	// if (flag_useStateInfo) {
+	if (flag_useStateInfo) {
 		encodeREM_RobotStateInfo( (REM_RobotStateInfoPayload*) (txPacket.message + txPacket.payloadLength), &robotStateInfo);
 		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
-	// }
+	}
 
 	if (flag_send_PID_gains){
 		encodeREM_RobotPIDGains( (REM_RobotPIDGainsPayload*) (txPacket.message + txPacket.payloadLength), &robotPIDGains);
@@ -172,8 +172,8 @@ void Wireless_SendPacket() {
 
 	if (txPacket.payloadLength < 6) {
 		encodeREM_SX1280Filler( (REM_SX1280FillerPayload*) (txPacket.message + txPacket.payloadLength), &sx1280filler);
+		txPacket.payloadLength += REM_PACKET_SIZE_REM_SX1280FILLER;
 	}
-
 	WritePacket_DMA(SX, &txPacket, &Wireless_Writepacket_Cplt);
 }
 
