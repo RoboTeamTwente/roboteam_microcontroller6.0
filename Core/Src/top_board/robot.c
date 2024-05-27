@@ -77,7 +77,6 @@ IWDG_Handle* iwdg;
 
 volatile uint32_t counter_loop = 0;
 volatile uint32_t counter_htim6 = 0;
-volatile uint32_t counter_TIM_CONTROL = 0;
 volatile uint32_t counter_TIM_BUZZER = 0;
 volatile uint32_t counter_TIM_SHOOT = 0;
 volatile uint32_t counter_RobotCommand = 0;
@@ -1016,8 +1015,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			REM_last_packet_had_correct_version = true;
 			return;
 		}
-
-		counter_TIM_CONTROL++;
 
 		// State Info
 		stateInfo.visionAvailable = activeRobotCommand.useCameraYaw;
