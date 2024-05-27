@@ -22,15 +22,7 @@ void ballsensor_setIR_off(){
     set_Pin(IR_LED_pin, false);
 }
 
-bool ballsesnor_previousState(){
-    return ADC2_buffer[1] < 200;
-}
-
 bool ballsensor_hasBall(){
     return ADC2_buffer[0] < 200;
-}
-
-bool ballsesnor_changeState(){
-    return ballsensor_hasBall() != ballsesnor_changeState();
 }
 

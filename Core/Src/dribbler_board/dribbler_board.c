@@ -33,6 +33,7 @@ bool ballsensor_functioning_state = true;
 // These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
 bool dribbler_state;
 bool ballsensor_state;
+static bool sendSeesBall = false;
 
 // Checks for how long we lost the ball
 uint8_t ball_counter = 0;
@@ -158,33 +159,14 @@ void MCP_Send_Im_Alive() {
 
 
 void MCP_Send_Ball_State(){
-    MCP_SeesBallPayload sbp = {0};
-    mcp_seesBall.ballsensorSeesBall = ballsensor_hasBall();
-    mcp_seesBall.dribblerSeesBall = false; // TO DO or REMOVE
-    encodeMCP_SeesBall(&sbp, &mcp_seesBall);
-    MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
-    MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
-    
-}
-
-
-void control_dribbler_callback(){    
-    if(ballsensor_hasBall()){
-        ball_counter = 0;
-        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);
-        dribbler_SetSpeed(1.0f);
-        MCP_Send_Ball_State();
-    }
-    else if (ball_counter < 100){
-        ball_counter = ball_counter + 1;
-        dribbler_SetSpeed(0.35f);
-    }else{
-        dribbler_SetSpeed(0.0);
-        MCP_Send_Ball_State();
-        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
+    if ((MCP_GetFreeToSend(MCP_TOP_BOARD) && MCP_GetFreeToSend(MCP_KICKER_BOARD))) {
+        MCP_SeesBallPayload sbp = {0};
+        encodeMCP_SeesBall(&sbp, &mcp_seesBall);
+        MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
+        MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
+        sendSeesBall = false;
     }
 }
-
 
 /* =================================================== */
 /* ===================== METHODS ===================== */
@@ -192,6 +174,38 @@ void control_dribbler_callback(){
 void dribbler_CALLBACK_FUNCTION(){
     dribbler_Update();
     dribbler_CalculateHasBall();
+}
+
+void do_send_ballState(){
+    sendSeesBall = false; 
+
+    if (mcp_seesBall.ballsensorSeesBall != ballsensor_hasBall()) {
+        mcp_seesBall.ballsensorSeesBall = ballsensor_hasBall();
+        sendSeesBall = true;
+    }
+
+    if (sendSeesBall) {
+        MCP_Send_Ball_State();
+    }
+}
+
+void control_dribbler_callback(){    
+
+    if(ballsensor_hasBall()){
+        ball_counter = 0;
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);
+        dribbler_SetSpeed(1.0f);
+    }
+    else if (ball_counter < 100){
+        ball_counter = ball_counter + 1;
+        dribbler_SetSpeed(0.35f);
+        return;
+    }else{
+        dribbler_SetSpeed(0.0);
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
+    }
+
+    do_send_ballState();
 }
 
 
