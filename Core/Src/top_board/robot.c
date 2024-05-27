@@ -520,7 +520,7 @@ void init(void){
 		int maxCounts= 50;
 		float averagedRateOfTurn = 0.0f;
 		float rateOfTurn = 0.0f;
-		float rotOffset;
+		float rotOffset = 0.0f;
 
 		for (int counter = 0; counter < maxCounts; counter++){ // should run for maxCounts time steps (500 ms)
 			rateOfTurn = MTi->gyr[2];
