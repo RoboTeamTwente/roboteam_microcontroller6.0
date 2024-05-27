@@ -32,6 +32,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 extern CAN_HandleTypeDef hcan;
+extern I2C_HandleTypeDef hi2c1;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -59,6 +60,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define Kill_Pin GPIO_PIN_6
 #define Kill_GPIO_Port GPIOA
+#define Volt_SCL_Pin GPIO_PIN_6
+#define Volt_SCL_GPIO_Port GPIOB
+#define Volt_SDA_Pin GPIO_PIN_7
+#define Volt_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

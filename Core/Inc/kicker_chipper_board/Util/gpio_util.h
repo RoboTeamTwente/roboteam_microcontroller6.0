@@ -25,7 +25,7 @@ extern GPIO_Pin Kick_pin;
 extern GPIO_Pin Chip_pin;
 extern GPIO_Pin Charge_pin;
 extern GPIO_Pin Charge_done_pin;
-extern GPIO_Pin Fault;
+extern GPIO_Pin Fault_pin;
 extern GPIO_Pin Temp_Sens;
 extern GPIO_Pin Cap_VoltageP;
 extern GPIO_Pin Cap_VoltageN;

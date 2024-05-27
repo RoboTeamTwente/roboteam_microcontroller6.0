@@ -2,6 +2,7 @@
 #define INC_DRAIN_BATTERY_H_
 
 #include "OLED_driver.h"
+#include "robot.h"
 
 extern bool DRAIN_BATTERY;
 

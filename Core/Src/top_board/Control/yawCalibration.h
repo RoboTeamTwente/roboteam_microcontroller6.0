@@ -50,14 +50,6 @@ bool yaw_hasCalibratedOnce();
  */
 void yaw_ResetCalibration();
 
-/**
- * Rate Of Turn Calibration
- * Robot standing still for 500ms at start of Control loop in robot.c and update RoT to 0 rad/s
- * Otherwise, there is a drift in the gyroscope
- * 
- * @param rateOfTurn 
- * @return bool
-*/
-void RoT_calibration_noMotion(float rateofTurn);
+void set_rotOffset(float _rotOffset);
 
 #endif /* YAWCALIBRATION_H_ */

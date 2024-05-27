@@ -4,6 +4,7 @@
 #include "pages.h"
 #include "robot.h"
 
+void encoder_page_init(page_struct *parent);
 void encoder_page_update(page_struct *page);
 
 #endif

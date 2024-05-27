@@ -6,7 +6,7 @@
 */
 
 bool init_sensor(){
-    return true;
+    return false;
 }
 
 uint16_t get_reading(){

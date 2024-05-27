@@ -2,7 +2,14 @@
 #define _DRIBBLER_BOARD_H_
 
 #include "main.h"
+<<<<<<< HEAD
 #include "CanDriver.h"
+=======
+#include "MCP_Driver.h"
+#include "MCP_from_dribbler.h"
+#include "MCP_to_dribbler.h"
+#include "ball_sensor.h"
+>>>>>>> main
 #include "dribbler.h"
 #include "logging.h"
 #include "ballSensor.h"
@@ -13,11 +20,9 @@
 #include "peripheral_util.h"
 #include <string.h>
 
-bool dribbler_state;
-bool ballsensor_state;
-
 void init();
 void loop();
-void CAN_Send_Message(uint8_t sending_message_ID, uint8_t reciever_ID ,CAN_HandleTypeDef *hcan);
+uint8_t robot_get_ID();
+uint8_t robot_get_Channel();
 
 #endif /* _DRIBBLER_BOARD_H_ */
