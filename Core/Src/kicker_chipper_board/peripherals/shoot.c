@@ -144,11 +144,11 @@ int calculateShootingTime(shoot_types type, float speed) {
     if(MAX_BALL_SPEED < speed) speed = MAX_BALL_SPEED;
 
 	if (type == shoot_Kick) {
-		int kickTime = (int)(speed * speed * 56.5f + 401 * speed + 798); //transfer function to convert m/s to time in us
+		int kickTime = (int)(speed * speed * 40.6f + 389.3 * speed + 896); //transfer function to convert m/s to time in us
 		return kickTime;
 
 	} else if (type == shoot_Chip) {
-		int chipTime = (int)(speed * speed * 56.5f + 401 * speed + 798);
+		int chipTime = (int)(speed * speed * 40.6f + 389.3 * speed + 896);
 		return chipTime;
 	}
 	return 0;
