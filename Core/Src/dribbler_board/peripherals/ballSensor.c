@@ -2,7 +2,7 @@
 
 uint16_t ADC2_buffer[DMA_bufferSize];
 uint8_t counter = 0;
-bool ball_state = false;
+bool ballSensor_isWorking = false;
 
 void ballsensor_init(){
     HAL_TIM_Base_Start_IT(ADC_TIMER);
@@ -22,8 +22,15 @@ void ballsensor_setIR_off(){
     set_Pin(IR_LED_pin, false);
 }
 
+bool ballsesnor_previousState(){
+    return ADC2_buffer[1] < 200;
+}
+
 bool ballsensor_hasBall(){
-    ball_state = ADC2_buffer[0] < 200;
-    return ball_state;
+    return ADC2_buffer[0] < 200;
+}
+
+bool ballsesnor_changeState(){
+    return ballsensor_hasBall() != ballsesnor_changeState();
 }
 

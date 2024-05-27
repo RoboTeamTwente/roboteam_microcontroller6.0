@@ -8,6 +8,7 @@ void dribbler_Init(){
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
 	dribbler_motor_Init();
+	dribbler_SetSpeed(0.0f);
 }
 
 void dribbler_motor_Init(){
@@ -42,13 +43,15 @@ void dribbler_DeInit(){
 }
 
 void dribbler_SetSpeed(float speed){
-	if (speed > 0){
-		set_PWM(&PWM_Dribbler_a, 0);
-		set_PWM(&PWM_Dribbler_b, speed);
-	}
-	else{
-		set_PWM(&PWM_Dribbler_b, 0);
-		set_PWM(&PWM_Dribbler_a, -1*speed);
+	if (BOARD_INITIALIZED){
+		if (speed > 0){
+			set_PWM(&PWM_Dribbler_a, 0);
+			set_PWM(&PWM_Dribbler_b, speed);
+		}
+		else{
+			set_PWM(&PWM_Dribbler_b, 0);
+			set_PWM(&PWM_Dribbler_a, -1*speed);
+		}
 	}
 }
 

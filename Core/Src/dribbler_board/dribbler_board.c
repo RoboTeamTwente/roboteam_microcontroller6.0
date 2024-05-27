@@ -21,16 +21,10 @@ MCP_DribblerEncoder mcp_encoder = {0};
 MCP_PowerVoltage mcp_power = {0};
 MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
 
-static bool sendSeesBall = false;
-static uint32_t lastTimeSendSeesBall = 0;
-static uint32_t heartbeat_10ms;
-
 /* ====================================================================== */    
 /* ====================== CAN RELEATED VARIABLES ======================== */    
 /* ====================================================================== */    
 
-// Array used in transmission of messages in CAN bus
-uint64_t TxMailbox[1];
 
 // These values are set depending on weither or not the dribbler initalizes correctly, used ONLY FOR INITLIZATION
 bool dribbler_functioning_state = true;
@@ -63,12 +57,11 @@ void init(){
 
     // MCP Alive
     MCP_SetReadyToReceive(true);
-	MCP_Send_Im_Alive();
+	//MCP_Send_Im_Alive();
     
     // Peripherals
-    dribbler_Init();
     ballsensor_init();
-    dribbler_SetSpeed(0.0f);
+    dribbler_Init();
     BOARD_INITIALIZED = true;
 }
 
@@ -84,7 +77,7 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
-    if (CAN_to_process){
+    if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
         if (!MailBox_two.empty)
@@ -155,7 +148,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 void MCP_Send_Im_Alive() {
     MCP_DribblerAlive da = {0};
     MCP_DribblerAlivePayload dap = {0};
-    da.ballsensorWorking = ballSensorIsWorking;
+    da.ballsensorWorking = ballSensor_isWorking;
     da.dribblerEncoderWorking = false;
     encodeMCP_DribblerAlive(&dap, &da);
     MCP_Send_Message_Always(&hcan, dap.payload, dribblerAliveHeaderToTop);
@@ -164,20 +157,32 @@ void MCP_Send_Im_Alive() {
 }
 
 
+void MCP_Send_Ball_State(){
+    MCP_SeesBallPayload sbp = {0};
+    mcp_seesBall.ballsensorSeesBall = ballsensor_hasBall();
+    mcp_seesBall.dribblerSeesBall = false; // TO DO or REMOVE
+    encodeMCP_SeesBall(&sbp, &mcp_seesBall);
+    MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
+    MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
+    
+}
+
+
 void control_dribbler_callback(){    
     if(ballsensor_hasBall()){
-        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);
         ball_counter = 0;
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);
         dribbler_SetSpeed(1.0f);
+        MCP_Send_Ball_State();
     }
-    else if (ball_counter < 50){
+    else if (ball_counter < 100){
         ball_counter = ball_counter + 1;
         dribbler_SetSpeed(0.35f);
     }else{
         dribbler_SetSpeed(0.0);
+        MCP_Send_Ball_State();
         HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
     }
-    current_beat = HAL_GetTick();
 }
 
 
