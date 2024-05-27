@@ -151,6 +151,14 @@ void Wireless_Readpacket_Cplt(void){
 	Wireless_SendPacket();
 }
 
+/**
+ * @brief This function sends back a packet to the basestation
+ * 
+ * During testing we found out that the payloadLength of the outgoing packet should be at least the payloadLength of the incoming packet.
+ * If this isn't the case we had trouble getting updated incoming packets.
+ * Thus REM_PACKET_SIZE_REM_ROBOT_FEEDBACK >= REM_PACKET_SIZE_REM_ROBOT_COMMAND 
+ * At this point we have not figured out yet why this is the case.
+*/
 void Wireless_SendPacket() {
 	txPacket.payloadLength = 0;
 
@@ -1082,7 +1090,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
 			robotFeedback.kickerFault = kickerStatus.kickerFault;
 			robotFeedback.kickerOn = kickerStatus.kickerOn;
-			robotFeedback.capacitorCharged = kickerStatus.kickerReady;			
+			robotFeedback.capacitorCharged = kickerStatus.kickerReady;
+			robotFeedback.kickerVoltage = kickerCapacitorVoltage.voltage;	
 		}
 
 		/* == Fill robotStateInfo packet == */
@@ -1133,7 +1142,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.bodyYDerivativeFiltered = 0; //TODO
 			robotStateInfo.bodyZDerivativeFiltered = 0; //TODO
 			robotStateInfo.bodyYawDerivativeFiltered = 0; //TODO
-			robotStateInfo.kickerVoltage = kickerCapacitorVoltage.voltage;	
 		}
 		
 
