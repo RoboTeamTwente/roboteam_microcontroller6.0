@@ -357,7 +357,7 @@ void init(void){
 	TEST_MODE = read_Pin(SW7_pin);
 
 	if (!TEST_MODE) {
-		/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
+		/* Enable the watchdog timer and set the threshold at 7.5 seconds. It should not be needed in the initialization but
 		sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
 		but its better than suddenly having non-responding robots in a match */
 		IWDG_Init(iwdg, 7500);
@@ -593,9 +593,10 @@ void init(void){
 	// Start timer TIM_1us
 	HAL_TIM_Base_Start_IT(TIM_1us);
 
-	/* Reset the watchdog timer and set the threshold at 200ms */
+	/* Reset the watchdog timer and set the threshold at 250ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 250);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
