@@ -13,7 +13,7 @@ void ballsensor_init();
 
 void ballsensor_deinit();
 
-void ballsensor_isWorking();
+void ballsensor_test();
 
 void ballsensor_setIR_on();
 

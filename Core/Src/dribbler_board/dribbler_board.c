@@ -58,7 +58,7 @@ void init(){
 
     // MCP Alive
     MCP_SetReadyToReceive(true);
-	//MCP_Send_Im_Alive();
+	MCP_Send_Im_Alive();
     
     // Peripherals
     ballsensor_init();
