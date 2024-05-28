@@ -84,9 +84,9 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
-	damping_term = 0.00145f;
+	damping_term = 0.04f;
 	// damping_term = 0.0f;
-	friction_term = 0.02f;
+	friction_term = 1.05f;
 
 	status = on;
 	initPID(&stateLocalK[vel_u], default_P_gain_u, default_I_gain_u, default_D_gain_u);
@@ -176,7 +176,7 @@ void wheels_Update() {
 
 		// FEEDFOWARD of robot 5.0
 		float feed_forward = 0.0f;
-		float threshold = 0.05f;
+		float threshold = 0.5f;
 
 		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
     		feed_forward = 0;
@@ -190,7 +190,7 @@ void wheels_Update() {
 
 		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
 		// float voltage_list = 0*feed_forward + 0.3987 * (PID(angular_velocity_error, &wheelsK[motor]));
-		float wheel_voltage_to_be_applied = 24.0f*(feed_forward + 0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
+		float wheel_voltage_to_be_applied = feed_forward + 24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
 		// 0.04f * 22.2f
 
 		// float batteryVoltage = 1.0f;
