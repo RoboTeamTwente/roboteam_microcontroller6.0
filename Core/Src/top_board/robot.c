@@ -625,6 +625,7 @@ void init(void){
 	/* Reset the watchdog timer and set the threshold at 200ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 1000);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
