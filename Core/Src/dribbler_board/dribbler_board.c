@@ -87,43 +87,6 @@ void loop(){
             MCP_Process_Message(&MailBox_three);
         MCP_to_process = false;
 	}
-
-    // sendSeesBall = false;
-
-    // if (mcp_seesBall.ballsensorSeesBall != bs_seesBall) {
-    //     mcp_seesBall.ballsensorSeesBall = bs_seesBall;
-    //     sendSeesBall = true;
-    // }
-
-    // if (mcp_seesBall.dribblerSeesBall != dribbler_GetHasBall()) {
-    //     mcp_seesBall.dribblerSeesBall = dribbler_GetHasBall();
-    //     mcp_seesBall.dribblerSpeedBefore = dribbler_GetSpeedBeforeGotBall();
-    //     sendSeesBall = true;
-    // }
-
-    // if (sendSeesBall) {
-    //     // send seesBall if freeToSend for both top and kicker is free
-    //     // or after 250ms try to send to both in case one of them is not acknowledging
-    //     if (current_time + 250 > lastTimeSendSeesBall || (MCP_GetFreeToSend(MCP_TOP_BOARD) && MCP_GetFreeToSend(MCP_KICKER_BOARD))) {
-    //         MCP_SeesBallPayload sbp = {0};
-    //         encodeMCP_SeesBall(&sbp, &mcp_seesBall);
-    //         MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
-    //         MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
-    //         lastTimeSendSeesBall = current_time;
-    //         sendSeesBall = false;
-    //     }
-    // }
-
-    // if (heartbeat_10ms < current_time && MCP_GetFreeToSend(MCP_TOP_BOARD)) {
-    //     heartbeat_10ms = current_time + 10;
-    //     mcp_encoder.measuredSpeed = dribbler_GetMeasuredSpeeds();
-    //     mcp_encoder.filteredSpeed = dribbler_GetFilteredSpeeds();
-    //     MCP_DribblerEncoderPayload dep = {0};
-    //     encodeMCP_DribblerEncoder(&dep, &mcp_encoder);
-    //     MCP_Send_Message(&hcan, &dep, dribblerEncoderHeader, MCP_TOP_BOARD);
-    // }
-    
-
 }
 
 /* ============================================= */
@@ -213,20 +176,9 @@ void control_dribbler_callback(){
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
- 
-}
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-    if (hadc == CUR_DRIBBLER){// hadc == &hadc1
+    if (hadc == CURRENT_DRIBBLER){// hadc == &hadc1
         control_dribbler_callback(); 
     }
     // HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1);
-}
-
-
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
-    
 }

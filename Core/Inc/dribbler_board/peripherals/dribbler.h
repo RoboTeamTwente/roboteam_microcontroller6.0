@@ -23,7 +23,7 @@
 
 extern uint32_t encoder_value;
 
-#define CURRENT_THRESHOLD 600
+#define CURRENT_THRESHOLD 600 // A temporary threshold
 #define current_Buffer_Size 10
 
 // Initializes the PIDs / encoders / PWM timers

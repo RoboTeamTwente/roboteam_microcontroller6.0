@@ -14,15 +14,15 @@ void dribbler_Init(){
 void dribbler_motor_Init(){
 	// Start the DMA for current of the motor
 	//HAL_TIM_Base_Start_IT(ADC_TIMER);
-	HAL_ADC_Start_DMA(CUR_DRIBBLER, (uint32_t*)dribbler_current_Buffer, current_Buffer_Size);
+	HAL_ADC_Start_DMA(CURRENT_DRIBBLER, (uint32_t*)dribbler_current_Buffer, current_Buffer_Size);
 
 	// For the voltage
 	dribbler_setCurrentLimit(1500);
 }
 
 void dribbler_setCurrentLimit(uint16_t value){
-	HAL_DAC_Start(VOLT_DRIBBLER, DAC1_CHANNEL_1);
-	HAL_DAC_SetValue(VOLT_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, value);
+	HAL_DAC_Start(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1);
+	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, value);
 }
 
 uint32_t dribbler_getCurrent(){
