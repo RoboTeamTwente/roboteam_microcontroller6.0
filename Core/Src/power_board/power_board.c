@@ -18,6 +18,9 @@ CAN_TxHeaderTypeDef powerVoltageHeader = {0};
 //Incoming MCP
 MCP_Kill mcp_kill = {};
 
+//Watchdog timer
+IWDG_Handle* iwdg;
+
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -46,6 +49,7 @@ void init() {
 	//REM_UARTinit(UART_PC);
 
 	heartbeat_10000ms = HAL_GetTick() + 10000;
+	IWDG_Init(iwdg, 250);
 }
 
 uint8_t robot_get_ID(){
@@ -66,6 +70,8 @@ void kill() {
 /* =================================================== */
 void loop() {
     uint32_t current_time = HAL_GetTick();
+
+	IWDG_Refresh(iwdg);
 	
     if (MCP_to_process){
         if (!MailBox_one.empty)
@@ -91,6 +97,8 @@ void loop() {
 		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
 
     	heartbeat_10000ms = current_time + 10000;
+
+		HAL_Delay(1000);
     }
 }
 
