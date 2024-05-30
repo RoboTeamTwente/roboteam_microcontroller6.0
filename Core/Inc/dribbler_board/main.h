@@ -37,6 +37,11 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 extern CAN_HandleTypeDef hcan;
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim6;
+extern DAC_HandleTypeDef hdac1;
+extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
 
 /* USER CODE END ET */
 
@@ -60,19 +65,26 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define ENCODER_FILTER 15
-#define MAX_DRIBBLER_PWM 320
-#define Dribbler_CHA_Pin GPIO_PIN_0
-#define Dribbler_CHA_GPIO_Port GPIOA
-#define Dribbler_CHB_Pin GPIO_PIN_1
-#define Dribbler_CHB_GPIO_Port GPIOA
-#define IR_LED_Pin GPIO_PIN_5
-#define IR_LED_GPIO_Port GPIOA
-#define BS_IRQ_Pin GPIO_PIN_6
-#define BS_IRQ_GPIO_Port GPIOA
-#define BS_IRQ_EXTI_IRQn EXTI9_5_IRQn
-#define PWM_Dribbler_Pin GPIO_PIN_6
-#define PWM_Dribbler_GPIO_Port GPIOB
+#define ENC_A_Pin GPIO_PIN_0
+#define ENC_A_GPIO_Port GPIOA
+#define ENC_B_Pin GPIO_PIN_1
+#define ENC_B_GPIO_Port GPIOA
+#define Ball_sensor_out_Pin GPIO_PIN_2
+#define Ball_sensor_out_GPIO_Port GPIOA
+#define Drib_Current_Pin GPIO_PIN_3
+#define Drib_Current_GPIO_Port GPIOA
+#define Drib_Voltage_Pin GPIO_PIN_4
+#define Drib_Voltage_GPIO_Port GPIOA
+#define Ball_sensor_in_Pin GPIO_PIN_5
+#define Ball_sensor_in_GPIO_Port GPIOA
+#define Motor_In1_Pin GPIO_PIN_6
+#define Motor_In1_GPIO_Port GPIOA
+#define Motor_In2_Pin GPIO_PIN_7
+#define Motor_In2_GPIO_Port GPIOA
+#define LED1_Pin GPIO_PIN_6
+#define LED1_GPIO_Port GPIOB
+#define LED2_Pin GPIO_PIN_7
+#define LED2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
