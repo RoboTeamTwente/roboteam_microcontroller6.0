@@ -93,14 +93,12 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		MCP_ChipPayload* cp = (MCP_ChipPayload*) to_Process->data_Frame;
 		MCP_Chip mcp_chip = {0};
 		decodeMCP_Chip(&mcp_chip, cp);
-		shoot_SetPower(mcp_chip.shootPower);
-		shoot_Shoot(shoot_Chip);
+		shoot_Shoot(shoot_Chip,mcp_chip.shootPower);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICK) {
 		MCP_KickPayload* kp = (MCP_KickPayload*) to_Process->data_Frame;
 		MCP_Kick mcp_kick = {0};
 		decodeMCP_Kick(&mcp_kick, kp);
-		shoot_SetPower(mcp_kick.shootPower);
-		shoot_Shoot(shoot_Kick);
+		shoot_Shoot(shoot_Kick,mcp_kick.shootPower);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_CHARGE) {
 		shoot_StartCharging();
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_STOP_CHARGE) {
