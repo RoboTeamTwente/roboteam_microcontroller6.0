@@ -47,6 +47,11 @@ uint32_t heart_beat_10ms = 0;
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(){
+    // Peripherals
+    dribbler_Init();
+    ballsensor_init();
+    ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
+
     //MCP
     MCP_Init(&hcan, MCP_DRIBBLER_BOARD);
     dribblerAliveHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_TOP_BOARD);
@@ -60,9 +65,6 @@ void init(){
     MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
     
-    // Peripherals
-    ballsensor_init();
-    dribbler_Init();
     BOARD_INITIALIZED = true;
 }
 
@@ -149,10 +151,9 @@ void do_send_ballState(){
 }
 
 void control_dribbler_callback(){    
-
     if(ballsensor_hasBall()){
         ball_counter = 0;
-        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);
+        set_Pin(LED1, true);
         dribbler_SetSpeed(1.0f);
     }
     else if (ball_counter < 100){
@@ -160,8 +161,8 @@ void control_dribbler_callback(){
         dribbler_SetSpeed(0.35f);
         return;
     }else{
-        dribbler_SetSpeed(0.0);
-        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
+        dribbler_SetSpeed(0.0f);
+        set_Pin(LED1, false);
     }
 
     do_send_ballState();
@@ -176,5 +177,4 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
     if (hadc == CURRENT_DRIBBLER){// hadc == &hadc1
         control_dribbler_callback(); 
     }
-    // HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1);
 }
