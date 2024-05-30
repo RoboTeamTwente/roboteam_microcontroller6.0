@@ -44,23 +44,4 @@ void dribbler_SetSpeed(float speed);
 uint32_t dribbler_GetEncoderMeasurement();
 
 
-
-// Updates the dribbler towards the commanded dribbler speed using the encoder and a PID controller.
-void dribbler_Update();
-// Get the last measured dribbler speeds in rad/s
-float dribbler_GetMeasuredSpeeds();
-// Get the filtered dribbler speeds in rad/s
-float dribbler_GetFilteredSpeeds();
-// Returns the delayed speed of the moving average filter at the time it got the ball
-float dribbler_GetSpeedBeforeGotBall();
-// Calculates whether the dribbler has the ball or not
-void dribbler_CalculateHasBall();
-// Returns true if the dribbler has the ball
-bool dribbler_GetHasBall();
-// Returns false if we haven't sent the message of the dribbler state
-bool dribbler_ChangeInState();
-// Sets the value of the message boolean
-void dribbler_set_State(bool state);
-
-
 #endif /* DRIBBLER_DRIBBLER_H_ */

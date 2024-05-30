@@ -134,10 +134,6 @@ void MCP_Send_Ball_State(){
 /* =================================================== */
 /* ===================== METHODS ===================== */
 /* =================================================== */
-void dribbler_CALLBACK_FUNCTION(){
-    dribbler_Update();
-    dribbler_CalculateHasBall();
-}
 
 void do_send_ballState(){
     sendSeesBall = false; 
