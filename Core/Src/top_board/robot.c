@@ -314,6 +314,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_SEES_BALL: ;
 			MCP_SeesBallPayload* spb = (MCP_SeesBallPayload*) to_Process->data_Frame;
 			decodeMCP_SeesBall(&seesBall, spb);
+			LOG_printf("Sees ball?");
+			LOG_sendAll();
 			break;		
 	}
 

@@ -39,12 +39,10 @@ typedef enum{
 
 ///////////////////////////////////////////////////// DEFINITIONS
 
+#define MIN_BALL_SPEED 0 			// minimum speed [m/s] of the ball
+#define MAX_BALL_SPEED 8 			// maximum speed [m/s] of the ball
 
-#define MIN_KICK_TIME 1.0 			// minimum time [ms] period of kicking
-#define MAX_KICK_TIME 25.0 			// maximum time [ms] period of kicking
-#define MIN_CHIP_TIME 10 			// minimum time [ms] period of chipping
-#define MAX_CHIP_TIME 100 			// maximum time [ms] period of chipping
-#define TIMER_FREQ 10000 			// frequency [Hz] of TIM16  (Clock frequency divided by prescaler)
+#define TIMER_FREQ 1000000 			// frequency [Hz] of TIM16  (Clock frequency divided by prescaler)
 #define READY_CALLBACK_FREQ 10 		// frequency [Hz] of callback when shootState is Ready
 #define CHARGING_CALLBACK_FREQ 1 	// frequency [Hz] of callback when shootState is Charging
 #define SHOOTING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Shooting
@@ -60,11 +58,11 @@ void shoot_DeInit();
 
 void shoot_Callback();
 
-void shoot_Shoot(shoot_types type);
+void shoot_Shoot(shoot_types type, float speed);
 
 shoot_states shoot_GetState();
 
-void shoot_SetPower(float input);
+// void shoot_SetPower(float input);
 
 void shoot_StartCharging();
 
