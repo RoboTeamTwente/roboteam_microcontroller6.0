@@ -25,11 +25,6 @@ MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
 /* ====================== CAN RELEATED VARIABLES ======================== */    
 /* ====================================================================== */    
 
-
-// These values are set depending on weither or not the dribbler initalizes correctly, used ONLY FOR INITLIZATION
-bool dribbler_functioning_state = true;
-bool ballsensor_functioning_state = true;
-
 // These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
 bool dribbler_state;
 bool ballsensor_state;
@@ -142,6 +137,12 @@ void do_send_ballState(){
 
     if (mcp_seesBall.ballsensorSeesBall != ballsensor_hasBall()) {
         mcp_seesBall.ballsensorSeesBall = ballsensor_hasBall();
+        sendSeesBall = true;
+    }
+
+    if (mcp_seesBall.dribblerSeesBall != dribbler_hasBall()) {
+        mcp_seesBall.dribblerSeesBall = dribbler_hasBall();
+        set_Pin(LED2, dribbler_hasBall());
         sendSeesBall = true;
     }
 

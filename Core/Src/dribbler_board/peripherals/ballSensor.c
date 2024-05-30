@@ -38,6 +38,6 @@ void ballsensor_setIR_off(){
 }
 
 bool ballsensor_hasBall(){
-    return ADC2_buffer[0] < 200 & IR_State;
+    return ADC2_buffer[0] < 200 && IR_State;
 }
 
