@@ -22,12 +22,12 @@ typedef struct GPIO_Pin{
 
 /////////////////////////////////// LIST OF KNOWN GPIO PINS
 
-// Dribbler
-extern GPIO_Pin Dribbler_PWM_pin;
-
-// Ballsensor
-extern GPIO_Pin BS_IRQ_pin;
+// ball sensor
 extern GPIO_Pin IR_LED_pin;
+
+// LED
+extern GPIO_Pin LED1;
+extern GPIO_Pin LED2;
 
 /////////////////////////////////////////////// GPIO UTILITY FUNCTIONS
 

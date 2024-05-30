@@ -603,6 +603,7 @@ void init(void){
 	bool all_alive = flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive;
 	if (!all_alive) {
 		buzzer_Play_WarningFour();
+		HAL_Delay(2000);
 	}
 	LOG_sendAll();
 	end_of_boot_screen(all_alive);
@@ -644,6 +645,7 @@ void init(void){
 	heartbeat_1000ms = timestamp_initialized + 1000;
 	
 	ROBOT_INITIALIZED = true;
+	buzzer_Play_Startup();
 
 }
 
@@ -816,10 +818,26 @@ void loop(void){
     if(heartbeat_1000ms < current_time){
         while (heartbeat_1000ms < current_time) heartbeat_1000ms += 1000;
 
+		// Play warning if battery is getting low
+		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 22.0f) {
+			if(!buzzer_IsPlaying()) {
+				buzzer_Play_QuickBeepDown();
+			}
+		}
+
         // If the XSens isn't connected anymore, play a warning sound
         if(!is_connected_xsens){
-            // buzzer_Play_QuickBeepUp();
+			if(!buzzer_IsPlaying()) {
+            	buzzer_Play_QuickBeepUp();
+			}
         }
+
+		// Play a warning if a REM packet with an incorrect version was received
+		if(!REM_last_packet_had_correct_version) {
+			if(!buzzer_IsPlaying()) {
+				buzzer_Play_WarningTwo();
+			}
+		}
 
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);

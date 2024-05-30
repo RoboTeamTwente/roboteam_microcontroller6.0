@@ -25,7 +25,7 @@ void buzzer_DeInit() {
 }
 
 bool buzzer_IsPlaying(){
-	return song == NULL;
+	return song != NULL;
 }
 
 void buzzer_Callback() {
