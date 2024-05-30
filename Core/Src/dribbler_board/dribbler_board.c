@@ -19,7 +19,7 @@ MCP_DribblerEncoder mcp_encoder = {0};
 
 // Incoming MCP
 MCP_PowerVoltage mcp_power = {0};
-MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
+MCP_DribblerCommand dribblerCommand = {0};
 
 /* ====================================================================== */    
 /* ====================== CAN RELEATED VARIABLES ======================== */    
@@ -95,7 +95,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
     if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ARE_YOU_ALIVE) {
         MCP_Send_Im_Alive();
 		send_ack = false;
-    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_SET_DRIBBLER_SPEED) {
+    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_DRIBBLER_COMMAND) {
         //TODO
     }
 
