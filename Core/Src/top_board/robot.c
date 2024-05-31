@@ -302,6 +302,12 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			decodeMCP_KickerAlive(&kickerAlive, kap);
 			flag_KickerBoard_alive = true;
 			send_ack = false;
+			if (ROBOT_INITIALIZED) {
+				MCP_KickerCharge kc = {0};
+				MCP_KickerChargePayload kcp = {0};
+				encodeMCP_KickerCharge(&kcp, &kc);
+				MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+			}
 			break;
 		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
 			MCP_KickerCapacitorVoltagePayload* kcvp = (MCP_KickerCapacitorVoltagePayload*) to_Process->data_Frame;
