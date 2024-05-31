@@ -8,6 +8,8 @@
 #ifndef UTILS_GPIO_UTIL_H_
 #define UTILS_GPIO_UTIL_H_
 
+#include "gpio_util_functions.h"
+
 /////////////////////////////////// LIST OF KNOWN GPIO PINS
 
 // ball sensor
