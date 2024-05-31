@@ -12,7 +12,6 @@
 
 HAL_StatusTypeDef IWDG_Init(IWDG_Handle* hiwdg, uint32_t timeout_ms){
 
-	/* https://www.st.com/resource/en/datasheet/stm32f303k8.pdf */
 	/* https://www.st.com/resource/en/datasheet/stm32f767zi.pdf - page 41 - 3.23.5 Independent watchdog
 	* https://www.stmicroelectronics.com.cn/content/ccc/resource/training/technical/product_training/group0/ce/34/ce/35/30/1a/42/10/STM32MP1-WDG_TIMERS-Independent_Watchdog_IWDG/files/STM32MP1-WDG_TIMERS-Independent_Watchdog_IWDG.pdf/_jcr_content/translations/en.STM32MP1-WDG_TIMERS-Independent_Watchdog_IWDG.pdf
 	* The watchdog clock runs at 32 kHz. Given an 8-bit prescaler of 64, this becomes 512 Hz.
