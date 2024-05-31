@@ -22,6 +22,7 @@ MCP_KickerCapacitorVoltage MCP_CapacitorVoltage = {0};
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
+	HAL_IWDG_Refresh(&hiwdg);
     // MCP
 	MCP_Init(&hcan, MCP_KICKER_BOARD);
 	kickerAliveToTopHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_ALIVE, MCP_TOP_BOARD);
@@ -38,6 +39,7 @@ void init() {
 	MCP_Send_Im_Alive();
 
 	BOARD_INITIALIZED = true;
+	HAL_IWDG_Refresh(&hiwdg);
 }
 
 uint8_t robot_get_ID(){
@@ -53,6 +55,7 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
+	HAL_IWDG_Refresh(&hiwdg);
 	uint32_t time = HAL_GetTick();
     if (MCP_to_process) {
         if (!MailBox_one.empty)

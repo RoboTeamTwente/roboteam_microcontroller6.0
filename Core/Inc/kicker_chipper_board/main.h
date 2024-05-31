@@ -36,8 +36,9 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-CAN_HandleTypeDef hcan;
+extern CAN_HandleTypeDef hcan;
 extern ADC_HandleTypeDef hadc2;
+extern IWDG_HandleTypeDef hiwdg;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
