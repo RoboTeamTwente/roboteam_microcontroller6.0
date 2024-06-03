@@ -67,6 +67,7 @@ void kill() {
 void loop() {
     uint32_t current_time = HAL_GetTick();
 	
+	MCP_timeout();
     if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
