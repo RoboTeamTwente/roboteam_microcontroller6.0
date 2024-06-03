@@ -71,6 +71,7 @@ void loop() {
 
 	HAL_IWDG_Refresh(&hiwdg);
 	
+	MCP_timeout();
     if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);

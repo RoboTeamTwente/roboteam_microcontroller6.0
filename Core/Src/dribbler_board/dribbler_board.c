@@ -78,6 +78,7 @@ uint8_t robot_get_Channel(){
 /* =================================================== */
 void loop(){
     HAL_IWDG_Refresh(&hiwdg);
+    MCP_timeout();
     if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
@@ -154,7 +155,8 @@ void do_send_ballState(){
     }
 }
 
-void control_dribbler_callback(){    
+void control_dribbler_callback() { 
+    // dribbler_SetSpeed(1.0f);   
     if(ballsensor_hasBall()){
         ball_counter = 0;
         set_Pin(LED1, true);

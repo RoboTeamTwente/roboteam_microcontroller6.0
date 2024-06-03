@@ -14,6 +14,7 @@ bool MCP_to_process = false;
 // Acknowledgement helpers
 uint8_t ack_numbers[MCP_MAX_ID_PLUS_ONE];
 bool free_to_send[MCP_MAX_ID_PLUS_ONE];
+uint32_t time_last_send[MCP_MAX_ID_PLUS_ONE];
 uint8_t sending_board_id;
 
 /////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
@@ -105,8 +106,10 @@ void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTyp
         // set ack numbers
         payload[0] = ack_numbers[to_board];
         // send
-        if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) == HAL_OK) free_to_send[to_board] = false;
-        else MCP_error_LOG(&CAN_TxHeader);
+        if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) == HAL_OK) {
+            free_to_send[to_board] = false;
+            time_last_send[to_board] = HAL_GetTick();
+        } else MCP_error_LOG(&CAN_TxHeader);
     }
 }
 
@@ -132,6 +135,18 @@ void MCP_Send_Ack(CAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t
     MCP_AckPayload ack_payload = {0};
     encodeMCP_Ack(&ack_payload, &ack);
     MCP_Send_Message_Always(hcan, ack_payload.payload, TxHeader);
+}
+
+/**
+ * @brief set free_to_send[board] to true if time_last_send[board] is more than 20ms ago
+*/
+void MCP_timeout() {
+    uint32_t current_time = HAL_GetTick();
+    for (int i = 0; i < MCP_MAX_ID_PLUS_ONE; i++) {
+        if (current_time > time_last_send[i] + 20) {
+            free_to_send[i] = true;
+        }
+    }
 }
 
 void MCP_SetReadyToReceive(bool b) {

@@ -57,6 +57,8 @@ uint8_t robot_get_Channel(){
 void loop() {
 	HAL_IWDG_Refresh(&hiwdg);
 	uint32_t time = HAL_GetTick();
+
+	MCP_timeout();
     if (MCP_to_process) {
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);

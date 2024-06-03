@@ -670,6 +670,7 @@ void loop(void){
     LOG_send();
 
 	/* CAN BUS RELATED PROCESS */
+	MCP_timeout();
 	if (MCP_to_process){
 		if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);
 		if (!MailBox_two.empty) MCP_Process_Message(&MailBox_two);
