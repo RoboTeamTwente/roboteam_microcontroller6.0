@@ -20,6 +20,9 @@ void dribbler_motor_Init(){
 	dribbler_setCurrentLimit(1500);
 }
 
+/**
+ * @note 0 <= value <= 4000
+*/
 void dribbler_setCurrentLimit(uint16_t value){
 	HAL_DAC_Start(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1);
 	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, value);
