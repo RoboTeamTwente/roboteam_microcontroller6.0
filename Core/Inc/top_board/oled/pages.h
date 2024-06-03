@@ -10,11 +10,8 @@
 #include "OLED_driver.h"
 
 /* Public functions */
-void pages_init();
-page_struct* getRootPage();
-page_struct* getNotInTestMode();
-page_struct* getErrorNoChildren();
-void pages_set_default_values(page_struct *p);
+void pages_init(page_struct *p);
+void pages_set_default_values(page_struct *page, page_struct *parent);
 void add_child_to_parent(page_struct *current);
 
 

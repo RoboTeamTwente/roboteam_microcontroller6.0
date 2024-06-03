@@ -25,8 +25,8 @@ struct page_struct
     int id;
     char page_name[MAX_MENU_NAME_LENGTH];
     page_struct *parent;
-    page_struct *childeren[MAX_CHILDEREN]; 
-    int n_of_childeren;
+    page_struct *children[MAX_CHILDEREN]; 
+    int n_of_children;
     bool is_menu;
     enum test_type is_test;
     bool has_variables;
