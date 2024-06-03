@@ -98,6 +98,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
     } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_DRIBBLER_COMMAND) {
         MCP_DribblerCommandPayload* dcp = (MCP_DribblerCommandPayload*) to_Process->data_Frame;
         decodeMCP_DribblerCommand(&dribblerCommand, dcp);
+    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_REBOOT) {
+        HAL_Delay(1000);
     }
 
     if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);

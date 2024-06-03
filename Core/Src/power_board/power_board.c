@@ -122,6 +122,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
+	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_REBOOT) {
+		HAL_Delay(1000);
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);

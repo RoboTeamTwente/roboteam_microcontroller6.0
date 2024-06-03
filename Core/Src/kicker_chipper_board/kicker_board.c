@@ -82,7 +82,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		MCP_Send_Im_Alive();
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_REBOOT) {
-		//TODO add watchdog and implement
+		HAL_Delay(1000);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_CHIP) {
 		MCP_ChipPayload* cp = (MCP_ChipPayload*) to_Process->data_Frame;
 		MCP_Chip mcp_chip = {0};
