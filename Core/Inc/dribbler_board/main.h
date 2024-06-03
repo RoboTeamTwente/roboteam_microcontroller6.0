@@ -42,6 +42,7 @@ extern TIM_HandleTypeDef htim6;
 extern DAC_HandleTypeDef hdac1;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern IWDG_HandleTypeDef hiwdg;
 
 /* USER CODE END ET */
 

@@ -42,6 +42,7 @@ uint32_t heart_beat_10ms = 0;
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init(){
+    HAL_IWDG_Refresh(&hiwdg);
     // Peripherals
     dribbler_Init();
     ballsensor_init();
@@ -61,6 +62,7 @@ void init(){
 	MCP_Send_Im_Alive();
     
     BOARD_INITIALIZED = true;
+    HAL_IWDG_Refresh(&hiwdg);
 }
 
 uint8_t robot_get_ID(){
@@ -75,6 +77,7 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop(){
+    HAL_IWDG_Refresh(&hiwdg);
     if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);

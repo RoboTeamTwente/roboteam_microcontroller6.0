@@ -9,13 +9,7 @@
 #define UTILS_TIM_UTIL_H_
 
 #include "stm32f3xx_hal.h"
-#include "main.h"
-
-// structs
-typedef struct PWM_struct{
-    TIM_HandleTypeDef* TIM;
-    uint16_t Channel;
-} PWM_struct;
+#include "tim_util_functions.h"
 
 // Timers
 extern TIM_HandleTypeDef htim1; // internal timer (not used ATM)
@@ -39,19 +33,7 @@ extern PWM_struct PWM_Dribbler_b;
 // PWM
 
 extern PWM_struct PWM_Dribbler; 
-extern void set_PWM(PWM_struct* PWM, float Value);
-
-inline void start_PWM(PWM_struct PWM){
-    HAL_TIM_PWM_Start(PWM.TIM, PWM.Channel);
-}
-
-inline void stop_PWM(PWM_struct PWM){
-    HAL_TIM_PWM_Stop(PWM.TIM, PWM.Channel);
-}
-
-inline uint32_t get_PWM(PWM_struct PWM){
-    return __HAL_TIM_GET_COMPARE(PWM.TIM , PWM.Channel);
-}
+void set_PWM_dribbler(PWM_struct* PWM, float Value);
 
 inline uint32_t get_encoder(PWM_struct PWM){
     return __HAL_TIM_GET_COUNTER(PWM.TIM);
