@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 extern CAN_HandleTypeDef hcan;
 extern I2C_HandleTypeDef hi2c1;
+extern IWDG_HandleTypeDef hiwdg;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

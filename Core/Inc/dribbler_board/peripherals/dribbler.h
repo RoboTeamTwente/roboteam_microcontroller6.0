@@ -17,7 +17,6 @@
 #include "AC_DC_util.h"
 #include "main.h"
 #include <math.h>
-#include "control_util.h"
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
@@ -25,6 +24,13 @@ extern uint32_t encoder_value;
 
 #define CURRENT_THRESHOLD 600 // A temporary threshold
 #define current_Buffer_Size 10
+
+// Dribbler
+#define DRIBBLER_GEAR_RATIO 0.777777778F     // Gear ratio between motor and dribbler
+#define DRIBBLER_PULSES_PER_ROTATION 4096.0F // Number of pulses of the encoder per rotation of the motor (see datasheet)
+#define DRIBBLER_TIME_DIFF 0.1F              // Given that the dribbler is updated/controlled at 10Hz, delta time is 0.1s
+#define DRIBBLER_ENCODER_TO_OMEGA ((2. * M_PI * DRIBBLER_GEAR_RATIO) / (DRIBBLER_TIME_DIFF * DRIBBLER_PULSES_PER_ROTATION)) // Conversion factor from number of encoder pulses to dribbler speed [rad/s]
+
 
 // Initializes the PIDs / encoders / PWM timers
 void dribbler_Init();
