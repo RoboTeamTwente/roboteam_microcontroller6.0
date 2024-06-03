@@ -27,6 +27,7 @@ MCP_KickerStatus MCP_Status = {0};
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
+	HAL_IWDG_Refresh(&hiwdg);
     // MCP
 	MCP_Init(&hcan, MCP_KICKER_BOARD);
 	kickerAliveToTopHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_ALIVE, MCP_TOP_BOARD);
@@ -44,6 +45,7 @@ void init() {
 	MCP_Send_Im_Alive();
 
 	BOARD_INITIALIZED = true;
+	HAL_IWDG_Refresh(&hiwdg);
 }
 
 uint8_t robot_get_ID(){
@@ -59,7 +61,10 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 void loop() {
+	HAL_IWDG_Refresh(&hiwdg);
 	uint32_t time = HAL_GetTick();
+
+	MCP_timeout();
     if (MCP_to_process) {
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
@@ -87,14 +92,12 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		MCP_ChipPayload* cp = (MCP_ChipPayload*) to_Process->data_Frame;
 		MCP_Chip mcp_chip = {0};
 		decodeMCP_Chip(&mcp_chip, cp);
-		shoot_SetPower(mcp_chip.shootPower);
-		shoot_Shoot(shoot_Chip);
+		shoot_Shoot(shoot_Chip,mcp_chip.shootPower);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICK) {
 		MCP_KickPayload* kp = (MCP_KickPayload*) to_Process->data_Frame;
 		MCP_Kick mcp_kick = {0};
 		decodeMCP_Kick(&mcp_kick, kp);
-		shoot_SetPower(mcp_kick.shootPower);
-		shoot_Shoot(shoot_Kick);
+		shoot_Shoot(shoot_Kick,mcp_kick.shootPower);
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_CHARGE) {
 		shoot_StartCharging();
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_KICKER_STOP_CHARGE) {

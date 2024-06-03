@@ -3,14 +3,13 @@
 struct page_struct encoder_values;
 
 void encoder_page_init(page_struct *parent) {
-    pages_set_default_values(&encoder_values);
+    pages_set_default_values(&encoder_values, parent);
     encoder_values.id = 232;
     strcpy(encoder_values.page_name, "Encoder");
     strcpy(encoder_values.line0, "LF:0");
     strcpy(encoder_values.line1, "RF:0");
     strcpy(encoder_values.line2, "LB:0");
     strcpy(encoder_values.line3, "RB:0");
-    encoder_values.parent = parent;
     encoder_values.has_variables = true;
     add_child_to_parent(&encoder_values);
 }

@@ -324,6 +324,12 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			decodeMCP_KickerAlive(&kickerAlive, kap);
 			flag_KickerBoard_alive = true;
 			send_ack = false;
+			if (ROBOT_INITIALIZED) {
+				MCP_KickerCharge kc = {0};
+				MCP_KickerChargePayload kcp = {0};
+				encodeMCP_KickerCharge(&kcp, &kc);
+				MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+			}
 			break;
 		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
 			MCP_KickerCapacitorVoltagePayload* kcvp = (MCP_KickerCapacitorVoltagePayload*) to_Process->data_Frame;
@@ -383,7 +389,7 @@ void init(void){
 	TEST_MODE = read_Pin(SW7_pin);
 
 	if (!TEST_MODE) {
-		/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
+		/* Enable the watchdog timer and set the threshold at 7.5 seconds. It should not be needed in the initialization but
 		sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
 		but its better than suddenly having non-responding robots in a match */
 		IWDG_Init(iwdg, 7500);
@@ -445,7 +451,6 @@ void init(void){
     stateControl_Init();
     stateEstimation_Init();
 
-	pages_init();
 	SSD1306_Init(); // init oled
 	OLED_Init();//start the menu
 
@@ -623,10 +628,10 @@ void init(void){
 	// Start timer TIM_1us
 	HAL_TIM_Base_Start_IT(TIM_1us);
 
-	/* Reset the watchdog timer and set the threshold at 200ms */
+	/* Reset the watchdog timer and set the threshold at 250ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
-		IWDG_Init(iwdg, 1000);
+		IWDG_Init(iwdg, 250);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
@@ -689,6 +694,7 @@ void loop(void){
     LOG_send();
 
 	/* CAN BUS RELATED PROCESS */
+	MCP_timeout();
 	if (MCP_to_process){
 		if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);
 		if (!MailBox_two.empty) MCP_Process_Message(&MailBox_two);
