@@ -12,10 +12,9 @@ char* number_to_status(int num);
 */
 void wheel_twitch_init(page_struct *parent) {
     //Display warning
-    pages_set_default_values(&wheel_twitch_warning);
+    pages_set_default_values(&wheel_twitch_warning, parent);
     wheel_twitch_warning.id = 1121;
     strcpy(wheel_twitch_warning.page_name, "Wheel twitch");
-    wheel_twitch_warning.parent = parent;
     wheel_twitch_warning.is_test = BLOCKING_TEST;
     strcpy(wheel_twitch_warning.line0, "Make sure that");
     strcpy(wheel_twitch_warning.line1, "the wheels are");
@@ -23,18 +22,16 @@ void wheel_twitch_init(page_struct *parent) {
     strcpy(wheel_twitch_warning.line3, "OK to continue");
     add_child_to_parent(&wheel_twitch_warning);
     //running test
-    pages_set_default_values(&wheel_twitch_running);
+    pages_set_default_values(&wheel_twitch_running, &wheel_twitch_warning);
     wheel_twitch_running.id = 1122;
     strcpy(wheel_twitch_running.page_name, "Wheel twitch");
-    wheel_twitch_running.parent = &wheel_twitch_warning;
     wheel_twitch_running.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_running);
 
     //results
-    pages_set_default_values(&wheel_twitch_result);
+    pages_set_default_values(&wheel_twitch_result, &wheel_twitch_running);
     wheel_twitch_result.id = 1123;
     strcpy(wheel_twitch_result.page_name, "Wheel twitch");
-    wheel_twitch_result.parent = &wheel_twitch_running;
     wheel_twitch_result.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_result);
 }

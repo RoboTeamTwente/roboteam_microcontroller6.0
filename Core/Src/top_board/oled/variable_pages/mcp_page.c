@@ -7,10 +7,9 @@ int n_not_alive = 0;
 int mcp_state = 0;
 
 void mcp_page_init(page_struct *parent) {
-    pages_set_default_values(&mcp_page);
+    pages_set_default_values(&mcp_page, parent);
     mcp_page.id = 222;
     strcpy(mcp_page.page_name, "MCP Alive");
-    mcp_page.parent = parent;
     mcp_page.has_variables = true;
     add_child_to_parent(&mcp_page);
 }

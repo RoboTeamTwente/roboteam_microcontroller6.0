@@ -26,6 +26,7 @@ MCP_Kill mcp_kill = {};
 /* ==================== INITIALIZATION ==================== */
 /* ======================================================== */
 void init() {
+	HAL_IWDG_Refresh(&hiwdg);
     // Set power circuit pin to HIGH, meaning on. When pulled again to LOW, it signals the power circuit to turn off, and power is then cut off instantly.
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	set_Pin(BAT_KILL_pin, 1);
@@ -50,6 +51,7 @@ void init() {
 
 	heartbeat_10000ms = HAL_GetTick() + 10000;
 	heartbeat_10ms = HAL_GetTick() + 10;
+	HAL_IWDG_Refresh(&hiwdg);
 }
 
 uint8_t robot_get_ID(){
@@ -70,7 +72,10 @@ void kill() {
 /* =================================================== */
 void loop() {
     uint32_t current_time = HAL_GetTick();
+
+	HAL_IWDG_Refresh(&hiwdg);
 	
+	MCP_timeout();
     if (MCP_to_process){
         if (!MailBox_one.empty)
             MCP_Process_Message(&MailBox_one);
@@ -122,6 +127,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
+	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_REBOOT) {
+		HAL_Delay(1000);
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);

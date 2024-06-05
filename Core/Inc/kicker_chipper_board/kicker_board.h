@@ -3,7 +3,6 @@
 
 #include "logging.h"
 #include "peripheral_util.h"
-#include "capacitor_sensor.h"
 #include "main.h"
 #include <string.h>
 #include "shoot.h"

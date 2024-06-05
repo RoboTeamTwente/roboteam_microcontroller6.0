@@ -8,18 +8,7 @@
 #ifndef UTILS_GPIO_UTIL_H_
 #define UTILS_GPIO_UTIL_H_
 
-#include "stdbool.h"
-#include "stm32f7xx_hal.h"
-
-
-#define LOW 0
-#define HIGH 1
-
-// abstract a GPIO pin combination to a struct
-typedef struct GPIO_Pin{
-	GPIO_TypeDef * PORT;
-	uint16_t PIN;
-} GPIO_Pin;
+#include "gpio_util_functions.h"
 
 /////////////////////////////////// LIST OF KNOWN GPIO PINS
 
@@ -87,28 +76,10 @@ extern GPIO_Pin SX_BUSY_pin;
 // Encoder Interface
 extern GPIO_Pin Encoder_Enable_pin;
 
-/////////////////////////////////////////////// GPIO UTILITY FUNCTIONS
-
-// Set a GPIO Pin
-inline void set_Pin(GPIO_Pin p, bool value)
-{
-	HAL_GPIO_WritePin(p.PORT, p.PIN, value);
-}
-
-// Read a GPIO Pin
-inline GPIO_PinState read_Pin(GPIO_Pin p)
-{
-	return HAL_GPIO_ReadPin(p.PORT, p.PIN);
-}
-
-// Toggle a GPIO Pin
-inline void toggle_Pin(GPIO_Pin p)
-{
-	HAL_GPIO_TogglePin(p.PORT, p.PIN);
-}
-
 // SD
 extern GPIO_Pin SD_CD_pin;
+
+/////////////////////////////////// FUNCTIONS
 
 static inline uint16_t get_Id(){
 	uint16_t ID = 0;

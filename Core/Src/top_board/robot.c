@@ -324,6 +324,12 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			decodeMCP_KickerAlive(&kickerAlive, kap);
 			flag_KickerBoard_alive = true;
 			send_ack = false;
+			if (ROBOT_INITIALIZED) {
+				MCP_KickerCharge kc = {0};
+				MCP_KickerChargePayload kcp = {0};
+				encodeMCP_KickerCharge(&kcp, &kc);
+				MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+			}
 			break;
 		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
 			MCP_KickerCapacitorVoltagePayload* kcvp = (MCP_KickerCapacitorVoltagePayload*) to_Process->data_Frame;
@@ -383,7 +389,7 @@ void init(void){
 	TEST_MODE = read_Pin(SW7_pin);
 
 	if (!TEST_MODE) {
-		/* Enable the watchdog timer and set the threshold at 5 seconds. It should not be needed in the initialization but
+		/* Enable the watchdog timer and set the threshold at 7.5 seconds. It should not be needed in the initialization but
 		sometimes for some reason the code keeps hanging when powering up the robot using the power switch. It's not nice
 		but its better than suddenly having non-responding robots in a match */
 		IWDG_Init(iwdg, 7500);
@@ -445,7 +451,6 @@ void init(void){
     stateControl_Init();
     stateEstimation_Init();
 
-	pages_init();
 	SSD1306_Init(); // init oled
 	OLED_Init();//start the menu
 
@@ -603,6 +608,7 @@ void init(void){
 	bool all_alive = flag_PowerBoard_alive && flag_DribblerBoard_alive && flag_KickerBoard_alive;
 	if (!all_alive) {
 		buzzer_Play_WarningFour();
+		HAL_Delay(2000);
 	}
 	LOG_sendAll();
 	end_of_boot_screen(all_alive);
@@ -622,10 +628,10 @@ void init(void){
 	// Start timer TIM_1us
 	HAL_TIM_Base_Start_IT(TIM_1us);
 
-	/* Reset the watchdog timer and set the threshold at 200ms */
+	/* Reset the watchdog timer and set the threshold at 250ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
-		IWDG_Init(iwdg, 1000);
+		IWDG_Init(iwdg, 250);
 	}
 
 	/* Turn of all leds. Will now be used to indicate robot status */
@@ -644,6 +650,7 @@ void init(void){
 	heartbeat_1000ms = timestamp_initialized + 1000;
 	
 	ROBOT_INITIALIZED = true;
+	buzzer_Play_Startup();
 
 }
 
@@ -687,6 +694,7 @@ void loop(void){
     LOG_send();
 
 	/* CAN BUS RELATED PROCESS */
+	MCP_timeout();
 	if (MCP_to_process){
 		if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);
 		if (!MailBox_two.empty) MCP_Process_Message(&MailBox_two);
@@ -816,10 +824,26 @@ void loop(void){
     if(heartbeat_1000ms < current_time){
         while (heartbeat_1000ms < current_time) heartbeat_1000ms += 1000;
 
+		// Play warning if battery is getting low
+		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 22.0f) {
+			if(!buzzer_IsPlaying()) {
+				buzzer_Play_QuickBeepDown();
+			}
+		}
+
         // If the XSens isn't connected anymore, play a warning sound
         if(!is_connected_xsens){
-            // buzzer_Play_QuickBeepUp();
+			if(!buzzer_IsPlaying()) {
+            	buzzer_Play_QuickBeepUp();
+			}
         }
+
+		// Play a warning if a REM packet with an incorrect version was received
+		if(!REM_last_packet_had_correct_version) {
+			if(!buzzer_IsPlaying()) {
+				buzzer_Play_WarningTwo();
+			}
+		}
 
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);

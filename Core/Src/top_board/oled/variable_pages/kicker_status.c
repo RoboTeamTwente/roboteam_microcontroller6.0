@@ -3,10 +3,9 @@
 struct page_struct kicker_status_page;
 
 void kicker_status_Init(page_struct *parent) {
-    pages_set_default_values(&kicker_status_page);
+    pages_set_default_values(&kicker_status_page, parent);
     kicker_status_page.id = 24;
     strcpy(kicker_status_page.page_name, "Kicker status");
-    kicker_status_page.parent = parent;
     kicker_status_page.has_variables = true;
     add_child_to_parent(&kicker_status_page);
 }

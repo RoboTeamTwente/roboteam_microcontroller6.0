@@ -12,42 +12,37 @@ bool DRAIN_BATTERY = false;
  * @note 30 < ID < 40
 */
 void drain_battery_initChildren(page_struct *parent) {
-    pages_set_default_values(&drain_battery_lowest);
+    pages_set_default_values(&drain_battery_lowest, parent);
     drain_battery_lowest.id = 31;
     strcpy(drain_battery_lowest.page_name, "Lowest doable");
-    drain_battery_lowest.parent = parent;
     drain_battery_lowest.is_test = NON_BLOCKING_TEST;
     drain_battery_lowest.has_variables = true;
     add_child_to_parent(&drain_battery_lowest);
 
-    pages_set_default_values(&drain_battery_23_0);
+    pages_set_default_values(&drain_battery_23_0, parent);
     drain_battery_23_0.id = 32;
     strcpy(drain_battery_23_0.page_name, "23.0V");
-    drain_battery_23_0.parent = parent;
     drain_battery_23_0.is_test = NON_BLOCKING_TEST;
     drain_battery_23_0.has_variables = true;
     add_child_to_parent(&drain_battery_23_0);    
 
-    pages_set_default_values(&drain_battery_23_5);
+    pages_set_default_values(&drain_battery_23_5, parent);
     drain_battery_23_5.id = 33;
     strcpy(drain_battery_23_5.page_name, "23.5V");
-    drain_battery_23_5.parent = parent;
     drain_battery_23_5.is_test = NON_BLOCKING_TEST;
     drain_battery_23_5.has_variables = true;
     add_child_to_parent(&drain_battery_23_5);    
 
-    pages_set_default_values(&drain_battery_24_0);
+    pages_set_default_values(&drain_battery_24_0, parent);
     drain_battery_24_0.id = 34;
     strcpy(drain_battery_24_0.page_name, "24.0V");
-    drain_battery_24_0.parent = parent;
     drain_battery_24_0.is_test = NON_BLOCKING_TEST;
     drain_battery_24_0.has_variables = true;
     add_child_to_parent(&drain_battery_24_0);    
 
-    pages_set_default_values(&drain_battery_24_5);
+    pages_set_default_values(&drain_battery_24_5, parent);
     drain_battery_24_5.id = 35;
     strcpy(drain_battery_24_5.page_name, "24.5V");
-    drain_battery_24_5.parent = parent;
     drain_battery_24_5.is_test = NON_BLOCKING_TEST;
     drain_battery_24_5.has_variables = true;
     add_child_to_parent(&drain_battery_24_5);  
