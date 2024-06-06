@@ -94,7 +94,7 @@ void stateEstimation_Update(StateInfo* input) {
 	//  Explanation: https://wiki.roboteamtwente.nl/technical/control/slippage
 	stateLocal[vel_u] = SLIPPAGE_FACTOR_U * stateLocal[vel_u];
 	stateLocal[vel_v] = SLIPPAGE_FACTOR_V * stateLocal[vel_v];
-	stateLocal[vel_w] = SLIPPAGE_FACTOR_W * stateLocal[vel_w];
+	stateLocal[vel_w] = stateLocal[vel_w];
 }
 
 void stateEstimation_GetState(float _stateLocal[4]) {

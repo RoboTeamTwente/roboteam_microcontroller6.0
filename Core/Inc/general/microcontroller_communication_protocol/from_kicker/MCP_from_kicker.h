@@ -5,4 +5,5 @@
 #include "MCP_Ack.h"
 #include "MCP_KickerAlive.h"
 #include "MCP_KickerCapacitorVoltage.h"
+#include "MCP_KickerStatus.h"
 #endif /* __MCP_FROM_KICKER_H */

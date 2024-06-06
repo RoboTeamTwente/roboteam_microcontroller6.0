@@ -22,7 +22,7 @@ void time_page_update(page_struct *page) {
 
     char temp[MAX_STRING_LENGTH];
     struct tm *tmp;
-    uint64_t time_adjusted = unix_timestamp / 100;
+    uint64_t time_adjusted = unix_timestamp / 1000;
     tmp = localtime(&time_adjusted);
     char clock[6];
     //Day
@@ -38,6 +38,6 @@ void time_page_update(page_struct *page) {
     sprintf(temp, "Sec -> %s", clock);
     strcpy(page->line2, temp);
     //Millisecond
-    sprintf(temp, "ms  -> %d", (unix_timestamp * 10) - (time_adjusted * 1000));
+    sprintf(temp, "ms  -> %d", unix_timestamp - (time_adjusted * 1000));
     strcpy(page->line3, temp);   
 }

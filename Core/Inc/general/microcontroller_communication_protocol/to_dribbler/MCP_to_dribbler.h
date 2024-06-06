@@ -3,8 +3,9 @@
 #define __MCP_TO_DRIBBLER_H
 
 #include "MCP_Ack.h"
+#include "MCP_Reboot.h"
 #include "MCP_AreYouAlive.h"
-#include "MCP_SetDribblerSpeed.h"
+#include "MCP_DribblerCommand.h"
 #include "MCP_KickerAlive.h"
 #include "MCP_PowerAlive.h"
 #include "MCP_PowerVoltage.h"

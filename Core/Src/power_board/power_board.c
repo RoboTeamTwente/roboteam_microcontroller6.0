@@ -4,6 +4,9 @@
 
 
 uint32_t heartbeat_10000ms = 0;
+uint32_t heartbeat_10ms = 0;
+float avg_voltage = 0;
+uint16_t n_samples_voltage = 0;
 
 void kill();
 void MCP_Process_Message(mailbox_buffer *to_Process);
@@ -47,6 +50,7 @@ void init() {
 	//REM_UARTinit(UART_PC);
 
 	heartbeat_10000ms = HAL_GetTick() + 10000;
+	heartbeat_10ms = HAL_GetTick() + 10;
 	HAL_IWDG_Refresh(&hiwdg);
 }
 
@@ -82,11 +86,19 @@ void loop() {
         MCP_to_process = false;
 	}
 
+	if (heartbeat_10ms < current_time) {
+		n_samples_voltage += 1;
+		avg_voltage = avg_voltage + ((VPC_getVoltage() - avg_voltage)/n_samples_voltage);
+		heartbeat_10ms = current_time + 10;
+	}
+
 	// 10 seconds passed now we send the reading of the voltage meter to the top board
     if (heartbeat_10000ms < current_time) {
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
-		pv.voltagePowerBoard = VPC_getVoltage();
+		pv.voltagePowerBoard = avg_voltage;
+		n_samples_voltage = 0;
+		n_samples_voltage = 0;
 		if (pv.voltagePowerBoard < MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN) {
 			pv.voltagePowerBoard = MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MIN;
 		} else if (pv.voltagePowerBoard > MCP_PACKET_RANGE_MCP_POWER_VOLTAGE_VOLTAGE_POWER_BOARD_MAX) {
@@ -115,6 +127,8 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
 		send_ack = false;
 	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_KILL) {
 		kill();
+	} else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_POWER_MCP_REBOOT) {
+		HAL_Delay(1000);
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);

@@ -72,7 +72,7 @@ void LOG(char *message){
     MessageContainer* message_container = &message_buffer[index_write];
     uint8_t* payload = message_container->payload;
 
-    REM_Log_set_header     ((REM_LogPayload*) payload, REM_PACKET_TYPE_REM_LOG);
+    REM_Log_set_packetType ((REM_LogPayload*) payload, REM_PACKET_TYPE_REM_LOG);
     REM_Log_set_remVersion ((REM_LogPayload*) payload, REM_LOCAL_VERSION);
     REM_Log_set_payloadSize((REM_LogPayload*) payload, REM_PACKET_SIZE_REM_LOG + message_length);
     // REM_Log_set_fromBS     ((REM_LogPayload*) payload, 1);

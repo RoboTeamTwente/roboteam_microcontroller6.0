@@ -19,7 +19,7 @@ MCP_DribblerEncoder mcp_encoder = {0};
 
 // Incoming MCP
 MCP_PowerVoltage mcp_power = {0};
-MCP_SetDribblerSpeed mcp_SetDribblerSpeed = {0};
+MCP_DribblerCommand dribblerCommand = {0};
 
 /* ====================================================================== */    
 /* ====================== CAN RELEATED VARIABLES ======================== */    
@@ -99,8 +99,11 @@ void MCP_Process_Message(mailbox_buffer *to_Process){
     if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_ARE_YOU_ALIVE) {
         MCP_Send_Im_Alive();
 		send_ack = false;
-    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_SET_DRIBBLER_SPEED) {
-        //TODO
+    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_DRIBBLER_MCP_DRIBBLER_COMMAND) {
+        MCP_DribblerCommandPayload* dcp = (MCP_DribblerCommandPayload*) to_Process->data_Frame;
+        decodeMCP_DribblerCommand(&dribblerCommand, dcp);
+    } else if (to_Process->message_id == MCP_PACKET_ID_TOP_TO_KICKER_MCP_REBOOT) {
+        HAL_Delay(1000);
     }
 
     if (send_ack) MCP_Send_Ack(&hcan, to_Process->data_Frame[0], to_Process->message_id);
@@ -156,22 +159,22 @@ void do_send_ballState(){
 }
 
 void control_dribbler_callback() { 
-    // dribbler_SetSpeed(1.0f);   
-    if(ballsensor_hasBall()){
-        ball_counter = 0;
-        set_Pin(LED1, true);
-        dribbler_SetSpeed(1.0f);
-    }
-    else if (ball_counter < 100){
-        ball_counter = ball_counter + 1;
-        dribbler_SetSpeed(0.35f);
-        return;
-    }else{
-        dribbler_SetSpeed(0.0f);
-        set_Pin(LED1, false);
-    }
-
     do_send_ballState();
+    if (dribblerCommand.dribblerOn) {
+        if(ballsensor_hasBall()){
+            ball_counter = 0;
+            set_Pin(LED1, true);
+            dribbler_SetSpeed(1.0f);
+            return;
+        }
+        else if (ball_counter < 100){
+            ball_counter = ball_counter + 1;
+            dribbler_SetSpeed(0.35f);
+            return;
+        }
+    }
+    dribbler_SetSpeed(0.0f);
+    set_Pin(LED1, false);
 }
 
 

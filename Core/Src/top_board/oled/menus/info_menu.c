@@ -26,4 +26,6 @@ void info_menu_initChildren(page_struct *parent) {
     add_child_to_parent(&sensor_menu);
     encoder_page_init(&sensor_menu);
     voltage_reading_init(&sensor_menu);    
+
+    kicker_status_Init(parent);
 }

@@ -182,8 +182,8 @@ void end_of_test() {
     wheels_Brake();
     activeRobotCommand.doKick = false;
     activeRobotCommand.doChip = false;
-    activeRobotCommand.kickAtAngle = false;
-    activeRobotCommand.dribbler = 0;
+    activeRobotCommand.kickAtYaw = false;
+    activeRobotCommand.dribblerOn = 0;
     activeRobotCommand.angularVelocity = 0;
     //screen
     clear_screen();

@@ -8,6 +8,7 @@
 #include "time_page.h"
 #include "voltage_reading.h"
 #include "rem_page.h"
+#include "kicker_status.h"
 
 void info_menu_initChildren(page_struct *parent);
 

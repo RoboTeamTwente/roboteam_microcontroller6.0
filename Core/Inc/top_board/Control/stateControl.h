@@ -81,17 +81,40 @@ void stateControl_SetRef(float _stateGlobalRef[4]);
 /**
  * Get the referenced wheel speeds.
  * 
- * @return float* An array with the wheel speeds [rad/s].
+ * @return float Wheel speed of wheels [rad/s].
  */
 float* stateControl_GetWheelRef();
 
 /**
+ * Get the referenced wheel speeds.
+ * 
+ * @return float Wheel speed of a wheel [rad/s].
+ */
+float stateControl_GetIndividualWheelRef(wheel_names wheel);
+
+/**
  * Get the referenced global body speeds (for yaw - angleControl)
  * 
- * @return float* An array with the global x, y, w and yaw velocities to be achieved [m/s]
+ * @return float An a global velocity (x, y, w and yaw velocities) to be achieved [m/s]/[rad/s]/[rad]
 
  */
-float* stateControl_GetBodyGlobalRef();
+float stateControl_GetBodyGlobalRef(robot_axes direction);
+
+/**
+ * Get the body controller output
+ * 
+ * @return float The respective body controller output
+
+ */
+float stateControl_GetBodyControllerOutput(robot_axes direction);
+
+/**
+ * Get the wheel controller output
+ * 
+ * @return float The respective wheel controller output
+
+ */
+float stateControl_GetWheelControllerOutput(wheel_names wheel);
 
 /**
  * Set the current state as the estimated state as calculated by stateEstimation
@@ -114,6 +137,14 @@ void stateControl_GetPIDGains(PIDvariables gainsLocal[4]);
  * @return float    The integral for the requested direction
  */
 float stateControl_GetIntegral(robot_axes direction);
+
+/**
+ * Retrieves the integral for the provided wheel (1,2,3,4)
+ * 
+ * @param direction The wheel to be requested
+ * @return float    The integral for the requested wheel
+ */
+float stateControl_GetWheelIntegral(wheel_names wheel);
 
 /**
  * Switch between angular velocity or absolute angle.

@@ -50,6 +50,12 @@ typedef enum{
 #define START_REGHARGE_VOLT 220		// voltage [V] capacitor should start charging back up again
 #define MIN_VOLT_SHOOT 80			// minimum voltage [V] for kicking
 
+///////////////////////////////////////////////////// EXTERNS
+
+extern bool shoot_charged;
+extern bool shoot_fault;
+extern shoot_states shootState;
+
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
 void shoot_Init();

@@ -31,6 +31,7 @@
 
 #include "REM_Packet.h"
 #include "REM_RobotCommand.h"
+#include "REM_RobotCommandTesting.h"
 #include "REM_RobotFeedback.h"
 #include "REM_RobotBuzzer.h"
 #include "REM_RobotStateInfo.h"
@@ -72,15 +73,17 @@ extern CAN_TxHeaderTypeDef kickHeader;
 extern CAN_TxHeaderTypeDef kickerChargeHeader;
 extern CAN_TxHeaderTypeDef kickerStopChargeHeader;
 extern CAN_TxHeaderTypeDef killHeader;
-extern CAN_TxHeaderTypeDef setDribblerSpeedHeader;
+extern CAN_TxHeaderTypeDef dribblerCommandHeader;
 
 //payload incoming packets
 extern MCP_DribblerAlive dribblerAlive;
 extern MCP_KickerAlive kickerAlive;
 extern MCP_KickerCapacitorVoltage kickerCapacitorVoltage;
+extern MCP_KickerStatus kickerStatus;
 extern MCP_PowerAlive powerAlive;
 extern MCP_PowerVoltage powerVoltage;
 extern MCP_SeesBall seesBall;
+extern MCP_KickerStatus kickerStatus;
 
 
 void init(void);

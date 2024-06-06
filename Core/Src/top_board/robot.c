@@ -29,12 +29,16 @@ CAN_TxHeaderTypeDef kickHeader = {0};
 CAN_TxHeaderTypeDef kickerChargeHeader = {0};
 CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
 CAN_TxHeaderTypeDef killHeader = {0};
-CAN_TxHeaderTypeDef setDribblerSpeedHeader = {0};
+CAN_TxHeaderTypeDef dribblerCommandHeader = {0};
+CAN_TxHeaderTypeDef rebootHeaderToPower = {0};
+CAN_TxHeaderTypeDef rebootHeaderToKicker = {0};
+CAN_TxHeaderTypeDef rebootHeaderToDribbler = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
 MCP_KickerAlive kickerAlive = {0};
 MCP_KickerCapacitorVoltage kickerCapacitorVoltage = {0};
+MCP_KickerStatus kickerStatus = {0};
 MCP_PowerAlive powerAlive = {0};
 MCP_PowerVoltage powerVoltage = {0};
 MCP_SeesBall seesBall = {0};
@@ -44,12 +48,13 @@ MCP_DribblerEncoder dribblerEncoder = {0};
 
 // Incoming packets
 REM_RobotCommandPayload robotCommandPayload = {0};
+REM_RobotCommandTestingPayload robotCommandTestingPayload = {0};
 REM_RobotBuzzerPayload robotBuzzerPayload = {0};
 REM_RobotMusicCommand RobotMusicCommand = {0};
 volatile bool RobotMusicCommand_received_flag = false;
 // Outgoing packets
 REM_RobotFeedback robotFeedback = {0};
-REM_RobotFeedbackPayload robotFeedbackPayload = {0};
+REM_RobotFeedbackPayload robotFeedbackPayload = {0}; 
 REM_RobotStateInfo robotStateInfo = {0};
 REM_RobotStateInfoPayload robotStateInfoPayload = {0};
 REM_RobotPIDGains robotPIDGains = {0};
@@ -59,6 +64,7 @@ REM_LogPayload robotLogPayload = {0};
 REM_SX1280Filler sx1280filler = {0};
 
 REM_RobotCommand activeRobotCommand = {0};
+REM_RobotCommandTesting activeTestingCommand = {0};
 float activeStateReference[3];
 
 StateInfo stateInfo = {0.0f, false, {0.0f}, 0.0f, 0.0f, {0.0f}};
@@ -71,7 +77,6 @@ IWDG_Handle* iwdg;
 
 volatile uint32_t counter_loop = 0;
 volatile uint32_t counter_htim6 = 0;
-volatile uint32_t counter_TIM_CONTROL = 0;
 volatile uint32_t counter_TIM_BUZZER = 0;
 volatile uint32_t counter_TIM_SHOOT = 0;
 volatile uint32_t counter_RobotCommand = 0;
@@ -104,6 +109,7 @@ volatile bool REM_last_packet_had_correct_version = true;
 bool flag_PowerBoard_alive = false;
 bool flag_DribblerBoard_alive = false;
 bool flag_KickerBoard_alive = false;
+bool flag_useStateInfo = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -145,6 +151,14 @@ void Wireless_Readpacket_Cplt(void){
 	Wireless_SendPacket();
 }
 
+/**
+ * @brief This function sends back a packet to the basestation
+ * 
+ * During testing we found out that the payloadLength of the outgoing packet should be at least the payloadLength of the incoming packet.
+ * If this isn't the case we had trouble getting updated incoming packets.
+ * Thus REM_PACKET_SIZE_REM_ROBOT_FEEDBACK >= REM_PACKET_SIZE_REM_ROBOT_COMMAND 
+ * At this point we have not figured out yet why this is the case.
+*/
 void Wireless_SendPacket() {
 	txPacket.payloadLength = 0;
 
@@ -152,10 +166,12 @@ void Wireless_SendPacket() {
 	encodeREM_RobotFeedback( (REM_RobotFeedbackPayload*) (txPacket.message + txPacket.payloadLength), &robotFeedback);
 	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_FEEDBACK;
 
-	encodeREM_RobotStateInfo( (REM_RobotStateInfoPayload*) (txPacket.message + txPacket.payloadLength), &robotStateInfo);
-	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
+	if (flag_useStateInfo) {
+		encodeREM_RobotStateInfo( (REM_RobotStateInfoPayload*) (txPacket.message + txPacket.payloadLength), &robotStateInfo);
+		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
+	}
 
-	if(flag_send_PID_gains){
+	if (flag_send_PID_gains){
 		encodeREM_RobotPIDGains( (REM_RobotPIDGainsPayload*) (txPacket.message + txPacket.payloadLength), &robotPIDGains);
 		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_PIDGAINS;
 		flag_send_PID_gains = false;
@@ -163,8 +179,8 @@ void Wireless_SendPacket() {
 
 	if (txPacket.payloadLength < 6) {
 		encodeREM_SX1280Filler( (REM_SX1280FillerPayload*) (txPacket.message + txPacket.payloadLength), &sx1280filler);
+		txPacket.payloadLength += REM_PACKET_SIZE_REM_SX1280FILLER;
 	}
-
 	WritePacket_DMA(SX, &txPacket, &Wireless_Writepacket_Cplt);
 }
 
@@ -187,19 +203,25 @@ void Wireless_RXDone(SX1280_Packet_Status *status){
 Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_callback = &Wireless_Default };
 
 void executeCommands(REM_RobotCommand* robotCommand){
-	stateControl_useAbsoluteAngle(robotCommand->useAbsoluteAngle);
+	stateControl_useAbsoluteAngle(robotCommand->useYaw);
 	float stateReference[4];
 	stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
 	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
 	stateReference[vel_w] = robotCommand->angularVelocity;
-	stateReference[yaw] = robotCommand->angle;
+	stateReference[yaw] = robotCommand->yaw;
 	stateControl_SetRef(stateReference);
 
-	MCP_SetDribblerSpeed sds = {0};
-	sds.speed = robotCommand->dribbler;
-	MCP_SetDribblerSpeedPayload sdsp = {0};
-	encodeMCP_SetDribblerSpeed(&sdsp, &sds);
-	MCP_Send_Message(&hcan1, sdsp.payload, setDribblerSpeedHeader, MCP_DRIBBLER_BOARD);
+	MCP_DribblerCommand dribCommand = {0};
+	dribCommand.dribblerOn = robotCommand->dribblerOn;
+	dribCommand.dribblerOption1 = robotCommand->dribblerOption1;
+	dribCommand.dribblerOption2 = robotCommand->dribblerOption2;
+	dribCommand.dribblerOption3 = robotCommand->dribblerOption3;
+	dribCommand.dribblerOption4 = robotCommand->dribblerOption4;
+	dribCommand.dribblerOption5 = robotCommand->dribblerOption5;
+	dribCommand.dribblerOption6 = robotCommand->dribblerOption6;
+	MCP_DribblerCommandPayload dcp = {0};
+	encodeMCP_DribblerCommand(&dcp, &dribCommand);
+	MCP_Send_Message(&hcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
 	
 	if (seesBall.ballsensorSeesBall || robotCommand->doForce) {	
 		if (robotCommand->doChip) {
@@ -214,10 +236,10 @@ void executeCommands(REM_RobotCommand* robotCommand){
 			MCP_KickPayload kp = {0};
 			encodeMCP_Kick(&kp, &kick);
 			MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
-		} else if (robotCommand->kickAtAngle) {
+		} else if (robotCommand->kickAtYaw) {
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
-			if (fabs(localState[yaw] - robotCommand->angle) < 0.025) {
+			if (fabs(localState[yaw] - robotCommand->yaw) < 0.025) {
 				MCP_Kick kick = {0};
 				kick.shootPower = robotCommand->kickChipPower;
 				MCP_KickPayload kp = {0};
@@ -233,7 +255,7 @@ void resetRobotCommand(REM_RobotCommand* robotCommand){
 }
 
 void initPacketHeader(REM_Packet* packet, uint8_t robot_id, uint8_t channel, uint8_t packet_type){
-	packet->header = packet_type;
+	packet->packetType = packet_type;
 	packet->toPC = true;
 	packet->fromColor = channel;
 	packet->remVersion = REM_LOCAL_VERSION;
@@ -256,7 +278,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	// First, empty the entire RobotCommand
 	resetRobotCommand(rc);
 	// Set the basic required stuff
-	rc->header = REM_PACKET_TYPE_REM_ROBOT_COMMAND;
+	rc->packetType = REM_PACKET_TYPE_REM_ROBOT_COMMAND;
 	rc->remVersion = REM_LOCAL_VERSION;
 	rc->toRobotId = ROBOT_ID;
 
@@ -268,7 +290,7 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	// Rotate around, slowly
 	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
 	// Turn on dribbler
-	rc->dribbler = period_fraction;
+	rc->dribblerOn = true;
 	// Kick a little every block
 	if(0.95f < period_fraction){
 		rc->doKick = true;
@@ -320,9 +342,11 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 		case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_SEES_BALL: ;
 			MCP_SeesBallPayload* spb = (MCP_SeesBallPayload*) to_Process->data_Frame;
 			decodeMCP_SeesBall(&seesBall, spb);
-			LOG_printf("Sees ball?");
-			LOG_sendAll();
 			break;		
+		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_STATUS: ;
+			MCP_KickerStatusPayload* ksp = (MCP_KickerStatusPayload*) to_Process->data_Frame;
+			decodeMCP_KickerStatus(&kickerStatus, ksp);
+			break;
 	}
 
 	if (send_ack) MCP_Send_Ack(&hcan1, to_Process->data_Frame[0], to_Process->message_id);
@@ -508,7 +532,7 @@ void init(void){
 		int maxCounts= 50;
 		float averagedRateOfTurn = 0.0f;
 		float rateOfTurn = 0.0f;
-		float rotOffset;
+		float rotOffset = 0.0f;
 
 		for (int counter = 0; counter < maxCounts; counter++){ // should run for maxCounts time steps (500 ms)
 			rateOfTurn = MTi->gyr[2];
@@ -549,6 +573,7 @@ void init(void){
   	//initialize MCP
 	MCP_Init(&hcan1, MCP_TOP_BOARD);
 	LOG_printf("[init:"STRINGIZE(__LINE__)"] CAN VERSION: %d\n", MCP_LOCAL_VERSION);
+	powerVoltage.voltagePowerBoard = 24.0f; //making sure control code runs, even if powerboard doesn't send the voltage
 	
 	//initialize headers
 	areYouAliveHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ARE_YOU_ALIVE, MCP_POWER_BOARD);
@@ -559,7 +584,10 @@ void init(void){
 	kickerChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_CHARGE, MCP_KICKER_BOARD);
 	kickerStopChargeHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_STOP_CHARGE, MCP_KICKER_BOARD);
 	killHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KILL, MCP_POWER_BOARD);
-	setDribblerSpeedHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_SET_DRIBBLER_SPEED, MCP_DRIBBLER_BOARD);
+	dribblerCommandHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_COMMAND, MCP_DRIBBLER_BOARD);
+	rebootHeaderToPower = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_REBOOT, MCP_POWER_BOARD);
+	rebootHeaderToKicker = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_REBOOT, MCP_KICKER_BOARD);
+	rebootHeaderToDribbler = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_REBOOT, MCP_DRIBBLER_BOARD);
 
 	MCP_SetReadyToReceive(true);
 
@@ -624,10 +652,6 @@ void init(void){
 	ROBOT_INITIALIZED = true;
 	buzzer_Play_Startup();
 
-	// MCP_KickerCharge kc = {0};
-	// MCP_KickerChargePayload kcp = {0};
-	// encodeMCP_KickerCharge(&kcp, &kc);
-	// MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 }
 
 uint8_t robot_get_ID() {
@@ -678,6 +702,21 @@ void loop(void){
 		MCP_to_process = false;
 	}
 
+    // Play a warning if a REM packet with an incorrect version was received
+    if(!REM_last_packet_had_correct_version) {
+        if(!buzzer_IsPlaying()) {
+            buzzer_Play_WarningTwo();
+		}
+	}
+
+	if (activeRobotCommand.reboot) {
+		MCP_RebootPayload reboot = {0};
+		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToPower);
+		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToDribbler);
+		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToKicker);
+		HAL_Delay(1000);
+	}
+
     // Check for connection to serial, wireless, and xsens
     // Cast to int32_t is needed since it might happen that current_time is smaller than time_last_packet_*
     // Not casting to int32 causes an overflow and thus a false negative
@@ -704,8 +743,6 @@ void loop(void){
         stateControl_ResetAngleI();
         resetRobotCommand(&activeRobotCommand);
         initPacketHeader((REM_Packet*) &activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
-
-        REM_last_packet_had_correct_version = true;
     }
 
     // Unbrake wheels when Xsens calibration is done
@@ -725,11 +762,11 @@ void loop(void){
     if(flag_sdcard_write_feedback){
         flag_sdcard_write_feedback = false;
         encodeREM_RobotFeedback( &robotFeedbackPayload, &robotFeedback );
-        encodeREM_RobotStateInfo( &robotStateInfoPayload, &robotStateInfo);
+		if (flag_useStateInfo) encodeREM_RobotStateInfo( &robotStateInfoPayload, &robotStateInfo);
 
         // Write to SD card
         SDCard_Write(robotFeedbackPayload.payload, REM_PACKET_SIZE_REM_ROBOT_FEEDBACK, true);
-        SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
+        if (flag_useStateInfo) SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
     }
     if(flag_sdcard_write_command){
         flag_sdcard_write_command = false;
@@ -996,6 +1033,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if(htim->Instance == TIM_CONTROL->Instance) {
 		if(!ROBOT_INITIALIZED || OLED_get_current_page_test_type() == BLOCKING_TEST) return;
 
+		flag_useStateInfo = activeRobotCommand.sendStateInfo;
+
 		if (!unix_initalized && activeRobotCommand.timestamp != 0){
 			unix_timestamp = activeRobotCommand.timestamp;
 			unix_initalized = true;
@@ -1003,11 +1042,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		rem_page_add_timestamp(activeRobotCommand.timestamp);
 
-		counter_TIM_CONTROL++;
+		if(halt || test_is_finished){
+			unix_initalized = false;
+			wheels_Stop();
+			REM_last_packet_had_correct_version = true;
+			return;
+		}
 
 		// State Info
-		stateInfo.visionAvailable = activeRobotCommand.useCameraAngle;
-		stateInfo.visionYaw = activeRobotCommand.cameraAngle; // TODO check if this is scaled properly with the new REM messages
+		stateInfo.visionAvailable = activeRobotCommand.useCameraYaw;
+		stateInfo.visionYaw = activeRobotCommand.cameraYaw; // TODO check if this is scaled properly with the new REM messages
 		
 		wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
 		stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
@@ -1018,13 +1062,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
 
-		if(halt || test_is_finished){
-			unix_initalized = false;
-			wheels_Stop();
-			return;
-		}
-
-		if(is_connected_wireless && activeRobotCommand.useCameraAngle && !yaw_hasCalibratedOnce()) {
+		if(is_connected_wireless && activeRobotCommand.useCameraYaw && !yaw_hasCalibratedOnce()) {
 			wheels_Stop();
 			return;
 		}
@@ -1035,13 +1073,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		stateControl_SetState(stateLocal);
 		stateControl_Update();
 
-		float* refSpeedWheelsPointer;
-		refSpeedWheelsPointer = stateControl_GetWheelRef();
-		
-		float* pointerGlobalBodyRef;
-		pointerGlobalBodyRef = stateControl_GetBodyGlobalRef();
-
-		if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
+		if (activeRobotCommand.wheelsOff) {
+			wheels_Stop();
+		} else if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
 		
 			wheels_set_command_speed( stateControl_GetWheelRef() );
 
@@ -1065,29 +1099,33 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		/* == Fill robotFeedback packet == */ {
 			robotFeedback.timestamp = unix_timestamp;
-			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
-			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
-			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
-			// robotFeedback.ballPos = ballSensor_isInitialized() ? (-.5 + ballPosition.x / 700.) : 0;
-			// robotFeedback.capacitor_voltage = kicker_capacitor_voltage;
 
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
 			float vu = localState[vel_u];
 			float vv = localState[vel_v];
 			robotFeedback.rho = sqrt(vu*vu + vv*vv);
-			robotFeedback.angle = localState[yaw];
+			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vv, vu);
-			robotFeedback.wheelBraking = wheels_GetWheelsBraking(); // TODO Locked feedback has to be changed to brake feedback in PC code
-			robotFeedback.rssi = last_valid_RSSI; // Should be divided by two to get dBm but RSSI is 8 bits so just send all 8 bits back
+
+			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
+			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
+			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
+			robotFeedback.kickerFault = kickerStatus.kickerFault;
+			robotFeedback.kickerOn = kickerStatus.kickerOn;
+			robotFeedback.capacitorCharged = kickerStatus.kickerReady;
+			robotFeedback.kickerVoltage = kickerCapacitorVoltage.voltage;	
 		}
-		
-		/* == Fill robotStateInfo packet == */ {	
+
+		/* == Fill robotStateInfo packet == */
+		if (flag_useStateInfo) {
 			robotStateInfo.timestamp = unix_timestamp;
 			robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
 			robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
+			robotStateInfo.xsensAccFiltered1 = 0; //TODO
+			robotStateInfo.xsensAccFiltered2 = 0; //TODO
 			robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
 			robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
 			robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
@@ -1097,19 +1135,43 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.dribbleSpeed = dribblerEncoder.measuredSpeed;
 			robotStateInfo.filteredDribbleSpeed = dribblerEncoder.filteredSpeed;
 			robotStateInfo.dribblespeedBeforeGotBall = seesBall.dribblerSpeedBefore;
-			robotStateInfo.bodyXIntegral = pointerGlobalBodyRef[vel_x]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
-			robotStateInfo.bodyYIntegral = pointerGlobalBodyRef[vel_y]; //
-			robotStateInfo.bodyWIntegral = pointerGlobalBodyRef[vel_w]; //
-			robotStateInfo.bodyYawIntegral = pointerGlobalBodyRef[yaw]; //
-			robotStateInfo.wheel1Integral = refSpeedWheelsPointer[0]; // NEEDS TO BE CHANGED LATER ! since the name for those REM messages are not the correct ones!
-			robotStateInfo.wheel2Integral = refSpeedWheelsPointer[1]; //
-			robotStateInfo.wheel3Integral = refSpeedWheelsPointer[2]; //
-			robotStateInfo.wheel4Integral = refSpeedWheelsPointer[3]; // 
-
-
-			flag_sdcard_write_feedback = true;
-			unix_timestamp += 1	;
+			robotStateInfo.bodyXIntegral = stateControl_GetIntegral(vel_u);
+			robotStateInfo.bodyYIntegral = stateControl_GetIntegral(vel_v);
+			robotStateInfo.bodyWIntegral = stateControl_GetIntegral(vel_w);
+			robotStateInfo.bodyYawIntegral = stateControl_GetIntegral(yaw);
+			robotStateInfo.wheel1Integral = stateControl_GetWheelIntegral(wheels_RF);
+			robotStateInfo.wheel2Integral = stateControl_GetWheelIntegral(wheels_LF);
+			robotStateInfo.wheel3Integral = stateControl_GetWheelIntegral(wheels_LB);
+			robotStateInfo.wheel4Integral = stateControl_GetWheelIntegral(wheels_RB);
+			robotStateInfo.wheelSpeedRef1 = stateControl_GetIndividualWheelRef(wheels_RF);
+			robotStateInfo.wheelSpeedRef2 = stateControl_GetIndividualWheelRef(wheels_LF);
+			robotStateInfo.wheelSpeedRef3 = stateControl_GetIndividualWheelRef(wheels_LB);
+			robotStateInfo.wheelSpeedRef4 = stateControl_GetIndividualWheelRef(wheels_RB);
+			robotStateInfo.wheelController_1 = stateControl_GetWheelControllerOutput(wheels_RF);
+			robotStateInfo.wheelController_2 = stateControl_GetWheelControllerOutput(wheels_LF);
+			robotStateInfo.wheelController_3 = stateControl_GetWheelControllerOutput(wheels_LB);
+			robotStateInfo.wheelController_4 = stateControl_GetWheelControllerOutput(wheels_RB);
+			robotStateInfo.bodyController_u = stateControl_GetBodyControllerOutput(vel_u);
+			robotStateInfo.bodyController_v = stateControl_GetBodyControllerOutput(vel_v);
+			robotStateInfo.bodyController_w = stateControl_GetBodyControllerOutput(vel_w);
+			robotStateInfo.bodyController_yaw = stateControl_GetBodyControllerOutput(yaw);
+			robotStateInfo.bodyControllerRef_u = stateControl_GetBodyGlobalRef(vel_u);
+			robotStateInfo.bodyControllerRef_v = stateControl_GetBodyGlobalRef(vel_v);
+			robotStateInfo.bodyControllerRef_w = stateControl_GetBodyGlobalRef(vel_w);
+			robotStateInfo.bodyControllerRef_yaw  = stateControl_GetBodyGlobalRef(yaw);
+			robotStateInfo.wheelSpeedDerivativeFiltered1 = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered2 = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered3 = 0; //TODO
+			robotStateInfo.wheelSpeedDerivativeFiltered4 = 0; //TODO
+			robotStateInfo.bodyXDerivativeFiltered = 0; //TODO
+			robotStateInfo.bodyYDerivativeFiltered = 0; //TODO
+			robotStateInfo.bodyZDerivativeFiltered = 0; //TODO
+			robotStateInfo.bodyYawDerivativeFiltered = 0; //TODO
 		}
+		
+
+		flag_sdcard_write_feedback = true;
+		unix_timestamp += (uint64_t) (TIME_DIFF * 1000);
     }
     else if (htim->Instance == TIM_BUZZER->Instance) {
 		counter_TIM_BUZZER++;

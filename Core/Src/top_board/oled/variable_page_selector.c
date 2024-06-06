@@ -2,6 +2,9 @@
 
 void update_variables(page_struct *page) {
     switch (page->id) {
+        case 24:
+            kicker_status_Update(page);
+            break;
         case 221:
             time_page_update(page);
             break;
