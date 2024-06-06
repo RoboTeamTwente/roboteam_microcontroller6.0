@@ -12,7 +12,6 @@ float friction_term;
 float damping_term;
 
 bool wheels_initialized = false;
-float stateLocalRef_PID[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 float wheel_speed_fraction[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 // The current status of the system.
@@ -30,6 +29,9 @@ static float wheelRef[4] = {0.0f};
 // The current global u, v, w and yaw velocities.
 static float stateLocal[4] = {0.0f};
 
+// The reference u, v, w reference velocities.
+static float stateLocalRef[4] = {0.0f};
+
 // Whether to move to an absolute angle. If true yes, otherwise use angular velocity.
 static bool useAbsoluteAngle = true;
 static bool previousUseAbsoluteAngle = true;
@@ -38,13 +40,17 @@ static bool previousUseAbsoluteAngle = true;
 static float D[12] = {0.0f};
 
 static float wheels_measured_speeds[4] = {0.0f};      // Stores most recent measurement of wheel speeds in rad/s
-static float wheels_commanded_speeds[4] = {0.0f};     // Holds most recent commanded wheel speeds in rad/s
 
 ///////////////////////////////////////////////////// STRUCTURE
 
 static PIDvariables wheelsK[4];
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
+
+static float sineEval(float x,float a,float b,float c);
+static float constEval(float x,float b,float c,float d);
+static float constsineEval(float x,float a,float b,float c,float d);
+static float feedforwardFriction(float wheelRef, float rho, float theta, float omega, wheel_names wheel);
 
 /**
  * Translates the velocity from a local perspective to wheel speeds.
@@ -84,9 +90,38 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
-	damping_term = 0.04f;
-	// damping_term = 0.0f;
-	friction_term = 1.05f;
+	// damping_term = 0.04f;
+	// // damping_term = 0.0f;
+	// friction_term = 1.05f;
+
+	feedforwardParameters.a[0] = 0.0f;
+	feedforwardParameters.a[1] = 0.0f;
+	feedforwardParameters.a[2] = 0.0f;
+	feedforwardParameters.a[3] = 0.0f;
+
+	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f;
+
+	feedforwardParameters.c[0] = 60.0f*(M_PI/180.0f);
+	feedforwardParameters.c[1] = -60.0f*(M_PI/180.0f);
+	feedforwardParameters.c[2] = -135.0f*(M_PI/180.0f);
+	feedforwardParameters.c[3] = 135.0f*(M_PI/180.0f);
+
+	feedforwardParameters.d[0] = 1.05f;
+	feedforwardParameters.d[1] = 1.05f;
+	feedforwardParameters.d[2] = 1.05f;
+	feedforwardParameters.d[3] = 1.05f;
+
+	feedforwardParameters.rotation_feedforward_value[0] = 0.45f;
+	feedforwardParameters.rotation_feedforward_value[1] = 0.45f;
+	feedforwardParameters.rotation_feedforward_value[2] = 0.45f;
+	feedforwardParameters.rotation_feedforward_value[3] = 0.45f;
+
+	feedforwardParameters.identified_damping = 0.04f;
+
+	feedforwardParameters.vw_max_round_to_rotational_scaling = 1.0f;
 
 	status = on;
 	initPID(&stateLocalK[vel_u], default_P_gain_u, default_I_gain_u, default_D_gain_u);
@@ -102,16 +137,16 @@ int stateControl_Init(){
 	// Initialize the velocity coupling matrix.
 	D[0] = cosFront;
 	D[1] = sinFront; 
-	D[2] = 1;
+	D[2] = rad_robot;
 	D[3] = -cosFront;
 	D[4] = sinFront;
-	D[5] = 1;
+	D[5] = rad_robot;
 	D[6] = -cosBack;
 	D[7] = -sinBack;
-	D[8] = 1;
+	D[8] = rad_robot;
 	D[9] = cosBack;
 	D[10] = -sinBack;
-	D[11] = 1;
+	D[11] = rad_robot;
 
 	return 0;
 }
@@ -123,16 +158,23 @@ int stateControl_DeInit(){
 }
 
 void stateControl_Update(){
+	// if (status == on){
+	// 	stateControl_Update_Body();
+	// 	computeWheelSpeeds();
+	// 	stateControl_Update_Wheels();
+	// 	stateControl_voltage2PWM();
+	// 	wheels_SetPWM(wheel_pwm_list);
+	// }	
 	if (status == on){
-		float velocityWheelRef[4] = {0.0f};
-		velocityControl(stateLocal, stateGlobalRef, velocityWheelRef);
+		stateControl_Update_Body();
+		wheels_Update();
+	}	
+}
 
-		float angularRef = useAbsoluteAngle ? absoluteAngleControl(stateGlobalRef[yaw], stateLocal[yaw]) : 0.0f;
+void stateControl_Update_Body() {
 
-		for (wheel_names wheel=wheels_RF; wheel<=wheels_RB; wheel++){
-			wheelRef[wheel] = velocityWheelRef[wheel] + angularRef;
-		}
-	}
+	velocityControl(stateLocal, stateGlobalRef, wheelRef);
+
 }
 
 ////////////// WHEELS CONTROL START
@@ -142,7 +184,7 @@ void stateControl_Update(){
  * 
  * TODO : check OMEGAtoPWM values for new motor!!!
  * This function is resonsible for getting the wheels to the commanded speeds, as stored in the file-local variable
- * "wheels_commanded_speeds". Wheel speeds, given in rad/s, are converted directly to a PWM value with help of the
+ * "wheelRef". Wheel speeds, given in rad/s, are converted directly to a PWM value with help of the
  * conversion variable OMEGAtoPWM. This variable is based on information from the Maxon Motor datasheet. 
  * 
  * A PID controller is used to handle any error between the commanded and actual wheel speeds. First, the current wheel
@@ -160,47 +202,63 @@ void wheels_Update() {
 		return;
 	}
 
+	body2Wheels(wheelRef, stateLocalRef); //translate velocity to wheel speed
+	float vu = stateLocalRef[vel_u];
+	float vv = stateLocalRef[vel_v];
+	float rho = sqrt(vu*vu + vv*vv);
+	float theta_local = atan2(vu, vv);
+	float omega = stateLocalRef[vel_w];
+
+	float wheels_measured_speeds[4] = {0.0f};
+	wheels_GetMeasuredSpeeds(wheels_measured_speeds);
+
+	float feed_forward[4] = {0.0f};
+
 	for (motor_id_t motor = RF; motor <= RB; motor++) {
-		int16_t	encoder_value = encoder_GetCounter(motor);
-		encoder_ResetCounter(motor);
-		wheels_measured_speeds[motor] =  WHEEL_ENCODER_TO_OMEGA * encoder_value; // if it doesn't work, get out the calculation of the measured speeds of the if loop.
 
-		// Calculate the velocity error
-		float angular_velocity_error = wheels_commanded_speeds[motor] - wheels_measured_speeds[motor]; 		
-	
-		// If the error is very small, ignore it (why is this here?)
-		if (fabs(angular_velocity_error) < 0.1) {
-			angular_velocity_error = 0.0f;
-			wheelsK[motor].I = 0;
-		}
+		// Feedforward
+			double wheel_speed_threshold = 0.5f;
+			if (fabs(wheelRef[motor]) < wheel_speed_threshold) {
+				feed_forward[motor] = 0;
+			}
+			else {
+				feed_forward[motor] = feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor);
+			}
 
-		// FEEDFOWARD of robot 5.0
-		float feed_forward = 0.0f;
-		float threshold = 0.5f;
+			// // Old
+			// float feed_forward = 0.0f;
+			// float threshold = 0.5f;
 
-		if (fabs(wheels_commanded_speeds[motor]) < threshold) {
-    		feed_forward = 0;
-		} 
-		else if (wheels_commanded_speeds[motor] > 0) {
-			feed_forward = damping_term*wheels_commanded_speeds[motor] + friction_term;
-    	}
-		else if (wheels_commanded_speeds[motor] < 0) {
-			feed_forward = damping_term*wheels_commanded_speeds[motor] - friction_term;
-    	}
+			// if (fabs(wheelRef[motor]) < threshold) {
+			// 	feed_forward = 0;
+			// } 
+			// else if (wheelRef[motor] > 0) {
+			// 	feed_forward = damping_term*wheelRef[motor] + friction_term;
+			// }
+			// else if (wheelRef[motor] < 0) {
+			// 	feed_forward = damping_term*wheelRef[motor] - friction_term;
+			// }
 
-		// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-		// float voltage_list = 0*feed_forward + 0.3987 * (PID(angular_velocity_error, &wheelsK[motor]));
-		float wheel_voltage_to_be_applied = feed_forward + 24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
-		// 0.04f * 22.2f
+		// Feedback
+			// Calculate the velocity error
+			float angular_velocity_error = wheelRef[motor] - wheels_measured_speeds[motor]; 		
+		
+			// If the error is very small, ignore it (why is this here?)
+			if (fabs(angular_velocity_error) < 0.1) {
+				angular_velocity_error = 0.0f;
+				wheelsK[motor].I = 0;
+			}
 
-		// float batteryVoltage = 1.0f;
-
-		// float wheel_speed_percentage = (voltage_list*(1.0f/batteryVoltage));
-		wheel_speed_fraction[motor] = wheel_voltage_to_be_applied/powerVoltage.voltagePowerBoard;
-
-		wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
-		// wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
+		// Set motor PWM fraction/voltage
+			// Add PID to commanded speed and convert to PWM (range between -1 and 1)
+			float wheel_voltage_to_be_applied = feed_forward[motor] + 24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
+			wheel_speed_fraction[motor] = voltage2PWM(wheel_voltage_to_be_applied);
+			wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
 	}
+}
+
+float voltage2PWM(float wheelVoltage){
+	return wheelVoltage/powerVoltage.voltagePowerBoard;
 }
 
 /**
@@ -208,23 +266,11 @@ void wheels_Update() {
  * This function is the same as wheels_SetSpeeds from Microcontroller 5.0!!!
  * 
  * @param speeds float[4]{RF, LF, LB, RB} commanded wheels speeds, in rad/s. These values are stored in the file-local
- * variable 'wheels_commanded_speeds'. This variable will later be used in wheels_Update() to control the wheels.
+ * variable 'wheelRef'. This variable will later be used in wheels_Update() to control the wheels.
  */
 void wheels_set_command_speed(const float speeds[4]) {
 	for(motor_id_t wheel = RF; wheel <= RB; wheel++){
-		wheels_commanded_speeds[wheel] = speeds[wheel];
-	}
-}
-
-/**
- * @brief Get the last measured wheel speeds in rad/s
- * 
- * @param speeds float[4]{RF, LF, LB, RB} output array in which the measured speeds will be stored
- */
-void wheels_GetMeasuredSpeeds(float speeds[4]) {
-	// Copy into "speeds", so that the file-local variable "wheels_measured_speeds" doesn't escape
-	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
-		speeds[wheel] = wheels_measured_speeds[wheel];
+		wheelRef[wheel] = speeds[wheel];
 	}
 }
 
@@ -234,7 +280,7 @@ void wheels_GetMeasuredSpeeds(float speeds[4]) {
 void wheels_Stop() {
 	for (int motor = 0; motor < 4; motor++){
 		wheels_SetSpeed_PWM(motor, 0);
-		wheels_commanded_speeds[motor] = 0;
+		wheelRef[motor] = 0;
 	}
 }
 
@@ -309,7 +355,7 @@ float stateControl_GetBodyGlobalRef(robot_axes direction) {
 }
 
 float stateControl_GetBodyControllerOutput(robot_axes direction) {
-	return stateLocalRef_PID[direction];
+	return stateLocalRef[direction];
 }
 
 float stateControl_GetWheelControllerOutput(wheel_names wheel) {
@@ -369,25 +415,107 @@ void stateControl_ResetPID(){
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 
+static float sineEval(float x,float a,float b,float c) {
+	float y = a*sinf(b*x+c);
+	return y;
+}
+
+static float constEval(float x,float b,float c,float d) {
+	float y_sign = sineEval(x,d,b,c);
+	float y = 0.0f;
+	if (y_sign>0) {
+		y = d;
+	} else {
+		y = -d;
+	}
+	return y;
+}
+
+static float constsineEval(float x,float a,float b,float c,float d) {
+	float y = sineEval(x,a,b,c) + constEval(x,b,c,d);
+	return y;
+}
+
+static float feedforwardFriction(float wheelRef, float rho, float theta, float omega, wheel_names wheel) {
+	// Parameters to tune
+	// float vw_max_round_to_rotational_scaling = 1.0f;
+	// float rotation_feedforward_value[4] = {0.8f,0.8f,0.8f,0.8f};
+	
+	// float a_list[4] = {0.8264f,0.8264f,0.8264f,0.8264f};
+	// float b_list[4] = {(2.0f*M_PI)/360.0f, (2.0f*M_PI)/360.0f, (2.0f*M_PI)/360.0f, (2.0f*M_PI)/360.0f};
+	// float c_list[4] = {60.0f*(M_PI/180.0f), -60.0f*(M_PI/180.0f), -150.0f*(M_PI/180.0f), 150.0f*(M_PI/180.0f)};
+	// float d_list[4] = {0.4132f,0.4132f,0.4132f,0.4132f};
+	
+	// Calculations
+	float vw_max_round_to_rotational = feedforwardParameters.vw_max_round_to_rotational_scaling*(rho/rad_robot);
+	float z_rotational = feedforwardParameters.rotation_feedforward_value[wheel];
+	float z_translation = constsineEval(theta,feedforwardParameters.a[wheel],feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.d[wheel]);
+
+	int wheel_velocity_larger_than_zero;
+	if(wheelRef > 0) {
+		wheel_velocity_larger_than_zero = 1;
+	}
+	else {
+		wheel_velocity_larger_than_zero = 0;
+	}
+
+	float z_rotational_fixed;
+	float z_translation_fixed = z_translation;
+	if(wheel_velocity_larger_than_zero == 1) {
+		z_rotational_fixed = z_rotational;
+		if(z_translation < 0) {
+			z_translation_fixed = feedforwardParameters.d[wheel];
+		}
+	}
+	else {
+		z_rotational_fixed = -1*z_rotational;
+		if(z_translation > 0) {
+			z_translation_fixed = -feedforwardParameters.d[wheel];
+		}
+	}
+
+	float gamma = 0.5-0.5*cos(M_PI * fabs(omega/vw_max_round_to_rotational));
+	if (fabs(omega) > vw_max_round_to_rotational) {
+		gamma = 1;
+	}
+	if (gamma > 1) {
+		gamma = 1;
+	}
+	float feedforwardFrictionValue = ((1-gamma)*z_translation_fixed + gamma*z_rotational_fixed);
+	return feedforwardFrictionValue;
+}
+
 static void body2Wheels(float wheelSpeed[4], float stateLocal[4]){
 
 	// Translate the local u, v, and omega velocities into wheel velocities.
-	wheelSpeed[wheels_RF] = stateLocal[vel_u] * D[0] + stateLocal[vel_v] * D[1];
-	wheelSpeed[wheels_LF] = stateLocal[vel_u] * D[3] + stateLocal[vel_v] * D[4];
-	wheelSpeed[wheels_LB] = stateLocal[vel_u] * D[6] + stateLocal[vel_v] * D[7];
-	wheelSpeed[wheels_RB] = stateLocal[vel_u] * D[9] + stateLocal[vel_v] * D[10];
+	wheelSpeed[wheels_RF] = stateLocal[vel_u] * D[0] + stateLocal[vel_v] * D[1]  + stateLocal[vel_w] * D[2];
+	wheelSpeed[wheels_LF] = stateLocal[vel_u] * D[3] + stateLocal[vel_v] * D[4]  + stateLocal[vel_w] * D[5];
+	wheelSpeed[wheels_LB] = stateLocal[vel_u] * D[6] + stateLocal[vel_v] * D[7]  + stateLocal[vel_w] * D[8];
+	wheelSpeed[wheels_RB] = stateLocal[vel_u] * D[9] + stateLocal[vel_v] * D[10] + stateLocal[vel_w] * D[11];
 
 	// Translate wheel velocities into angular velocities
-	for (wheel_names wheel=wheels_RF; wheel <= wheels_RB; wheel++) {
-		wheelSpeed[wheel] = wheelSpeed[wheel] / rad_wheel;
-	}
+	wheelSpeed[wheels_RF] = wheelSpeed[wheels_RF] / rad_wheel;
+	wheelSpeed[wheels_LF] = wheelSpeed[wheels_LF] / rad_wheel;
+	wheelSpeed[wheels_LB] = wheelSpeed[wheels_LB] / rad_wheel;
+	wheelSpeed[wheels_RB] = wheelSpeed[wheels_RB] / rad_wheel;
 
-	// If we do not use angular velocities (w), remove these.
-	if (!useAbsoluteAngle) {
-        for (wheel_names wheel=wheels_RF; wheel<=wheels_RB; wheel++){
-            wheelSpeed[wheel] += stateLocal[vel_w] * rad_robot / rad_wheel;
-        }
-	}
+	// // Translate the local u, v, and omega velocities into wheel velocities.
+	// wheelSpeed[wheels_RF] = stateLocal[vel_u] * D[0] + stateLocal[vel_v] * D[1];
+	// wheelSpeed[wheels_LF] = stateLocal[vel_u] * D[3] + stateLocal[vel_v] * D[4];
+	// wheelSpeed[wheels_LB] = stateLocal[vel_u] * D[6] + stateLocal[vel_v] * D[7];
+	// wheelSpeed[wheels_RB] = stateLocal[vel_u] * D[9] + stateLocal[vel_v] * D[10];
+
+	// // Translate wheel velocities into angular velocities
+	// for (wheel_names wheel=wheels_RF; wheel <= wheels_RB; wheel++) {
+	// 	wheelSpeed[wheel] = wheelSpeed[wheel] / rad_wheel;
+	// }
+
+	// // If we do not use angular velocities (w), remove these.
+	// if (!useAbsoluteAngle) {
+    //     for (wheel_names wheel=wheels_RF; wheel<=wheels_RB; wheel++){
+    //         wheelSpeed[wheel] += stateLocal[vel_w] * rad_robot / rad_wheel;
+    //     }
+	// }
 }
 
 static void global2Local(float global[4], float local[4], float yaw_angle){
@@ -395,12 +523,10 @@ static void global2Local(float global[4], float local[4], float yaw_angle){
 	local[vel_u] = cosf(yaw_angle) * global[vel_x] + sinf(yaw_angle) * global[vel_y];
 	local[vel_v] = -sinf(yaw_angle) * global[vel_x] + cosf(yaw_angle) * global[vel_y];
     local[vel_w] = global[vel_w];
-	local[yaw] = yaw_angle;
+	local[yaw] = global[yaw];
 }
 
 static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]){
-	float stateLocalRef[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	
 	global2Local(stateGlobalRef, stateLocalRef, stateLocal[yaw]); //transfer global to local
 
 	// Local control
@@ -408,11 +534,16 @@ static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float 
 	float velvErr = (stateLocalRef[vel_v] - stateLocal[vel_v]);
 	float velwErr = (stateLocalRef[vel_w] - stateLocal[vel_w]);
 
-	stateLocalRef_PID[vel_u] = stateLocalRef[vel_u]/SLIPPAGE_FACTOR_U + PID(veluErr, &stateLocalK[vel_u]);
-	stateLocalRef_PID[vel_v] = stateLocalRef[vel_v]/SLIPPAGE_FACTOR_V + PID(velvErr, &stateLocalK[vel_v]);
-	stateLocalRef_PID[vel_w] = stateLocalRef[vel_w]/SLIPPAGE_FACTOR_W + PID(velwErr, &stateLocalK[vel_w]);
+	stateLocalRef[vel_u] = stateLocalRef[vel_u]/SLIPPAGE_FACTOR_U + PID(veluErr, &stateLocalK[vel_u]);
+	stateLocalRef[vel_v] = stateLocalRef[vel_v]/SLIPPAGE_FACTOR_V + PID(velvErr, &stateLocalK[vel_v]);
+	stateLocalRef[vel_w] = stateLocalRef[vel_w]/SLIPPAGE_FACTOR_W + PID(velwErr, &stateLocalK[vel_w]);
 	
-	body2Wheels(velocityWheelRef, stateLocalRef_PID); //translate velocity to wheel speed
+	// In case absolute angle control is used define the w (omega) differently based on absolute angle controller
+	if (useAbsoluteAngle) {
+		float angularRef = absoluteAngleControl(stateGlobalRef[yaw], stateLocal[yaw]);
+    	stateLocalRef[vel_w] = (rad_wheel/rad_robot)*angularRef;
+	}
+	
 }
 
 static float absoluteAngleControl(float angleRef, float angle){
@@ -425,6 +556,6 @@ static float absoluteAngleControl(float angleRef, float angle){
 		stateLocalK[yaw].I = 0;
 	}
 	prevangleErr = angleErr;
-	stateLocalRef_PID[yaw] = PID(angleErr, &stateLocalK[yaw]);
-	return stateLocalRef_PID[yaw];// PID control from control_util.h
+	stateLocalRef[yaw] = PID(angleErr, &stateLocalK[yaw]);
+	return stateLocalRef[yaw];// PID control from control_util.h
 }

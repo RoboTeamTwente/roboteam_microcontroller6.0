@@ -65,5 +65,9 @@ extern bool wheels_initialized; // being called in wheels_Update function inn St
 void encoder_Init();
 int16_t encoder_GetCounter(motor_id_t id);
 void encoder_ResetCounter(motor_id_t id);
+// Calculates angular velocity in rad/s for each wheel based on their encoder values
+void computeWheelSpeeds();
+// Get the last measured wheel speeds in rad/s
+void wheels_GetMeasuredSpeeds(float speeds[4]);
 
 #endif /* INC_WHEELS_H_ */

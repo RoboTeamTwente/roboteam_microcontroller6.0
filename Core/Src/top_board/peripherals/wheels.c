@@ -14,6 +14,7 @@ static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t 
 
 ///////////////////////////////////////////////////// VARIABLES
 
+static float wheels_measured_speeds[4] = {0.0f};      // Stores most recent measurement of wheel speeds in rad/s
 static bool wheels_braking = true;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
@@ -249,6 +250,34 @@ void encoder_ResetCounter(motor_id_t id){
 	}
 }
 
+/**
+ * @brief Calculates angular velocity in rad/s for each wheel based on their encoder values
+ * 
+ * @todo This function requires to be called every 10 milliseconds, as dictated by the variable TIME_DIFF contained
+ * within the variable ENCODERtoOMEGA. This can of course not always be perfectly guaranteed. Therefore, a timer should
+ * be used to calculate the time difference between two calculations.
+ * 
+ * @param speeds float[4]{RF, LF, LB, RB} output array in which the calculated wheels speeds will be placed
+ */
+void computeWheelSpeeds(){	
+	for (motor_id_t motor = RF; motor <= RB; motor++) {
+		int16_t	encoder_value = encoder_GetCounter(motor);
+		encoder_ResetCounter(motor);
+		wheels_measured_speeds[motor] =  WHEEL_ENCODER_TO_OMEGA * encoder_value;
+	}	
+}
+
+/**
+ * @brief Get the last measured wheel speeds in rad/s
+ * 
+ * @param speeds float[4]{RF, LF, LB, RB} output array in which the measured speeds will be stored
+ */
+void wheels_GetMeasuredSpeeds(float speeds[4]) {
+	// Copy into "speeds", so that the file-local variable "wheels_measured_speeds" doesn't escape
+	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
+		speeds[wheel] = wheels_measured_speeds[wheel];
+	}
+}
 
 
 

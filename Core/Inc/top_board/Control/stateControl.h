@@ -73,6 +73,11 @@ int stateControl_DeInit();
 void stateControl_Update();
 
 /**
+ * If initialised the wheel reference speeds are determined based on the current and reference state of the robot.
+ */
+void stateControl_Update_Body();
+
+/**
  * Set the new reference values that the robot should achieve.
  * @param _stateGlobalRef The x [m/s], y [m/s] and w [rad/s] speeds and yaw [rad] as instructed by the RobotCommand.
  */
@@ -172,7 +177,7 @@ void stateControl_ResetPID();
 
 void wheels_Update();
 void wheels_set_command_speed(const float speeds[4]); // Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
-void wheels_GetMeasuredSpeeds(float speeds[4]); // Get the last measured wheel speeds in rad/s
 void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains);
+float voltage2PWM(float wheelVoltage);
 
 #endif /* DO_STATE_CONTROL_H_ */

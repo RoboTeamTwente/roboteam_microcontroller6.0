@@ -1071,13 +1071,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		float stateLocal[4] = {0.0f};
 		stateEstimation_GetState(stateLocal);
 		stateControl_SetState(stateLocal);
-		stateControl_Update();
+		computeWheelSpeeds();
 
 		if (activeRobotCommand.wheelsOff) {
 			wheels_Stop();
 		} else if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
 		
-			wheels_set_command_speed( stateControl_GetWheelRef() );
+			// wheels_set_command_speed( stateControl_GetWheelRef() );
 
 			// In order to drain the battery as fast as possible we instruct the wheels to go their maximum possible speeds.
 			// However, for the sake of safety we make sure that if the robot actually turns it immediately stops doing this, since you
@@ -1094,7 +1094,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 					DRAIN_BATTERY = false;
 				}
 			}
-			wheels_Update();
+			stateControl_Update();
+			// wheels_Update();
 		}
 
 		/* == Fill robotFeedback packet == */ {
