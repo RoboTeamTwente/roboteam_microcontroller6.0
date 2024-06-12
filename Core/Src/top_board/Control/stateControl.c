@@ -25,12 +25,14 @@ static float stateGlobalRef[4] = {0.0f};
 
 // The wheel velocities to be achieved [rad/s]
 static float wheelRef[4] = {0.0f};
+static float wheelRefBodyScaled[4] = {0.0f};
 
 // The current global u, v, w and yaw velocities.
 static float stateLocal[4] = {0.0f};
 
 // The reference u, v, w reference velocities.
 static float stateLocalRef[4] = {0.0f};
+static float stateLocalRefBodyScaled[4] = {0.0f};
 
 // Whether to move to an absolute angle. If true yes, otherwise use angular velocity.
 static bool useAbsoluteAngle = true;
@@ -203,6 +205,8 @@ void wheels_Update() {
 	}
 
 	body2Wheels(wheelRef, stateLocalRef); //translate velocity to wheel speed
+	body2Wheels(wheelRefBodyScaled, stateLocalRefBodyScaled); //translate velocity to wheel speed
+	
 	float vu = stateLocalRef[vel_u];
 	float vv = stateLocalRef[vel_v];
 	float rho = sqrt(vu*vu + vv*vv);
@@ -241,7 +245,8 @@ void wheels_Update() {
 
 		// Feedback
 			// Calculate the velocity error
-			float angular_velocity_error = wheelRef[motor] - wheels_measured_speeds[motor]; 		
+			float angular_velocity_error = wheelRefBodyScaled[motor] - wheels_measured_speeds[motor]; 	
+			// float angular_velocity_error = wheelRef[motor] - wheels_measured_speeds[motor]; 		
 		
 			// If the error is very small, ignore it (why is this here?)
 			if (fabs(angular_velocity_error) < 0.1) {
@@ -534,13 +539,18 @@ static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float 
 	float velvErr = (stateLocalRef[vel_v] - stateLocal[vel_v]);
 	float velwErr = (stateLocalRef[vel_w] - stateLocal[vel_w]);
 
-	stateLocalRef[vel_u] = stateLocalRef[vel_u]/SLIPPAGE_FACTOR_U + PID(veluErr, &stateLocalK[vel_u]);
-	stateLocalRef[vel_v] = stateLocalRef[vel_v]/SLIPPAGE_FACTOR_V + PID(velvErr, &stateLocalK[vel_v]);
-	stateLocalRef[vel_w] = stateLocalRef[vel_w]/SLIPPAGE_FACTOR_W + PID(velwErr, &stateLocalK[vel_w]);
+	stateLocalRef[vel_u] = stateLocalRef[vel_u]/SLIPPAGE_FACTOR_U;
+	stateLocalRef[vel_v] = stateLocalRef[vel_v]/SLIPPAGE_FACTOR_V;
+	stateLocalRef[vel_w] = stateLocalRef[vel_w]/SLIPPAGE_FACTOR_W;
+
+	stateLocalRefBodyScaled[vel_u] = stateLocalRef[vel_u] + PID(veluErr, &stateLocalK[vel_u]);
+	stateLocalRefBodyScaled[vel_v] = stateLocalRef[vel_v] + PID(velvErr, &stateLocalK[vel_v]);
+	stateLocalRefBodyScaled[vel_w] = stateLocalRef[vel_w] + PID(velwErr, &stateLocalK[vel_w]);
 	
 	// In case absolute angle control is used define the w (omega) differently based on absolute angle controller
 	if (useAbsoluteAngle) {
 		float angularRef = absoluteAngleControl(stateGlobalRef[yaw], stateLocal[yaw]);
+		stateLocalRefBodyScaled[vel_w] = (rad_wheel/rad_robot)*angularRef;
     	stateLocalRef[vel_w] = (rad_wheel/rad_robot)*angularRef;
 	}
 	
