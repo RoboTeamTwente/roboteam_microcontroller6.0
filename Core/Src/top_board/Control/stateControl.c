@@ -231,7 +231,7 @@ void wheels_Update() {
 				// feed_forward[motor] = feedforwardMass(stateLocalRefAcceleration,motor);
 			}
 			else {
-				feed_forward[motor] = feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor) + feedforwardMass(stateLocalRefAcceleration,motor);
+				feed_forward[motor] = feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor) + 0*feedforwardMass(stateLocalRefAcceleration,motor);
 			}
 
 			// // Old
@@ -444,7 +444,7 @@ static float feedforwardMass(float stateLocalRefAcceleration[3], motor_id_t moto
 	bodyForce[2] = inertia*stateLocalRefAcceleration[2]; // 0.0 because inertia is set to 0 for now. So no angular acceleration feedforward
 	bodyForce[3] = 0.0f; // This is not used, it is just to have four inputs for body2wheels
 
-	body2Wheels(wheelForceDivRw, stateLocalRef); //translate velocity to wheel speed
+	body2Wheels(wheelForceDivRw, bodyForce); //translate velocity to wheel speed
 
 	wheelForce[motor] = wheelForceDivRw[motor] * rad_wheel;
 	wheelTorque[motor] = wheelForce[motor] * rad_wheel;
