@@ -21,7 +21,8 @@ static PID_states status = off;
 static PIDvariables stateLocalK[4];
 
 // The global x, y, w and yaw velocities to be achieved [m/s]
-static float stateGlobalRef[4] = {0.0f}; 
+static float stateGlobalRef[4] = {0.0f};
+static float stateGlobalRefAcceleration[3] = {0.0f};
 
 // The wheel velocities to be achieved [rad/s]
 static float wheelRef[4] = {0.0f};
@@ -33,6 +34,7 @@ static float stateLocal[4] = {0.0f};
 // The reference u, v, w reference velocities.
 static float stateLocalRef[4] = {0.0f};
 static float stateLocalRefBodyScaled[4] = {0.0f};
+static float stateLocalRefAcceleration[3] = {0.0f};
 
 // Whether to move to an absolute angle. If true yes, otherwise use angular velocity.
 static bool useAbsoluteAngle = true;
@@ -53,6 +55,7 @@ static float sineEval(float x,float a,float b,float c);
 static float constEval(float x,float b,float c,float d);
 static float constsineEval(float x,float a,float b,float c,float d);
 static float feedforwardFriction(float wheelRef, float rho, float theta, float omega, wheel_names wheel);
+static float feedforwardMass(float stateLocalRefAcceleration[3], motor_id_t motor);
 
 /**
  * Translates the velocity from a local perspective to wheel speeds.
@@ -69,7 +72,7 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[4]);
  * @param local 	The local coordinates {vel_u, vel_v, vel_w, yaw}
  * @param yaw_angle 		The current yaw angle (stateLocal[yaw])
  */
-static void global2Local(float global[4], float local[4], float yaw_angle);
+static void global2Local(float global[4], float local[4], float yaw_angle, float stateGlobalRefAcceleration[3], float stateLocalRefAcceleration[3]);
 
 /**
  * Determines the desired wheel speeds given the desired velocities
@@ -224,9 +227,11 @@ void wheels_Update() {
 			double wheel_speed_threshold = 0.5f;
 			if (fabs(wheelRef[motor]) < wheel_speed_threshold) {
 				feed_forward[motor] = 0;
+				// Or should this be:
+				// feed_forward[motor] = feedforwardMass(stateLocalRefAcceleration,motor);
 			}
 			else {
-				feed_forward[motor] = feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor);
+				feed_forward[motor] = feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor) + feedforwardMass(stateLocalRefAcceleration,motor);
 			}
 
 			// // Old
@@ -307,11 +312,14 @@ void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 
 ///////////// WHEELS CONTROL END
 
-void stateControl_SetRef(float _stateGlobalRef[4]){
+void stateControl_SetRef(float _stateGlobalRef[4], float _stateGlobalRefAcceleration[3]){
 	stateGlobalRef[vel_x] = _stateGlobalRef[vel_x];
 	stateGlobalRef[vel_y] = _stateGlobalRef[vel_y];
 	stateGlobalRef[vel_w] = _stateGlobalRef[vel_w];
 	stateGlobalRef[yaw] = _stateGlobalRef[yaw];
+	stateGlobalRefAcceleration[vel_x] = _stateGlobalRefAcceleration[vel_x];
+	stateGlobalRefAcceleration[vel_y] = _stateGlobalRefAcceleration[vel_y];
+	stateGlobalRefAcceleration[vel_w] = _stateGlobalRefAcceleration[vel_w];
 }
 
 void stateControl_SetState(float _stateLocal[4]){
@@ -420,6 +428,31 @@ void stateControl_ResetPID(){
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 
+static float feedforwardMass(float stateLocalRefAcceleration[3], motor_id_t motor) {
+	static float mass = 2.4; // [kg]
+	static float inertia = 0.0; // not correct, should be changed to correct value if rotational inertia feedforward will also be implemented
+	
+	float bodyForce[4] = {0.0f};
+	float wheelForceDivRw[4] = {0.0f};
+	float wheelForce[4] = {0.0f};
+	float wheelTorque[4] = {0.0f};
+	float motorCurrent[4] = {0.0f};
+	float motorVoltage[4] = {0.0f};
+
+	bodyForce[0] = mass*stateLocalRefAcceleration[0];
+	bodyForce[1] = mass*stateLocalRefAcceleration[1];
+	bodyForce[2] = inertia*stateLocalRefAcceleration[2]; // 0.0 because inertia is set to 0 for now. So no angular acceleration feedforward
+	bodyForce[3] = 0.0f; // This is not used, it is just to have four inputs for body2wheels
+
+	body2Wheels(wheelForceDivRw, stateLocalRef); //translate velocity to wheel speed
+
+	wheelForce[motor] = wheelForceDivRw[motor] * rad_wheel;
+	wheelTorque[motor] = wheelForce[motor] * rad_wheel;
+	motorCurrent[motor] = wheelTorque[motor] / TORQUE_CONSTANT_MOTOR;
+	motorVoltage[motor] = motorCurrent[motor] * RESISTANCE_MOTOR;
+	return motorVoltage[motor];
+}
+
 static float sineEval(float x,float a,float b,float c) {
 	float y = a*sinf(b*x+c);
 	return y;
@@ -523,16 +556,19 @@ static void body2Wheels(float wheelSpeed[4], float stateLocal[4]){
 	// }
 }
 
-static void global2Local(float global[4], float local[4], float yaw_angle){
+static void global2Local(float global[4], float local[4], float yaw_angle, float stateGlobalRefAcceleration[3], float stateLocalRefAcceleration[3]){
 	//trigonometry
 	local[vel_u] = cosf(yaw_angle) * global[vel_x] + sinf(yaw_angle) * global[vel_y];
 	local[vel_v] = -sinf(yaw_angle) * global[vel_x] + cosf(yaw_angle) * global[vel_y];
     local[vel_w] = global[vel_w];
 	local[yaw] = global[yaw];
+	stateLocalRefAcceleration[vel_u] = cosf(yaw_angle) * stateGlobalRefAcceleration[vel_x] + sinf(yaw_angle) * stateGlobalRefAcceleration[vel_y];
+	stateLocalRefAcceleration[vel_v] = -sinf(yaw_angle) * stateGlobalRefAcceleration[vel_x] + cosf(yaw_angle) * stateGlobalRefAcceleration[vel_y];
+	stateLocalRefAcceleration[vel_w] = stateGlobalRefAcceleration[vel_w];
 }
 
 static void velocityControl(float stateLocal[4], float stateGlobalRef[4], float velocityWheelRef[4]){
-	global2Local(stateGlobalRef, stateLocalRef, stateLocal[yaw]); //transfer global to local
+	global2Local(stateGlobalRef, stateLocalRef, stateLocal[yaw], stateGlobalRefAcceleration, stateLocalRefAcceleration); //transfer global to local
 
 	// Local control
 	float veluErr = (stateLocalRef[vel_u] - stateLocal[vel_u]);
@@ -566,6 +602,5 @@ static float absoluteAngleControl(float angleRef, float angle){
 		stateLocalK[yaw].I = 0;
 	}
 	prevangleErr = angleErr;
-	stateLocalRef[yaw] = PID(angleErr, &stateLocalK[yaw]);
-	return stateLocalRef[yaw];// PID control from control_util.h
+	return PID(angleErr, &stateLocalK[yaw]);// PID control from control_util.h
 }
