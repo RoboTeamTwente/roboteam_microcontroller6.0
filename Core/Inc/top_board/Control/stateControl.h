@@ -179,5 +179,6 @@ void wheels_Update();
 void wheels_set_command_speed(const float speeds[4]); // Stores the commanded wheel speeds, in rad/s, to be used in the next wheels_Update() call
 void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains);
 float voltage2PWM(float wheelVoltage);
+void wheels_GetPIDGains(float _gains[3]);
 
 #endif /* DO_STATE_CONTROL_H_ */
