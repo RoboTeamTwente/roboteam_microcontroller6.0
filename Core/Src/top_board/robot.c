@@ -51,6 +51,7 @@ REM_RobotCommandPayload robotCommandPayload = {0};
 REM_RobotCommandTestingPayload robotCommandTestingPayload = {0};
 REM_RobotBuzzerPayload robotBuzzerPayload = {0};
 REM_RobotMusicCommand RobotMusicCommand = {0};
+REM_RobotSetPIDGains robotSetPIDGains = {0};
 volatile bool RobotMusicCommand_received_flag = false;
 // Outgoing packets
 REM_RobotFeedback robotFeedback = {0};
@@ -58,7 +59,6 @@ REM_RobotFeedbackPayload robotFeedbackPayload = {0};
 REM_RobotStateInfo robotStateInfo = {0};
 REM_RobotStateInfoPayload robotStateInfoPayload = {0};
 REM_RobotPIDGains robotPIDGains = {0};
-REM_RobotSetPIDGains robotSetPIDGains = {0};
 REM_Log robotLog = {0};
 REM_LogPayload robotLogPayload = {0};
 REM_SX1280Filler sx1280filler = {0};
@@ -97,6 +97,7 @@ uint32_t heartbeat_1000ms = 0;
 /* flags and bools */
 
 bool flag_send_PID_gains = false;
+bool flag_update_send_PID_gains = true;
 bool flag_sdcard_write_feedback = false;
 bool flag_sdcard_write_command = false;
 bool is_connected_serial = false;
@@ -733,9 +734,39 @@ void loop(void){
         speaker_HandleCommand(&RobotMusicCommand);
     }
 
+	/* === Update PID Gains === */
+	if (flag_update_send_PID_gains) {
+		PIDvariables body[4] = {0};
+		stateControl_GetPIDGains(body);
+		robotPIDGains.PbodyX = body[vel_u].kP;
+		robotPIDGains.IbodyX = body[vel_u].kI;
+		robotPIDGains.DbodyX = body[vel_u].kD;
+		robotPIDGains.DbodyX2 = 0;
+		robotPIDGains.PbodyY = body[vel_v].kP;
+		robotPIDGains.IbodyY = body[vel_v].kI;
+		robotPIDGains.DbodyY = body[vel_v].kD;
+		robotPIDGains.DbodyY2 = 0;
+		robotPIDGains.PbodyW = body[vel_w].kP;
+		robotPIDGains.IbodyW = body[vel_w].kI;
+		robotPIDGains.DbodyW = body[vel_w].kD;
+		robotPIDGains.DbodyW2 = 0;
+		robotPIDGains.PbodyYaw = body[yaw].kP;
+		robotPIDGains.IbodyYaw = body[yaw].kI;
+		robotPIDGains.DbodyYaw = body[yaw].kD;
+		robotPIDGains.DbodyYaw2 = 0;
+
+		float PIDwheels[3] = {0};
+		wheels_GetPIDGains(PIDwheels);
+		robotPIDGains.Pwheels = PIDwheels[0];
+		robotPIDGains.Iwheels = PIDwheels[1];
+		robotPIDGains.Dwheels = PIDwheels[2];
+		flag_update_send_PID_gains = false;
+	}
+
     /* === Determine HALT state === */
     xsens_CalibrationDone = (MTi->statusword & (0x18)) == 0; // if bits 3 and 4 of status word are zero, calibration is done
-    halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
+    robotFeedback.XsensCalibrated = xsens_CalibrationDone;
+	halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
     if(get_system_test_running() || DRAIN_BATTERY) halt = false;
 
     if (halt) {
@@ -902,6 +933,7 @@ void handleRobotSetPIDGains(uint8_t* packet_buffer){
 	decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
 	stateControl_SetPIDGains(&robotSetPIDGains);
 	wheels_SetPIDGains(&robotSetPIDGains);
+	flag_update_send_PID_gains = true;
 }
 
 void handleRobotMusicCommand(uint8_t* packet_buffer){
@@ -1110,7 +1142,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.theta = atan2(vv, vu);
 
 			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
-			robotFeedback.XsensCalibrated = xsens_CalibrationDone;
 			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
 			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;

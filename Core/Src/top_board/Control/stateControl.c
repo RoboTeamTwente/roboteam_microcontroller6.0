@@ -300,6 +300,12 @@ void wheels_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 	}
 }
 
+void wheels_GetPIDGains(float _gains[3]) {
+	_gains[0] = wheelsK[0].kP;
+	_gains[1] = wheelsK[0].kI;
+	_gains[2] = wheelsK[0].kD;
+}
+
 ///////////// WHEELS CONTROL END
 
 void stateControl_SetRef(float _stateGlobalRef[4]){
