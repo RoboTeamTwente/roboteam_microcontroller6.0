@@ -54,14 +54,14 @@ packets = {
         "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
-            ["shootPower", 8, [0, 6.5], "desired speed of the ball"],
+            ["shootPower", 8, [0, 8.0], "desired speed of the ball"],
         ]
     },
     "MCP_Chip" : {
         "from" : [board.TOP],
         "to" : [board.KICKER],
         "data" : [
-            ["shootPower", 8, [0, 6.5], "desired speed of the ball"],
+            ["shootPower", 8, [0, 8.0], "desired speed of the ball"],
         ]
     },
     "MCP_DribblerAlive" : {

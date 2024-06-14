@@ -99,7 +99,7 @@
 #define MCP_PACKET_RANGE_MCP_KICK_ACK_NUMBER_MIN                                    0
 #define MCP_PACKET_RANGE_MCP_KICK_ACK_NUMBER_MAX                                    255
 #define MCP_PACKET_RANGE_MCP_KICK_SHOOT_POWER_MIN                                   0.0000000000000000F
-#define MCP_PACKET_RANGE_MCP_KICK_SHOOT_POWER_MAX                                   6.5000000000000000F
+#define MCP_PACKET_RANGE_MCP_KICK_SHOOT_POWER_MAX                                   8.0000000000000000F
 
 #define MCP_PACKET_TYPE_MCP_CHIP                                                    7
 #define MCP_PACKET_ID_TOP_TO_KICKER_MCP_CHIP                                        0x02000807
@@ -107,7 +107,7 @@
 #define MCP_PACKET_RANGE_MCP_CHIP_ACK_NUMBER_MIN                                    0
 #define MCP_PACKET_RANGE_MCP_CHIP_ACK_NUMBER_MAX                                    255
 #define MCP_PACKET_RANGE_MCP_CHIP_SHOOT_POWER_MIN                                   0.0000000000000000F
-#define MCP_PACKET_RANGE_MCP_CHIP_SHOOT_POWER_MAX                                   6.5000000000000000F
+#define MCP_PACKET_RANGE_MCP_CHIP_SHOOT_POWER_MAX                                   8.0000000000000000F
 
 #define MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE                                          8
 #define MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ALIVE                            0x02000340
