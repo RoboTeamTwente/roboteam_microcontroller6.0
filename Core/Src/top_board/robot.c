@@ -1129,8 +1129,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.timestamp = unix_timestamp;
 			robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
 			robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
-			robotStateInfo.xsensAccFiltered1 = 0; //TODO
-			robotStateInfo.xsensAccFiltered2 = 0; //TODO
 			robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
 			robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
 			robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
