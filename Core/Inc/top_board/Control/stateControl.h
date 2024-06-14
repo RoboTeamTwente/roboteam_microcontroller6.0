@@ -22,11 +22,11 @@
 #include <math.h>
 
 // Set default PID values
-#define default_P_gain_u 1.5f
+#define default_P_gain_u 0.0f
 #define default_I_gain_u 0.0f
 #define default_D_gain_u 0.0f
 
-#define default_P_gain_v 1.5f
+#define default_P_gain_v 0.0f
 #define default_I_gain_v 0.0f
 #define default_D_gain_v 0.0f
 

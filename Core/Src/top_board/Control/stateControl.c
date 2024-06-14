@@ -24,6 +24,12 @@ static PIDvariables stateLocalK[4];
 static float stateGlobalRef[4] = {0.0f};
 static float stateGlobalRefAcceleration[3] = {0.0f};
 
+static float mass = 2.4; // [kg]
+static float inertia = 0.0; // not correct, should be changed to correct value if rotational inertia feedforward will also be implemented
+static int8_t wheelFBOn = 1;
+static int8_t wheelFFOn = 1;
+static int8_t massFFOn = 1;
+
 // The wheel velocities to be achieved [rad/s]
 static float wheelRef[4] = {0.0f};
 static float wheelRefBodyScaled[4] = {0.0f};
@@ -231,7 +237,7 @@ void wheels_Update() {
 				// feed_forward[motor] = feedforwardMass(stateLocalRefAcceleration,motor);
 			}
 			else {
-				feed_forward[motor] = feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor) + feedforwardMass(stateLocalRefAcceleration,motor);
+				feed_forward[motor] = wheelFFOn*(feedforwardParameters.identified_damping*wheelRef[motor] + feedforwardFriction(wheelRef[motor], rho, theta_local, omega, motor)) + massFFOn*feedforwardMass(stateLocalRefAcceleration,motor);
 			}
 
 			// // Old
@@ -261,7 +267,7 @@ void wheels_Update() {
 
 		// Set motor PWM fraction/voltage
 			// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-			float wheel_voltage_to_be_applied = feed_forward[motor] + 24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
+			float wheel_voltage_to_be_applied = feed_forward[motor] + wheelFBOn*24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
 			wheel_speed_fraction[motor] = voltage2PWM(wheel_voltage_to_be_applied);
 			wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
 	}
@@ -411,6 +417,29 @@ void stateControl_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 		stateLocalK[yaw].kP = PIDGains->PbodyYaw;
 		stateLocalK[yaw].kI = PIDGains->IbodyYaw;
 		stateLocalK[yaw].kD = PIDGains->DbodyYaw;
+
+		mass = PIDGains->unlabel1;
+		inertia = PIDGains->unlabel2;
+
+		feedforwardParameters.a[0] = PIDGains->unlabel3;
+		feedforwardParameters.a[1] = PIDGains->unlabel3;
+		feedforwardParameters.a[2] = PIDGains->unlabel3;
+		feedforwardParameters.a[3] = PIDGains->unlabel3;
+
+		feedforwardParameters.d[0] = PIDGains->unlabel4;
+		feedforwardParameters.d[1] = PIDGains->unlabel4;
+		feedforwardParameters.d[2] = PIDGains->unlabel4;
+		feedforwardParameters.d[3] = PIDGains->unlabel4;
+
+		feedforwardParameters.rotation_feedforward_value[0] = PIDGains->unlabel5;
+		feedforwardParameters.rotation_feedforward_value[1] = PIDGains->unlabel5;
+		feedforwardParameters.rotation_feedforward_value[2] = PIDGains->unlabel5;
+		feedforwardParameters.rotation_feedforward_value[3] = PIDGains->unlabel5;
+
+		feedforwardParameters.identified_damping = PIDGains->unlabel6;
+		wheelFBOn = (int8_t) PIDGains->boolean1;
+		wheelFFOn = (int8_t) PIDGains->boolean2;
+		massFFOn = (int8_t) PIDGains->boolean3;
 	}
 }
 
@@ -428,10 +457,7 @@ void stateControl_ResetPID(){
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 
-static float feedforwardMass(float stateLocalRefAcceleration[3], motor_id_t motor) {
-	static float mass = 2.4; // [kg]
-	static float inertia = 0.0; // not correct, should be changed to correct value if rotational inertia feedforward will also be implemented
-	
+static float feedforwardMass(float stateLocalRefAcceleration[3], motor_id_t motor) {	
 	float bodyForce[4] = {0.0f};
 	float wheelForceDivRw[4] = {0.0f};
 	float wheelForce[4] = {0.0f};
