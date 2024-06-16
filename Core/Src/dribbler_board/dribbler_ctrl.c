@@ -5,14 +5,35 @@ Created by Chris Krommendijk
 */
 
 #include "dribbler_ctrl.h"
+#include "roboteam_microcontroller6.0\Core\Src\dribbler_board\peripherals\dribbler.c" // Include the dribbler.c file to get the functions for the dribbler motor
+void DribblerController()
+{
+	// Motor speed is computed from output current (measured) and voltage (controlled)
+	// DCX 19 S Graphite Brushes 24V DC motor ∅19 mm
+	int32_t avgVoltageDribbler = 1000; // [mV] Check unit and how to get the value
+	int32_t avgCurrentDribbler = dribbler_getCurrent(); // [mA] Check unit etc.
 
+	int32_t motorResistance = 5.84; // [Ohm] (5.84 Ohm)
+	int32_t motorBackEmfConstantInv = 56.13; // [rad/(V*s)] is the speed constant 536 rpm/V = 56.13 rad/(V*s) in the datasheet
 
+	int32_t restiveLossDribbler = (motorResistance * avgCurrentDribbler) >> 6;
+	int32_t backEmfDribbler = avgVoltageDribbler - restiveLossDribbler; // [mV]
+
+	if(backEmfDribbler > 32767) // This is the maximum value of a signed 16-bit integer divided by 2
+		backEmfDribbler = 32767;
+
+	if(backEmfDribbler < -32768)
+		backEmfDribbler = -32768;
+
+	int32_t modelSpeed_S25_0 = (backEmfDribbler * motorBackEmfConstantInv) >> 2; // [mrad/s]
+	int32_t modelSpeed_S15_0 = modelSpeed_S25_0 >> 10; // [1000/1024 rad/s]
+};
 void PICtrlUpdate(PICtrl* pPI, int32_t measured)
 {
 	if(!pPI->enabled)
 		return;
 
-	if(measured > 4095)
+	if(measured > 4095) // This is the maximum value of a signed 12-bit integer divided by 12
 		measured = 4095;
 	if(measured < -4096)
 		measured = -4096;
