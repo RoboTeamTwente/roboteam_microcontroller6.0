@@ -2,6 +2,8 @@
 The dribbler control of RoboTeam Twente
 Created by Chris Krommendijk
 
+To ask:
+- What is the unit of the Current sensor
 */
 
 #include "dribbler_ctrl.h"
@@ -10,7 +12,7 @@ void DribblerController()
 {
 	// Motor speed is computed from output current (measured) and voltage (controlled)
 	// DCX 19 S Graphite Brushes 24V DC motor ∅19 mm
-	int32_t avgVoltageDribbler = 1000; // [mV] Check unit and how to get the value
+	int32_t avgVoltageDribbler = Datactrl.avgVoltae; // [mV] Check unit 
 	int32_t avgCurrentDribbler = dribbler_getCurrent(); // [mA] Check unit etc.
 
 	int32_t motorResistance = 5.84; // [Ohm] (5.84 Ohm)
@@ -27,13 +29,63 @@ void DribblerController()
 
 	int32_t modelSpeed_S25_0 = (backEmfDribbler * motorBackEmfConstantInv) >> 2; // [mrad/s]
 	int32_t modelSpeed_S15_0 = modelSpeed_S25_0 >> 10; // [1000/1024 rad/s]
+
+	// Q current input is used as limit for speed controller
+	int32_t q_S12_0 = data.command.input[1];
+	q_S12_0 = (q_S12_0*24855) >> 16; // Input +-10800mA, scale down  to +-4096
+	if(q_S12_0 < 0)
+	{
+		data.ctrl.speed.outputMin = q_S12_0;
+		data.ctrl.speed.outputMax = -q_S12_0;
+	}
+	else
+	{
+		data.ctrl.speed.outputMin = -q_S12_0;
+		data.ctrl.speed.outputMax = q_S12_0;
+	}
+
+	if(data.command.encDeltaSetpoint > -50 && data.command.encDeltaSetpoint < 50)
+	{
+		// Setpoint close to zero, spin down to zero and go to voltage mode
+		if(modelSpeed_S15_0 > -50 && modelSpeed_S15_0 < 50)
+		{
+			// Low speed, switch to constant voltage
+			data.motor.Udq[1] = 0;
+
+			PICtrlS12Enable(&data.ctrl.currentQ, 0);
+
+			data.ctrl.speed.output = (data.sensors.adc.currentDQ_S16_0[1]*24855) >> 16;
+			data.ctrl.currentQ.output = data.motor.Udq[1] >> 3;
+		}
+		else
+		{
+			// encDeltaSetpoint is used as hall speed setpoint
+			PICtrlS12Setpoint(&data.ctrl.speed, 0);
+			PICtrlS12Enable(&data.ctrl.speed, 1);
+			PICtrlS12Update(&data.ctrl.speed, modelSpeed_S15_0);
+
+			// Apply output to Q current controller input
+			PICtrlS12Setpoint(&data.ctrl.currentQ, data.ctrl.speed.output);
+			PICtrlS12Enable(&data.ctrl.currentQ, 1);
+		}
+	}
+	else
+	{
+		// encDeltaSetpoint is used as hall speed setpoint
+		PICtrlS12Setpoint(&data.ctrl.speed, data.command.encDeltaSetpoint);
+		PICtrlS12Enable(&data.ctrl.speed, 1);
+		PICtrlS12Update(&data.ctrl.speed, modelSpeed_S15_0);
+
+		// Apply output to Q current controller input
+		PICtrlS12Setpoint(&data.ctrl.currentQ, data.ctrl.speed.output);
+		PICtrlS12Enable(&data.ctrl.currentQ, 1);
 };
 void PICtrlUpdate(PICtrl* pPI, int32_t measured)
 {
 	if(!pPI->enabled)
 		return;
 
-	if(measured > 4095) // This is the maximum value of a signed 12-bit integer divided by 12
+	if(measured > 4095) // This is the maximum value of a signed 12-bit integer divided by 2
 		measured = 4095;
 	if(measured < -4096)
 		measured = -4096;
