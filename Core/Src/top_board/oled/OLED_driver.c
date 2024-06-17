@@ -10,7 +10,6 @@ static void refresh();
 static void static_page();
 static void scrollable_page();
 static void menu_move_sideways(int direction);
-static void display_text();
 static void menuHasNoChildrenException();
 static void menuHasTooManyChildrenException();
 static void putPageName();
@@ -202,6 +201,20 @@ void end_of_test() {
 */
 enum test_type OLED_get_current_page_test_type() {
     return current_page->is_test;
+}
+
+/**
+ * @brief Display 4 hard coded lines of text
+*/
+void display_text() {
+    SSD1306_GotoXY (5,20);
+    SSD1306_Puts(current_page->line0, &Font_7x10, 1);
+    SSD1306_GotoXY (5,31);
+    SSD1306_Puts(current_page->line1, &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts(current_page->line2, &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    SSD1306_Puts(current_page->line3, &Font_7x10, 1);
 }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
@@ -400,20 +413,6 @@ static void menu_move_sideways(int direction) {
     }
 
     current_page = parent->children[(index + parent->n_of_children + direction) % parent->n_of_children];
-}
-
-/**
- * @brief Display 4 hard coded lines of text
-*/
-static void display_text() {
-    SSD1306_GotoXY (5,20);
-    SSD1306_Puts(current_page->line0, &Font_7x10, 1);
-    SSD1306_GotoXY (5,31);
-    SSD1306_Puts(current_page->line1, &Font_7x10, 1);
-    SSD1306_GotoXY (5,42);
-    SSD1306_Puts(current_page->line2, &Font_7x10, 1);
-    SSD1306_GotoXY (5,53);
-    SSD1306_Puts(current_page->line3, &Font_7x10, 1);
 }
 
 /**

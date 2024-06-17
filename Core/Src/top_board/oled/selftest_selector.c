@@ -40,16 +40,19 @@ void run_test(page_struct *page) {
             system_test_run();
             break;
         case 1311: 
-            kicker_shoot_run(3.5f);
+            kicker_shoot_run(2.0f, page);
             break;
         case 1312: 
-            kicker_shoot_run(4.5f);
+            kicker_shoot_run(3.5f, page);
             break;
         case 1313: 
-            kicker_shoot_run(5.5f);
+            kicker_shoot_run(4.5f, page);
             break;
         case 1314: 
-            kicker_shoot_run(6.5f);
+            kicker_shoot_run(5.5f, page);
+            break;
+        case 1315:
+            kicker_shoot_run(6.5f, page);
             break;
         case 133:
             kicker_stopCharge();

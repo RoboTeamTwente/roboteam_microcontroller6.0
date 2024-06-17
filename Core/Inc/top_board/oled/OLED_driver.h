@@ -61,5 +61,6 @@ void start_of_test();
 void end_of_test();
 enum test_type OLED_get_current_page_test_type();
 void end_of_boot_screen(bool MCP_OK);
+void display_text();
 
 #endif /* INC_OLED_H_ */ 
