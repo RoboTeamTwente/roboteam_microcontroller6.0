@@ -61,16 +61,19 @@ void run_test(page_struct *page) {
             kicker_charge();
             break;
         case 1321:
-            chip_shoot_run(3.5f);
+            chip_shoot_run(2.0f, page);
             break;
         case 1322:
-            chip_shoot_run(4.5f);
+            chip_shoot_run(3.5f, page);
             break;
         case 1323:
-            chip_shoot_run(5.5f);
+            chip_shoot_run(4.5f, page);
             break;
         case 1324:
-            chip_shoot_run(6.5f);
+            chip_shoot_run(5.5f, page);
+            break;
+        case 1325:
+            chip_shoot_run(6.5f, page);
             break;
         case 31:
             drain_battery_run(18.0f);

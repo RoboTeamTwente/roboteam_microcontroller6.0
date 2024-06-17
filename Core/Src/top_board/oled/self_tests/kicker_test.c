@@ -88,7 +88,7 @@ void kicker_shoot_run(float speed, page_struct *page){
         }
         
         if (kickerStatus.kickerFault) {
-            strcpy(page->line3, "KICKER FAULT!!");
+            strcpy(page->line3, "FAULT!!");
         }
         display_text();
         SSD1306_UpdateScreen(); // update screen
