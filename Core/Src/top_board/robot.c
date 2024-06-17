@@ -1117,7 +1117,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			if(DRAIN_BATTERY){
 
 				// TODO Instruct each wheel to go 30 rad/s
-				float wheel_speeds[4] = {10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI};
+				float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
 				wheels_set_command_speed(wheel_speeds);
 
 				// If the gyroscope detects some rotational movement, we stop the drainage program.
