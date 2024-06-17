@@ -89,11 +89,11 @@ void shoot_Callback()
 		set_Pin(Chip_pin, 0);		// Chip off
 		if (chargingAllowed) {
 			shootState = shoot_Charging;
+			shoot_charged = false;
 		} else {
 			shootState = shoot_Off;
-			
+			shoot_charged = voltage_sensor_working && voltage >= MIN_VOLT_SHOOT;
 		}
-		shoot_charged = false;
 		callbackTime = TIMER_FREQ/SHOOTING_CALLBACK_FREQ;
 		break;
 	case shoot_Off:
