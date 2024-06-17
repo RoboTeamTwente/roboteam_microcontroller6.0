@@ -15,7 +15,7 @@ static bool start_ready;
 void chip_test_initChildren(page_struct *parent) {
     pages_set_default_values(&chip_two_ms, parent);
     chip_two_ms.id = 1321;
-    strcpy(chip_three_five_ms.page_name, "2.0 m/s");
+    strcpy(chip_two_ms.page_name, "2.0 m/s");
     chip_two_ms.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&chip_two_ms);
 
@@ -50,11 +50,11 @@ void chip_shoot_run(float speed, page_struct *page){
         start_of_test(); // Display that we are running a test
         start_on = kickerStatus.kickerOn;
         start_ready = kickerStatus.kickerReady;
-        MCP_Kick kick = {0};
-        MCP_KickPayload payload = {0};
-        kick.shootPower = speed;
-        encodeMCP_Kick(&payload, &kick);
-        MCP_Send_Message(&hcan1, &payload, kickHeader, MCP_KICKER_BOARD);
+        MCP_Chip chip = {0};
+        MCP_ChipPayload payload = {0};
+        chip.shootPower = speed;
+        encodeMCP_Chip(&payload, &chip);
+        MCP_Send_Message(&hcan1, &payload, chipHeader, MCP_KICKER_BOARD);
         chip_test_start_time = current_time;
     } else if (chip_test_start_time + 100 < current_time) {
     
