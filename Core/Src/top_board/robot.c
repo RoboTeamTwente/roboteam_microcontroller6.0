@@ -856,7 +856,7 @@ void loop(void){
         while (heartbeat_1000ms < current_time) heartbeat_1000ms += 1000;
 
 		// Play warning if battery is getting low
-		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 22.0f) {
+		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 21.5f) {
 			if(!buzzer_IsPlaying()) {
 				buzzer_Play_QuickBeepDown();
 			}
@@ -1141,7 +1141,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vv, vu);
 
-			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			if (dribblerAlive.ballsensorWorking) {
+				robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			} else {
+				robotFeedback.batteryLevel = REM_PACKET_RANGE_REM_ROBOT_FEEDBACK_BATTERY_LEVEL_MIN;
+			}
 			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
 			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;

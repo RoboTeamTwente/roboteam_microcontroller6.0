@@ -125,15 +125,16 @@ void OLED_Update(button_id_t button, bool test_mode) {
 void end_of_boot_screen(bool MCP_OK) {
     clear_screen();
     char temp[MAX_STRING_LENGTH];
-    //ID
-    sprintf(temp, "ID: %d", robot_get_ID());
-    strcpy(current_page->line0, temp);
-    //TEAM COLOR
+    //ID + TEAM COLOR
     if (robot_get_Channel()) {
-        strcpy(current_page->line1, "TEAM: BLUE");
+        sprintf(temp, "ID: %d BLUE", robot_get_ID());
     } else {
-        strcpy(current_page->line1, "TEAM: YELLOW");
+        sprintf(temp, "ID: %d YELLOW", robot_get_ID());
     }
+    strcpy(current_page->line0, temp);
+    //POWER
+    sprintf(temp, "POWER: %f", powerAlive.voltagePowerBoard);
+    strcpy(current_page->line1, temp);
     //MCP ALIVE
     if (MCP_OK) {
         strcpy(current_page->line2, "MCP: OK");

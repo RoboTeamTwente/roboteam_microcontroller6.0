@@ -108,6 +108,7 @@ packets = {
         "from" : [board.POWER],
         "to" : [board.TOP, board.DRIBBLER, board.KICKER],
         "data" : [
+            ["voltagePowerBoard", 16, [15, 30], "power board voltage"],
             ["sensorWorking", 1, None, "voltage sensor working"]
         ]
     },
