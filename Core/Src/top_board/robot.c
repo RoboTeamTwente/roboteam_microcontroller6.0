@@ -897,7 +897,7 @@ void loop(void){
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
     set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
-    set_Pin(LED4_pin, seesBall.ballsensorSeesBall || seesBall.dribblerSeesBall);       // On when the dribbler detects the ball
+    set_Pin(LED4_pin, activeRobotCommand.dribblerOn);       // On when dribblerOn is true
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
 	// LED6 Toggled when a REM packet is received
     // LED7 Wireless_Readpacket_Cplt : toggled when a MCP packet is received
