@@ -44,10 +44,14 @@
 
 ///////////////////////////////////////////////////// STRUCTS
 struct FFstruct{
-	float a[4]; // Sine amplitude
+	// float a[4]; // Sine amplitude
 	float b[4]; // Sine frequency
 	float c[4]; // Sine phase
-	float d[4]; // Constant offset
+	// float d[4]; // Constant offset
+	float param1[4];
+	float param2[4];
+	float param3[4];
+	float param4[4];
 	float rotation_feedforward_value[4]; // d equivalent for pure rotation
 	float identified_damping;
 	float vw_max_round_to_rotational_scaling; // Factor to determine when you switch to rotational ff gains

@@ -24,7 +24,7 @@ static PIDvariables stateLocalK[4];
 static float stateGlobalRef[4] = {0.0f};
 static float stateGlobalRefAcceleration[3] = {0.0f};
 
-static float mass = 2.4; // [kg]
+static float mass = 2.581; // [kg]
 static float inertia = 0.0; // not correct, should be changed to correct value if rotational inertia feedforward will also be implemented
 static int8_t wheelFBOn = 1;
 static int8_t wheelFFOn = 1;
@@ -60,6 +60,7 @@ static PIDvariables wheelsK[4];
 static float sineEval(float x,float a,float b,float c);
 static float constEval(float x,float b,float c,float d);
 static float constsineEval(float x,float a,float b,float c,float d);
+static float detailedFitEval(float theta,float b,float c,float param1,float param2,float param3,float param4);
 static float feedforwardFriction(float wheelRef, float rho, float theta, float omega, wheel_names wheel);
 static float feedforwardMass(float stateLocalRefAcceleration[3], motor_id_t motor);
 
@@ -101,14 +102,15 @@ static float absoluteAngleControl(float angleRef, float angle);
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
 int stateControl_Init(){
-	// damping_term = 0.04f;
-	// // damping_term = 0.0f;
-	// friction_term = 1.05f;
+	// feedforwardParameters.a[0] = 0.0f;
+	// feedforwardParameters.a[1] = 0.0f;
+	// feedforwardParameters.a[2] = 0.0f;
+	// feedforwardParameters.a[3] = 0.0f;
 
-	feedforwardParameters.a[0] = 0.0f;
-	feedforwardParameters.a[1] = 0.0f;
-	feedforwardParameters.a[2] = 0.0f;
-	feedforwardParameters.a[3] = 0.0f;
+	// feedforwardParameters.d[0] = 1.05f;
+	// feedforwardParameters.d[1] = 1.05f;
+	// feedforwardParameters.d[2] = 1.05f;
+	// feedforwardParameters.d[3] = 1.05f;
 
 	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f;
 	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f;
@@ -120,10 +122,25 @@ int stateControl_Init(){
 	feedforwardParameters.c[2] = -135.0f*(M_PI/180.0f);
 	feedforwardParameters.c[3] = 135.0f*(M_PI/180.0f);
 
-	feedforwardParameters.d[0] = 1.05f;
-	feedforwardParameters.d[1] = 1.05f;
-	feedforwardParameters.d[2] = 1.05f;
-	feedforwardParameters.d[3] = 1.05f;
+	feedforwardParameters.param1[0] = 0.4223;
+	feedforwardParameters.param1[1] = 0.3305;
+	feedforwardParameters.param1[2] = 0.3462;
+	feedforwardParameters.param1[3] = 0.3132;
+
+	feedforwardParameters.param2[0] = 0.0360;
+	feedforwardParameters.param2[1] = 0.0372;
+	feedforwardParameters.param2[2] = 0.0344;
+	feedforwardParameters.param2[3] = 0.0362;
+
+	feedforwardParameters.param3[0] = -0.9870;
+	feedforwardParameters.param3[1] = -2.0363;
+	feedforwardParameters.param3[2] = -1.0402;
+	feedforwardParameters.param3[3] = 4.3223;
+
+	feedforwardParameters.param4[0] = 1.0937;
+	feedforwardParameters.param4[1] = 0.9747;
+	feedforwardParameters.param4[2] = 1.0741;
+	feedforwardParameters.param4[3] = 0.9691;
 
 	feedforwardParameters.rotation_feedforward_value[0] = 0.45f;
 	feedforwardParameters.rotation_feedforward_value[1] = 0.45f;
@@ -427,15 +444,15 @@ void stateControl_SetPIDGains(REM_RobotSetPIDGains* PIDGains){
 		mass = PIDGains->unlabel1;
 		inertia = PIDGains->unlabel2;
 
-		feedforwardParameters.a[0] = PIDGains->unlabel3;
-		feedforwardParameters.a[1] = PIDGains->unlabel3;
-		feedforwardParameters.a[2] = PIDGains->unlabel3;
-		feedforwardParameters.a[3] = PIDGains->unlabel3;
+		// feedforwardParameters.a[0] = PIDGains->unlabel3;
+		// feedforwardParameters.a[1] = PIDGains->unlabel3;
+		// feedforwardParameters.a[2] = PIDGains->unlabel3;
+		// feedforwardParameters.a[3] = PIDGains->unlabel3;
 
-		feedforwardParameters.d[0] = PIDGains->unlabel4;
-		feedforwardParameters.d[1] = PIDGains->unlabel4;
-		feedforwardParameters.d[2] = PIDGains->unlabel4;
-		feedforwardParameters.d[3] = PIDGains->unlabel4;
+		// feedforwardParameters.d[0] = PIDGains->unlabel4;
+		// feedforwardParameters.d[1] = PIDGains->unlabel4;
+		// feedforwardParameters.d[2] = PIDGains->unlabel4;
+		// feedforwardParameters.d[3] = PIDGains->unlabel4;
 
 		feedforwardParameters.rotation_feedforward_value[0] = PIDGains->unlabel5;
 		feedforwardParameters.rotation_feedforward_value[1] = PIDGains->unlabel5;
@@ -506,6 +523,17 @@ static float constsineEval(float x,float a,float b,float c,float d) {
 	return y;
 }
 
+static float detailedFitEval(float theta,float b,float c,float param1,float param2,float param3,float param4) {
+	float y = 0.0f;
+    float y_sign = sin(b*theta+c);
+	if (y_sign >= 0) {
+		y = param1*sin(param2*theta + param3) + param4;
+	} else{
+		y = -(param1*sin(param2*theta + param3) + param4);
+	}
+	return y;
+}
+
 static float feedforwardFriction(float wheelRef, float rho, float theta, float omega, wheel_names wheel) {
 	// Parameters to tune
 	// float vw_max_round_to_rotational_scaling = 1.0f;
@@ -519,7 +547,8 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 	// Calculations
 	float vw_max_round_to_rotational = feedforwardParameters.vw_max_round_to_rotational_scaling*(rho/rad_robot);
 	float z_rotational = feedforwardParameters.rotation_feedforward_value[wheel];
-	float z_translation = constsineEval(theta,feedforwardParameters.a[wheel],feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.d[wheel]);
+	// float z_translation = constsineEval(theta,feedforwardParameters.a[wheel],feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.d[wheel]);
+	float z_translation = detailedFitEval(theta,feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.param1[wheel],feedforwardParameters.param2[wheel],feedforwardParameters.param3[wheel],feedforwardParameters.param4[wheel]);
 
 	int wheel_velocity_larger_than_zero;
 	if(wheelRef > 0) {
@@ -534,13 +563,15 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 	if(wheel_velocity_larger_than_zero == 1) {
 		z_rotational_fixed = z_rotational;
 		if(z_translation < 0) {
-			z_translation_fixed = feedforwardParameters.d[wheel];
+			// z_translation_fixed = feedforwardParameters.d[wheel];
+			z_translation_fixed = feedforwardParameters.param4[wheel];
 		}
 	}
 	else {
 		z_rotational_fixed = -1*z_rotational;
 		if(z_translation > 0) {
-			z_translation_fixed = -feedforwardParameters.d[wheel];
+			// z_translation_fixed = -feedforwardParameters.d[wheel];
+			z_translation_fixed = -feedforwardParameters.param4[wheel];
 		}
 	}
 
