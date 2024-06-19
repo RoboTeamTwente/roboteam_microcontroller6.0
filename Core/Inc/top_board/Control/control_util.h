@@ -8,7 +8,7 @@
 ///////////////////////////////////////////////////// DEFINITIONS
 
 // System
-#define TIME_DIFF 0.01F 		// time difference due to 100Hz frequency
+#define TIME_DIFF 0.004F 		// time difference due to 250Hz frequency
 #define WIRELESS_RX_COUNT 4000  // count after which wireless should go to timeout after last packet. Multiply with period base (62.5 us) to get to the time in seconds.
 
 // Robot

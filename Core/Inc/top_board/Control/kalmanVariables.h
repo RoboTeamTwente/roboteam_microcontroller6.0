@@ -16,7 +16,7 @@
 
 #define STATE 4				// The dimensions for the current state
 #define OBSERVE 4  			// The dimensions for the measured state
-#define TIMESTEP 0.01F		// The time step between each iteration (100Hz loop)
+#define TIMESTEP 0.004F		// The time step between each iteration (250Hz loop)
 
 // certainties
 #define VEL_VAR 0.000025F 	// variance in the velocity measurements
