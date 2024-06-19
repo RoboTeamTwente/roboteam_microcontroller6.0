@@ -28,7 +28,7 @@
 #define STRINGIZE(x) STRINGIZE_DETAIL(x)
 
 // Size of the circular buffer. This translates to 100 x (127+4) bytes
-#define LOG_MAX_MESSAGES 1 
+#define LOG_MAX_MESSAGES 50
 
 // https://stm32f4-discovery.net/2015/06/get-interrupt-execution-status-on-cortex-m-processors/
 // ^ Might be useful someday to check if we're currently in an IRQ. Never print in an IRQ unless it's blocking

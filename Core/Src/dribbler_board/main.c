@@ -55,6 +55,7 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim15;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -74,7 +75,7 @@ static void MX_TIM6_Init(void);
 static void MX_CAN_Init(void);
 static void MX_TIM15_Init(void);
 /* USER CODE BEGIN PFP */
-
+#define SIZE_B 22U
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -109,6 +110,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  uint8_t buffer[SIZE_B]= "Reddit Bug";
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_TIM3_Init();
@@ -121,18 +123,18 @@ int main(void)
   MX_CAN_Init();
   MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
-  init();
+  //init();
   /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+    
     /* USER CODE END WHILE */
-
+    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&buffer, (uint16_t)SIZE_B);
+    HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
-    loop();
+    //loop();
   }
   /* USER CODE END 3 */
 }
@@ -646,11 +648,11 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 38400;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.Mode = UART_MODE_TX;
   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart1.Init.OverSampling = UART_OVERSAMPLING_16;
   huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -681,6 +683,9 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
 
 }
 

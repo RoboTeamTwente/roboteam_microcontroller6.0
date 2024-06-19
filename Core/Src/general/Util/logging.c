@@ -24,7 +24,8 @@ static bool log_initialized = false;
 
 void LOG_init(){
     // Can't initialize twice
-    if(log_initialized) return;
+    if(log_initialized) 
+        return;
     // Create buffer indexer
     buffer_indexer = CircularBuffer_init(true, LOG_MAX_MESSAGES);
     // Wait for UART to be ready
@@ -96,17 +97,19 @@ void LOG_send(){
     if(CircularBuffer_spaceFilled(buffer_indexer) == 0) return;
 
     MessageContainer* message_container = &message_buffer[buffer_indexer->indexRead];
-    HAL_UART_Transmit_DMA(UART_PC, message_container->payload, message_container->length);
+    HAL_UART_Transmit_DMA(&huart1, message_container->payload, message_container->length);
     CircularBuffer_read(buffer_indexer, NULL, 1);
 
 }
 
 void LOG_sendAll(){
-    while(LOG_hasMessage()) LOG_send();
+    while(LOG_hasMessage()) 
+        LOG_send();
 }
 
 bool LOG_hasMessage(){
-    return 0 < CircularBuffer_spaceFilled(buffer_indexer);
+    uint32_t temp = CircularBuffer_spaceFilled(buffer_indexer);
+    return 0 < temp;
 }
 
 bool LOG_canAddLog(){

@@ -45,6 +45,12 @@ void init(){
     // Peripherals
     dribbler_Init();
     ballsensor_init();
+    LOG_init();
+    
+    LOG("HELLO!");
+
+    LOG("HELLO!");
+
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
 
     //MCP
@@ -61,6 +67,7 @@ void init(){
 	MCP_Send_Im_Alive();
     
     BOARD_INITIALIZED = true;
+    LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){
