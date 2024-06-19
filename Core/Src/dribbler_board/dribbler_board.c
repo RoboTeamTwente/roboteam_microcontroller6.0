@@ -84,6 +84,8 @@ void loop(){
             MCP_Process_Message(&MailBox_three);
         MCP_to_process = false;
 	}
+
+    do_send_ballState();
 }
 
 /* ============================================= */
@@ -151,7 +153,7 @@ void do_send_ballState(){
     }
 }
 
-void control_dribbler_callback(){    
+void control_dribbler_callback(){
     if(ballsensor_hasBall()){
         ball_counter = 0;
         set_Pin(LED1, true);
@@ -165,7 +167,6 @@ void control_dribbler_callback(){
         dribbler_SetSpeed(0.0f);
         set_Pin(LED1, false);
     }
-
     do_send_ballState();
 }
 
@@ -173,7 +174,6 @@ void control_dribbler_callback(){
 /* ============================================================ */
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
     if (hadc == CURRENT_DRIBBLER){// hadc == &hadc1
         control_dribbler_callback(); 

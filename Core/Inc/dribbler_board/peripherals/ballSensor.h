@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "gpio_util.h"
+#include "tim_util.h"
 
 #define DMA_bufferSize 2
 #define state_bufferSize 10

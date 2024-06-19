@@ -63,7 +63,6 @@ extern CAN_HandleTypeDef hcan;
 extern DAC_HandleTypeDef hdac1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
-extern TIM_HandleTypeDef htim15;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -303,20 +302,6 @@ void CAN_SCE_IRQHandler(void)
   /* USER CODE BEGIN CAN_SCE_IRQn 1 */
 
   /* USER CODE END CAN_SCE_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM1 break and TIM15 interrupts.
-  */
-void TIM1_BRK_TIM15_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
-
-  /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim15);
-  /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
-
-  /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
 }
 
 /**

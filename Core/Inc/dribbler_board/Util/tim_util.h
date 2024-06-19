@@ -23,22 +23,24 @@ extern TIM_HandleTypeDef htim2; // encoder Dribbler 32 bit
 extern TIM_HandleTypeDef htim3; // PWM (CH1, CH2)
 extern TIM_HandleTypeDef htim6; // ADC timer for ballsensor
 extern TIM_HandleTypeDef htim7; // internal timer (not used ATM)
-extern TIM_HandleTypeDef htim15; // internal timer (not used ATM)
+extern TIM_HandleTypeDef htim15; // Used for PWM to set the IR pin at a frequency of 1Khz
 extern TIM_HandleTypeDef htim16; // internal timer (not used ATM)
 extern TIM_HandleTypeDef htim17; // internal timer (not used ATM)
 
 extern PWM_struct PWM_Dribbler_a;
 extern PWM_struct PWM_Dribbler_b;
+extern PWM_struct PWM_IR_PIN;
 
 // Timer Helpers
 // Encoders
 #define ENC_DRIBBLER (&htim2)
 #define PWM_DRIBBLER (&htim3)
 #define ADC_TIMER (&htim6)
+#define IR_OUT_TIM (&htim15)
 
 // PWM
-
 extern PWM_struct PWM_Dribbler; 
+
 extern void set_PWM(PWM_struct* PWM, float Value);
 
 inline void start_PWM(PWM_struct PWM){
