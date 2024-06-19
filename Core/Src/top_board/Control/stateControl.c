@@ -112,10 +112,10 @@ int stateControl_Init(){
 	// feedforwardParameters.d[2] = 1.05f;
 	// feedforwardParameters.d[3] = 1.05f;
 
-	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f;
-	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f;
-	feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f;
-	feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f;
+	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
 
 	feedforwardParameters.c[0] = 60.0f*(M_PI/180.0f);
 	feedforwardParameters.c[1] = -60.0f*(M_PI/180.0f);
@@ -127,10 +127,10 @@ int stateControl_Init(){
 	feedforwardParameters.param1[2] = 0.3462;
 	feedforwardParameters.param1[3] = 0.3132;
 
-	feedforwardParameters.param2[0] = 0.0360;
-	feedforwardParameters.param2[1] = 0.0372;
-	feedforwardParameters.param2[2] = 0.0344;
-	feedforwardParameters.param2[3] = 0.0362;
+	feedforwardParameters.param2[0] = 0.0360*180.0f/M_PI;
+	feedforwardParameters.param2[1] = 0.0372*180.0f/M_PI;
+	feedforwardParameters.param2[2] = 0.0344*180.0f/M_PI;
+	feedforwardParameters.param2[3] = 0.0362*180.0f/M_PI;
 
 	feedforwardParameters.param3[0] = -0.9870;
 	feedforwardParameters.param3[1] = -2.0363;
