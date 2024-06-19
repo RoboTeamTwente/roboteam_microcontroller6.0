@@ -111,6 +111,7 @@ bool flag_PowerBoard_alive = false;
 bool flag_DribblerBoard_alive = false;
 bool flag_KickerBoard_alive = false;
 bool flag_useStateInfo = false;
+static bool listen_to_xsens = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -503,6 +504,7 @@ void init(void){
 { // ====== INITIALIZE IMU (XSENS). 1 second calibration time, XFP_VRU_general = no magnetometer */
 	LOG("[init:"STRINGIZE(__LINE__)"] Initializing MTi\n");
 	MTi = NULL;
+	listen_to_xsens = true;
 	uint16_t MTi_made_init_attempts = 0;
 
 	/* 
@@ -1045,7 +1047,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == SX_IRQ_pin.PIN) {
 		Wireless_IRQ_Handler(SX);
 	}else if(GPIO_Pin == MTi_IRQ_pin.PIN){
-		MTi_IRQ_Handler(MTi);
+		if (listen_to_xsens) MTi_IRQ_Handler(MTi);
 	}else if(GPIO_Pin == BTN_SW0_Pin) {
 		calculateButtonTime(BUTTON_LEFT);
 	}else if(GPIO_Pin == BTN_SW1_Pin) {
