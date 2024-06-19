@@ -123,7 +123,7 @@ int main(void)
   MX_CAN_Init();
   MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
-  //init();
+  init();
   /* USER CODE END 2 */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -131,10 +131,8 @@ int main(void)
   {
     
     /* USER CODE END WHILE */
-    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&buffer, (uint16_t)SIZE_B);
-    HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
-    //loop();
+    loop();
   }
   /* USER CODE END 3 */
 }

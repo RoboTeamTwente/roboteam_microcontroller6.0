@@ -26,6 +26,9 @@ void init() {
     // Set power circuit pin to HIGH, meaning on. When pulled again to LOW, it signals the power circuit to turn off, and power is then cut off instantly.
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	set_Pin(BAT_KILL_pin, 1);
+	LOG_init();
+	HAL_Delay(50);
+	LOG_printf("TEST!");
 
 	// MCP init
 	MCP_Init(&hcan, MCP_POWER_BOARD);
@@ -41,10 +44,9 @@ void init() {
 	// MCP Alive
 	MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
-
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
 	//REM_UARTinit(UART_PC);
-
+	LOG_sendAll();
 	heartbeat_10000ms = HAL_GetTick() + 10000;
 }
 
@@ -79,6 +81,7 @@ void loop() {
 
 	// 10 seconds passed now we send the reading of the voltage meter to the top board
     if (heartbeat_10000ms < current_time) {
+		LOG_printf("Sending voltage Meter\n");
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
 		pv.voltagePowerBoard = VPC_getVoltage();
@@ -91,6 +94,7 @@ void loop() {
 		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
 
     	heartbeat_10000ms = current_time + 10000;
+		LOG_sendAll();
     }
 }
 
