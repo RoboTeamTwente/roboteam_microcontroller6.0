@@ -106,7 +106,6 @@ bool is_connected_xsens = false;
 bool halt = true;
 bool xsens_CalibrationDone = false;
 bool xsens_CalibrationDoneFirst = true;
-volatile bool REM_last_packet_had_correct_version = true;
 bool flag_PowerBoard_alive = false;
 bool flag_DribblerBoard_alive = false;
 bool flag_KickerBoard_alive = false;
@@ -705,13 +704,6 @@ void loop(void){
 		MCP_to_process = false;
 	}
 
-    // Play a warning if a REM packet with an incorrect version was received
-    if(!REM_last_packet_had_correct_version) {
-        if(!buzzer_IsPlaying()) {
-            buzzer_Play_WarningTwo();
-		}
-	}
-
 	if (activeRobotCommand.reboot) {
 		MCP_RebootPayload reboot = {0};
 		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToPower);
@@ -736,39 +728,10 @@ void loop(void){
         speaker_HandleCommand(&RobotMusicCommand);
     }
 
-	/* === Update PID Gains === */
-	if (flag_update_send_PID_gains) {
-		PIDvariables body[4] = {0};
-		stateControl_GetPIDGains(body);
-		robotPIDGains.PbodyX = body[vel_u].kP;
-		robotPIDGains.IbodyX = body[vel_u].kI;
-		robotPIDGains.DbodyX = body[vel_u].kD;
-		robotPIDGains.DbodyX2 = 0;
-		robotPIDGains.PbodyY = body[vel_v].kP;
-		robotPIDGains.IbodyY = body[vel_v].kI;
-		robotPIDGains.DbodyY = body[vel_v].kD;
-		robotPIDGains.DbodyY2 = 0;
-		robotPIDGains.PbodyW = body[vel_w].kP;
-		robotPIDGains.IbodyW = body[vel_w].kI;
-		robotPIDGains.DbodyW = body[vel_w].kD;
-		robotPIDGains.DbodyW2 = 0;
-		robotPIDGains.PbodyYaw = body[yaw].kP;
-		robotPIDGains.IbodyYaw = body[yaw].kI;
-		robotPIDGains.DbodyYaw = body[yaw].kD;
-		robotPIDGains.DbodyYaw2 = 0;
-
-		float PIDwheels[3] = {0};
-		wheels_GetPIDGains(PIDwheels);
-		robotPIDGains.Pwheels = PIDwheels[0];
-		robotPIDGains.Iwheels = PIDwheels[1];
-		robotPIDGains.Dwheels = PIDwheels[2];
-		flag_update_send_PID_gains = false;
-	}
-
     /* === Determine HALT state === */
     xsens_CalibrationDone = (MTi->statusword & (0x18)) == 0; // if bits 3 and 4 of status word are zero, calibration is done
     robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-	halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
+	halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial);
     if(get_system_test_running() || DRAIN_BATTERY) halt = false;
 
     if (halt) {
@@ -806,6 +769,34 @@ void loop(void){
         encodeREM_RobotCommand( &robotCommandPayload, &activeRobotCommand );
         SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
     }
+	/* === Update PID Gains === */
+	if (flag_update_send_PID_gains) {
+		PIDvariables body[4] = {0};
+		stateControl_GetPIDGains(body);
+		robotPIDGains.PbodyX = body[vel_u].kP;
+		robotPIDGains.IbodyX = body[vel_u].kI;
+		robotPIDGains.DbodyX = body[vel_u].kD;
+		robotPIDGains.DbodyX2 = 0;
+		robotPIDGains.PbodyY = body[vel_v].kP;
+		robotPIDGains.IbodyY = body[vel_v].kI;
+		robotPIDGains.DbodyY = body[vel_v].kD;
+		robotPIDGains.DbodyY2 = 0;
+		robotPIDGains.PbodyW = body[vel_w].kP;
+		robotPIDGains.IbodyW = body[vel_w].kI;
+		robotPIDGains.DbodyW = body[vel_w].kD;
+		robotPIDGains.DbodyW2 = 0;
+		robotPIDGains.PbodyYaw = body[yaw].kP;
+		robotPIDGains.IbodyYaw = body[yaw].kI;
+		robotPIDGains.DbodyYaw = body[yaw].kD;
+		robotPIDGains.DbodyYaw2 = 0;
+
+		float PIDwheels[3] = {0};
+		wheels_GetPIDGains(PIDwheels);
+		robotPIDGains.Pwheels = PIDwheels[0];
+		robotPIDGains.Iwheels = PIDwheels[1];
+		robotPIDGains.Dwheels = PIDwheels[2];
+		flag_update_send_PID_gains = false;
+	}
 
     // Heartbeat every 17ms	
     if(heartbeat_17ms < current_time){
@@ -871,13 +862,6 @@ void loop(void){
 			}
         }
 
-		// Play a warning if a REM packet with an incorrect version was received
-		if(!REM_last_packet_had_correct_version) {
-			if(!buzzer_IsPlaying()) {
-				buzzer_Play_WarningTwo();
-			}
-		}
-
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);
 
@@ -910,43 +894,56 @@ void loop(void){
 /* ========================================================= */
 void handleRobotCommand(uint8_t* packet_buffer){
 	memcpy(robotCommandPayload.payload, packet_buffer, REM_PACKET_SIZE_REM_ROBOT_COMMAND);
-	REM_last_packet_had_correct_version &= REM_RobotCommand_get_remVersion(&robotCommandPayload) == REM_LOCAL_VERSION;
-	decodeREM_RobotCommand(&activeRobotCommand,&robotCommandPayload);
-	flag_sdcard_write_command = true;
+	if(REM_RobotCommand_get_remVersion(&robotCommandPayload) == REM_LOCAL_VERSION && 
+		REM_RobotCommand_get_toRobotId(&robotCommandPayload) == robot_get_ID()) {
+		decodeREM_RobotCommand(&activeRobotCommand,&robotCommandPayload);
+		flag_sdcard_write_command = true;
+	}
 }
 
 void handleRobotBuzzer(uint8_t* packet_buffer){
 	REM_RobotBuzzerPayload* rbp = (REM_RobotBuzzerPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotBuzzer_get_remVersion(rbp) == REM_LOCAL_VERSION;
-	uint16_t period = REM_RobotBuzzer_get_period(rbp);
-	float duration = REM_RobotBuzzer_get_duration(rbp);
-	buzzer_Play_note(period, duration);
+	if (REM_RobotBuzzer_get_remVersion(rbp) == REM_LOCAL_VERSION &&
+		REM_RobotBuzzer_get_toPC(rbp) == robot_get_ID())   {
+		uint16_t period = REM_RobotBuzzer_get_period(rbp);
+		float duration = REM_RobotBuzzer_get_duration(rbp);
+		buzzer_Play_note(period, duration);
+	}
 }
 
 void handleRobotGetPIDGains(uint8_t* packet_buffer){
 	REM_RobotGetPIDGainsPayload* rgpidgp = (REM_RobotGetPIDGainsPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotGetPIDGains_get_remVersion(rgpidgp) == REM_LOCAL_VERSION;
-	flag_send_PID_gains = true;
+	if( REM_RobotGetPIDGains_get_remVersion(rgpidgp) == REM_LOCAL_VERSION &&
+		REM_RobotGetPIDGains_get_toRobotId(rgpidgp) == robot_get_ID()) {
+			flag_send_PID_gains = true;
+	}	
 }
 
 void handleRobotSetPIDGains(uint8_t* packet_buffer){
 	REM_RobotSetPIDGainsPayload* rspidgp = (REM_RobotSetPIDGainsPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotSetPIDGains_get_remVersion(rspidgp) == REM_LOCAL_VERSION;
-	decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
-	stateControl_SetPIDGains(&robotSetPIDGains);
-	wheels_SetPIDGains(&robotSetPIDGains);
-	flag_update_send_PID_gains = true;
+	if (REM_RobotSetPIDGains_get_remVersion(rspidgp) == REM_LOCAL_VERSION &&
+		REM_RobotSetPIDGains_get_toRobotId(rspidgp) == robot_get_ID()) {
+		decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
+		stateControl_SetPIDGains(&robotSetPIDGains);
+		wheels_SetPIDGains(&robotSetPIDGains);
+		flag_update_send_PID_gains = true;
+	}
 }
 
 void handleRobotMusicCommand(uint8_t* packet_buffer){
 	REM_RobotMusicCommandPayload* rmcp = (REM_RobotMusicCommandPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotMusicCommand_get_remVersion(rmcp) == REM_LOCAL_VERSION;
-	robot_setRobotMusicCommandPayload(rmcp);
+	if (REM_RobotMusicCommand_get_remVersion(rmcp) == REM_LOCAL_VERSION &&
+		REM_RobotMusicCommand_get_toRobotId(rmcp) == robot_get_ID()) {
+		robot_setRobotMusicCommandPayload(rmcp);
+	}
 }
 
 void handleRobotKillCommand(){
-	MCP_KillPayload kp = {0};
-	MCP_Send_Message_Always(&hcan1, &kp, killHeader);
+	MCP_KillPayload* kp = {0};
+	if (REM_RobotKillCommand_get_remVersion(kp) == REM_LOCAL_VERSION && 
+		REM_RobotKillCommand_get_toRobotId(kp) == robot_get_ID()) {
+		MCP_Send_Message_Always(&hcan1, &kp, killHeader);
+	}
 }
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp){
@@ -1079,7 +1076,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if(halt || test_is_finished){
 			unix_initalized = false;
 			wheels_Stop();
-			REM_last_packet_had_correct_version = true;
 			return;
 		}
 
@@ -1162,8 +1158,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotStateInfo.timestamp = unix_timestamp;
 			robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
 			robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
-			robotStateInfo.xsensAccFiltered1 = 0; //TODO
-			robotStateInfo.xsensAccFiltered2 = 0; //TODO
 			robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
 			robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
 			robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
