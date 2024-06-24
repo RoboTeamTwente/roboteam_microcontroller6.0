@@ -106,11 +106,11 @@ bool is_connected_xsens = false;
 bool halt = true;
 bool xsens_CalibrationDone = false;
 bool xsens_CalibrationDoneFirst = true;
-volatile bool REM_last_packet_had_correct_version = true;
 bool flag_PowerBoard_alive = false;
 bool flag_DribblerBoard_alive = false;
 bool flag_KickerBoard_alive = false;
 bool flag_useStateInfo = false;
+static bool listen_to_xsens = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -507,6 +507,7 @@ void init(void){
 { // ====== INITIALIZE IMU (XSENS). 1 second calibration time, XFP_VRU_general = no magnetometer */
 	LOG("[init:"STRINGIZE(__LINE__)"] Initializing MTi\n");
 	MTi = NULL;
+	listen_to_xsens = true;
 	uint16_t MTi_made_init_attempts = 0;
 
 	/* 
@@ -707,13 +708,6 @@ void loop(void){
 		MCP_to_process = false;
 	}
 
-    // Play a warning if a REM packet with an incorrect version was received
-    if(!REM_last_packet_had_correct_version) {
-        if(!buzzer_IsPlaying()) {
-            buzzer_Play_WarningTwo();
-		}
-	}
-
 	if (activeRobotCommand.reboot) {
 		MCP_RebootPayload reboot = {0};
 		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToPower);
@@ -738,39 +732,10 @@ void loop(void){
         speaker_HandleCommand(&RobotMusicCommand);
     }
 
-	/* === Update PID Gains === */
-	if (flag_update_send_PID_gains) {
-		PIDvariables body[4] = {0};
-		stateControl_GetPIDGains(body);
-		robotPIDGains.PbodyX = body[vel_u].kP;
-		robotPIDGains.IbodyX = body[vel_u].kI;
-		robotPIDGains.DbodyX = body[vel_u].kD;
-		robotPIDGains.DbodyX2 = 0;
-		robotPIDGains.PbodyY = body[vel_v].kP;
-		robotPIDGains.IbodyY = body[vel_v].kI;
-		robotPIDGains.DbodyY = body[vel_v].kD;
-		robotPIDGains.DbodyY2 = 0;
-		robotPIDGains.PbodyW = body[vel_w].kP;
-		robotPIDGains.IbodyW = body[vel_w].kI;
-		robotPIDGains.DbodyW = body[vel_w].kD;
-		robotPIDGains.DbodyW2 = 0;
-		robotPIDGains.PbodyYaw = body[yaw].kP;
-		robotPIDGains.IbodyYaw = body[yaw].kI;
-		robotPIDGains.DbodyYaw = body[yaw].kD;
-		robotPIDGains.DbodyYaw2 = 0;
-
-		float PIDwheels[3] = {0};
-		wheels_GetPIDGains(PIDwheels);
-		robotPIDGains.Pwheels = PIDwheels[0];
-		robotPIDGains.Iwheels = PIDwheels[1];
-		robotPIDGains.Dwheels = PIDwheels[2];
-		flag_update_send_PID_gains = false;
-	}
-
     /* === Determine HALT state === */
     xsens_CalibrationDone = (MTi->statusword & (0x18)) == 0; // if bits 3 and 4 of status word are zero, calibration is done
     robotFeedback.XsensCalibrated = xsens_CalibrationDone;
-	halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial) || !REM_last_packet_had_correct_version;
+	halt = !xsens_CalibrationDone || !(is_connected_wireless || is_connected_serial);
     if(get_system_test_running() || DRAIN_BATTERY) halt = false;
 
     if (halt) {
@@ -808,6 +773,34 @@ void loop(void){
         encodeREM_RobotCommand( &robotCommandPayload, &activeRobotCommand );
         SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
     }
+	/* === Update PID Gains === */
+	if (flag_update_send_PID_gains) {
+		PIDvariables body[4] = {0};
+		stateControl_GetPIDGains(body);
+		robotPIDGains.PbodyX = body[vel_u].kP;
+		robotPIDGains.IbodyX = body[vel_u].kI;
+		robotPIDGains.DbodyX = body[vel_u].kD;
+		robotPIDGains.DbodyX2 = 0;
+		robotPIDGains.PbodyY = body[vel_v].kP;
+		robotPIDGains.IbodyY = body[vel_v].kI;
+		robotPIDGains.DbodyY = body[vel_v].kD;
+		robotPIDGains.DbodyY2 = 0;
+		robotPIDGains.PbodyW = body[vel_w].kP;
+		robotPIDGains.IbodyW = body[vel_w].kI;
+		robotPIDGains.DbodyW = body[vel_w].kD;
+		robotPIDGains.DbodyW2 = 0;
+		robotPIDGains.PbodyYaw = body[yaw].kP;
+		robotPIDGains.IbodyYaw = body[yaw].kI;
+		robotPIDGains.DbodyYaw = body[yaw].kD;
+		robotPIDGains.DbodyYaw2 = 0;
+
+		float PIDwheels[3] = {0};
+		wheels_GetPIDGains(PIDwheels);
+		robotPIDGains.Pwheels = PIDwheels[0];
+		robotPIDGains.Iwheels = PIDwheels[1];
+		robotPIDGains.Dwheels = PIDwheels[2];
+		flag_update_send_PID_gains = false;
+	}
 
     // Heartbeat every 17ms	
     if(heartbeat_17ms < current_time){
@@ -860,7 +853,7 @@ void loop(void){
         while (heartbeat_1000ms < current_time) heartbeat_1000ms += 1000;
 
 		// Play warning if battery is getting low
-		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 22.0f) {
+		if (powerVoltage.voltagePowerBoard >= 18.0f && powerVoltage.voltagePowerBoard <= 21.5f) {
 			if(!buzzer_IsPlaying()) {
 				buzzer_Play_QuickBeepDown();
 			}
@@ -872,13 +865,6 @@ void loop(void){
             	buzzer_Play_QuickBeepUp();
 			}
         }
-
-		// Play a warning if a REM packet with an incorrect version was received
-		if(!REM_last_packet_had_correct_version) {
-			if(!buzzer_IsPlaying()) {
-				buzzer_Play_WarningTwo();
-			}
-		}
 
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);
@@ -901,7 +887,7 @@ void loop(void){
     set_Pin(LED1_pin, !xsens_CalibrationDone);		// On while xsens startup calibration is not finished
     set_Pin(LED2_pin, wheels_GetWheelsBraking());   // On when braking 
     set_Pin(LED3_pin, halt);						// On when halting
-    set_Pin(LED4_pin, seesBall.ballsensorSeesBall || seesBall.dribblerSeesBall);       // On when the dribbler detects the ball
+    set_Pin(LED4_pin, activeRobotCommand.dribblerOn);       // On when dribblerOn is true
 	set_Pin(LED5_pin, SDCard_Initialized());		// On when SD card is initialized
 	// LED6 Toggled when a REM packet is received
     // LED7 Wireless_Readpacket_Cplt : toggled when a MCP packet is received
@@ -912,43 +898,63 @@ void loop(void){
 /* ========================================================= */
 void handleRobotCommand(uint8_t* packet_buffer){
 	memcpy(robotCommandPayload.payload, packet_buffer, REM_PACKET_SIZE_REM_ROBOT_COMMAND);
-	REM_last_packet_had_correct_version &= REM_RobotCommand_get_remVersion(&robotCommandPayload) == REM_LOCAL_VERSION;
-	decodeREM_RobotCommand(&activeRobotCommand,&robotCommandPayload);
-	flag_sdcard_write_command = true;
+	if(REM_RobotCommand_get_remVersion(&robotCommandPayload) == REM_LOCAL_VERSION && 
+		REM_RobotCommand_get_toRobotId(&robotCommandPayload) == robot_get_ID() &&
+		REM_RobotCommand_get_payloadSize(&robotCommandPayload) == REM_PACKET_SIZE_REM_ROBOT_COMMAND) {
+		decodeREM_RobotCommand(&activeRobotCommand,&robotCommandPayload);
+		flag_sdcard_write_command = true;
+	}
 }
 
 void handleRobotBuzzer(uint8_t* packet_buffer){
 	REM_RobotBuzzerPayload* rbp = (REM_RobotBuzzerPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotBuzzer_get_remVersion(rbp) == REM_LOCAL_VERSION;
-	uint16_t period = REM_RobotBuzzer_get_period(rbp);
-	float duration = REM_RobotBuzzer_get_duration(rbp);
-	buzzer_Play_note(period, duration);
+	if (REM_RobotBuzzer_get_remVersion(rbp) == REM_LOCAL_VERSION &&
+		REM_RobotBuzzer_get_toRobotId(rbp) == robot_get_ID() &&
+		REM_RobotBuzzer_get_payloadSize(rbp) == REM_PACKET_SIZE_REM_ROBOT_BUZZER) {
+		uint16_t period = REM_RobotBuzzer_get_period(rbp);
+		float duration = REM_RobotBuzzer_get_duration(rbp);
+		buzzer_Play_note(period, duration);
+	}
 }
 
 void handleRobotGetPIDGains(uint8_t* packet_buffer){
 	REM_RobotGetPIDGainsPayload* rgpidgp = (REM_RobotGetPIDGainsPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotGetPIDGains_get_remVersion(rgpidgp) == REM_LOCAL_VERSION;
-	flag_send_PID_gains = true;
+	if( REM_RobotGetPIDGains_get_remVersion(rgpidgp) == REM_LOCAL_VERSION &&
+		REM_RobotGetPIDGains_get_toRobotId(rgpidgp) == robot_get_ID() && 
+		REM_RobotGetPIDGains_get_payloadSize(rgpidgp) == REM_PACKET_SIZE_REM_ROBOT_GET_PIDGAINS) {
+			flag_send_PID_gains = true;
+	}	
 }
 
 void handleRobotSetPIDGains(uint8_t* packet_buffer){
 	REM_RobotSetPIDGainsPayload* rspidgp = (REM_RobotSetPIDGainsPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotSetPIDGains_get_remVersion(rspidgp) == REM_LOCAL_VERSION;
-	decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
-	stateControl_SetPIDGains(&robotSetPIDGains);
-	wheels_SetPIDGains(&robotSetPIDGains);
-	flag_update_send_PID_gains = true;
+	if (REM_RobotSetPIDGains_get_remVersion(rspidgp) == REM_LOCAL_VERSION &&
+		REM_RobotSetPIDGains_get_toRobotId(rspidgp) == robot_get_ID() && 
+		REM_RobotSetPIDGains_get_payloadSize(rspidgp) == REM_PACKET_SIZE_REM_ROBOT_SET_PIDGAINS) {
+		decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
+		stateControl_SetPIDGains(&robotSetPIDGains);
+		wheels_SetPIDGains(&robotSetPIDGains);
+		flag_update_send_PID_gains = true;
+	}
 }
 
 void handleRobotMusicCommand(uint8_t* packet_buffer){
 	REM_RobotMusicCommandPayload* rmcp = (REM_RobotMusicCommandPayload*) (packet_buffer);
-	REM_last_packet_had_correct_version &= REM_RobotMusicCommand_get_remVersion(rmcp) == REM_LOCAL_VERSION;
-	robot_setRobotMusicCommandPayload(rmcp);
+	if (REM_RobotMusicCommand_get_remVersion(rmcp) == REM_LOCAL_VERSION &&
+		REM_RobotMusicCommand_get_toRobotId(rmcp) == robot_get_ID() && 
+		REM_RobotMusicCommand_get_payloadSize(rmcp) == REM_PACKET_SIZE_REM_ROBOT_MUSIC_COMMAND) {
+		robot_setRobotMusicCommandPayload(rmcp);
+	}
 }
 
-void handleRobotKillCommand(){
-	MCP_KillPayload kp = {0};
-	MCP_Send_Message_Always(&hcan1, &kp, killHeader);
+void handleRobotKillCommand(uint8_t* packet_buffer){
+	REM_RobotKillCommandPayload* rkcp = (REM_RobotKillCommandPayload*) (packet_buffer);
+	if (REM_RobotKillCommand_get_remVersion(rkcp) == REM_LOCAL_VERSION && 
+		REM_RobotKillCommand_get_toRobotId(rkcp) == robot_get_ID() && 
+		REM_RobotKillCommand_get_payloadSize(rkcp) == REM_PACKET_SIZE_REM_ROBOT_KILL_COMMAND) {
+		MCP_KillPayload* kp = {0};
+		MCP_Send_Message_Always(&hcan1, &kp, killHeader);
+	}
 }
 
 void robot_setRobotCommandPayload(REM_RobotCommandPayload* rcp){
@@ -976,7 +982,6 @@ bool handlePacket(uint8_t* packet_buffer, uint8_t packet_length){
 				handleRobotCommand(packet_buffer + total_bytes_processed);
 				total_bytes_processed += REM_PACKET_SIZE_REM_ROBOT_COMMAND;
 				break;
-
 			case REM_PACKET_TYPE_REM_ROBOT_BUZZER: 
 				handleRobotBuzzer(packet_buffer + total_bytes_processed);
 				total_bytes_processed += REM_PACKET_SIZE_REM_ROBOT_BUZZER;
@@ -1002,7 +1007,7 @@ bool handlePacket(uint8_t* packet_buffer, uint8_t packet_length){
 				break;
 
 			case REM_PACKET_TYPE_REM_ROBOT_KILL_COMMAND:
-				handleRobotKillCommand();
+				handleRobotKillCommand(packet_buffer + total_bytes_processed);
 				total_bytes_processed += REM_PACKET_TYPE_REM_ROBOT_KILL_COMMAND;
 				break;
 
@@ -1049,7 +1054,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == SX_IRQ_pin.PIN) {
 		Wireless_IRQ_Handler(SX);
 	}else if(GPIO_Pin == MTi_IRQ_pin.PIN){
-		MTi_IRQ_Handler(MTi);
+		if (listen_to_xsens) MTi_IRQ_Handler(MTi);
 	}else if(GPIO_Pin == BTN_SW0_Pin) {
 		calculateButtonTime(BUTTON_LEFT);
 	}else if(GPIO_Pin == BTN_SW1_Pin) {
@@ -1081,7 +1086,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if(halt || test_is_finished){
 			unix_initalized = false;
 			wheels_Stop();
-			REM_last_packet_had_correct_version = true;
 			return;
 		}
 
@@ -1121,7 +1125,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			if(DRAIN_BATTERY){
 
 				// TODO Instruct each wheel to go 30 rad/s
-				float wheel_speeds[4] = {10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI, 10.0f * M_PI};
+				float wheel_speeds[4] = {30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI};
 				wheels_set_command_speed(wheel_speeds);
 
 				// If the gyroscope detects some rotational movement, we stop the drainage program.
@@ -1145,7 +1149,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vv, vu);
 
-			robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			if (dribblerAlive.ballsensorWorking) {
+				robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
+			} else {
+				robotFeedback.batteryLevel = REM_PACKET_RANGE_REM_ROBOT_FEEDBACK_BATTERY_LEVEL_MIN;
+			}
 			robotFeedback.ballSensorWorking = dribblerAlive.ballsensorWorking;
 			robotFeedback.ballSensorSeesBall = seesBall.ballsensorSeesBall;
 			robotFeedback.dribblerSeesBall = seesBall.dribblerSeesBall;
