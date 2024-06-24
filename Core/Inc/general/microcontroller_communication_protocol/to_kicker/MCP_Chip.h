@@ -18,7 +18,7 @@ typedef struct _MCP_ChipPayload {
 
 typedef struct _MCP_Chip {
     uint32_t   ack_number          ; // integer [0, 255]             acknowledgements
-    float      shootPower          ; // float   [0.000, 6.500]       desired speed of the ball
+    float      shootPower          ; // float   [0.000, 8.000]       desired speed of the ball
 } MCP_Chip;
 
 // ================================ GETTERS ================================
@@ -28,7 +28,7 @@ static inline uint32_t MCP_Chip_get_ack_number(MCP_ChipPayload *mcpcp){
 
 static inline float MCP_Chip_get_shootPower(MCP_ChipPayload *mcpcp){
     uint32_t _shootPower = ((mcpcp->payload[1]));
-    return (_shootPower * 0.0254901960784314F);
+    return (_shootPower * 0.0313725490196078F);
 }
 
 // ================================ SETTERS ================================
@@ -37,7 +37,7 @@ static inline void MCP_Chip_set_ack_number(MCP_ChipPayload *mcpcp, uint32_t ack_
 }
 
 static inline void MCP_Chip_set_shootPower(MCP_ChipPayload *mcpcp, float shootPower){
-    uint32_t _shootPower = (uint32_t)(shootPower / 0.0254901960784314F);
+    uint32_t _shootPower = (uint32_t)(shootPower / 0.0313725490196078F);
     mcpcp->payload[1] = _shootPower;
 }
 

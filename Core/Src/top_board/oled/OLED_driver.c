@@ -10,7 +10,6 @@ static void refresh();
 static void static_page();
 static void scrollable_page();
 static void menu_move_sideways(int direction);
-static void display_text();
 static void menuHasNoChildrenException();
 static void menuHasTooManyChildrenException();
 static void putPageName();
@@ -126,15 +125,16 @@ void OLED_Update(button_id_t button, bool test_mode) {
 void end_of_boot_screen(bool MCP_OK) {
     clear_screen();
     char temp[MAX_STRING_LENGTH];
-    //ID
-    sprintf(temp, "ID: %d", robot_get_ID());
-    strcpy(current_page->line0, temp);
-    //TEAM COLOR
+    //ID + TEAM COLOR
     if (robot_get_Channel()) {
-        strcpy(current_page->line1, "TEAM: BLUE");
+        sprintf(temp, "ID: %d BLUE", robot_get_ID());
     } else {
-        strcpy(current_page->line1, "TEAM: YELLOW");
+        sprintf(temp, "ID: %d YELLOW", robot_get_ID());
     }
+    strcpy(current_page->line0, temp);
+    //POWER
+    sprintf(temp, "%.2fV REM: %d", powerAlive.voltagePowerBoard, REM_LOCAL_VERSION);
+    strcpy(current_page->line1, temp);
     //MCP ALIVE
     if (MCP_OK) {
         strcpy(current_page->line2, "MCP: OK");
@@ -202,6 +202,20 @@ void end_of_test() {
 */
 enum test_type OLED_get_current_page_test_type() {
     return current_page->is_test;
+}
+
+/**
+ * @brief Display 4 hard coded lines of text
+*/
+void display_text() {
+    SSD1306_GotoXY (5,20);
+    SSD1306_Puts(current_page->line0, &Font_7x10, 1);
+    SSD1306_GotoXY (5,31);
+    SSD1306_Puts(current_page->line1, &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts(current_page->line2, &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    SSD1306_Puts(current_page->line3, &Font_7x10, 1);
 }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
@@ -400,20 +414,6 @@ static void menu_move_sideways(int direction) {
     }
 
     current_page = parent->children[(index + parent->n_of_children + direction) % parent->n_of_children];
-}
-
-/**
- * @brief Display 4 hard coded lines of text
-*/
-static void display_text() {
-    SSD1306_GotoXY (5,20);
-    SSD1306_Puts(current_page->line0, &Font_7x10, 1);
-    SSD1306_GotoXY (5,31);
-    SSD1306_Puts(current_page->line1, &Font_7x10, 1);
-    SSD1306_GotoXY (5,42);
-    SSD1306_Puts(current_page->line2, &Font_7x10, 1);
-    SSD1306_GotoXY (5,53);
-    SSD1306_Puts(current_page->line3, &Font_7x10, 1);
 }
 
 /**
