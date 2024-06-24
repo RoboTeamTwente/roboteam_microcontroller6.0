@@ -904,7 +904,7 @@ void handleRobotCommand(uint8_t* packet_buffer){
 void handleRobotBuzzer(uint8_t* packet_buffer){
 	REM_RobotBuzzerPayload* rbp = (REM_RobotBuzzerPayload*) (packet_buffer);
 	if (REM_RobotBuzzer_get_remVersion(rbp) == REM_LOCAL_VERSION &&
-		REM_RobotBuzzer_get_toPC(rbp) == robot_get_ID())   {
+		REM_RobotBuzzer_get_toRobotId(rbp) == robot_get_ID())   {
 		uint16_t period = REM_RobotBuzzer_get_period(rbp);
 		float duration = REM_RobotBuzzer_get_duration(rbp);
 		buzzer_Play_note(period, duration);
@@ -938,10 +938,11 @@ void handleRobotMusicCommand(uint8_t* packet_buffer){
 	}
 }
 
-void handleRobotKillCommand(){
-	MCP_KillPayload* kp = {0};
-	if (REM_RobotKillCommand_get_remVersion(kp) == REM_LOCAL_VERSION && 
-		REM_RobotKillCommand_get_toRobotId(kp) == robot_get_ID()) {
+void handleRobotKillCommand(uint8_t* packet_buffer){
+	REM_RobotKillCommandPayload* rkcp = (REM_RobotKillCommandPayload*) (packet_buffer);
+	if (REM_RobotKillCommand_get_remVersion(rkcp) == REM_LOCAL_VERSION && 
+		REM_RobotKillCommand_get_toRobotId(rkcp) == robot_get_ID()) {
+		MCP_KillPayload* kp = {0};
 		MCP_Send_Message_Always(&hcan1, &kp, killHeader);
 	}
 }
@@ -971,7 +972,6 @@ bool handlePacket(uint8_t* packet_buffer, uint8_t packet_length){
 				handleRobotCommand(packet_buffer + total_bytes_processed);
 				total_bytes_processed += REM_PACKET_SIZE_REM_ROBOT_COMMAND;
 				break;
-
 			case REM_PACKET_TYPE_REM_ROBOT_BUZZER: 
 				handleRobotBuzzer(packet_buffer + total_bytes_processed);
 				total_bytes_processed += REM_PACKET_SIZE_REM_ROBOT_BUZZER;
@@ -997,7 +997,7 @@ bool handlePacket(uint8_t* packet_buffer, uint8_t packet_length){
 				break;
 
 			case REM_PACKET_TYPE_REM_ROBOT_KILL_COMMAND:
-				handleRobotKillCommand();
+				handleRobotKillCommand(packet_buffer + total_bytes_processed);
 				total_bytes_processed += REM_PACKET_TYPE_REM_ROBOT_KILL_COMMAND;
 				break;
 
