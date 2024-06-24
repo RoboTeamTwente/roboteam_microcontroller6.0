@@ -282,9 +282,24 @@ void wheels_Update() {
 				wheelsK[motor].I = 0;
 			}
 
+			float feed_back_voltage = wheelFBOn*24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
+			if (feed_back_voltage > 1.0f) {
+				feed_back_voltage = 1.0f;
+			}
+			else if (feed_back_voltage < -1.0f) {
+				feed_back_voltage = -1.0f;
+			}
+
+
 		// Set motor PWM fraction/voltage
 			// Add PID to commanded speed and convert to PWM (range between -1 and 1)
-			float wheel_voltage_to_be_applied = feed_forward[motor] + wheelFBOn*24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
+			float wheel_voltage_to_be_applied = feed_forward[motor] + feed_back_voltage;
+			if (wheel_voltage_to_be_applied > 6.0f) {
+				wheel_voltage_to_be_applied = 6.0f;
+			}
+			else if (wheel_voltage_to_be_applied < -6.0f) {
+				wheel_voltage_to_be_applied = -6.0f;
+			}
 			wheel_speed_fraction[motor] = voltage2PWM(wheel_voltage_to_be_applied);
 			wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
 	}
