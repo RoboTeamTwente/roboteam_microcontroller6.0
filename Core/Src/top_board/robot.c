@@ -895,7 +895,8 @@ void loop(void){
 void handleRobotCommand(uint8_t* packet_buffer){
 	memcpy(robotCommandPayload.payload, packet_buffer, REM_PACKET_SIZE_REM_ROBOT_COMMAND);
 	if(REM_RobotCommand_get_remVersion(&robotCommandPayload) == REM_LOCAL_VERSION && 
-		REM_RobotCommand_get_toRobotId(&robotCommandPayload) == robot_get_ID()) {
+		REM_RobotCommand_get_toRobotId(&robotCommandPayload) == robot_get_ID() &&
+		REM_RobotCommand_get_payloadSize(&robotCommandPayload) == REM_PACKET_SIZE_REM_ROBOT_COMMAND) {
 		decodeREM_RobotCommand(&activeRobotCommand,&robotCommandPayload);
 		flag_sdcard_write_command = true;
 	}
@@ -904,7 +905,8 @@ void handleRobotCommand(uint8_t* packet_buffer){
 void handleRobotBuzzer(uint8_t* packet_buffer){
 	REM_RobotBuzzerPayload* rbp = (REM_RobotBuzzerPayload*) (packet_buffer);
 	if (REM_RobotBuzzer_get_remVersion(rbp) == REM_LOCAL_VERSION &&
-		REM_RobotBuzzer_get_toRobotId(rbp) == robot_get_ID())   {
+		REM_RobotBuzzer_get_toRobotId(rbp) == robot_get_ID() &&
+		REM_RobotBuzzer_get_payloadSize(rbp) == REM_PACKET_SIZE_REM_ROBOT_BUZZER) {
 		uint16_t period = REM_RobotBuzzer_get_period(rbp);
 		float duration = REM_RobotBuzzer_get_duration(rbp);
 		buzzer_Play_note(period, duration);
@@ -914,7 +916,8 @@ void handleRobotBuzzer(uint8_t* packet_buffer){
 void handleRobotGetPIDGains(uint8_t* packet_buffer){
 	REM_RobotGetPIDGainsPayload* rgpidgp = (REM_RobotGetPIDGainsPayload*) (packet_buffer);
 	if( REM_RobotGetPIDGains_get_remVersion(rgpidgp) == REM_LOCAL_VERSION &&
-		REM_RobotGetPIDGains_get_toRobotId(rgpidgp) == robot_get_ID()) {
+		REM_RobotGetPIDGains_get_toRobotId(rgpidgp) == robot_get_ID() && 
+		REM_RobotGetPIDGains_get_payloadSize(rgpidgp) == REM_PACKET_SIZE_REM_ROBOT_GET_PIDGAINS) {
 			flag_send_PID_gains = true;
 	}	
 }
@@ -922,7 +925,8 @@ void handleRobotGetPIDGains(uint8_t* packet_buffer){
 void handleRobotSetPIDGains(uint8_t* packet_buffer){
 	REM_RobotSetPIDGainsPayload* rspidgp = (REM_RobotSetPIDGainsPayload*) (packet_buffer);
 	if (REM_RobotSetPIDGains_get_remVersion(rspidgp) == REM_LOCAL_VERSION &&
-		REM_RobotSetPIDGains_get_toRobotId(rspidgp) == robot_get_ID()) {
+		REM_RobotSetPIDGains_get_toRobotId(rspidgp) == robot_get_ID() && 
+		REM_RobotSetPIDGains_get_payloadSize(rspidgp) == REM_PACKET_SIZE_REM_ROBOT_SET_PIDGAINS) {
 		decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
 		stateControl_SetPIDGains(&robotSetPIDGains);
 		wheels_SetPIDGains(&robotSetPIDGains);
@@ -933,7 +937,8 @@ void handleRobotSetPIDGains(uint8_t* packet_buffer){
 void handleRobotMusicCommand(uint8_t* packet_buffer){
 	REM_RobotMusicCommandPayload* rmcp = (REM_RobotMusicCommandPayload*) (packet_buffer);
 	if (REM_RobotMusicCommand_get_remVersion(rmcp) == REM_LOCAL_VERSION &&
-		REM_RobotMusicCommand_get_toRobotId(rmcp) == robot_get_ID()) {
+		REM_RobotMusicCommand_get_toRobotId(rmcp) == robot_get_ID() && 
+		REM_RobotMusicCommand_get_payloadSize(rmcp) == REM_PACKET_SIZE_REM_ROBOT_MUSIC_COMMAND) {
 		robot_setRobotMusicCommandPayload(rmcp);
 	}
 }
@@ -941,7 +946,8 @@ void handleRobotMusicCommand(uint8_t* packet_buffer){
 void handleRobotKillCommand(uint8_t* packet_buffer){
 	REM_RobotKillCommandPayload* rkcp = (REM_RobotKillCommandPayload*) (packet_buffer);
 	if (REM_RobotKillCommand_get_remVersion(rkcp) == REM_LOCAL_VERSION && 
-		REM_RobotKillCommand_get_toRobotId(rkcp) == robot_get_ID()) {
+		REM_RobotKillCommand_get_toRobotId(rkcp) == robot_get_ID() && 
+		REM_RobotKillCommand_get_payloadSize(rkcp) == REM_PACKET_SIZE_REM_ROBOT_KILL_COMMAND) {
 		MCP_KillPayload* kp = {0};
 		MCP_Send_Message_Always(&hcan1, &kp, killHeader);
 	}
