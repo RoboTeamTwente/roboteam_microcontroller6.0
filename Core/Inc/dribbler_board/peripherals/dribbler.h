@@ -44,8 +44,8 @@ uint32_t dribbler_getCurrent();
 bool dribbler_hasBall();
 // Denitializes the encoders / PWM timers
 void dribbler_DeInit();
-// Sets the dribbler speed and makes sure it's within [0,1]
-void dribbler_SetSpeed(float speed);
+// Sets the dribbler speed and makes sure it's within [0,1], if brake is true, the motor will brake if pwm is 0, else it will coast
+void dribbler_SetSpeed(float speed, bool brake);
 // Returns the latest encoder measurement
 uint32_t dribbler_GetEncoderMeasurement();
 
