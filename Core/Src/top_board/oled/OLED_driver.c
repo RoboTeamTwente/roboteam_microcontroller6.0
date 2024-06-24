@@ -133,7 +133,7 @@ void end_of_boot_screen(bool MCP_OK) {
     }
     strcpy(current_page->line0, temp);
     //POWER
-    sprintf(temp, "POWER: %f", powerAlive.voltagePowerBoard);
+    sprintf(temp, "%.2fV REM: %d", powerAlive.voltagePowerBoard, REM_LOCAL_VERSION);
     strcpy(current_page->line1, temp);
     //MCP ALIVE
     if (MCP_OK) {
