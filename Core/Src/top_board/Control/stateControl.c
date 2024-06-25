@@ -292,13 +292,14 @@ void wheels_Update() {
 
 
 		// Set motor PWM fraction/voltage
+			float max_voltage = 12.5;
 			// Add PID to commanded speed and convert to PWM (range between -1 and 1)
 			float wheel_voltage_to_be_applied = feed_forward[motor] + feed_back_voltage;
-			if (wheel_voltage_to_be_applied > 6.0f) {
-				wheel_voltage_to_be_applied = 6.0f;
+			if (wheel_voltage_to_be_applied > max_voltage) {
+				wheel_voltage_to_be_applied = max_voltage;
 			}
-			else if (wheel_voltage_to_be_applied < -6.0f) {
-				wheel_voltage_to_be_applied = -6.0f;
+			else if (wheel_voltage_to_be_applied < -max_voltage) {
+				wheel_voltage_to_be_applied = -max_voltage;
 			}
 			wheel_speed_fraction[motor] = voltage2PWM(wheel_voltage_to_be_applied);
 			wheels_SetSpeed_PWM(motor, wheel_speed_fraction[motor]);
@@ -559,11 +560,23 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 	// float c_list[4] = {60.0f*(M_PI/180.0f), -60.0f*(M_PI/180.0f), -150.0f*(M_PI/180.0f), 150.0f*(M_PI/180.0f)};
 	// float d_list[4] = {0.4132f,0.4132f,0.4132f,0.4132f};
 	
+	bool detailedFit = true;
+
 	// Calculations
 	float vw_max_round_to_rotational = feedforwardParameters.vw_max_round_to_rotational_scaling*(rho/rad_robot);
 	float z_rotational = feedforwardParameters.rotation_feedforward_value[wheel];
-	// float z_translation = constsineEval(theta,feedforwardParameters.a[wheel],feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.d[wheel]);
-	float z_translation = detailedFitEval(theta,feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.param1[wheel],feedforwardParameters.param2[wheel],feedforwardParameters.param3[wheel],feedforwardParameters.param4[wheel]);
+	// 
+	float z_translation = 0.0f;
+	if (detailedFit) {
+		z_translation = detailedFitEval(theta,feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.param1[wheel],feedforwardParameters.param2[wheel],feedforwardParameters.param3[wheel],feedforwardParameters.param4[wheel]);
+	}
+	else {
+		z_translation = constsineEval(theta,feedforwardParameters.a[wheel],feedforwardParameters.b[wheel],feedforwardParameters.c[wheel],feedforwardParameters.d[wheel]);
+	}
+
+
+	
+	
 
 	int wheel_velocity_larger_than_zero;
 	if(wheelRef > 0) {
@@ -578,15 +591,23 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 	if(wheel_velocity_larger_than_zero == 1) {
 		z_rotational_fixed = z_rotational;
 		if(z_translation < 0) {
-			// z_translation_fixed = feedforwardParameters.d[wheel];
-			z_translation_fixed = feedforwardParameters.param4[wheel];
+			if (detailedFit == true) {
+				z_translation_fixed = feedforwardParameters.param4[wheel];
+			}
+			else {
+				z_translation_fixed = feedforwardParameters.d[wheel];
+			}
 		}
 	}
 	else {
 		z_rotational_fixed = -1*z_rotational;
 		if(z_translation > 0) {
-			// z_translation_fixed = -feedforwardParameters.d[wheel];
-			z_translation_fixed = -feedforwardParameters.param4[wheel];
+			if (detailedFit == true) {
+				z_translation_fixed = -feedforwardParameters.param4[wheel];
+			}
+			else {
+				z_translation_fixed = -feedforwardParameters.d[wheel];
+			}
 		}
 	}
 

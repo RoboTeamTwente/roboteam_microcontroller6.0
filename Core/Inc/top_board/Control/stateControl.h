@@ -44,10 +44,10 @@
 
 ///////////////////////////////////////////////////// STRUCTS
 struct FFstruct{
-	// float a[4]; // Sine amplitude
+	float a[4]; // Sine amplitude
 	float b[4]; // Sine frequency
 	float c[4]; // Sine phase
-	// float d[4]; // Constant offset
+	float d[4]; // Constant offset
 	float param1[4];
 	float param2[4];
 	float param3[4];
