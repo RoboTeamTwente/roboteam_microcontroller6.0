@@ -75,6 +75,12 @@ void run_test(page_struct *page) {
         case 1325:
             chip_shoot_run(6.5f, page);
             break;
+        case 142:
+            start_sendFeeback();
+            break;
+        case 143:
+            stop_sendFeedback();
+            break;
         case 31:
             drain_battery_run(18.0f);
             break;
