@@ -236,7 +236,7 @@ void wheels_Update() {
 	float vu = stateLocalRef[vel_u];
 	float vv = stateLocalRef[vel_v];
 	float rho = sqrt(vu*vu + vv*vv);
-	float theta_local = atan2(vu, vv);
+	float theta_local = atan2(vv, vu);
 	float omega = stateLocalRef[vel_w];
 
 	float wheels_measured_speeds[4] = {0.0f};
