@@ -58,8 +58,8 @@ void dribbler_SetSpeed(float speed, bool brake){
 	}
 	else{ // The motor is in coasting mode
 		if (speed > 0){
-			set_PWM_dribbler(&PWM_Dribbler_a, 0);
-			set_PWM_dribbler(&PWM_Dribbler_b, speed);
+			set_PWM_dribbler(&PWM_Dribbler_b, 0);
+			set_PWM_dribbler(&PWM_Dribbler_a, speed);
 		}
 		else{
 			set_PWM_dribbler(&PWM_Dribbler_b, 0);
