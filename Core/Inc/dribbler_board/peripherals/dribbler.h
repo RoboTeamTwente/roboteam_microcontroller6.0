@@ -45,7 +45,7 @@ bool dribbler_hasBall();
 // Denitializes the encoders / PWM timers
 void dribbler_DeInit();
 // Sets the dribbler speed and makes sure it's within [0,1]
-void dribbler_SetSpeed(float speed);
+void dribbler_SetSpeed(float speed, bool brake);
 // Returns the latest encoder measurement
 uint32_t dribbler_GetEncoderMeasurement();
 

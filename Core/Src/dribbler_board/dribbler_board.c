@@ -163,17 +163,16 @@ void control_dribbler_callback() {
     if (dribblerCommand.dribblerOn) {
         if(ballsensor_hasBall()){
             ball_counter = 0;
-            set_Pin(LED1, true);
-            dribbler_SetSpeed(1.0f);
+            dribbler_SetSpeed(1.0f, 1);
             return;
         }
         else if (ball_counter < 100){
             ball_counter = ball_counter + 1;
-            dribbler_SetSpeed(0.35f);
+            dribbler_SetSpeed(0.35f, 1);
             return;
         }
     }
-    dribbler_SetSpeed(0.0f);
+    dribbler_SetSpeed(0.0f, 1);
     set_Pin(LED1, false);
 }
 
