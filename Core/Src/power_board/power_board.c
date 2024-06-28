@@ -142,6 +142,7 @@ void MCP_Send_Im_Alive() {
 	MCP_PowerAlive pa = {0};
 	MCP_PowerAlivePayload pap = {0};
 	pa.sensorWorking = VPC_write_OK & VPC_read_OK;
+	pa.voltagePowerBoard = VPC_getVoltage();
 	encodeMCP_PowerAlive(&pap, &pa);
 	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToTop);
 	MCP_Send_Message_Always(&hcan, pap.payload, powerAliveHeaderToDribbler);

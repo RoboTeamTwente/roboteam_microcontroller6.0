@@ -27,6 +27,7 @@ void self_test_menu_initChildren(page_struct *parent) {
     buzzer_test_init(&self_test_top_menu);
     wheel_twitch_init(&self_test_top_menu);
     motor_test_init(&self_test_top_menu);
+    init_sendFeedback(&self_test_top_menu);
 
 
     pages_set_default_values(&self_test_power_menu, parent);

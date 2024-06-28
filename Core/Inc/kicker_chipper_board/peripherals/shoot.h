@@ -44,7 +44,7 @@ typedef enum{
 
 #define TIMER_FREQ 1000000 			// frequency [Hz] of TIM16  (Clock frequency divided by prescaler)
 #define READY_CALLBACK_FREQ 10 		// frequency [Hz] of callback when shootState is Ready
-#define CHARGING_CALLBACK_FREQ 1 	// frequency [Hz] of callback when shootState is Charging
+#define CHARGING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Charging
 #define SHOOTING_CALLBACK_FREQ 10 	// frequency [Hz] of callback when shootState is Shooting
 #define OFF_CALLBACK_FREQ 1 		// frequency [Hz] of callback when shootState is Off
 #define START_REGHARGE_VOLT 220		// voltage [V] capacitor should start charging back up again

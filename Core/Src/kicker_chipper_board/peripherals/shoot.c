@@ -49,7 +49,7 @@ void shoot_Callback()
 	//Fault pin is HIGH by default
 	if (!read_Pin(Fault_pin)) {
 		shoot_fault = true;
-		shoot_DeInit();
+		//shoot_DeInit();
 	}
 
 	switch(shootState){
@@ -61,9 +61,8 @@ void shoot_Callback()
 			2a. Voltage sensor works and MIN_VOLT_SHOOT <= voltage <= START_REGHARGE_VOLT
 			2b. Voltage sensor doesn't work and shootState changed to ready more than 15sec ago
 		*/
-		if (chargingAllowed && 
-			((voltage_sensor_working && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) ||
-			(!voltage_sensor_working && current_time >= lastChangeToReady + 15000))) {
+		if ((voltage_sensor_working && voltage >= MIN_VOLT_SHOOT && voltage <= START_REGHARGE_VOLT) ||
+			(!voltage_sensor_working && current_time >= lastChangeToReady + 15000)) {
 			shootState = shoot_Charging;
 			shoot_charged = false;
 		}
@@ -91,12 +90,9 @@ void shoot_Callback()
 		if (chargingAllowed) {
 			shootState = shoot_Charging;
 			shoot_charged = false;
-		} else if (voltage >= MIN_VOLT_SHOOT) {
-			shootState = shoot_Ready;
-			shoot_charged = true;
 		} else {
 			shootState = shoot_Off;
-			shoot_charged = false;
+			shoot_charged = voltage_sensor_working && voltage >= MIN_VOLT_SHOOT;
 		}
 		callbackTime = TIMER_FREQ/SHOOTING_CALLBACK_FREQ;
 		break;
@@ -127,7 +123,7 @@ void shoot_DisableCharging() {
 
 void shoot_Shoot(shoot_types type, float speed)
 {
-	if(shootState == shoot_Ready){
+	if(shootState == shoot_Ready || shootState == shoot_Off){
 		shootState = shoot_Shooting;
 		set_Pin(Charge_pin, 0); 									// Disable shoot_Charging
 		set_Pin(type == shoot_Kick ? Kick_pin : Chip_pin, 1); 		// Kick/Chip on

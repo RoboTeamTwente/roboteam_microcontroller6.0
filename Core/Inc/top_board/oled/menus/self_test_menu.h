@@ -7,6 +7,7 @@
 #include "kicker_self_test_menu.h"
 #include "motor_test.h"
 #include "dribbler_test.h"
+#include "send_feedback.h"
 
 void self_test_menu_initChildren(page_struct *parent);
 
