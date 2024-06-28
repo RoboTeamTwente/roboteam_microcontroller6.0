@@ -53,7 +53,7 @@ uint32_t dribbler_getCurrent(){
 	// For now we get the most recent reading
 	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
 	uint32_t current=dribbler_current_Buffer[0];
-	return current;
+	return dribbler_current_Buffer[0];
 }
 
 bool dribbler_hasBall(){
