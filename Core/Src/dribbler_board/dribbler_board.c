@@ -166,7 +166,7 @@ void control_dribbler_callback() {
             dribbler_SetSpeed(1.0f, 1);
             return;
         }
-        else if (ball_counter < 100){
+        else if (ball_counter < 5){
             ball_counter = ball_counter + 1;
             dribbler_SetSpeed(0.35f, 1);
             return;
