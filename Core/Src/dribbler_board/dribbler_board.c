@@ -149,7 +149,6 @@ void do_send_ballState(){
 
     if (mcp_seesBall.dribblerSeesBall != dribbler_hasBall()) {
         mcp_seesBall.dribblerSeesBall = dribbler_hasBall();
-        set_Pin(LED2, dribbler_hasBall());
         sendSeesBall = true;
     }
 
@@ -159,21 +158,23 @@ void do_send_ballState(){
 }
 
 void control_dribbler_callback() { 
+    set_Pin(LED1, ballsensor_hasBall());
+    set_Pin(LED2, dribbler_hasBall());
+
     do_send_ballState();
     if (dribblerCommand.dribblerOn) {
         if(ballsensor_hasBall()){
             ball_counter = 0;
-            dribbler_SetSpeed(1.0f, 1);
+            dribbler_SetSpeed(0.8f, 1);
             return;
         }
         else if (ball_counter < 5){
             ball_counter = ball_counter + 1;
-            dribbler_SetSpeed(0.35f, 1);
+            dribbler_SetSpeed(0.2f, 1);
             return;
         }
     }
     dribbler_SetSpeed(0.0f, 1);
-    set_Pin(LED1, false);
 }
 
 

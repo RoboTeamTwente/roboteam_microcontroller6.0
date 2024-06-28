@@ -4,7 +4,7 @@
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 datactrl dribblerCtrl = {
-	.current_limit = 10837
+	.current_limit = 0.3f 
 };
 void dribbler_Init(){
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
@@ -36,10 +36,14 @@ void dribbler_motor_Init(){
  * R_IPROPI = 1000 (Ω) V_VREF = 3.3 (V), A_IPROPI = 1500 (μA/A)
  *
 */
-void dribbler_setCurrentLimit(uint16_t value){
-	// The value you put in is the DOR Vout=DOR*(Vref/4096) where Vref is the reference voltage of the DAC (3.3V)
-	uint16_t V_set= value * 1.5; //
-	uint16_t DOR= V_set * 4095 / 3.3;
+void dribbler_setCurrentLimit(float value){
+	// The value you put in is the DOR Vout=DOR*(Vref/4095) where Vref is the reference voltage of the DAC (3.3V)
+	float V_set= (float)(value * 1.65f); //
+	uint32_t DOR= (uint32_t)(V_set * 4095 / 3.3f);
+	if (DOR>4095){
+		DOR=4095;
+		}
+
 	HAL_DAC_Start(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1);
 	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, DOR);
  
@@ -47,14 +51,14 @@ void dribbler_setCurrentLimit(uint16_t value){
 
 uint32_t dribbler_getCurrent(){
 	// For now we get the most recent reading
-	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor
-	uint32_t current=dribbler_current_Buffer[0]/4095*3.3/1.5;
+	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
+	uint32_t current=dribbler_current_Buffer[0];
 	return current;
 }
 
 bool dribbler_hasBall(){
 	uint32_t current = dribbler_getCurrent();
-	return current > CURRENT_THRESHOLD/4095*3.3/1.5;
+	return current > CURRENT_THRESHOLD;
 }
 
 void dribbler_DeInit(){

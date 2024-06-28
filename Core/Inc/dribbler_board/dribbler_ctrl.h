@@ -39,7 +39,7 @@ typedef struct _datactrl
 
 		int32_t avgVoltageDQ[2]; // final voltage set by controllers
         
-        int32_t current_limit;
+        float current_limit;
 } datactrl;
 
 extern datactrl dribblerCtrl;
