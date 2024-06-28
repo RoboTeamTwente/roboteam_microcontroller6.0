@@ -38,7 +38,7 @@ void dribbler_motor_Init(){
 */
 void dribbler_setCurrentLimit(float value){
 	// The value you put in is the DOR Vout=DOR*(Vref/4095) where Vref is the reference voltage of the DAC (3.3V)
-	float V_set= (float)(value * 1.65f); //
+	float V_set= (float)(value * 1.5f); //
 	uint32_t DOR= (uint32_t)(V_set * 4095 / 3.3f);
 	if (DOR>4095){
 		DOR=4095;
