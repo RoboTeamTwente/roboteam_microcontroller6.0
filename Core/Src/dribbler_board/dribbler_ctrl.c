@@ -1,179 +1,133 @@
-// /* 
-// The dribbler control of RoboTeam Twente
-// Created by Chris Krommendijk
+/* 
+The dribbler control of RoboTeam Twente
+Created by Chris Krommendijk
 
-// To ask:
-// - What is the unit of the Current sensor
-// */
 
-// #include "dribbler_ctrl.h"
-// //#include "roboteam_microcontroller6.0\Core\Src\dribbler_board\peripherals\dribbler.c" // Include the dribbler.c file to get the functions for the dribbler motor
-// void DribblerController()
-// {
-// 	// Motor speed is computed from output current (measured) and voltage (controlled)
-// 	// DCX 19 S Graphite Brushes 24V DC motor ∅19 mm
-// 	int32_t avgVoltageDribbler = datactrl.avgVoltage*1000; // [mV] 
-// 	int32_t avgCurrentDribbler = dribbler_getCurrent()*1000; // [mA]
+*/
 
-// 	int32_t motorResistance = 22.8; // [Ohm] (5.84 Ohm)
-// 	int32_t motorBackEmfConstantInv = 28.06; // [rad/(V*s)] is the speed constant 268 rpm/V = 28.06 rad/(V*s) in the datasheet
+#include "dribbler_ctrl.h"
+#include "dribbler.h"
+#include "dribbler_board.h"
+datactrl dribblerCtrl= {
+    .antiWindup_speed=0.2f, // [A]
+    .kp_speed=20.5f,
+    .ki_speed=0.1f,
+    .antiWindup_current=22.0f, // [V]
+    .kp_current=30.0f,
+    .ki_current=0.05f,
+    .current_offset=0.0f, //[A]
+    .speed_desired=200.0f // [rad/s] max 500 rad/s
+};
+float iTerm_speed=0;
+float iTerm_current=0;
+float output_speedLoop=0;
+float output_currentLoop=0;
+float measured_speed=0;
+float measured_current=0;
+int sign;
+float output_speedEMA=0.0f;
 
-// 	int32_t restiveLossDribbler = (motorResistance * avgCurrentDribbler) >> 6;
-// 	int32_t backEmfDribbler = avgVoltageDribbler - restiveLossDribbler; // [mV]
+void DribblerController()
+{
+ // Motor speed controller
+ if(dribblerCommand.dribblerOn)
+ {
+    if(ballsensor_hasBall())
+    {
+        float Error_speed=dribblerCtrl.speed_desired-measured_speed;
+        float pError_speed = dribblerCtrl.kp_speed * Error_speed;
+        float iError_speed = dribblerCtrl.ki_speed * Error_speed;
+        float iTerm_speedNew = iTerm_speed+ iError_speed;
+        if (iTerm_speedNew > dribblerCtrl.antiWindup_speed)
+        {
+            iTerm_speedNew = dribblerCtrl.antiWindup_speed;
+        }
+        else if (iTerm_speedNew < -dribblerCtrl.antiWindup_speed)
+        {
+            iTerm_speedNew = -dribblerCtrl.antiWindup_speed;
+        }
 
-// 	if(backEmfDribbler > 32767) // This is the maximum value of a signed 16-bit integer divided by 2
-// 		backEmfDribbler = 32767;
+        iTerm_speed= iTerm_speedNew;
 
-// 	if(backEmfDribbler < -32768)
-// 		backEmfDribbler = -32768;
+        output_speedLoop = pError_speed + iTerm_speed;
+        if (output_speedLoop>dribblerCtrl.current_limit)
+        {
+            output_speedLoop=dribblerCtrl.current_limit;
+        }
+        else if (output_speedLoop<-dribblerCtrl.current_limit)
+        {
+            output_speedLoop=-dribblerCtrl.current_limit;
+        }
 
-// 	int32_t modelSpeed = (backEmfDribbler * motorBackEmfConstantInv) >> 2; // [mrad/s]
-// 	modelSpeed = modelSpeed >> 10; // [1000/1024 rad/s]
+        // Current controller
+        float Error_current = output_speedLoop - measured_current;
+        float pError_current = dribblerCtrl.kp_current * Error_current;
+        float iError_current = dribblerCtrl.ki_current * Error_current;
+        float iTerm_currentNew = iTerm_current + iError_current;
+        if (iTerm_currentNew > dribblerCtrl.antiWindup_current)
+        {
+            iTerm_currentNew = dribblerCtrl.antiWindup_current;
+        }
+        else if (iTerm_currentNew < -dribblerCtrl.antiWindup_current)
+        {
+            iTerm_currentNew = -dribblerCtrl.antiWindup_current;
+        }
+        iTerm_current = iTerm_currentNew;
+        output_currentLoop = pError_current + iTerm_current;
+        if (output_currentLoop>23.9f)
+            output_currentLoop=23.9f;
+        else if (output_currentLoop<-23.9f)
+            output_currentLoop=-23.0f;
 
-// 	// Q current input is used as limit for speed controller
-// 	int32_t q_S12_0 = data.command.input[1];
-// 	q_S12_0 = (q_S12_0*24855) >> 16; // Input +-10800mA, scale down  to +-4096
-// 	if(q_S12_0 < 0)
-// 	{
-// 		data.ctrl.speed.outputMin = q_S12_0;
-// 		data.ctrl.speed.outputMax = -q_S12_0;
-// 	}
-// 	else
-// 	{
-// 		data.ctrl.speed.outputMin = -q_S12_0;
-// 		data.ctrl.speed.outputMax = q_S12_0;
-// 	}
+        dribbler_SetSpeed(output_currentLoop/24.0f, 1);
+        }
+    else
+        {
+            output_speedLoop=0.0f;
+            output_currentLoop=0.0f;
+            dribbler_SetSpeed(output_currentLoop, 1);
+        }
+}
+}
+void FilterDribbler()
+{
 
-// 	if(data.command.encDeltaSetpoint > -50 && data.command.encDeltaSetpoint < 50)
-// 	{
-// 		// Setpoint close to zero, spin down to zero and go to voltage mode
-// 		if(modelSpeed_S15_0 > -50 && modelSpeed_S15_0 < 50)
-// 		{
-// 			// Low speed, switch to constant voltage
-// 			data.motor.Udq[1] = 0;
 
-// 			PICtrlS12Enable(&data.ctrl.currentQ, 0);
+ if(!ballsensor_hasBall())
+ {
+    // Will be used to determine the current offset with the use of an Exponential moving average filter
+    // EMA filter: y(i)=alpha*x(i)+(1-alpha)*y(i-1)
+    // Current offset will only be determined when the motor is off
+     dribblerCtrl.current_offset=0.25f*dribbler_getCurrent()+ (1-0.25f)*dribblerCtrl.current_offset;
+     return;
+ }
+// Determination of meausered current
+float output_speedEMA=0.25f*output_speedLoop+(1-0.25f)*output_speedEMA;
+if (output_speedEMA>0.0f)
+{
+    sign=1;
+}
+else if (output_speedEMA<0.0f)
+{
+    sign=-1;
+}
+else
+{
+    sign=0;
+}
+measured_current=sign*(dribbler_getCurrent()-dribblerCtrl.current_offset); 
+ 
+// speed estimator or speed from encoder 
 
-// 			data.ctrl.speed.output = (data.sensors.adc.currentDQ_S16_0[1]*24855) >> 16;
-// 			data.ctrl.currentQ.output = data.motor.Udq[1] >> 3;
-// 		}
-// 		else
-// 		{
-// 			// encDeltaSetpoint is used as hall speed setpoint
-// 			PICtrlS12Setpoint(&data.ctrl.speed, 0);
-// 			PICtrlS12Enable(&data.ctrl.speed, 1);
-// 			PICtrlS12Update(&data.ctrl.speed, modelSpeed_S15_0);
+// Tigers uses the Average voltage however there control loop runs at 1KHz and the filtering loop is done at 40KHz
+// We do it both at 1KHz so we don't use the average 
+// to Do implement when encoder is available use encoder other wise use estimator
+float motorResistance = 22.8f; // [Ohm] (5.84 Ohm)
+float motorBackEmfConstantInv = 28.06f; // [rad/(V*s)] is the speed constant 268 rpm/V = 28.06 rad/(V*s) in the datasheet
 
-// 			// Apply output to Q current controller input
-// 			PICtrlS12Setpoint(&data.ctrl.currentQ, data.ctrl.speed.output);
-// 			PICtrlS12Enable(&data.ctrl.currentQ, 1);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		// encDeltaSetpoint is used as hall speed setpoint
-// 		PICtrlS12Setpoint(&data.ctrl.speed, data.command.encDeltaSetpoint);
-// 		PICtrlS12Enable(&data.ctrl.speed, 1);
-// 		PICtrlS12Update(&data.ctrl.speed, modelSpeed_S15_0);
+float restiveLossDribbler = (motorResistance * measured_current);
+float backEmfDribbler = output_currentLoop - restiveLossDribbler;
+ 
+measured_speed= (backEmfDribbler * motorBackEmfConstantInv);
+}
 
-// 		// Apply output to Q current controller input
-// 		PICtrlS12Setpoint(&data.ctrl.currentQ, data.ctrl.speed.output);
-// 		PICtrlS12Enable(&data.ctrl.currentQ, 1);
-// };
-// void PICtrlUpdate(PICtrl* pPI, int32_t measured)
-// {
-// 	if(!pPI->enabled)
-// 		return;
-
-// 	if(measured > 4095) // This is the maximum value of a signed 12-bit integer divided by 2
-// 		measured = 4095;
-// 	if(measured < -4096)
-// 		measured = -4096;
-
-// 	// S13.0 = S12.0 - S12.0
-// 	int32_t error = pPI->setpoint - measured;
-
-// 	// S18.13 = S5.13 * S13.0
-// 	int32_t iError = pPI->ki * error;
-
-// 	// => S18.12
-// 	iError >>= 1;
-
-// 	// S19.12 = S12.12 + S18.12
-// 	int32_t iTermNew = pPI->iTerm + iError;
-
-// 	// => S12.12
-// 	if(iTermNew > (pPI->outputMax << 12))
-// 		iTermNew = pPI->outputMax << 12;
-// 	if(iTermNew < (pPI->outputMin << 12))
-// 		iTermNew = (pPI->outputMin << 12);
-
-// 	pPI->iTerm = iTermNew;
-
-// 	// S20.10 = S7.10 * S13.0
-// 	int32_t pError = pPI->kp * error;
-
-// 	// S21.10 = S20.10 + (S12.12 >> 2)
-// 	int32_t output = pError + (iTermNew >> 2);
-
-// 	// => S21.0
-// 	output >>= 10;
-
-//     // Tigers uses the following code to implement anti-jitter, which is not used in the dribbler control currently as we don't know if we need it
-
-// 	// if(pPI->antiJitter)
-// 	// {
-// 	// 	int32_t errorAbs = error < 0 ? -error : error;
-
-// 	// 	if(errorAbs < pPI->antiJitter)
-// 	// 	{
-// 	// 		// S12.0 = (S0.12 * S13.0 * S12.0) >> 12;
-// 	// 		//          \___________/ => due to errorAbs < antiJitter this can be a max of 4096 (S0.12)
-// 	// 		output = (pPI->antiJitterReciprocal * errorAbs * output) >> 12;
-// 	// 	}
-// 	// }
-
-// 	// => S12.0
-
-//     // Tiger: I set the overload to 0 in the following code because it is not used in the dribbler control currently
-//     // This is because we do not want to overload our motor
-// 	if(output > pPI->outputMax)
-// 	{
-// 		output = pPI->outputMax;
-// 		pPI->overload = 0;
-// 	}
-// 	else if(output < pPI->outputMin)
-// 	{
-// 		output = pPI->outputMin;
-// 		pPI->overload = 0;
-// 	}
-// 	else
-// 		pPI->overload = 0;
-
-// 	pPI->output = output;
-// }
-
-// void PICtrlSetpoint(PICtrl* pPI, int32_t setpoint)
-// {
-// 	if(setpoint > 4095)
-// 		setpoint = 4095;
-// 	if(setpoint < -4096)
-// 		setpoint = -4096;
-
-// 	pPI->setpoint = setpoint;
-// }
-
-// void PICtrlInit(PICtrl* pPI, int32_t kp, int32_t ki, int32_t outputMin, int32_t outputMax)
-// {
-// 	pPI->kp = kp;
-// 	pPI->ki = ki;
-// 	pPI->outputMin = outputMin;
-// 	pPI->outputMax = outputMax;
-// 	pPI->antiJitter = 0;
-// 	pPI->antiJitterReciprocal = 0;
-// 	pPI->iTerm = 0;
-// 	pPI->output = 0;
-// 	pPI->overload = 0;
-// 	pPI->setpoint = 0;
-// 	pPI->enabled = 0;
-// }

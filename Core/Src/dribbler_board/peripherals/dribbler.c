@@ -3,10 +3,9 @@
 
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
-datactrl dribblerCtrl = {
-	.current_limit = 0.3f 
-};
+
 void dribbler_Init(){
+	dribblerCtrl.current_limit = 0.3f;
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
@@ -25,7 +24,7 @@ void dribbler_motor_Init(){
 
 /**
  * @note 0 <= value <= 2.2 A
- * For motor go to 0.3 A
+ * For motor go to max 0.3 A
  * reference: https://deepbluembedded.com/stm32-dac-tutorial-example-hal-code-analog-signal-genreation/
  * The value you put in is the DOR Vout=DOR*(Vref/4096) where Vref is the reference voltage of the DAC (3.3V)
  * DOR=Vout*(4096/Vref)
@@ -38,8 +37,8 @@ void dribbler_motor_Init(){
 */
 void dribbler_setCurrentLimit(float value){
 	// The value you put in is the DOR Vout=DOR*(Vref/4095) where Vref is the reference voltage of the DAC (3.3V)
-	float V_set= (float)(value * 1.5f); //
-	uint32_t DOR= (uint32_t)(V_set * 4095 / 3.3f);
+	//float V_set= (float)(value * 1.5f); //
+	uint32_t DOR = (uint32_t)(1939 * value + 232);
 	if (DOR>4095){
 		DOR=4095;
 		}
@@ -49,16 +48,17 @@ void dribbler_setCurrentLimit(float value){
  
 }
 
-uint32_t dribbler_getCurrent(){
+float dribbler_getCurrent(){
 	// For now we get the most recent reading
 	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
-	uint32_t current=dribbler_current_Buffer[0];
-	return dribbler_current_Buffer[0];
+	uint32_t current_temp = dribbler_current_Buffer[0];
+	float currentA = ((float)(current_temp-232))/1939;
+	return currentA;
 }
 
 bool dribbler_hasBall(){
-	uint32_t current = dribbler_getCurrent();
-	return current > CURRENT_THRESHOLD;
+	float currentA = dribbler_getCurrent();
+	return (currentA>0.15f);
 }
 
 void dribbler_DeInit(){

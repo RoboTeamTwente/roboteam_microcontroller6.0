@@ -15,6 +15,7 @@
 #include <string.h>
 
 extern volatile bool BOARD_INITIALIZED;
+extern MCP_DribblerCommand dribblerCommand;
 
 void init();
 void loop();

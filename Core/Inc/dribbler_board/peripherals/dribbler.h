@@ -39,7 +39,7 @@ void dribbler_motor_Init();
 // The current value we set, limits acceleration
 void dribbler_setCurrentLimit(float value);
 // Larger current implies we have the ball
-uint32_t dribbler_getCurrent();
+float dribbler_getCurrent();
 // If the current is above a certain threshold, it implies we have the ball
 bool dribbler_hasBall();
 // Denitializes the encoders / PWM timers

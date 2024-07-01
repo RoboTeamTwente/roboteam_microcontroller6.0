@@ -1,5 +1,5 @@
 #include "dribbler_board.h"
-
+#include "dribbler_ctrl.h"
 volatile bool BOARD_INITIALIZED = false;
 
 void MCP_Process_Message(mailbox_buffer *to_Process);
@@ -160,21 +160,26 @@ void do_send_ballState(){
 void control_dribbler_callback() { 
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
-
     do_send_ballState();
-    if (dribblerCommand.dribblerOn) {
-        if(ballsensor_hasBall()){
-            ball_counter = 0;
-            dribbler_SetSpeed(0.8f, 1);
-            return;
-        }
-        else if (ball_counter < 5){
-            ball_counter = ball_counter + 1;
-            dribbler_SetSpeed(0.2f, 1);
-            return;
-        }
-    }
-    dribbler_SetSpeed(0.0f, 1);
+    FilterDribbler();
+    DribblerController();
+
+
+
+   
+//     if (dribblerCommand.dribblerOn) {
+//         if(ballsensor_hasBall()){
+//             ball_counter = 0;
+//             dribbler_SetSpeed(0.5f, 1);
+//             return;
+//         }
+//         else if (ball_counter < 5){
+//             ball_counter = ball_counter + 1;
+//             dribbler_SetSpeed(0.2f, 1);
+//             return;
+//         }
+//     }
+//     dribbler_SetSpeed(0.0f, 1);
 }
 
 
