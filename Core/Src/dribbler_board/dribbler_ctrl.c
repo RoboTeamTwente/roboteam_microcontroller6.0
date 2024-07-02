@@ -13,7 +13,7 @@ datactrl dribblerCtrl= {
     .kp_speed=9.2f,
     .ki_speed=1.9f,
     .antiWindup_current=6.0f, 
-    .kp_current=15.2f,
+    .kp_current=17.2f,
     .ki_current=4.6f,
     .current_offset=0.0f, //[A]
     .speed_desired=200.0f, // [rad/s] max 500 rad/s
@@ -26,7 +26,7 @@ float output_currentLoop=0;
 float measured_speed=0;
 float measured_current=0;
 int sign;
-float output_speedEMAPrevious=0.0f;
+float output_currentEMAPrevious=0.0f;
 
 void DribblerController()
 {
@@ -82,7 +82,7 @@ void DribblerController()
 
         dribbler_SetSpeed(output_currentLoop/24.0f, 1);
         }
-    else
+    else if (!ballsensor_hasBall())
         {
             output_speedLoop=0.0f;
             output_currentLoop=0.0f;
@@ -93,29 +93,20 @@ void DribblerController()
 void FilterDribbler()
 {
 
-
- if(!ballsensor_hasBall())
- {
-    // Will be used to determine the current offset with the use of an Exponential moving average filter
-    // EMA filter: y(i)=alpha*x(i)+(1-alpha)*y(i-1)
-    // Current offset will only be determined when the motor is off
-     dribblerCtrl.current_offset=0.5f*dribbler_getCurrent()+ (1-0.5f)*dribblerCtrl.current_offset;
-     return;
- }
 // Determination of meausered current
-float output_speedEMA=0.5f*output_speedLoop+(1-0.5f)*output_speedEMAPrevious;
-output_speedEMAPrevious=output_speedEMA;
-if (output_speedEMA>0.0f)
+float output_currentEMA=0.5f*output_currentLoop+(1.0f-0.5f)*output_currentEMAPrevious;
+output_currentEMAPrevious=output_currentEMA;
+if (output_currentEMA>0.0f)
 {
     sign=1;
 }
-else if (output_speedEMA<0.0f)
+else if (output_currentEMA<0.0f)
 {
     sign=-1;
 }
 else
 {
-    sign=0;
+    sign=1;
 }
 measured_current=sign*(dribbler_getCurrent()-dribblerCtrl.current_offset); 
  
@@ -140,5 +131,13 @@ else
     dribblerCtrl.ReachedSpeed=false;
 }
 
+if(!ballsensor_hasBall())
+ {
+    // Will be used to determine the current offset with the use of an Exponential moving average filter
+    // EMA filter: y(i)=alpha*x(i)+(1-alpha)*y(i-1)
+    // Current offset will only be determined when the motor is off
+     dribblerCtrl.current_offset=0.5f*dribbler_getCurrent()+ (1-0.5f)*dribblerCtrl.current_offset;
+     return;
+ }
 }
 
