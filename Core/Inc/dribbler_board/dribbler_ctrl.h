@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h> // Include the header file that defines the "bool" type
 
 
 
@@ -19,6 +20,7 @@ typedef struct _datactrl
 	float filter_Speed;
 
 	float current_offset;
+	bool ReachedSpeed;
 
 } datactrl; // Rename the conflicting variable name to 'datactrl_t'
 

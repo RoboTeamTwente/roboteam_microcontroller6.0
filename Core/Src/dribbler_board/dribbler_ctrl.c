@@ -9,14 +9,15 @@ Created by Chris Krommendijk
 #include "dribbler.h"
 #include "dribbler_board.h"
 datactrl dribblerCtrl= {
-    .antiWindup_speed=0.2f, // [A]
-    .kp_speed=20.5f,
-    .ki_speed=0.1f,
-    .antiWindup_current=22.0f, // [V]
-    .kp_current=30.0f,
-    .ki_current=0.05f,
+    .antiWindup_speed=0.05f, // [A]
+    .kp_speed=9.2f,
+    .ki_speed=1.9f,
+    .antiWindup_current=6.0f, 
+    .kp_current=15.2f,
+    .ki_current=4.6f,
     .current_offset=0.0f, //[A]
-    .speed_desired=200.0f // [rad/s] max 500 rad/s
+    .speed_desired=200.0f, // [rad/s] max 500 rad/s
+    .ReachedSpeed=false
 };
 float iTerm_speed=0;
 float iTerm_current=0;
@@ -25,7 +26,7 @@ float output_currentLoop=0;
 float measured_speed=0;
 float measured_current=0;
 int sign;
-float output_speedEMA=0.0f;
+float output_speedEMAPrevious=0.0f;
 
 void DribblerController()
 {
@@ -77,7 +78,7 @@ void DribblerController()
         if (output_currentLoop>23.9f)
             output_currentLoop=23.9f;
         else if (output_currentLoop<-23.9f)
-            output_currentLoop=-23.0f;
+            output_currentLoop=-23.9f;
 
         dribbler_SetSpeed(output_currentLoop/24.0f, 1);
         }
@@ -98,11 +99,12 @@ void FilterDribbler()
     // Will be used to determine the current offset with the use of an Exponential moving average filter
     // EMA filter: y(i)=alpha*x(i)+(1-alpha)*y(i-1)
     // Current offset will only be determined when the motor is off
-     dribblerCtrl.current_offset=0.25f*dribbler_getCurrent()+ (1-0.25f)*dribblerCtrl.current_offset;
+     dribblerCtrl.current_offset=0.5f*dribbler_getCurrent()+ (1-0.5f)*dribblerCtrl.current_offset;
      return;
  }
 // Determination of meausered current
-float output_speedEMA=0.25f*output_speedLoop+(1-0.25f)*output_speedEMA;
+float output_speedEMA=0.5f*output_speedLoop+(1-0.5f)*output_speedEMAPrevious;
+output_speedEMAPrevious=output_speedEMA;
 if (output_speedEMA>0.0f)
 {
     sign=1;
@@ -127,7 +129,16 @@ float motorBackEmfConstantInv = 28.06f; // [rad/(V*s)] is the speed constant 268
 
 float restiveLossDribbler = (motorResistance * measured_current);
 float backEmfDribbler = output_currentLoop - restiveLossDribbler;
- 
+float errorPercentage = 0.10f; 
 measured_speed= (backEmfDribbler * motorBackEmfConstantInv);
+if (measured_speed>(1-errorPercentage)*dribblerCtrl.speed_desired && measured_speed<(1+errorPercentage)*dribblerCtrl.speed_desired)
+{
+    dribblerCtrl.ReachedSpeed=true;
+}
+else 
+{
+    dribblerCtrl.ReachedSpeed=false;
+}
+
 }
 

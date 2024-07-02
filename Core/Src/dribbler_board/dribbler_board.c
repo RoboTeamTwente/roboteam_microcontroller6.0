@@ -159,11 +159,11 @@ void do_send_ballState(){
 
 void control_dribbler_callback() { 
     set_Pin(LED1, ballsensor_hasBall());
-    set_Pin(LED2, dribbler_hasBall());
+   
     do_send_ballState();
     FilterDribbler();
     DribblerController();
-
+    set_Pin(LED2, dribblerCtrl.ReachedSpeed);
 
 
    
