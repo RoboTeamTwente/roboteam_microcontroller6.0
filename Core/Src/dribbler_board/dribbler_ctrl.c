@@ -9,14 +9,14 @@ Created by Chris Krommendijk
 #include "dribbler.h"
 #include "dribbler_board.h"
 datactrl dribblerCtrl= {
-    .antiWindup_speed=0.05f, // [A]
-    .kp_speed=9.2f,
-    .ki_speed=1.9f,
-    .antiWindup_current=6.0f, 
-    .kp_current=17.2f,
-    .ki_current=4.6f,
+    .antiWindup_speed=0.15f, // [A]
+    .kp_speed=0.00625f,
+    .ki_speed=0.0125f,
+    .antiWindup_current=12.0f, 
+    .kp_current=55.0f,
+    .ki_current=2.4f,
     .current_offset=0.0f, //[A]
-    .speed_desired=200.0f, // [rad/s] max 500 rad/s
+    .speed_desired=50.0f, // [rad/s] max 500 rad/s
     .ReachedSpeed=false
 };
 float iTerm_speed=0;
@@ -27,7 +27,7 @@ float measured_speed=0;
 float measured_current=0;
 int sign;
 float output_currentEMAPrevious=0.0f;
-
+float measured_speedPrevious=0.0f;
 void DribblerController()
 {
  // Motor speed controller
@@ -120,8 +120,10 @@ float motorBackEmfConstantInv = 28.06f; // [rad/(V*s)] is the speed constant 268
 
 float restiveLossDribbler = (motorResistance * measured_current);
 float backEmfDribbler = output_currentLoop - restiveLossDribbler;
-float errorPercentage = 0.10f; 
-measured_speed= (backEmfDribbler * motorBackEmfConstantInv);
+float errorPercentage = 0.05f; 
+
+measured_speed= 1.0f*(backEmfDribbler * motorBackEmfConstantInv)+measured_speedPrevious*(0.0f);
+measured_speedPrevious=measured_speed;
 if (measured_speed>(1-errorPercentage)*dribblerCtrl.speed_desired && measured_speed<(1+errorPercentage)*dribblerCtrl.speed_desired)
 {
     dribblerCtrl.ReachedSpeed=true;
@@ -137,7 +139,6 @@ if(!ballsensor_hasBall())
     // EMA filter: y(i)=alpha*x(i)+(1-alpha)*y(i-1)
     // Current offset will only be determined when the motor is off
      dribblerCtrl.current_offset=0.5f*dribbler_getCurrent()+ (1-0.5f)*dribblerCtrl.current_offset;
-     return;
  }
 }
 
