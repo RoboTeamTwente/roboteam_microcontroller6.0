@@ -111,6 +111,7 @@ bool flag_DribblerBoard_alive = false;
 bool flag_KickerBoard_alive = false;
 bool flag_useStateInfo = false;
 static bool listen_to_xsens = false;
+bool send_feedback_passively = false;
 
 /* SX data */
 extern SX1280_Settings SX1280_DEFAULT_SETTINGS;
@@ -709,11 +710,11 @@ void loop(void){
 	}
 
 	if (activeRobotCommand.reboot) {
-		MCP_RebootPayload reboot = {0};
-		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToPower);
-		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToDribbler);
-		MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToKicker);
-		HAL_Delay(1000);
+		// MCP_RebootPayload reboot = {0};
+		// MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToPower);
+		// MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToDribbler);
+		// MCP_Send_Message_Always(&hcan1, &reboot, rebootHeaderToKicker);
+		// HAL_Delay(1000);
 	}
 
     // Check for connection to serial, wireless, and xsens
@@ -817,7 +818,7 @@ void loop(void){
 			}
         }
 
-		if (TEST_MODE) {
+		if (send_feedback_passively) {
 			Wireless_SendPacket();
 		}
     }	

@@ -28,6 +28,7 @@ bool flag_error_too_many_children = false;
 bool flag_error_too_many_children_page_init = false;
 char* page_name_error_too_many_children;
 bool test_is_finished = false;
+static char *robotNames[] = {"404", "WALL-E", "Bob", "Pumba", "Ted", "Eve", "Susie", "James", "Lizzy", "McQueen", "Kevin", "Brum", "Van Robogh", "Wout", "Jenny", "Hermann"};
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
 
@@ -124,6 +125,8 @@ void OLED_Update(button_id_t button, bool test_mode) {
 */
 void end_of_boot_screen(bool MCP_OK) {
     clear_screen();
+    strcpy(current_page->page_name, robotNames[robot_get_ID()]);
+    putPageName();
     char temp[MAX_STRING_LENGTH];
     //ID + TEAM COLOR
     if (robot_get_Channel()) {
