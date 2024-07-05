@@ -112,42 +112,42 @@ int stateControl_Init(){
 	// feedforwardParameters.d[2] = 1.05f;
 	// feedforwardParameters.d[3] = 1.05f;
 
-feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
-feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
-feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
-feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[0] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[1] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[2] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
+	feedforwardParameters.b[3] = (2.0f*M_PI)/360.0f*180.0f/M_PI;
 
-feedforwardParameters.c[0] = 60.0f*(M_PI/180.0f);
-feedforwardParameters.c[1] = -60.0f*(M_PI/180.0f);
-feedforwardParameters.c[2] = -135.0f*(M_PI/180.0f);
-feedforwardParameters.c[3] = 135.0f*(M_PI/180.0f);
+	feedforwardParameters.c[0] = 60.0f*(M_PI/180.0f);
+	feedforwardParameters.c[1] = -60.0f*(M_PI/180.0f);
+	feedforwardParameters.c[2] = -135.0f*(M_PI/180.0f);
+	feedforwardParameters.c[3] = 135.0f*(M_PI/180.0f);
 
-feedforwardParameters.param1[0] = 0.46;
-feedforwardParameters.param1[1] = 0.46;
-feedforwardParameters.param1[2] = 0.46;
-feedforwardParameters.param1[3] = 0.46;
+	feedforwardParameters.param1[0] = 0.46;
+	feedforwardParameters.param1[1] = 0.46;
+	feedforwardParameters.param1[2] = 0.46;
+	feedforwardParameters.param1[3] = 0.46;
 
-feedforwardParameters.param2[0] = 0.0360*180.0f/M_PI;
-feedforwardParameters.param2[1] = 0.0360*180.0f/M_PI;
-feedforwardParameters.param2[2] = 0.0350*180.0f/M_PI;
-feedforwardParameters.param2[3] = 0.0354*180.0f/M_PI;
+	feedforwardParameters.param2[0] = 0.0360*180.0f/M_PI;
+	feedforwardParameters.param2[1] = 0.0360*180.0f/M_PI;
+	feedforwardParameters.param2[2] = 0.0350*180.0f/M_PI;
+	feedforwardParameters.param2[3] = 0.0354*180.0f/M_PI;
 
-feedforwardParameters.param3[0] = -0.764611677882548;
-feedforwardParameters.param3[1] = -2.33703565345706;
-feedforwardParameters.param3[2] = -1.00311434719396;
-feedforwardParameters.param3[3] = 4.16457002728926;
+	feedforwardParameters.param3[0] = -0.764611677882548;
+	feedforwardParameters.param3[1] = -2.33703565345706;
+	feedforwardParameters.param3[2] = -1.00311434719396;
+	feedforwardParameters.param3[3] = 4.16457002728926;
 
-feedforwardParameters.param4[0] = 1.23;
-feedforwardParameters.param4[1] = 1.23;
-feedforwardParameters.param4[2] = 1.23;
-feedforwardParameters.param4[3] = 1.23;
+	feedforwardParameters.param4[0] = 1.23;
+	feedforwardParameters.param4[1] = 1.23;
+	feedforwardParameters.param4[2] = 1.23;
+	feedforwardParameters.param4[3] = 1.23;
 
-feedforwardParameters.rotation_feedforward_value[0] = 0.3f;
-feedforwardParameters.rotation_feedforward_value[1] = 0.3f;
-feedforwardParameters.rotation_feedforward_value[2] = 0.3f;
-feedforwardParameters.rotation_feedforward_value[3] = 0.3f;
+	feedforwardParameters.rotation_feedforward_value[0] = 0.3f;
+	feedforwardParameters.rotation_feedforward_value[1] = 0.3f;
+	feedforwardParameters.rotation_feedforward_value[2] = 0.3f;
+	feedforwardParameters.rotation_feedforward_value[3] = 0.3f;
 
-feedforwardParameters.identified_damping = 0.0375f;
+	feedforwardParameters.identified_damping = 0.0375f;
 
 
 	feedforwardParameters.vw_max_round_to_rotational_scaling = 1.0f;
@@ -284,11 +284,12 @@ void wheels_Update() {
 			}
 
 			float feed_back_voltage = wheelFBOn*24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
-			if (feed_back_voltage > 3.0f) {
-				feed_back_voltage = 3.0f;
+			float max_fb_voltage = 12.5f;
+			if (feed_back_voltage > max_fb_voltage) {
+				feed_back_voltage = max_fb_voltage;
 			}
-			else if (feed_back_voltage < -3.0f) {
-				feed_back_voltage = -3.0f;
+			else if (feed_back_voltage < -max_fb_voltage) {
+				feed_back_voltage = -max_fb_voltage;
 			}
 
 
