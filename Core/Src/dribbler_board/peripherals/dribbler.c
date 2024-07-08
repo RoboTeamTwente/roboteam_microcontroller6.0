@@ -8,7 +8,7 @@ void dribbler_Init(){
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
 	dribbler_motor_Init();
-	dribbler_SetSpeed(0.0f);
+	dribbler_SetSpeed(0.0f, 1);
 }
 
 void dribbler_motor_Init(){
@@ -45,8 +45,18 @@ void dribbler_DeInit(){
 	stop_PWM(PWM_Dribbler_b);
 }
 
-void dribbler_SetSpeed(float speed){
-	if (BOARD_INITIALIZED){
+void dribbler_SetSpeed(float speed, bool brake){
+	if (brake){ // The motor is in braking mode
+		if (speed > 0){
+			set_PWM_dribbler(&PWM_Dribbler_b, 1);
+			set_PWM_dribbler(&PWM_Dribbler_a, 1-speed);
+		}
+		else{
+			set_PWM_dribbler(&PWM_Dribbler_a, 1);
+			set_PWM_dribbler(&PWM_Dribbler_b, 1 - -1*speed);
+		}
+	}
+	else{ // The motor is in coasting mode
 		if (speed > 0){
 			set_PWM_dribbler(&PWM_Dribbler_a, 0);
 			set_PWM_dribbler(&PWM_Dribbler_b, speed);
