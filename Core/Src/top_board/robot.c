@@ -88,6 +88,7 @@ uint64_t unix_timestamp = 0;
 uint32_t timestamp_last_packet_serial = 0;
 uint32_t timestamp_last_packet_wireless = 0;
 uint32_t timestamp_last_packet_xsens = 0;
+uint32_t timestamp_last_packet_with_camera_yaw = 0;
 
 uint32_t heartbeat_17ms_counter = 0;
 uint32_t heartbeat_17ms = 0;
@@ -221,6 +222,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	dribCommand.dribblerOption4 = robotCommand->dribblerOption4;
 	dribCommand.dribblerOption5 = robotCommand->dribblerOption5;
 	dribCommand.dribblerOption6 = robotCommand->dribblerOption6;
+	dribCommand.SystemTest = system_test_running;
 	MCP_DribblerCommandPayload dcp = {0};
 	encodeMCP_DribblerCommand(&dcp, &dribCommand);
 	MCP_Send_Message(&hcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
@@ -863,6 +865,11 @@ void loop(void){
 			}
         }
 
+		// reset yaw calibration if robot has not been receiving camera yaw packet for the last 3 minutes
+		if ((current_time - timestamp_last_packet_with_camera_yaw) > 3 * 60 * 1000) {
+			yaw_ResetCalibration();
+		}
+
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);
 
@@ -1068,6 +1075,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // Handles the interrupts of the different timers.
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
+	//Control loop
     if(htim->Instance == TIM_CONTROL->Instance) {
 		if(!ROBOT_INITIALIZED || OLED_get_current_page_test_type() == BLOCKING_TEST) return;
 
@@ -1098,6 +1106,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
+
+		if (activeRobotCommand.useCameraYaw) {
+			timestamp_last_packet_with_camera_yaw = current_time;
+		}
 
 		if(is_connected_wireless && activeRobotCommand.useCameraYaw && !yaw_hasCalibratedOnce()) {
 			wheels_Stop();

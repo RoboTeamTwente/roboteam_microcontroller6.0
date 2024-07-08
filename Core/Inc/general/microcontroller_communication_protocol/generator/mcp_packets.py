@@ -33,7 +33,7 @@ packets = {
             ["dribblerOption4",     1,  None, "Dribbler option 4"],
             ["dribblerOption5",     1,  None, "Dribbler option 5"],
             ["dribblerOption6",     1,  None, "Dribbler option 6"],
-            ["dribblerOption7",     1,  None, "Dribbler option 7"],
+            ["SystemTest",          1,  None, "Spin the dribbler bar during system test"],
         ]
     },
     "MCP_KickerCharge" : {

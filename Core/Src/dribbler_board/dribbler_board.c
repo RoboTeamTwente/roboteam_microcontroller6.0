@@ -172,6 +172,9 @@ void control_dribbler_callback() {
             ball_counter = ball_counter + 1;
             dribbler_SetSpeed(0.2f, 1);
             return;
+        } else if (dribblerCommand.SystemTest) {
+            dribbler_SetSpeed(0.5f, 1);
+            return;
         }
     }
     dribbler_SetSpeed(0.0f, 1);

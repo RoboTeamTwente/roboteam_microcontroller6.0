@@ -91,11 +91,11 @@ float yaw_GetCalibratedYaw(){
 
 bool yaw_hasCalibratedOnce(){
 	return hasCalibratedOnce;
-};
+}
 
 void yaw_ResetCalibration(){
 	hasCalibratedOnce = false;
-};
+}
 
 void set_rotOffset(float _rotOffset) {
 	rotOffset = _rotOffset;
