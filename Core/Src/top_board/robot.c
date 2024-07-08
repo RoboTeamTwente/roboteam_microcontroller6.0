@@ -88,6 +88,7 @@ uint64_t unix_timestamp = 0;
 uint32_t timestamp_last_packet_serial = 0;
 uint32_t timestamp_last_packet_wireless = 0;
 uint32_t timestamp_last_packet_xsens = 0;
+uint32_t timestamp_last_packet_with_camera_yaw = 0;
 
 uint32_t heartbeat_17ms_counter = 0;
 uint32_t heartbeat_17ms = 0;
@@ -864,6 +865,11 @@ void loop(void){
 			}
         }
 
+		// reset yaw calibration if robot has not been receiving camera yaw packet for the last 3 minutes
+		if ((current_time - timestamp_last_packet_with_camera_yaw) > 3 * 60 * 1000) {
+			yaw_ResetCalibration();
+		}
+
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);
 
@@ -1100,6 +1106,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		// State Estimation
 		stateEstimation_Update(&stateInfo);
+
+		if (activeRobotCommand.useCameraYaw) {
+			timestamp_last_packet_with_camera_yaw = current_time;
+		}
 
 		if(is_connected_wireless && activeRobotCommand.useCameraYaw && !yaw_hasCalibratedOnce()) {
 			wheels_Stop();
