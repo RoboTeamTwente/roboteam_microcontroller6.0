@@ -221,6 +221,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	dribCommand.dribblerOption4 = robotCommand->dribblerOption4;
 	dribCommand.dribblerOption5 = robotCommand->dribblerOption5;
 	dribCommand.dribblerOption6 = robotCommand->dribblerOption6;
+	dribCommand.SystemTest = system_test_running;
 	MCP_DribblerCommandPayload dcp = {0};
 	encodeMCP_DribblerCommand(&dcp, &dribCommand);
 	MCP_Send_Message(&hcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
@@ -1068,6 +1069,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // Handles the interrupts of the different timers.
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
+	//Control loop
     if(htim->Instance == TIM_CONTROL->Instance) {
 		if(!ROBOT_INITIALIZED || OLED_get_current_page_test_type() == BLOCKING_TEST) return;
 

@@ -9,7 +9,7 @@
 -------- ----1--- dribblerOption4
 -------- -----1-- dribblerOption5
 -------- ------1- dribblerOption6
--------- -------1 dribblerOption7
+-------- -------1 SystemTest
 */
 
 #ifndef __MCP_DRIBBLER_COMMAND_H
@@ -32,7 +32,7 @@ typedef struct _MCP_DribblerCommand {
     bool       dribblerOption4     ; // integer [0, 1]               Dribbler option 4
     bool       dribblerOption5     ; // integer [0, 1]               Dribbler option 5
     bool       dribblerOption6     ; // integer [0, 1]               Dribbler option 6
-    bool       dribblerOption7     ; // integer [0, 1]               Dribbler option 7
+    bool       SystemTest          ; // integer [0, 1]               Spin the dribbler bar during system test
 } MCP_DribblerCommand;
 
 // ================================ GETTERS ================================
@@ -68,7 +68,7 @@ static inline bool MCP_DribblerCommand_get_dribblerOption6(MCP_DribblerCommandPa
     return (mcpdcp->payload[1] & 0b00000010) > 0;
 }
 
-static inline bool MCP_DribblerCommand_get_dribblerOption7(MCP_DribblerCommandPayload *mcpdcp){
+static inline bool MCP_DribblerCommand_get_SystemTest(MCP_DribblerCommandPayload *mcpdcp){
     return (mcpdcp->payload[1] & 0b00000001) > 0;
 }
 
@@ -105,8 +105,8 @@ static inline void MCP_DribblerCommand_set_dribblerOption6(MCP_DribblerCommandPa
     mcpdcp->payload[1] = ((dribblerOption6 << 1) & 0b00000010) | (mcpdcp->payload[1] & 0b11111101);
 }
 
-static inline void MCP_DribblerCommand_set_dribblerOption7(MCP_DribblerCommandPayload *mcpdcp, bool dribblerOption7){
-    mcpdcp->payload[1] = (dribblerOption7 & 0b00000001) | (mcpdcp->payload[1] & 0b11111110);
+static inline void MCP_DribblerCommand_set_SystemTest(MCP_DribblerCommandPayload *mcpdcp, bool SystemTest){
+    mcpdcp->payload[1] = (SystemTest & 0b00000001) | (mcpdcp->payload[1] & 0b11111110);
 }
 
 // ================================ ENCODE ================================
@@ -119,7 +119,7 @@ static inline void encodeMCP_DribblerCommand(MCP_DribblerCommandPayload *mcpdcp,
     MCP_DribblerCommand_set_dribblerOption4     (mcpdcp, mcpdc->dribblerOption4);
     MCP_DribblerCommand_set_dribblerOption5     (mcpdcp, mcpdc->dribblerOption5);
     MCP_DribblerCommand_set_dribblerOption6     (mcpdcp, mcpdc->dribblerOption6);
-    MCP_DribblerCommand_set_dribblerOption7     (mcpdcp, mcpdc->dribblerOption7);
+    MCP_DribblerCommand_set_SystemTest          (mcpdcp, mcpdc->SystemTest);
 }
 
 // ================================ DECODE ================================
@@ -132,7 +132,7 @@ static inline void decodeMCP_DribblerCommand(MCP_DribblerCommand *mcpdc, MCP_Dri
     mcpdc->dribblerOption4= MCP_DribblerCommand_get_dribblerOption4(mcpdcp);
     mcpdc->dribblerOption5= MCP_DribblerCommand_get_dribblerOption5(mcpdcp);
     mcpdc->dribblerOption6= MCP_DribblerCommand_get_dribblerOption6(mcpdcp);
-    mcpdc->dribblerOption7= MCP_DribblerCommand_get_dribblerOption7(mcpdcp);
+    mcpdc->SystemTest    = MCP_DribblerCommand_get_SystemTest(mcpdcp);
 }
 
 #endif /*__MCP_DRIBBLER_COMMAND_H*/
