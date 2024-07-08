@@ -5,6 +5,11 @@ uint8_t counter = 0;
 bool ballSensor_isWorking = false;
 bool IR_State = false;
 
+
+uint16_t ADC2_Avg_Buffer[AvgBufferSize];
+uint32_t ADC2_Avg_counter = 0;
+uint32_t ADC2_Avg = 0;
+
 void ballsensor_init(){
     HAL_TIM_Base_Start_IT(ADC_TIMER);
     HAL_ADC_Start_DMA(BALL_SENSOR_IN, (uint32_t*)ADC2_buffer, DMA_bufferSize);
@@ -38,6 +43,20 @@ void ballsensor_setIR_off(){
 }
 
 bool ballsensor_hasBall(){
-    return ADC2_buffer[0] < 200 && IR_State;
+    return ADC2_Avg < 200 && IR_State;
+}
+
+
+void ballsensor_DetectBall(){
+    
+    ADC2_Avg_Buffer[ADC2_Avg_counter % AvgBufferSize] = ADC2_buffer[0]; //ADC2_buffer[0] is the value of the ADC reading
+
+    uint32_t ADC2_Avg_sum = 0;
+    for (int i = 0; i < AvgBufferSize; i++){
+        ADC2_Avg_sum += ADC2_Avg_Buffer[i];
+    }
+    ADC2_Avg = ADC2_Avg_sum / AvgBufferSize;
+
+    ADC2_Avg_counter++;
 }
 
