@@ -4,7 +4,7 @@
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 float current_limit;
 void dribbler_Init(){
-	current_limit=0.8f; // [A] 0.32A is the maximum continuous current of the dribbler motor
+	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
