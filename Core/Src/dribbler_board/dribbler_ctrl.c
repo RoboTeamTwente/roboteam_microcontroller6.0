@@ -12,11 +12,11 @@ datactrl dribblerCtrl= {
     .antiWindup_speed=0.15f, // [A]
     .kp_speed=0.00625f,
     .ki_speed=0.0125f,
-    .antiWindup_current=12.0f, 
-    .kp_current=55.0f,
-    .ki_current=2.4f,
+    .antiWindup_current=14.0f, 
+    .kp_current=12.5f,
+    .ki_current=2.1f,
     .current_offset=0.0f, //[A]
-    .speed_desired=50.0f, // [rad/s] max 500 rad/s
+    .speed_desired=450.0f, // [rad/s] max 500 rad/s
     .ReachedSpeed=false
 };
 float iTerm_speed=0;
