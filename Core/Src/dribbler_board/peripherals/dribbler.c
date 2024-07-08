@@ -2,8 +2,9 @@
 
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
-
+float current_limit;
 void dribbler_Init(){
+	current_limit=0.32f; // [A] 0.32A is the maximum continuous current of the dribbler motor
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
@@ -17,25 +18,46 @@ void dribbler_motor_Init(){
 	HAL_ADC_Start_DMA(CURRENT_DRIBBLER, (uint32_t*)dribbler_current_Buffer, current_Buffer_Size);
 
 	// For the voltage
-	dribbler_setCurrentLimit(1500);
+	dribbler_setCurrentLimit(current_limit);
 }
 
 /**
- * @note 0 <= value <= 4000
+ * @note 0 <= value <= 2.2 A
+ * For motor go to max 0.3 A
+ * reference: https://deepbluembedded.com/stm32-dac-tutorial-example-hal-code-analog-signal-genreation/
+ * The value you put in is the DOR Vout=DOR*(Vref/4096) where Vref is the reference voltage of the DAC (3.3V)
+ * DOR=Vout*(4096/Vref)
+ * 
+ * I_TRIP (A) x A_IPROPI (μA/A) = V_VREF (V) / R_IPROPI (Ω)
+ * I_TRIP = V_VREF / (A_IPROPI * R_IPROPI)
+ * V_VREF = I_TRIP * A_IPROPI * R_IPROPI
+ * R_IPROPI = 1000 (Ω) V_VREF = 3.3 (V), A_IPROPI = 1500 (μA/A)
+ *
 */
-void dribbler_setCurrentLimit(uint16_t value){
+void dribbler_setCurrentLimit(float value){
+	// The value you put in is the DOR Vout=DOR*(Vref/4095) where Vref is the reference voltage of the DAC (3.3V)
+	//float V_set= (float)(value * 1.5f); //
+	uint32_t DOR = (uint32_t)(1939 * value + 232);
+	if (DOR>4095){
+		DOR=4095;
+		}
+
 	HAL_DAC_Start(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1);
-	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, value);
+	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, DOR);
+ 
 }
 
-uint32_t dribbler_getCurrent(){
+float dribbler_getCurrent(){
 	// For now we get the most recent reading
-	return dribbler_current_Buffer[0];
+	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
+	uint32_t current_temp = dribbler_current_Buffer[0];
+	float currentA = ((float)(current_temp-232))/1939;
+	return currentA;
 }
 
 bool dribbler_hasBall(){
-	uint32_t current = dribbler_getCurrent();
-	return current > CURRENT_THRESHOLD;
+	float currentA = dribbler_getCurrent();
+	return (currentA>0.15f);
 }
 
 void dribbler_DeInit(){
