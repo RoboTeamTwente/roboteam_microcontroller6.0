@@ -24,7 +24,7 @@ static PIDvariables stateLocalK[4];
 static float stateGlobalRef[4] = {0.0f};
 static float stateGlobalRefAcceleration[3] = {0.0f};
 
-static float mass = 2.581; // [kg]
+static float mass = 2.632; // [kg]
 static float inertia = 0.0; // not correct, should be changed to correct value if rotational inertia feedforward will also be implemented
 static int8_t wheelFBOn = 1;
 static int8_t wheelFFOn = 1;
