@@ -131,8 +131,11 @@ void MCP_Send_Ball_State(){
         encodeMCP_SeesBall(&sbp, &mcp_seesBall);
         MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
         MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
-        sendSeesBall = false;
     }
+}
+
+void MCP_resetSendMsg() {
+    sendSeesBall = false;
 }
 
 /* =================================================== */
