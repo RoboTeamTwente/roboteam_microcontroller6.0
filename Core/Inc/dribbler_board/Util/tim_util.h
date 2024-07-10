@@ -38,9 +38,6 @@ extern PWM_struct PWM_IR_PIN;
 #define ADC_TIMER (&htim6)
 #define IR_OUT_TIM (&htim15)
 
-// PWM
-extern PWM_struct PWM_Dribbler; 
-
 extern void set_PWM(PWM_struct* PWM, float Value);
 
 inline void start_PWM(PWM_struct PWM){

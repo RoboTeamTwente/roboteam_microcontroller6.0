@@ -46,10 +46,6 @@ void init(){
     dribbler_Init();
     ballsensor_init();
     LOG_init();
-    
-    LOG("HELLO!");
-
-    LOG("HELLO!");
 
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
 
@@ -67,6 +63,7 @@ void init(){
 	MCP_Send_Im_Alive();
     
     BOARD_INITIALIZED = true;
+    LOG_printf("Init Finished!\n");
     LOG_sendAll();
 }
 
@@ -91,7 +88,6 @@ void loop(){
             MCP_Process_Message(&MailBox_three);
         MCP_to_process = false;
 	}
-
     do_send_ballState();
 }
 

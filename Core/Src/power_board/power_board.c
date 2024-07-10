@@ -28,7 +28,6 @@ void init() {
 	set_Pin(BAT_KILL_pin, 1);
 	LOG_init();
 	HAL_Delay(50);
-	LOG_printf("TEST!");
 
 	// MCP init
 	MCP_Init(&hcan, MCP_POWER_BOARD);
@@ -45,7 +44,8 @@ void init() {
 	MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-	//REM_UARTinit(UART_PC);
+
+	LOG_printf("Init Finished!");
 	LOG_sendAll();
 	heartbeat_10000ms = HAL_GetTick() + 10000;
 }
