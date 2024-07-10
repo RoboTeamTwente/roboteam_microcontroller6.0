@@ -361,6 +361,9 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 	to_Process->message_id = 0;
 }
 
+void MCP_resetSendMsg() {
+	
+}
 
 
 /* ======================================================== */
