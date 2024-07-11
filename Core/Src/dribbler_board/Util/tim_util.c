@@ -10,6 +10,7 @@
 
 PWM_struct PWM_Dribbler_a	    = { PWM_DRIBBLER , ((uint16_t)TIM_CHANNEL_1)};
 PWM_struct PWM_Dribbler_b       = { PWM_DRIBBLER , ((uint16_t)TIM_CHANNEL_2)}; 
+PWM_struct PWM_IR_PIN           = { IR_OUT_TIM   , ((uint16_t)TIM_CHANNEL_1)};
 
 void set_PWM_dribbler(PWM_struct* PWM, float Value){
     if (PWM->Channel == ((uint16_t)TIM_CHANNEL_1))
