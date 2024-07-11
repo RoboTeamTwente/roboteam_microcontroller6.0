@@ -14,5 +14,6 @@ void init();
 void loop();
 uint8_t robot_get_ID();
 uint8_t robot_get_Channel();
+void MCP_resetSendMsg();
 
 #endif /* _POWER_BOARD_H_ */
