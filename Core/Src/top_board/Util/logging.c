@@ -97,7 +97,7 @@ void LOG_send(){
     if(CircularBuffer_spaceFilled(buffer_indexer) == 0) return;
 
     MessageContainer* message_container = &message_buffer[buffer_indexer->indexRead];
-    HAL_UART_Transmit_DMA(&huart1, message_container->payload, message_container->length);
+    HAL_UART_Transmit_DMA(UART_PC, message_container->payload, message_container->length);
     CircularBuffer_read(buffer_indexer, NULL, 1);
 
 }
