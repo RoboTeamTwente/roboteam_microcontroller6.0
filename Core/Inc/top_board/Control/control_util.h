@@ -29,6 +29,8 @@
 #define MAX_VOLTAGE 24.0F	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
 float SPEED_CONSTANT; 	
 #define SPEED_CONSTANT_MOTOR 291.0F //[(rpm/V] see datasheet // translation from rpm/V to rad/s/V is done later.
+#define TORQUE_CONSTANT_MOTOR 0.0328F //[Nm/A]
+#define RESISTANCE_MOTOR 1.07F //[ohm]
 #define WHEEL_PULSES_PER_ROTATION (float)4*2048 // number of pulses of the encoder per rotation of the motor. New encoder: ENX 32 MILE // Multiplication by 4 is unsure but datahseet from Maxon is dfferent than some sources.
 
 float OMEGAtoPWM; // conversion factor from wheel speed [rad/s] to required PWM on the motor
