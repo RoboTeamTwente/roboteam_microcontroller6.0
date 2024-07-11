@@ -30,6 +30,7 @@ void init() {
     // Set power circuit pin to HIGH, meaning on. When pulled again to LOW, it signals the power circuit to turn off, and power is then cut off instantly.
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	set_Pin(BAT_KILL_pin, 1);
+	LOG_init();
 
 	// MCP init
 	MCP_Init(&hcan, MCP_POWER_BOARD);
@@ -52,6 +53,8 @@ void init() {
 	heartbeat_10000ms = HAL_GetTick() + 10000;
 	heartbeat_10ms = HAL_GetTick() + 10;
 	HAL_IWDG_Refresh(&hiwdg);
+	LOG_printf("Power Init\n");
+	LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){

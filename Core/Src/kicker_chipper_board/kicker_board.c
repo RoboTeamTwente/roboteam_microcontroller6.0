@@ -28,6 +28,7 @@ MCP_KickerStatus MCP_Status = {0};
 /* ======================================================== */
 void init() {
 	HAL_IWDG_Refresh(&hiwdg);
+	LOG_init();
     // MCP
 	MCP_Init(&hcan, MCP_KICKER_BOARD);
 	kickerAliveToTopHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_KICKER_ALIVE, MCP_TOP_BOARD);
@@ -45,6 +46,8 @@ void init() {
 	MCP_Send_Im_Alive();
 
 	BOARD_INITIALIZED = true;
+	LOG_printf("Kicker Init\n");
+	LOG_sendAll();
 	HAL_IWDG_Refresh(&hiwdg);
 }
 
