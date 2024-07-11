@@ -24,7 +24,8 @@ static bool log_initialized = false;
 
 void LOG_init(){
     // Can't initialize twice
-    if(log_initialized) return;
+    if(log_initialized) 
+        return;
     // Create buffer indexer
     buffer_indexer = CircularBuffer_init(true, LOG_MAX_MESSAGES);
     // Wait for UART to be ready
@@ -102,11 +103,13 @@ void LOG_send(){
 }
 
 void LOG_sendAll(){
-    while(LOG_hasMessage()) LOG_send();
+    while(LOG_hasMessage()) 
+        LOG_send();
 }
 
 bool LOG_hasMessage(){
-    return 0 < CircularBuffer_spaceFilled(buffer_indexer);
+    uint32_t temp = CircularBuffer_spaceFilled(buffer_indexer);
+    return 0 < temp;
 }
 
 bool LOG_canAddLog(){

@@ -42,8 +42,11 @@ uint32_t heart_beat_10ms = 0;
 void init(){
     HAL_IWDG_Refresh(&hiwdg);
     // Peripherals
+    HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
     dribbler_Init();
     ballsensor_init();
+    LOG_init();
+
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
 
     //MCP
@@ -60,6 +63,8 @@ void init(){
 	MCP_Send_Im_Alive();
     
     BOARD_INITIALIZED = true;
+    LOG_printf("Init Finished!\n");
+    LOG_sendAll();
     HAL_IWDG_Refresh(&hiwdg);
 }
 
@@ -86,6 +91,7 @@ void loop(){
             MCP_Process_Message(&MailBox_three);
         MCP_to_process = false;
 	}
+    do_send_ballState();
 }
 
 /* ============================================= */
@@ -158,9 +164,9 @@ void do_send_ballState(){
 }
 
 void control_dribbler_callback() { 
+
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
-
     do_send_ballState();
     if (dribblerCommand.dribblerOn) {
         if(ballsensor_hasBall()){
@@ -178,15 +184,23 @@ void control_dribbler_callback() {
         }
     }
     dribbler_SetSpeed(0.0f, 1);
+
+    
 }
 
 
 /* ============================================================ */
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
     if (hadc == CURRENT_DRIBBLER){// hadc == &hadc1
-        control_dribbler_callback(); 
+        ballsensor_DetectBall();
+
     }
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == CONTROL_TIMER->Instance) {
+        control_dribbler_callback();
+	}
 }

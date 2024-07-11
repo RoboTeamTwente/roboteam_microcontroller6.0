@@ -3,9 +3,10 @@
 
 #include "main.h"
 #include "gpio_util.h"
+#include "tim_util.h"
 
-#define DMA_bufferSize 2
-#define state_bufferSize 10
+#define DMA_bufferSize 1
+#define AvgBufferSize 10
 
 extern bool ballSensor_isWorking;
 
@@ -24,5 +25,7 @@ bool ballsensor_hasBall();
 bool ballsesnor_previousState();
 
 bool ballsesnor_changeState();
+
+void ballsensor_DetectBall();
 
 #endif
