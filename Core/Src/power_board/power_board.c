@@ -54,8 +54,6 @@ void init() {
 	heartbeat_10000ms = HAL_GetTick() + 10000;
 	heartbeat_10ms = HAL_GetTick() + 10;
 	HAL_IWDG_Refresh(&hiwdg);
-	LOG_printf("Power Init\n");
-	LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){

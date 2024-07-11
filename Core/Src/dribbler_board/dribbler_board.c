@@ -43,9 +43,9 @@ void init(){
     HAL_IWDG_Refresh(&hiwdg);
     // Peripherals
     HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
+    LOG_init();
     dribbler_Init();
     ballsensor_init();
-    LOG_init();
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
 
     //MCP
@@ -62,11 +62,9 @@ void init(){
 	MCP_Send_Im_Alive();
     
     BOARD_INITIALIZED = true;
-    LOG_printf("Init Finished!\n");
+    LOG_printf("Drib start!\n");
     LOG_sendAll();
     HAL_IWDG_Refresh(&hiwdg);
-    LOG_printf("Dribbler Board Init\n");
-    LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){
@@ -185,7 +183,6 @@ void control_dribbler_callback() {
         }
     }
     dribbler_SetSpeed(0.0f, 1);
-
     
 }
 

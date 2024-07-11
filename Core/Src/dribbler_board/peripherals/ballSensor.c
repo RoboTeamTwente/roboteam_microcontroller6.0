@@ -17,17 +17,31 @@ void ballsensor_init(){
 }
 
 void ballsensor_deinit(){
+    ballsensor_setIR_off();
     HAL_TIM_Base_Stop(ADC_TIMER);
 }
 
 void ballsensor_test(){
+    ballsensor_setIR_on();
     HAL_Delay(100);
     if(ballsensor_hasBall()){ // if we have a reading that is below the threshold when the IR is on then it means the sensor is not working
+        LOG_printf("Ballsensor not working\n");
         ballSensor_isWorking = false;
-        ballsensor_deinit();
+        ballsensor_setIR_off();
         return;
     }
+    LOG_printf("Ballsensor working\n");
     ballSensor_isWorking = true;
+}
+
+void ballsensor_setIR_on(){
+    IR_State = true;
+    set_Pin(IR_LED_pin, true);
+}
+
+void ballsensor_setIR_off(){
+    IR_State = false;
+    set_Pin(IR_LED_pin, false);
 }
 
 bool ballsensor_hasBall(){
