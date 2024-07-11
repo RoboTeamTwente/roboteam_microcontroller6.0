@@ -26,8 +26,6 @@ MCP_DribblerCommand dribblerCommand = {0};
 /* ====================================================================== */    
 
 // These values are sent to the top board, depending on weither the ballsensor or dribbler detects the ball
-bool dribbler_state;
-bool ballsensor_state;
 static bool sendSeesBall = false;
 
 // Checks for how long we lost the ball
@@ -131,16 +129,18 @@ void MCP_Send_Ball_State(){
         encodeMCP_SeesBall(&sbp, &mcp_seesBall);
         MCP_Send_Message(&hcan, &sbp, seesBallHeaderToTop, MCP_TOP_BOARD);
         MCP_Send_Message(&hcan, &sbp, seesBallHeaderToKicker, MCP_KICKER_BOARD);
-        sendSeesBall = false;
     }
+}
+
+void MCP_resetSendMsg() {
+    sendSeesBall = false;
 }
 
 /* =================================================== */
 /* ===================== METHODS ===================== */
 /* =================================================== */
 
-void do_send_ballState(){
-    sendSeesBall = false; 
+void do_send_ballState(){ 
 
     if (mcp_seesBall.ballsensorSeesBall != ballsensor_hasBall()) {
         mcp_seesBall.ballsensorSeesBall = ballsensor_hasBall();
@@ -177,7 +177,10 @@ void control_dribbler_callback() {
 //             ball_counter = ball_counter + 1;
 //             dribbler_SetSpeed(0.2f, 1);
 //             return;
-//         }
+//         } else if (dribblerCommand.SystemTest) {
+//            dribbler_SetSpeed(0.5f, 1);
+//            return;
+//        }
 //     }
 //     dribbler_SetSpeed(0.0f, 1);
 }

@@ -3,7 +3,7 @@
 
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
-
+float current_limit;
 void dribbler_Init(){
 	dribblerCtrl.current_limit = 1.5f;
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
@@ -34,6 +34,17 @@ void dribbler_motor_Init(){
  * V_VREF = I_TRIP * A_IPROPI * R_IPROPI
  * R_IPROPI = 1000 (Ω) V_VREF = 3.3 (V), A_IPROPI = 1500 (μA/A)
  *
+ * @note 0 <= value <= 2.2 A
+ * For motor go to max 0.3 A
+ * reference: https://deepbluembedded.com/stm32-dac-tutorial-example-hal-code-analog-signal-genreation/
+ * The value you put in is the DOR Vout=DOR*(Vref/4096) where Vref is the reference voltage of the DAC (3.3V)
+ * DOR=Vout*(4096/Vref)
+ * 
+ * I_TRIP (A) x A_IPROPI (μA/A) = V_VREF (V) / R_IPROPI (Ω)
+ * I_TRIP = V_VREF / (A_IPROPI * R_IPROPI)
+ * V_VREF = I_TRIP * A_IPROPI * R_IPROPI
+ * R_IPROPI = 1000 (Ω) V_VREF = 3.3 (V), A_IPROPI = 1500 (μA/A)
+ *
 */
 void dribbler_setCurrentLimit(float value){
 	// The value you put in is the DOR Vout=DOR*(Vref/4095) where Vref is the reference voltage of the DAC (3.3V)
@@ -46,10 +57,17 @@ void dribbler_setCurrentLimit(float value){
 	HAL_DAC_Start(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1);
 	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, DOR);
  
+	HAL_DAC_SetValue(VOLTAGE_DRIBBLER, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, DOR);
+ 
 }
 
 float dribbler_getCurrent(){
+float dribbler_getCurrent(){
 	// For now we get the most recent reading
+	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
+	uint32_t current_temp = dribbler_current_Buffer[0];
+	float currentA = ((float)(current_temp-232))/1939;
+	return currentA;
 	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
 	uint32_t current_temp = dribbler_current_Buffer[0];
 	float currentA = ((float)(current_temp-232))/1939;
@@ -57,6 +75,8 @@ float dribbler_getCurrent(){
 }
 
 bool dribbler_hasBall(){
+	float currentA = dribbler_getCurrent();
+	return (currentA>0.15f);
 	float currentA = dribbler_getCurrent();
 	return (currentA>0.15f);
 }
