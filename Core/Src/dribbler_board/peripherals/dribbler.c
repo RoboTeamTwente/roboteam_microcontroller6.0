@@ -5,7 +5,7 @@
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 
 void dribbler_Init(){
-	dribblerCtrl.current_limit = 0.32f;
+	dribblerCtrl.current_limit = 1.5f;
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
