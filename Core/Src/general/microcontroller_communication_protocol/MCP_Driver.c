@@ -185,6 +185,7 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
         if (ack_numbers[from_board] == received_number) {
             ack_numbers[from_board] = (ack_numbers[from_board] + 1) % 0xFF;
             free_to_send[from_board] = true;
+            MCP_resetSendMsg();
         }
         
         return false;
