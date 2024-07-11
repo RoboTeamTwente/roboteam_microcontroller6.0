@@ -9,9 +9,9 @@ Created by Chris Krommendijk
 #include "dribbler.h"
 #include "dribbler_board.h"
 datactrl dribblerCtrl= {
-    .antiWindup_speed=0.15f, // [A]
+    .antiWindup_speed=0.375f, // [A]
     .kp_speed=0.00625f,
-    .ki_speed=0.0125f,
+    .ki_speed=0.00125f,
     .antiWindup_current=14.0f, 
     .kp_current=12.5f,
     .ki_current=2.1f,
@@ -28,6 +28,7 @@ float measured_current=0;
 int sign;
 float output_currentEMAPrevious=0.0f;
 float measured_speedPrevious=0.0f;
+float current_offset_previous=0.0f;
 void DribblerController()
 {
  // Motor speed controller
@@ -86,6 +87,8 @@ void DribblerController()
         {
             output_speedLoop=0.0f;
             output_currentLoop=0.0f;
+            iTerm_speed=0.0f;
+            iTerm_current=0.0f;
             dribbler_SetSpeed(output_currentLoop, 1);
         }
 }
@@ -122,7 +125,7 @@ float restiveLossDribbler = (motorResistance * measured_current);
 float backEmfDribbler = output_currentLoop - restiveLossDribbler;
 float errorPercentage = 0.05f; 
 
-measured_speed= 1.0f*(backEmfDribbler * motorBackEmfConstantInv)+measured_speedPrevious*(0.0f);
+measured_speed= 0.75f*(backEmfDribbler * motorBackEmfConstantInv)+measured_speedPrevious*(0.25f);
 measured_speedPrevious=measured_speed;
 if (measured_speed>(1-errorPercentage)*dribblerCtrl.speed_desired && measured_speed<(1+errorPercentage)*dribblerCtrl.speed_desired)
 {
@@ -138,7 +141,8 @@ if(!ballsensor_hasBall())
     // Will be used to determine the current offset with the use of an Exponential moving average filter
     // EMA filter: y(i)=alpha*x(i)+(1-alpha)*y(i-1)
     // Current offset will only be determined when the motor is off
-     dribblerCtrl.current_offset=0.5f*dribbler_getCurrent()+ (1-0.5f)*dribblerCtrl.current_offset;
+     dribblerCtrl.current_offset=0.75f*dribbler_getCurrent()+ (0.25f)*current_offset_previous;
+     current_offset_previous=dribblerCtrl.current_offset;
  }
 }
 

@@ -3,7 +3,6 @@
 
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
-float current_limit;
 void dribbler_Init(){
 	dribblerCtrl.current_limit = 1.5f;
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
@@ -62,12 +61,7 @@ void dribbler_setCurrentLimit(float value){
 }
 
 float dribbler_getCurrent(){
-float dribbler_getCurrent(){
 	// For now we get the most recent reading
-	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
-	uint32_t current_temp = dribbler_current_Buffer[0];
-	float currentA = ((float)(current_temp-232))/1939;
-	return currentA;
 	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
 	uint32_t current_temp = dribbler_current_Buffer[0];
 	float currentA = ((float)(current_temp-232))/1939;
@@ -75,8 +69,6 @@ float dribbler_getCurrent(){
 }
 
 bool dribbler_hasBall(){
-	float currentA = dribbler_getCurrent();
-	return (currentA>0.15f);
 	float currentA = dribbler_getCurrent();
 	return (currentA>0.15f);
 }
