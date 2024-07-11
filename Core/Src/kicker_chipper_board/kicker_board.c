@@ -41,6 +41,10 @@ void init() {
 	voltage_Init();
 	shoot_Init();
 
+	LOG_init();
+	HAL_Delay(100);// small delay to make sure all resources are correctly set
+	LOG_printf("\n");
+
 	// MCP Alive
 	MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
@@ -49,6 +53,9 @@ void init() {
 	LOG_printf("Kicker Init\n");
 	LOG_sendAll();
 	HAL_IWDG_Refresh(&hiwdg);
+
+	LOG_printf("Kicker Initialized!\n");
+	LOG_sendAll();
 }
 
 uint8_t robot_get_ID(){

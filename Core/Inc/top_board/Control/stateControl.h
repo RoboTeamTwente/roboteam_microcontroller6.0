@@ -48,6 +48,10 @@ struct FFstruct{
 	float b[4]; // Sine frequency
 	float c[4]; // Sine phase
 	float d[4]; // Constant offset
+	float param1[4];
+	float param2[4];
+	float param3[4];
+	float param4[4];
 	float rotation_feedforward_value[4]; // d equivalent for pure rotation
 	float identified_damping;
 	float vw_max_round_to_rotational_scaling; // Factor to determine when you switch to rotational ff gains
@@ -81,7 +85,7 @@ void stateControl_Update_Body();
  * Set the new reference values that the robot should achieve.
  * @param _stateGlobalRef The x [m/s], y [m/s] and w [rad/s] speeds and yaw [rad] as instructed by the RobotCommand.
  */
-void stateControl_SetRef(float _stateGlobalRef[4]);
+void stateControl_SetRef(float _stateGlobalRef[4], float _stateGlobalRefAcceleration[3]);
 
 /**
  * Get the referenced wheel speeds.

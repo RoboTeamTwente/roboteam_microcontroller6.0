@@ -212,7 +212,11 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
 	stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->yaw;
-	stateControl_SetRef(stateReference);
+	float accelerationReference[3];
+	accelerationReference[vel_x] = (robotCommand->acceleration_magnitude) * cosf(robotCommand->acceleration_angle);
+	accelerationReference[vel_y] = (robotCommand->acceleration_magnitude) * sinf(robotCommand->acceleration_angle);
+	accelerationReference[vel_w] = 0.0f;
+	stateControl_SetRef(stateReference,accelerationReference);
 
 	MCP_DribblerCommand dribCommand = {0};
 	dribCommand.dribblerOn = robotCommand->dribblerOn;

@@ -78,7 +78,7 @@ static void MX_CAN_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
-
+#define SIZE_B 22U
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -133,7 +133,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+    
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -709,9 +709,6 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Ball_sensor_out_GPIO_Port, Ball_sensor_out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED1_Pin|LED2_Pin, GPIO_PIN_RESET);

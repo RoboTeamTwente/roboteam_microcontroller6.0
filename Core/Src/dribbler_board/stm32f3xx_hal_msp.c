@@ -65,7 +65,7 @@ extern DMA_HandleTypeDef hdma_usart1_tx;
 /* USER CODE END 0 */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                    /**
+                                        /**
   * Initializes the Global MSP.
   */
 void HAL_MspInit(void)
@@ -492,9 +492,6 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM15_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_TIM15_CLK_ENABLE();
-    /* TIM15 interrupt Init */
-    HAL_NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
   /* USER CODE BEGIN TIM15_MspInit 1 */
 
   /* USER CODE END TIM15_MspInit 1 */
@@ -510,7 +507,6 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
   /* USER CODE BEGIN TIM3_MspPostInit 0 */
 
   /* USER CODE END TIM3_MspPostInit 0 */
-
     __HAL_RCC_GPIOA_CLK_ENABLE();
     /**TIM3 GPIO Configuration
     PA6     ------> TIM3_CH1
@@ -526,6 +522,27 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
   /* USER CODE BEGIN TIM3_MspPostInit 1 */
 
   /* USER CODE END TIM3_MspPostInit 1 */
+  }
+  else if(htim->Instance==TIM15)
+  {
+  /* USER CODE BEGIN TIM15_MspPostInit 0 */
+
+  /* USER CODE END TIM15_MspPostInit 0 */
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**TIM15 GPIO Configuration
+    PA2     ------> TIM15_CH1
+    */
+    GPIO_InitStruct.Pin = Ball_sensor_out_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF9_TIM15;
+    HAL_GPIO_Init(Ball_sensor_out_GPIO_Port, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN TIM15_MspPostInit 1 */
+
+  /* USER CODE END TIM15_MspPostInit 1 */
   }
 
 }
@@ -607,9 +624,6 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM15_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM15_CLK_DISABLE();
-
-    /* TIM15 interrupt DeInit */
-    HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
   /* USER CODE BEGIN TIM15_MspDeInit 1 */
 
   /* USER CODE END TIM15_MspDeInit 1 */

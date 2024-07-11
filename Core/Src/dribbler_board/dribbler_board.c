@@ -62,6 +62,8 @@ void init(){
 	MCP_Send_Im_Alive();
     
     BOARD_INITIALIZED = true;
+    LOG_printf("Init Finished!\n");
+    LOG_sendAll();
     HAL_IWDG_Refresh(&hiwdg);
     LOG_printf("Dribbler Board Init\n");
     LOG_sendAll();
@@ -90,6 +92,7 @@ void loop(){
             MCP_Process_Message(&MailBox_three);
         MCP_to_process = false;
 	}
+    do_send_ballState();
 }
 
 /* ============================================= */
@@ -190,7 +193,6 @@ void control_dribbler_callback() {
 /* ============================================================ */
 /* ===================== STM HAL CALLBACKS ==================== */
 /* ============================================================ */
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
     if (hadc == CURRENT_DRIBBLER){// hadc == &hadc1
         ballsensor_DetectBall();

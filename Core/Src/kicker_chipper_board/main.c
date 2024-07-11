@@ -116,6 +116,7 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

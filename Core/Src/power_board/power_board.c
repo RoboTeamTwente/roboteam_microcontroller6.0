@@ -47,10 +47,10 @@ void init() {
 	// MCP Alive
 	MCP_SetReadyToReceive(true);
 	MCP_Send_Im_Alive();
-
 	/* === Wired communication with robot; Can now receive RobotCommands (and other REM packets) via UART */
-	//REM_UARTinit(UART_PC);
 
+	LOG_printf("Init Finished!");
+	LOG_sendAll();
 	heartbeat_10000ms = HAL_GetTick() + 10000;
 	heartbeat_10ms = HAL_GetTick() + 10;
 	HAL_IWDG_Refresh(&hiwdg);
@@ -103,6 +103,7 @@ void loop() {
 	// 10 seconds passed now we send the reading of the voltage meter to the top board
     if (heartbeat_10000ms < current_time || send_powerVoltage) {
 		send_powerVoltage = true;
+		LOG_printf("Sending voltage Meter\n");
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
 		pv.voltagePowerBoard = avg_voltage;
@@ -117,6 +118,7 @@ void loop() {
 		MCP_Send_Message(&hcan, pvp.payload, powerVoltageHeader, MCP_TOP_BOARD);
 
     	heartbeat_10000ms = current_time + 10000;
+		LOG_sendAll();
     }
 }
 
