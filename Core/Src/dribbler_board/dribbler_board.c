@@ -64,6 +64,12 @@ void init(){
     
     BOARD_INITIALIZED = true;
     HAL_IWDG_Refresh(&hiwdg);
+    //LOG_printf("Dribbler Board Init\n");
+    //LOG_sendAll();
+
+    uint8_t tx_buff[]={'1','2','3','4','5','6','7','8','9','\n'};
+    HAL_UART_Transmit(&huart1, tx_buff, 10, 1000);
+
 }
 
 uint8_t robot_get_ID(){
