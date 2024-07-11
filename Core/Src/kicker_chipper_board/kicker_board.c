@@ -59,6 +59,11 @@ uint8_t robot_get_Channel(){
   return 0;
 }
 
+void MCP_resetSendMsg() {
+	send_Voltage = false;
+	send_Status = false;
+}
+
 
 /* =================================================== */
 /* ==================== MAIN LOOP ==================== */
@@ -141,10 +146,9 @@ void checkVoltage() {
 	}
 
 	if (send_Voltage && MCP_GetFreeToSend(MCP_TOP_BOARD)) {
-		// MCP_KickerCapacitorVoltagePayload kcvp = {0};
-		// encodeMCP_KickerCapacitorVoltage(&kcvp, &MCP_CapacitorVoltage);
-		// MCP_Send_Message(&hcan, &kcvp, kickerCapacitorHeader, MCP_TOP_BOARD);
-		send_Voltage = false;
+		MCP_KickerCapacitorVoltagePayload kcvp = {0};
+		encodeMCP_KickerCapacitorVoltage(&kcvp, &MCP_CapacitorVoltage);
+		MCP_Send_Message(&hcan, &kcvp, kickerCapacitorHeader, MCP_TOP_BOARD);
 	}
 }
 
@@ -169,6 +173,5 @@ void checkStatus() {
 		MCP_KickerStatusPayload ksp = {0};
 		encodeMCP_KickerStatus(&ksp, &MCP_Status);
 		MCP_Send_Message(&hcan, &ksp, kickerStatusHeader, MCP_TOP_BOARD);
-		send_Status = false;
 	}
 }

@@ -7,6 +7,7 @@ uint32_t heartbeat_10000ms = 0;
 uint32_t heartbeat_10ms = 0;
 float avg_voltage = 0;
 uint16_t n_samples_voltage = 0;
+bool send_powerVoltage = false;
 
 void kill();
 void MCP_Process_Message(mailbox_buffer *to_Process);
@@ -70,6 +71,10 @@ void kill() {
     set_Pin(BAT_KILL_pin, 0);
 }
 
+void MCP_resetSendMsg() {
+	send_powerVoltage = false;
+}
+
 /* =================================================== */
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
@@ -96,7 +101,8 @@ void loop() {
 	}
 
 	// 10 seconds passed now we send the reading of the voltage meter to the top board
-    if (heartbeat_10000ms < current_time) {
+    if (heartbeat_10000ms < current_time || send_powerVoltage) {
+		send_powerVoltage = true;
 		MCP_PowerVoltage pv = {0};
 		MCP_PowerVoltagePayload pvp = {0};
 		pv.voltagePowerBoard = avg_voltage;
