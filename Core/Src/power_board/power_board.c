@@ -32,7 +32,6 @@ void init() {
 	// This pin must be set HIGH within a few milliseconds after powering on the robot, or it will turn the robot off again
 	set_Pin(BAT_KILL_pin, 1);
 	LOG_init();
-	HAL_Delay(50);
 
 	// MCP init
 	MCP_Init(&hcan, MCP_POWER_BOARD);
