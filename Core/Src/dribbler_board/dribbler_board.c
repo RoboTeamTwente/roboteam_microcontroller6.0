@@ -1,9 +1,12 @@
 #include "dribbler_board.h"
+#include <stdlib.h>
 
 volatile bool BOARD_INITIALIZED = false;
 
 void MCP_Process_Message(mailbox_buffer *to_Process);
 void MCP_Send_Im_Alive();
+void do_send_ballState();
+
 
 // Outgoing MCP headers
 CAN_TxHeaderTypeDef dribblerAliveHeaderToTop = {0};
@@ -43,6 +46,7 @@ void init(){
     HAL_IWDG_Refresh(&hiwdg);
     // Peripherals
     HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
+    HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL); //enable timer for the encoder
     LOG_init();
     dribbler_Init();
     ballsensor_init();
@@ -91,6 +95,8 @@ void loop(){
         MCP_to_process = false;
 	}
     do_send_ballState();
+
+
 }
 
 /* ============================================= */
@@ -161,11 +167,12 @@ void do_send_ballState(){
         MCP_Send_Ball_State();
     }
 }
-
+int test = 0;
 void control_dribbler_callback() { 
 
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
+
     do_send_ballState();
     if (dribblerCommand.dribblerOn) {
         if(ballsensor_hasBall()){
@@ -183,6 +190,16 @@ void control_dribbler_callback() {
         }
     }
     dribbler_SetSpeed(0.0f, 1);
+
+    dribbler_UpdateEncoderSpeed(); //Update speed of the dribbler
+
+    if(abs(dribbler_GetEncoderSpeed()) < 10){
+        dribbler_SetSpeed(1.0f, 1);
+    }
+    else{
+        dribbler_SetSpeed(0.0f, 1);
+    }
+
     
 }
 

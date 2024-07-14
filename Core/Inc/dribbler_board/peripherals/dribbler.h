@@ -48,6 +48,10 @@ void dribbler_DeInit();
 void dribbler_SetSpeed(float speed, bool brake);
 // Returns the latest encoder measurement
 uint32_t dribbler_GetEncoderMeasurement();
+// Updates the dribbler speed based on the encoder
+void dribbler_UpdateEncoderSpeed();
+// Returns the dribbler speed in 
+int dribbler_GetEncoderSpeed();
 
 
 #endif /* DRIBBLER_DRIBBLER_H_ */

@@ -1,8 +1,14 @@
 #include "dribbler.h"
+#include <stdlib.h>
+
 
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 float current_limit;
+
+int calculateDifference(int value1, int value2, int maxvalue);//calculated difference between 2 values, with wrapping
+int dribbler_speed = 0;
+
 void dribbler_Init(){
 	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
@@ -92,6 +98,37 @@ void dribbler_SetSpeed(float speed, bool brake){
 
 
 uint32_t dribbler_GetEncoderMeasurement(){
-	encoder_value = get_encoder(PWM_Dribbler_a);
+	uint32_t encoder_value = __HAL_TIM_GET_COUNTER(ENC_DRIBBLER);
 	return encoder_value;
+}
+
+void dribbler_UpdateEncoderSpeed(){
+	static uint32_t last_encoder_value = 0;
+	uint32_t current_encoder_value = dribbler_GetEncoderMeasurement();
+	int speed = calculateDifference(last_encoder_value, current_encoder_value, 65535);
+	last_encoder_value = current_encoder_value;
+	dribbler_speed =  speed;
+}
+
+int dribbler_GetEncoderSpeed(){
+	return dribbler_speed;
+}
+
+int calculateDifference(int value1, int value2, int maxvalue) {
+    int directDiff = value2 - value1;
+    int wrapDiff;
+
+    // Calculate wrap-around difference
+    if (value1 > value2) {
+        wrapDiff = (maxvalue - value1 + value2 + 1);
+    } else {
+        wrapDiff = -(maxvalue - value2 + value1 + 1);
+    }
+
+    // Determine which difference is smaller in magnitude
+    if (abs(directDiff) < abs(wrapDiff)) {
+        return directDiff;
+    } else {
+        return wrapDiff;
+    }
 }
