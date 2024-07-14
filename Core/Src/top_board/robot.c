@@ -873,9 +873,9 @@ void loop(void){
         }
 
 		// reset yaw calibration if robot has not been receiving camera yaw packet for the last 3 minutes
-		if ((current_time - timestamp_last_packet_with_camera_yaw) > 3 * 60 * 1000) {
-			yaw_ResetCalibration();
-		}
+		// if ((current_time - timestamp_last_packet_with_camera_yaw) > 3 * 60 * 1000) {
+		// 	yaw_ResetCalibration();
+		// }
 
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);
@@ -1165,7 +1165,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vv, vu);
 
-			if (dribblerAlive.ballsensorWorking) {
+			if (powerAlive.sensorWorking && powerVoltage.voltagePowerBoard > 15.1f) {
 				robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
 			} else {
 				robotFeedback.batteryLevel = REM_PACKET_RANGE_REM_ROBOT_FEEDBACK_BATTERY_LEVEL_MIN;
