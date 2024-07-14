@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include "SX1280_Constants.h"
 #include "SX1280.h"
-#include "main.h"
 
 #define WIRELESS_YELLOW_CHANNELS 0
 #define WIRELESS_BLUE_CHANNELS 1

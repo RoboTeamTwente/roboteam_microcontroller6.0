@@ -1,5 +1,27 @@
 #include "robot.h"
 
+#include "control_util.h"
+#include "gpio_util.h"
+#include "tim_util.h"
+#include "peripheral_util.h"
+#include "wheels.h"
+#include "stateControl.h"
+#include "stateEstimation.h"
+#include "sdcard.h"
+#include "Wireless.h"
+#include "buzzer.h"
+#include "speaker.h"
+#include "MTi.h"
+#include "yawCalibration.h"
+#include "iwdg.h"
+#include "logging.h"
+#include "SX1280_Constants.h"
+#include "AssuredPacketManager.h"
+#include "system_test.h"
+#include "drain_battery.h"
+#include "mcp_page.h"
+
+
 /* ============================================================ */
 /* ======================= VARIABLES ========================== */
 /* ============================================================ */
