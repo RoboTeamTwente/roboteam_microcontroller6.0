@@ -1,5 +1,27 @@
 #include "robot.h"
 
+#include "control_util.h"
+#include "gpio_util.h"
+#include "tim_util.h"
+#include "peripheral_util.h"
+#include "wheels.h"
+#include "stateControl.h"
+#include "stateEstimation.h"
+#include "sdcard.h"
+#include "Wireless.h"
+#include "buzzer.h"
+#include "speaker.h"
+#include "MTi.h"
+#include "yawCalibration.h"
+#include "iwdg.h"
+#include "logging.h"
+#include "SX1280_Constants.h"
+#include "AssuredPacketManager.h"
+#include "system_test.h"
+#include "drain_battery.h"
+#include "mcp_page.h"
+
+
 /* ============================================================ */
 /* ======================= VARIABLES ========================== */
 /* ============================================================ */
@@ -873,9 +895,9 @@ void loop(void){
         }
 
 		// reset yaw calibration if robot has not been receiving camera yaw packet for the last 3 minutes
-		if ((current_time - timestamp_last_packet_with_camera_yaw) > 3 * 60 * 1000) {
-			yaw_ResetCalibration();
-		}
+		// if ((current_time - timestamp_last_packet_with_camera_yaw) > 3 * 60 * 1000) {
+		// 	yaw_ResetCalibration();
+		// }
 
         // Toggle liveliness LED
         toggle_Pin(LED0_pin);
@@ -1165,7 +1187,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			robotFeedback.yaw = localState[yaw];
 			robotFeedback.theta = atan2(vv, vu);
 
-			if (dribblerAlive.ballsensorWorking) {
+			if (powerAlive.sensorWorking && powerVoltage.voltagePowerBoard > 15.1f) {
 				robotFeedback.batteryLevel = powerVoltage.voltagePowerBoard;
 			} else {
 				robotFeedback.batteryLevel = REM_PACKET_RANGE_REM_ROBOT_FEEDBACK_BATTERY_LEVEL_MIN;
