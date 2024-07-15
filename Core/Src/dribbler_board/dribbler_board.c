@@ -88,7 +88,8 @@ uint8_t robot_get_Channel(){
 
 float setpoint = 20;
 float PWM = 0.0f;
-float speed = 0;
+float speed = 0; 
+uint32_t timestamp = 0;
 
 void loop(){
     HAL_IWDG_Refresh(&hiwdg);
@@ -104,7 +105,7 @@ void loop(){
 	}
     do_send_ballState();
 
-    LOG_printf("S: %f, D: %f , P: %f \n",setpoint, speed, PWM);
+    LOG_printf("S: %f, D: %f , P: %f , T: %d\n",setpoint, speed, PWM, timestamp);
     LOG_sendAll();
 }
 
@@ -179,6 +180,7 @@ void do_send_ballState(){
 void control_dribbler_callback() { 
 
     dribbler_UpdateEncoderSpeed();
+    timestamp++;
 
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
@@ -196,8 +198,8 @@ void control_dribbler_callback() {
 } 
 
 
-float Kp = 0.001f;  
-float Ki = 0.0f; 
+float Kp = 0.004f;  
+float Ki = 0.000f; 
 float Kd = 0.0f;  
 
 float previous_error = 0.0f;
@@ -211,16 +213,17 @@ void has_encoder_control() {
     current_time++;
 
 
-    if((ballsensor_hasBall() || ((PWM > 0.1f)&&(state == 2)))){
-       if(last_time + 100 < current_time){
-            setpoint = 300;
+    if(ballsensor_hasBall()){
+       if(last_time + 0 < current_time){
+            setpoint = 200;
             state = 1;
             last_time = current_time;
        }
 
-    } else if ((PWM < 0.7f)&&(state == 1)){
-        if(last_time + 100 < current_time){
+    } else {
+        if(last_time + 0 < current_time){
             setpoint = 20;
+        //    integral = 0;
             state = 2;
             last_time = current_time;
        }
