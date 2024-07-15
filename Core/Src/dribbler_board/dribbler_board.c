@@ -170,6 +170,7 @@ void do_send_ballState(){
 int test = 0;
 void control_dribbler_callback() { 
 
+    dribbler_UpdateEncoderSpeed(); //Update speed of the dribbler
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
 
@@ -178,27 +179,31 @@ void control_dribbler_callback() {
         if(ballsensor_hasBall()){
             ball_counter = 0;
             dribbler_SetSpeed(0.8f, 1);
+            test = 500;
             return;
         }
         else if (ball_counter < 5){
             ball_counter = ball_counter + 1;
             dribbler_SetSpeed(0.2f, 1);
+            test = 10;
             return;
         } else if (dribblerCommand.SystemTest) {
             dribbler_SetSpeed(0.5f, 1);
             return;
+        } else{
+            dribbler_SetSpeed(0.0f, 1);
         }
     }
-    dribbler_SetSpeed(0.0f, 1);
+    
 
-    dribbler_UpdateEncoderSpeed(); //Update speed of the dribbler
+    
 
-    if(abs(dribbler_GetEncoderSpeed()) < 10){
-        dribbler_SetSpeed(1.0f, 1);
-    }
-    else{
-        dribbler_SetSpeed(0.0f, 1);
-    }
+    // if(abs(dribbler_GetEncoderSpeed()) < 10){
+    //     dribbler_SetSpeed(1.0f, 1);
+    // }
+    // else{
+    //     dribbler_SetSpeed(0.0f, 1);
+    // }
 
     
 }
