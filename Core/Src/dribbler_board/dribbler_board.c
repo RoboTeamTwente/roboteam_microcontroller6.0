@@ -105,7 +105,7 @@ void loop(){
 	}
     do_send_ballState();
 
-    LOG_printf("S: %f, D: %f , P: %f , T: %d\n",setpoint, speed, PWM, timestamp);
+    LOG_printf("S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
     LOG_sendAll();
 }
 
@@ -215,14 +215,14 @@ void has_encoder_control() {
 
     if(ballsensor_hasBall()){
        if(last_time + 0 < current_time){
-            setpoint = 200;
+            setpoint = 300;
             state = 1;
             last_time = current_time;
        }
 
     } else {
         if(last_time + 0 < current_time){
-            setpoint = 20;
+            setpoint = 0;
         //    integral = 0;
             state = 2;
             last_time = current_time;
