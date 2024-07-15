@@ -6,10 +6,10 @@
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 float current_limit;
 bool motor_reversed = false;
-bool no_encoder = false;
-float dribbler_min_speed_PWM = 0.0f;
+bool has_encoder = true;
+float dribbler_min_speed_PWM = 0.1f;
 float dribbler_idle_speed_PWM = 0.2f;
-float dribbler_max_speed_PWM = 1.0f;
+float dribbler_max_speed_PWM = 0.8f;
 
 int dribbler_min_speed = 0;
 int dribbler_idle_speed = 0;
@@ -52,32 +52,38 @@ void dribbler_motor_Init(){
 */
 void dribbler_test(){
 	dribbler_SetSpeed(dribbler_min_speed + 0.1f, 1);
-	HAL_Delay(5);
+	HAL_Delay(20);
 
 	if(dribbler_GetEncoderSpeed() == 0){
-		no_encoder = true;
+		has_encoder = false;
 	} else if(dribbler_GetEncoderSpeed() < 0){
 		motor_reversed = false;
 	} else{
 		motor_reversed = true;
 	}
 	dribbler_SetSpeed(0.0f, 1);
-	HAL_Delay(100);
+	HAL_Delay(50);
 
-
-	for(float f = 0.0f; f <= 1.0f; f += 0.01f){
-		dribbler_SetSpeed(f, 1);
-		HAL_Delay(15);
-		dribbler_min_speed = dribbler_GetEncoderSpeed();
-		if(abs(dribbler_min_speed) > 10){
-			dribbler_min_speed_PWM = f;
-			break;
+	if(has_encoder){
+		for(float f = 0.0f; f <= 0.2f; f += 0.01f){
+			dribbler_SetSpeed(f, 1);
+			HAL_Delay(15);
+			dribbler_min_speed = dribbler_GetEncoderSpeed();
+			if(abs(dribbler_min_speed) > 10){
+				dribbler_min_speed_PWM = f;
+				break;
+			}
 		}
+		HAL_Delay(10);
 	}
-
-	dribbler_SetIdleSpeed(1);
-	HAL_Delay(100);
-	dribbler_idle_speed = dribbler_GetEncoderSpeed();
+	
+	
+	// dribbler_SetIdleSpeed(1);
+	// HAL_Delay(100);
+	// dribbler_idle_speed = dribbler_GetEncoderSpeed();
+	// dribbler_SetMaxSpeed(1);
+	// HAL_Delay(100);
+	// dribbler_max_speed = dribbler_GetEncoderSpeed();
 	dribbler_SetSpeed(0.0f, 1);
 
 }
@@ -160,6 +166,11 @@ void dribbler_SetIdleSpeed(bool brake){
 void dribbler_SetMaxSpeed(bool brake){
 	dribbler_SetSpeed(dribbler_max_speed_PWM, brake);
 }
+
+bool dribbler_hasEncoder(){
+	return has_encoder;
+}
+
 
 uint32_t dribbler_GetEncoderMeasurement(){
 	uint32_t encoder_value = __HAL_TIM_GET_COUNTER(ENC_DRIBBLER);

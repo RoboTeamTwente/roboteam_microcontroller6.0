@@ -7,6 +7,9 @@ void MCP_Process_Message(mailbox_buffer *to_Process);
 void MCP_Send_Im_Alive();
 void do_send_ballState();
 
+void no_encoder_control();
+void has_encoder_control();
+
 
 // Outgoing MCP headers
 CAN_TxHeaderTypeDef dribblerAliveHeaderToTop = {0};
@@ -167,45 +170,51 @@ void do_send_ballState(){
         MCP_Send_Ball_State();
     }
 }
-int test = 0;
 void control_dribbler_callback() { 
 
     dribbler_UpdateEncoderSpeed();
-    
+
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
 
     do_send_ballState();
-    // if (dribblerCommand.dribblerOn) {
-    //     dribbler_UpdateEncoderSpeed(); //Update speed of the dribbler
-    //     if(ballsensor_hasBall()){
-    //         ball_counter = 0;
-    //         dribbler_SetSpeed(0.8f, 1);
-    //         test = 500;
-    //         return;
-    //     }
-    //     else if (ball_counter < 5){
-    //         ball_counter = ball_counter + 1;
-    //         dribbler_SetSpeed(0.2f, 1);
-    //         test = 10;
-    //         return;
-    //     } else if (dribblerCommand.SystemTest) {
-    //         dribbler_SetSpeed(0.5f, 1);
-    //         return;
-    //     } 
-    //         dribbler_SetSpeed(0.0f, 1);
-    // }
-    
 
-    if (dribblerCommand.dribblerOn) {
-        if(abs(dribbler_GetEncoderSpeed()) < 10){
-            dribbler_SetSpeed(1.0f, 1);
-        }
-        else{
-            dribbler_SetMinSpeed(1);
-        }
+if (dribblerCommand.dribblerOn){
+    if(dribbler_hasEncoder()){
+        has_encoder_control();
+    } else{
+        no_encoder_control();
     }
+}
+    // if (dribblerCommand.dribblerOn) {
+    //     if(abs(dribbler_GetEncoderSpeed()) > 20 && !ballsensor_hasBall()){
+    //         dribbler_SetMinSpeed(1);
+    //     }
+    //     else{
+    //         dribbler_SetMaxSpeed(1);
+    //     }
+    // }
+} 
+
+void has_encoder_control(){
     
+}
+
+void no_encoder_control(){
+    if(ballsensor_hasBall()){
+        ball_counter = 0;
+        dribbler_SetMaxSpeed(1);
+        return;
+    }
+    else if (ball_counter < 5){
+        ball_counter = ball_counter + 1;
+        dribbler_SetIdleSpeed(1);
+        return;
+    } else if (dribblerCommand.SystemTest) {
+        dribbler_SetSpeed(0.5f, 1);
+        return;
+    } 
+        dribbler_SetSpeed(0.0f, 1);
 }
 
 
