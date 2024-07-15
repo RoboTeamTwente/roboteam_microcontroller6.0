@@ -196,7 +196,7 @@ void control_dribbler_callback() {
 } 
 
 
-float Kp = 0.0001f;  
+float Kp = 0.001f;  
 float Ki = 0.0f; 
 float Kd = 0.0f;  
 
@@ -213,7 +213,7 @@ void has_encoder_control() {
 
     if((ballsensor_hasBall() || ((PWM > 0.1f)&&(state == 2)))){
        if(last_time + 100 < current_time){
-            setpoint = 800;
+            setpoint = 300;
             state = 1;
             last_time = current_time;
        }
