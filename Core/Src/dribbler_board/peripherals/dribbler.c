@@ -11,12 +11,12 @@ float dribbler_min_speed_PWM = 0.1f;
 float dribbler_idle_speed_PWM = 0.2f;
 float dribbler_max_speed_PWM = 0.8f;
 
-int dribbler_min_speed = 0;
-int dribbler_idle_speed = 0;
-int dribbler_max_speed = 0;
+float dribbler_min_speed = 0;
+float dribbler_idle_speed = 0;
+float dribbler_max_speed = 0;
 
 int calculateDifference(int value1, int value2, int maxvalue);//calculated difference between 2 values, with wrapping
-int dribbler_speed = 0;
+float dribbler_speed = 0;
 
 void dribbler_Init(){
 	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
@@ -51,8 +51,8 @@ void dribbler_motor_Init(){
  *
 */
 void dribbler_test(){
-	dribbler_SetSpeed(dribbler_min_speed + 0.1f, 1);
-	HAL_Delay(20);
+	dribbler_SetSpeed(0.15f, 1);
+	HAL_Delay(100);
 
 	if(dribbler_GetEncoderSpeed() == 0){
 		has_encoder = false;
@@ -62,14 +62,14 @@ void dribbler_test(){
 		motor_reversed = true;
 	}
 	dribbler_SetSpeed(0.0f, 1);
-	HAL_Delay(50);
+	HAL_Delay(100);
 
 	if(has_encoder){
 		for(float f = 0.0f; f <= 0.2f; f += 0.01f){
 			dribbler_SetSpeed(f, 1);
 			HAL_Delay(15);
 			dribbler_min_speed = dribbler_GetEncoderSpeed();
-			if(abs(dribbler_min_speed) > 10){
+			if(fabs(dribbler_min_speed) > 20){
 				dribbler_min_speed_PWM = f;
 				break;
 			}
@@ -167,6 +167,17 @@ void dribbler_SetMaxSpeed(bool brake){
 	dribbler_SetSpeed(dribbler_max_speed_PWM, brake);
 }
 
+float dribbler_GetMinSpeed(bool brake){
+	return dribbler_min_speed;
+}
+float dribbler_GetIdleSpeed(bool brake){
+	return dribbler_idle_speed;
+}
+float dribbler_GetMaxSpeed(bool brake){
+	return dribbler_max_speed;
+}
+
+
 bool dribbler_hasEncoder(){
 	return has_encoder;
 }
@@ -180,12 +191,12 @@ uint32_t dribbler_GetEncoderMeasurement(){
 void dribbler_UpdateEncoderSpeed(){
 	static uint32_t last_encoder_value = 0;
 	uint32_t current_encoder_value = dribbler_GetEncoderMeasurement();
-	int speed = calculateDifference(last_encoder_value, current_encoder_value, 65535);
+	float speed = (float)(calculateDifference(last_encoder_value, current_encoder_value, 65535))*(2.4576f);
 	last_encoder_value = current_encoder_value;
 	dribbler_speed =  speed;
 }
 
-int dribbler_GetEncoderSpeed(){
+float dribbler_GetEncoderSpeed(){
 	return dribbler_speed;
 }
 

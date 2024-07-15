@@ -53,6 +53,11 @@ void dribbler_SetMinSpeed(bool brake);
 void dribbler_SetIdleSpeed(bool brake);
 // Sets the maximum speed of the dribbler, if brake is true, the motor will brake if pwm is 0, else it will coast
 void dribbler_SetMaxSpeed(bool brake);
+
+float dribbler_GetMinSpeed(bool brake);
+float dribbler_GetIdleSpeed(bool brake);
+float dribbler_GetMaxSpeed(bool brake);
+
 // Returns if the dribbler has an encoder
 bool dribbler_hasEncoder();
 // Returns the latest encoder measurement
@@ -60,7 +65,7 @@ uint32_t dribbler_GetEncoderMeasurement();
 // Updates the dribbler speed based on the encoder
 void dribbler_UpdateEncoderSpeed();
 // Returns the dribbler speed in 
-int dribbler_GetEncoderSpeed();
+float dribbler_GetEncoderSpeed();
 
 
 #endif /* DRIBBLER_DRIBBLER_H_ */

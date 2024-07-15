@@ -85,6 +85,11 @@ uint8_t robot_get_Channel(){
 /* =================================================== */
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
+
+float setpoint = 20;
+float PWM = 0.0f;
+float speed = 0;
+
 void loop(){
     HAL_IWDG_Refresh(&hiwdg);
     MCP_timeout();
@@ -99,7 +104,8 @@ void loop(){
 	}
     do_send_ballState();
 
-
+    LOG_printf("S: %f, D: %f , P: %f \n",setpoint, speed, PWM);
+    LOG_sendAll();
 }
 
 /* ============================================= */
@@ -179,26 +185,71 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-if (dribblerCommand.dribblerOn){
-    if(dribbler_hasEncoder()){
-        has_encoder_control();
-    } else{
-        no_encoder_control();
+    if (dribblerCommand.dribblerOn){
+        if(dribbler_hasEncoder()){
+            has_encoder_control();
+        } else{
+            no_encoder_control();
+        }
     }
-}
-    // if (dribblerCommand.dribblerOn) {
-    //     if(abs(dribbler_GetEncoderSpeed()) > 20 && !ballsensor_hasBall()){
-    //         dribbler_SetMinSpeed(1);
-    //     }
-    //     else{
-    //         dribbler_SetMaxSpeed(1);
-    //     }
-    // }
+
 } 
 
-void has_encoder_control(){
+
+float Kp = 0.0001f;  
+float Ki = 0.0f; 
+float Kd = 0.0f;  
+
+float previous_error = 0.0f;
+float integral = 0.0f;
+#define CONTROL_TIMER_PERIOD 0.001f
+uint32_t last_time = 0;
+uint32_t current_time = 0;
+int state = 0;
+
+void has_encoder_control() {
+    current_time++;
+
+
+    if((ballsensor_hasBall() || ((PWM > 0.1f)&&(state == 2)))){
+       if(last_time + 100 < current_time){
+            setpoint = 800;
+            state = 1;
+            last_time = current_time;
+       }
+
+    } else if ((PWM < 0.7f)&&(state == 1)){
+        if(last_time + 100 < current_time){
+            setpoint = 20;
+            state = 2;
+            last_time = current_time;
+       }
+    }
+
+
+    speed = dribbler_GetEncoderSpeed();
+
+    float error = setpoint - (float)fabs(speed);
     
+    integral += error * CONTROL_TIMER_PERIOD;
+    
+    float derivative = (error - previous_error) / CONTROL_TIMER_PERIOD;
+    
+    float output = (Kp * error) + (Ki * integral) + (Kd * derivative);
+    
+    PWM += output;
+
+    if (PWM > 1.0f) {
+        PWM = 1.0f;
+    } else if (PWM < 0.0f) {
+        PWM = 0.0f;
+    }
+    
+    previous_error = error;
+
+    dribbler_SetSpeed(PWM,1);
 }
+
 
 void no_encoder_control(){
     if(ballsensor_hasBall()){
