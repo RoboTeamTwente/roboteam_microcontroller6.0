@@ -1390,22 +1390,28 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SPI4_IRQ_Pin BTN_SW0_Pin */
-  GPIO_InitStruct.Pin = SPI4_IRQ_Pin|BTN_SW0_Pin;
+  /*Configure GPIO pin : SPI4_IRQ_Pin */
+  GPIO_InitStruct.Pin = SPI4_IRQ_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(SPI4_IRQ_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : BTN_SW0_Pin */
+  GPIO_InitStruct.Pin = BTN_SW0_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(BTN_SW0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BTN_SW1_Pin */
   GPIO_InitStruct.Pin = BTN_SW1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BTN_SW1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : BTN_SW2_Pin BTN_SW3_Pin BTN_SW4_Pin */
   GPIO_InitStruct.Pin = BTN_SW2_Pin|BTN_SW3_Pin|BTN_SW4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Encoder_Enable_Pin RB_CS_Pin */
