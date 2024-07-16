@@ -9,30 +9,52 @@ void inverse(float A[], float B[], int m) {
         float c = A[2];
         float d = A[3];
         float determinant = a * d - b * c;
-        B[0] = d / determinant;
-        B[1] = -b / determinant;
-        B[2] = -c / determinant;
-        B[3] = a / determinant;
+        if (determinant != 0) {
+            B[0] = d / determinant;
+            B[1] = -b / determinant;
+            B[2] = -c / determinant;
+            B[3] = a / determinant;
+        } else {
+            B[0] = 0;
+            B[1] = 0;
+            B[2] = 0;
+            B[3] = 0;
+        }
     } else if (m == 4) {
         float a = A[0];
         float b = A[1];
         float c = A[4];
         float d = A[5];
         float determinant = a * d - b * c;
-        B[0] = d / determinant;
-        B[1] = -b / determinant;
-        B[4] = -c / determinant;
-        B[5] = a / determinant;
+        
+        if (determinant != 0) {
+            B[0] = d / determinant;
+            B[1] = -b / determinant;
+            B[4] = -c / determinant;
+            B[5] = a / determinant;
+        } else {
+            B[0] = 0;
+            B[1] = 0;
+            B[4] = 0;
+            B[5] = 0;
+        }
 
         a = A[10];
         b = A[11];
         c = A[14];
         d = A[15];
         determinant = a * d - b * c;
-        B[10] = d / determinant;
-        B[11] = -b / determinant;
-        B[14] = -c / determinant;
-        B[15] = a / determinant;
+        if (determinant != 0) {
+            B[10] = d / determinant;
+            B[11] = -b / determinant;
+            B[14] = -c / determinant;
+            B[15] = a / determinant;
+        } else {
+            B[10] = 0;
+            B[11] = 0;
+            B[14] = 0;
+            B[15] = 0;
+        }
     }
 }
 

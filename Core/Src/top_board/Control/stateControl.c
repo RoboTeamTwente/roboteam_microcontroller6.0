@@ -582,7 +582,13 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 	}
 
 	// Define a smooth transition between translational and rotational feedforward gains.
-	float gamma = 0.5-0.5*cos(M_PI * fabs(omega/vw_max_round_to_rotational));
+	float gamma;
+	if (vw_max_round_to_rotational != 0) {
+		gamma = 0.5-0.5*cos(M_PI * fabs(omega/vw_max_round_to_rotational));
+	} else {
+		gamma = 0.5-0.5*cos(M_PI * fabs(0.0f));
+	}
+	
 	if (fabs(omega) > vw_max_round_to_rotational) {
 		gamma = 1;
 	}
@@ -651,7 +657,13 @@ static float absoluteAngleControl(float angleRef, float angle){
 	if (angleErr == 0){
 		angleErr = 0.000001*prevangleErr;
 	}
-	if (fabs(angleErr) < YAW_MARGIN || prevangleErr/angleErr < 0) {
+	float divisionThingy;
+	if (angleErr != 0) {
+		divisionThingy = prevangleErr/angleErr;
+	} else {
+		divisionThingy = 0;
+	}
+	if (fabs(angleErr) < YAW_MARGIN || divisionThingy < 0) {
 		stateLocalK[yaw].I = 0;
 	}
 	prevangleErr = angleErr;
