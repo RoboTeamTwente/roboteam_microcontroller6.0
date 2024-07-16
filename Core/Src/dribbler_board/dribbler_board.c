@@ -60,7 +60,7 @@ float integral = 0.0f;
 
 int state = 0;
 
-#define LOGGING //uncomment if you want output
+// #define LOGGING //uncomment if you want output
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -123,11 +123,9 @@ void loop(){
     do_send_ballState();
 
 #ifdef LOGGING
-    sprintf((char*) Uart_Tx_Buffer, "S:%.2f, D:%.2f , P:%.2f, T:%.4f\n",setpoint, speed, PWM, timestamp);
+    sprintf((char*) Uart_Tx_Buffer, "S:%.2f,D:%.2f,P:%.2f,T:%.4f\n",setpoint, speed, PWM, timestamp);
     HAL_UART_Transmit_DMA(&huart1, Uart_Tx_Buffer, sizeof (Uart_Tx_Buffer)-1);
 #endif
-    // LOG_printf("S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
-    // LOG_sendAll();
 }
 
 /* ============================================= */
