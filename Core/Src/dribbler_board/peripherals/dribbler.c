@@ -1,8 +1,23 @@
 #include "dribbler.h"
+#include <stdlib.h>
+
 
 
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 float current_limit;
+bool motor_reversed = false;
+bool has_encoder = true;
+float dribbler_min_speed_PWM = 0.1f;
+float dribbler_idle_speed_PWM = 0.2f;
+float dribbler_max_speed_PWM = 0.8f;
+
+float dribbler_min_speed = 0;
+float dribbler_idle_speed = 0;
+float dribbler_max_speed = 0;
+
+int calculateDifference(int value1, int value2, int maxvalue);//calculated difference between 2 values, with wrapping
+float dribbler_speed = 0;
+
 void dribbler_Init(){
 	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
@@ -19,6 +34,7 @@ void dribbler_motor_Init(){
 
 	// For the voltage
 	dribbler_setCurrentLimit(current_limit);
+	dribbler_test(); //Test the motor and see if it's reversed or not
 }
 
 /**
@@ -34,6 +50,43 @@ void dribbler_motor_Init(){
  * R_IPROPI = 1000 (Ω) V_VREF = 3.3 (V), A_IPROPI = 1500 (μA/A)
  *
 */
+void dribbler_test(){
+	dribbler_SetSpeed(0.15f, 1);
+	HAL_Delay(100);
+
+	if(dribbler_GetEncoderSpeed() == 0){
+		has_encoder = false;
+	} else if(dribbler_GetEncoderSpeed() < 0){
+		motor_reversed = false;
+	} else{
+		motor_reversed = true;
+	}
+	dribbler_SetSpeed(0.0f, 1);
+	HAL_Delay(100);
+
+	if(has_encoder){
+		for(float f = 0.0f; f <= 0.2f; f += 0.01f){
+			dribbler_SetSpeed(f, 1);
+			HAL_Delay(15);
+			dribbler_min_speed = dribbler_GetEncoderSpeed();
+			if(fabs(dribbler_min_speed) > 20){
+				dribbler_min_speed_PWM = f;
+				break;
+			}
+		}
+		HAL_Delay(10);
+	}
+	
+	
+	// dribbler_SetIdleSpeed(1);
+	// HAL_Delay(100);
+	// dribbler_idle_speed = dribbler_GetEncoderSpeed();
+	// dribbler_SetMaxSpeed(1);
+	// HAL_Delay(100);
+	// dribbler_max_speed = dribbler_GetEncoderSpeed();
+	dribbler_SetSpeed(0.0f, 1);
+
+}
 void dribbler_setCurrentLimit(float value){
 	// The value you put in is the DOR Vout=DOR*(Vref/4095) where Vref is the reference voltage of the DAC (3.3V)
 	//float V_set= (float)(value * 1.5f); //
@@ -50,7 +103,15 @@ void dribbler_setCurrentLimit(float value){
 float dribbler_getCurrent(){
 	// For now we get the most recent reading
 	// Value=ADC_Value/4095*Vref/1.5 where 1.5 is the conversion factor in combination with the resistor /4095*3.3/1.5
-	uint32_t current_temp = dribbler_current_Buffer[0];
+	
+	//average the first 10 elements of the dribbler_current_Buffer
+	uint32_t current_sum = 0;
+	for (int i = 0; i < current_Buffer_Size; i++){
+		current_sum += dribbler_current_Buffer[i];
+	}
+
+	uint32_t current_temp =  current_sum / current_Buffer_Size;
+
 	float currentA = ((float)(current_temp-232))/1939;
 	return currentA;
 }
@@ -68,6 +129,12 @@ void dribbler_DeInit(){
 }
 
 void dribbler_SetSpeed(float speed, bool brake){
+
+	if(motor_reversed){
+		speed = -speed; // The motor is mounted in reverse
+	}
+	
+
 	if (brake){ // The motor is in braking mode
 		if (speed > 0){
 			set_PWM_dribbler(&PWM_Dribbler_b, 1);
@@ -90,8 +157,65 @@ void dribbler_SetSpeed(float speed, bool brake){
 	}
 }
 
+void dribbler_SetMinSpeed(bool brake){
+	dribbler_SetSpeed(dribbler_min_speed_PWM, brake);
+}
+void dribbler_SetIdleSpeed(bool brake){
+	dribbler_SetSpeed(dribbler_idle_speed_PWM, brake);
+}
+void dribbler_SetMaxSpeed(bool brake){
+	dribbler_SetSpeed(dribbler_max_speed_PWM, brake);
+}
+
+float dribbler_GetMinSpeed(bool brake){
+	return dribbler_min_speed;
+}
+float dribbler_GetIdleSpeed(bool brake){
+	return dribbler_idle_speed;
+}
+float dribbler_GetMaxSpeed(bool brake){
+	return dribbler_max_speed;
+}
+
+
+bool dribbler_hasEncoder(){
+	return has_encoder;
+}
+
 
 uint32_t dribbler_GetEncoderMeasurement(){
-	encoder_value = get_encoder(PWM_Dribbler_a);
+	uint32_t encoder_value = __HAL_TIM_GET_COUNTER(ENC_DRIBBLER);
 	return encoder_value;
+}
+
+void dribbler_UpdateEncoderSpeed(){
+	static uint32_t last_encoder_value = 0;
+	uint32_t current_encoder_value = dribbler_GetEncoderMeasurement();
+	float speed = (float)(calculateDifference(last_encoder_value, current_encoder_value, 65535))*(2.4576f);
+	last_encoder_value = current_encoder_value;
+	dribbler_speed =  speed;
+}
+
+float dribbler_GetEncoderSpeed(){
+	return dribbler_speed;
+}
+
+
+int calculateDifference(int value1, int value2, int maxvalue) {
+    int directDiff = value2 - value1;
+    int wrapDiff;
+
+    // Calculate wrap-around difference
+    if (value1 > value2) {
+        wrapDiff = (maxvalue - value1 + value2 + 1);
+    } else {
+        wrapDiff = -(maxvalue - value2 + value1 + 1);
+    }
+
+    // Determine which difference is smaller in magnitude
+    if (abs(directDiff) < abs(wrapDiff)) {
+        return directDiff;
+    } else {
+        return wrapDiff;
+    }
 }

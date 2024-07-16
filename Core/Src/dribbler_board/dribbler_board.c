@@ -1,9 +1,16 @@
 #include "dribbler_board.h"
+#include <stdlib.h>
+#include <string.h>
 
 volatile bool BOARD_INITIALIZED = false;
 
 void MCP_Process_Message(mailbox_buffer *to_Process);
 void MCP_Send_Im_Alive();
+void do_send_ballState();
+
+void no_encoder_control();
+void has_encoder_control();
+
 
 // Outgoing MCP headers
 CAN_TxHeaderTypeDef dribblerAliveHeaderToTop = {0};
@@ -35,6 +42,25 @@ uint8_t ball_counter = 0;
 uint32_t current_beat = 0;
 uint32_t heart_beat_10ms = 0;
 
+uint8_t Uart_Tx_Buffer[40] = {0};
+
+//Dribbler control
+#define CONTROL_TIMER_PERIOD 0.001f
+float setpoint = 0;
+float PWM = 0.0f;
+float speed = 0; 
+float timestamp = 0;
+
+float Kp = 0.002f;  
+float Ki = 0.00f; 
+float Kd = 0.00f;  
+
+float previous_error = 0.0f;
+float integral = 0.0f;
+
+int state = 0;
+
+// #define LOGGING //uncomment if you want output
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -43,6 +69,7 @@ void init(){
     HAL_IWDG_Refresh(&hiwdg);
     // Peripherals
     HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
+    HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL); //enable timer for the encoder
     LOG_init();
     dribbler_Init();
     ballsensor_init();
@@ -78,6 +105,9 @@ uint8_t robot_get_Channel(){
 /* =================================================== */
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
+
+
+
 void loop(){
     HAL_IWDG_Refresh(&hiwdg);
     MCP_timeout();
@@ -91,6 +121,11 @@ void loop(){
         MCP_to_process = false;
 	}
     do_send_ballState();
+
+#ifdef LOGGING
+    sprintf((char*) Uart_Tx_Buffer, "S:%.2f,D:%.2f,P:%.2f,T:%.4f\n",setpoint, speed, PWM, timestamp);
+    HAL_UART_Transmit_DMA(&huart1, Uart_Tx_Buffer, sizeof (Uart_Tx_Buffer)-1);
+#endif
 }
 
 /* ============================================= */
@@ -161,29 +196,80 @@ void do_send_ballState(){
         MCP_Send_Ball_State();
     }
 }
-
 void control_dribbler_callback() { 
+
+    dribbler_UpdateEncoderSpeed();
+    timestamp += CONTROL_TIMER_PERIOD;
 
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
+
     do_send_ballState();
-    if (dribblerCommand.dribblerOn) {
-        if(ballsensor_hasBall()){
-            ball_counter = 0;
-            dribbler_SetSpeed(0.8f, 1);
-            return;
-        }
-        else if (ball_counter < 5){
-            ball_counter = ball_counter + 1;
-            dribbler_SetSpeed(0.2f, 1);
-            return;
-        } else if (dribblerCommand.SystemTest) {
-            dribbler_SetSpeed(0.5f, 1);
-            return;
+
+    if (dribblerCommand.dribblerOn){
+        if(dribbler_hasEncoder()){
+            has_encoder_control();
+        } else{
+            no_encoder_control();
         }
     }
-    dribbler_SetSpeed(0.0f, 1);
+
+} 
+
+
+
+
+void has_encoder_control() {
+
+
+    if(ballsensor_hasBall()){
+            setpoint = 500;
+            state = 1;
+    } else {
+            setpoint = 0;
+            state = 2;
+    }
+
+
+    speed = dribbler_GetEncoderSpeed();
+
+    float error = setpoint - (float)fabs(speed);
     
+    integral += error * CONTROL_TIMER_PERIOD;
+    
+    float derivative = (error - previous_error) / CONTROL_TIMER_PERIOD;
+    
+    float output = (Kp * error) + (Ki * integral) + (Kd * derivative);
+    
+    PWM += output;
+
+    if (PWM > 1.0f) {
+        PWM = 1.0f;
+    } else if (PWM < 0.0f) {
+        PWM = 0.0f;
+    }
+    
+    previous_error = error;
+
+    dribbler_SetSpeed(PWM,1);
+}
+
+
+void no_encoder_control(){
+    if(ballsensor_hasBall()){
+        ball_counter = 0;
+        dribbler_SetMaxSpeed(1);
+        return;
+    }
+    else if (ball_counter < 5){
+        ball_counter = ball_counter + 1;
+        dribbler_SetIdleSpeed(1);
+        return;
+    } else if (dribblerCommand.SystemTest) {
+        dribbler_SetSpeed(0.5f, 1);
+        return;
+    } 
+        dribbler_SetSpeed(0.0f, 1);
 }
 
 

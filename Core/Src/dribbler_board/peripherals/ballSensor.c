@@ -2,7 +2,7 @@
 
 uint16_t ADC2_buffer[DMA_bufferSize];
 uint8_t counter = 0;
-bool ballSensor_isWorking = false;
+bool ballSensor_isWorking = true;
 bool IR_State = false;
 
 
