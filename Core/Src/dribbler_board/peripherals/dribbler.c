@@ -51,7 +51,6 @@ void dribbler_motor_Init(){
  *
 */
 void dribbler_test(){
-	HAL_Delay(100);
 	dribbler_SetSpeed(0.15f, 1);
 	HAL_Delay(100);
 
