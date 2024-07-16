@@ -60,7 +60,7 @@ float integral = 0.0f;
 
 int state = 0;
 
-#define LOGGING //uncomment if you want output
+// #define LOGGING //uncomment if you want output
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
