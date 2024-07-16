@@ -44,6 +44,23 @@ uint32_t heart_beat_10ms = 0;
 
 uint8_t Uart_Tx_Buffer[40] = {0};
 
+//Dribbler control
+#define CONTROL_TIMER_PERIOD 0.001f
+float setpoint = 0;
+float PWM = 0.0f;
+float speed = 0; 
+float timestamp = 0;
+
+float Kp = 0.002f;  
+float Ki = 0.00f; 
+float Kd = 0.00f;  
+
+float previous_error = 0.0f;
+float integral = 0.0f;
+
+int state = 0;
+
+#define LOGGING //uncomment if you want output
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -89,10 +106,7 @@ uint8_t robot_get_Channel(){
 /* ==================== MAIN LOOP ==================== */
 /* =================================================== */
 
-float setpoint = 20;
-float PWM = 0.0f;
-float speed = 0; 
-uint32_t timestamp = 0;
+
 
 void loop(){
     HAL_IWDG_Refresh(&hiwdg);
@@ -108,9 +122,10 @@ void loop(){
 	}
     do_send_ballState();
 
-    sprintf((char*) Uart_Tx_Buffer, "S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
+#ifdef LOGGING
+    sprintf((char*) Uart_Tx_Buffer, "S:%.2f, D:%.2f , P:%.2f, T:%.4f\n",setpoint, speed, PWM, timestamp);
     HAL_UART_Transmit_DMA(&huart1, Uart_Tx_Buffer, sizeof (Uart_Tx_Buffer)-1);
-
+#endif
     // LOG_printf("S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
     // LOG_sendAll();
 }
@@ -186,7 +201,7 @@ void do_send_ballState(){
 void control_dribbler_callback() { 
 
     dribbler_UpdateEncoderSpeed();
-    timestamp++;
+    timestamp += CONTROL_TIMER_PERIOD;
 
     set_Pin(LED1, ballsensor_hasBall());
     set_Pin(LED2, dribbler_hasBall());
@@ -204,35 +219,17 @@ void control_dribbler_callback() {
 } 
 
 
-float Kp = 0.002f;  
-float Ki = 0.00f; 
-float Kd = 0.00f;  
 
-float previous_error = 0.0f;
-float integral = 0.0f;
-#define CONTROL_TIMER_PERIOD 0.001f
-uint32_t last_time = 0;
-uint32_t current_time = 0;
-int state = 0;
 
 void has_encoder_control() {
-    current_time++;
 
 
     if(ballsensor_hasBall()){
-       if(last_time + 0 < current_time){
             setpoint = 500;
             state = 1;
-            last_time = current_time;
-       }
-
     } else {
-        if(last_time + 0 < current_time){
             setpoint = 0;
-        //    integral = 0;
             state = 2;
-            last_time = current_time;
-       }
     }
 
 
