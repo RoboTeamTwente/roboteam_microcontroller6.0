@@ -122,10 +122,10 @@ int stateControl_Init(){
 	feedforwardParameters.c[2] = -135.0f*(M_PI/180.0f);
 	feedforwardParameters.c[3] = 135.0f*(M_PI/180.0f);
 
-	feedforwardParameters.param1[0] = 0.46;
-	feedforwardParameters.param1[1] = 0.46;
-	feedforwardParameters.param1[2] = 0.46;
-	feedforwardParameters.param1[3] = 0.46;
+	feedforwardParameters.param1[0] = 0.46*0;
+	feedforwardParameters.param1[1] = 0.46*0;
+	feedforwardParameters.param1[2] = 0.46*0;
+	feedforwardParameters.param1[3] = 0.46*0;
 
 	feedforwardParameters.param2[0] = 0.0360*180.0f/M_PI;
 	feedforwardParameters.param2[1] = 0.0360*180.0f/M_PI;

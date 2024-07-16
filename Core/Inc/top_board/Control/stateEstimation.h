@@ -22,8 +22,10 @@
 ///////////////////////////////////////////////////// CONSTANTS
 
 /* Factors to align vision velocities with robot velocities (see https://wiki.roboteamtwente.nl/technical/control/slippage) */
-#define SLIPPAGE_FACTOR_U 0.915f 	// Correction constant for slippage u direction (forward)
-#define SLIPPAGE_FACTOR_V 0.81f  // Correction constant for slippage v direction (sideways)
+// #define SLIPPAGE_FACTOR_U 0.915f 	// Correction constant for slippage u direction (forward)
+// #define SLIPPAGE_FACTOR_V 0.81f  // Correction constant for slippage v direction (sideways)
+#define SLIPPAGE_FACTOR_U 0.935f 	// Correction constant for slippage u direction (forward)
+#define SLIPPAGE_FACTOR_V 0.825f  // Correction constant for slippage v direction (sideways)
 #define SLIPPAGE_FACTOR_W 1.00f  // Correction constant for slippage w direction (angular velocity)
 
 ///////////////////////////////////////////////////// STRUCTS
