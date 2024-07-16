@@ -721,8 +721,10 @@ void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_
 void loop(void){
     uint32_t current_time = HAL_GetTick();
     counter_loop++;
-
-	OLED_Update(getRecentlyPressedButton(), TEST_MODE);
+	// Only update only in test mode, else random reboots starts happening
+	if (TEST_MODE) {
+		OLED_Update(getRecentlyPressedButton(), TEST_MODE);
+	}
 
     /* Send anything in the log buffer over UART */
     LOG_send();
@@ -1106,7 +1108,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     uint32_t current_time = HAL_GetTick();
 	//Control loop
     if(htim->Instance == TIM_CONTROL->Instance) {
-		if(!ROBOT_INITIALIZED || OLED_get_current_page_test_type() == BLOCKING_TEST) return;
+		if(!ROBOT_INITIALIZED || (TEST_MODE && OLED_get_current_page_test_type() == BLOCKING_TEST)) return;
 
 		flag_useStateInfo = activeRobotCommand.sendStateInfo;
 
