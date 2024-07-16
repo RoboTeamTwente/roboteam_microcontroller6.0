@@ -1,5 +1,6 @@
 #include "dribbler_board.h"
 #include <stdlib.h>
+#include <string.h>
 
 volatile bool BOARD_INITIALIZED = false;
 
@@ -40,6 +41,8 @@ uint8_t ball_counter = 0;
 // Heart Beats
 uint32_t current_beat = 0;
 uint32_t heart_beat_10ms = 0;
+
+uint8_t Uart_Tx_Buffer[40] = {0};
 
 
 /* ======================================================== */
@@ -105,8 +108,11 @@ void loop(){
 	}
     do_send_ballState();
 
-    LOG_printf("S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
-    LOG_sendAll();
+    sprintf((char*) Uart_Tx_Buffer, "S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
+    HAL_UART_Transmit_DMA(&huart1, Uart_Tx_Buffer, sizeof (Uart_Tx_Buffer)-1);
+
+    // LOG_printf("S:%.2f, D:%.2f , P:%.2f, T:%d\n",setpoint, speed, PWM, timestamp);
+    // LOG_sendAll();
 }
 
 /* ============================================= */
