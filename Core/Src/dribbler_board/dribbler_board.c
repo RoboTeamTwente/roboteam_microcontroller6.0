@@ -62,7 +62,7 @@ float integral = 0.0f;
 
 int state = 0;
 
-// #define LOGGING //uncomment if you want output
+#define LOGGING //uncomment if you want output
 
 /* ======================================================== */
 /* ==================== INITIALIZATION ==================== */
@@ -94,6 +94,8 @@ void init(){
     LOG_printf("Drib start!\n");
     LOG_sendAll();
     HAL_IWDG_Refresh(&hiwdg);
+
+    dribblerCommand.dribblerOn = true;//for testing
 }
 
 uint8_t robot_get_ID(){
@@ -132,7 +134,7 @@ void loop(){
     // LOG_sendAll();
 
 #ifdef LOGGING
-    sprintf((char*) Uart_Tx_Buffer, "S:%.2f,D:%.2f,P:%.2f,T:%.4f\n",setpoint, speed, PWM, timestamp);
+    sprintf((char*) Uart_Tx_Buffer, "S%.2f,D%.2f,P%.2f,C%.2f,T%.4f\n",setpoint, speed, PWM,dribbler_getCurrent(), timestamp);
     HAL_UART_Transmit_DMA(&huart1, Uart_Tx_Buffer, sizeof (Uart_Tx_Buffer)-1);
 #endif
 

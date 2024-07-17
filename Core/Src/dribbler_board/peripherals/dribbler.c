@@ -17,6 +17,7 @@ float dribbler_max_speed = 0;
 
 int calculateDifference(int value1, int value2, int maxvalue);//calculated difference between 2 values, with wrapping
 float dribbler_speed = 0;
+float dribbler_PWM = 0;
 
 bool dribbler_Init(){
 	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
@@ -120,7 +121,11 @@ float dribbler_getCurrent(){
 
 	uint32_t current_temp =  current_sum / current_Buffer_Size;
 
+
 	float currentA = ((float)(current_temp-232))/1939;
+	if(fabs(dribbler_PWM) < 0.1f){
+		currentA = 0;
+	}
 	return currentA;
 }
 
@@ -142,7 +147,8 @@ void dribbler_SetSpeed(float speed, bool brake){
 	if(motor_reversed){
 		speed = -speed; // The motor is mounted in reverse
 	}
-	
+
+	dribbler_PWM = speed;
 
 	if (brake){ // The motor is in braking mode
 		if (speed > 0){
