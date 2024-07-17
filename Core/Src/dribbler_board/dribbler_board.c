@@ -199,10 +199,10 @@ void do_send_ballState(){
         sendSeesBall = true;
     }
 
-    if (mcp_seesBall.dribblerSeesBall != dribbler_hasBall()) {
-        mcp_seesBall.dribblerSeesBall = dribbler_hasBall();
-        sendSeesBall = true;
-    }
+    // if (mcp_seesBall.dribblerSeesBall != dribbler_hasBall()) {
+    //     mcp_seesBall.dribblerSeesBall = dribbler_hasBall();
+    //     sendSeesBall = true;
+    // }
 
     if (sendSeesBall) {
         MCP_Send_Ball_State();
