@@ -201,20 +201,15 @@ bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
         MailBox_one.empty = false;
         MailBox_one.message_id = message_ID;
         memcpy(MailBox_one.data_Frame, data, sizeof(data));
-        return true;
     } else if (MailBox_two.empty){
         MailBox_two.empty = false;
         MailBox_two.message_id = message_ID;
         memcpy(MailBox_two.data_Frame, data, sizeof(data));
-        return true;
     } else if (MailBox_three.empty){
         MailBox_three.empty = false;
         MailBox_three.message_id = message_ID;
         memcpy(MailBox_three.data_Frame, data, sizeof(data));
-        return true;
     }
-
-    // Free dynamically allocated memory and return false if mailboxes are full
-    return false;
+    return true;
 }
 

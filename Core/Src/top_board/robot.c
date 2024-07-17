@@ -498,6 +498,8 @@ void init(void){
 }
 
 	set_Pin(LED2_pin, 1);
+	IWDG_Refresh(iwdg);
+	IWDG_Init(iwdg, 250);
 
 { // ====== SX : PINS, CALLBACKS, CHANNEL, SYNCWORDS
 	/* Initialize the SX1280 wireless chip */
@@ -531,6 +533,8 @@ void init(void){
 }
 
 	set_Pin(LED3_pin, 1);
+	IWDG_Refresh(iwdg);
+	IWDG_Init(iwdg, 7500);
 
 { // ====== INITIALIZE IMU (XSENS). 1 second calibration time, XFP_VRU_general = no magnetometer */
 	LOG("[init:"STRINGIZE(__LINE__)"] Initializing MTi\n");
@@ -602,7 +606,6 @@ void init(void){
 	// buzzer_Play_ID(ROBOT_ID);
 	// HAL_Delay(1500);
 
-
 {	// ====== MCP =====
   	//initialize MCP
 	MCP_Init(&hcan1, MCP_TOP_BOARD);
@@ -653,6 +656,12 @@ void init(void){
 
 	LOG("[init:"STRINGIZE(__LINE__)"] Initialized\n");
 
+	/* Reset the watchdog timer and set the threshold at 1000ms */
+	if (!TEST_MODE) {
+		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 1000);
+	}
+
 	// Tell the SX to start listening for packets. This is non-blocking. It simply sets the SX into receiver mode.
 	// SX1280 section 10.7 Transceiver Circuit Modes Graphical Illustration
 	// Ignore packets when we're in test mode by simply never entering this receive-respond loop
@@ -662,7 +671,6 @@ void init(void){
 	// Start timer TIM_1us
 	HAL_TIM_Base_Start_IT(TIM_1us);
 
-	/* Reset the watchdog timer and set the threshold at 250ms */
 	if (!TEST_MODE) {
 		IWDG_Refresh(iwdg);
 		IWDG_Init(iwdg, 250);
