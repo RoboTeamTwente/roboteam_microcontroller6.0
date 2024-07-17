@@ -212,6 +212,9 @@ void control_dribbler_callback() {
         } else{
             no_encoder_control();
         }
+    } else{
+        dribbler_SetSpeed(0.0f, 1);
+    
     }
 
 } 
