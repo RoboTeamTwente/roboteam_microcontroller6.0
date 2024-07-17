@@ -44,6 +44,8 @@ uint32_t heart_beat_10ms = 0;
 
 uint8_t Uart_Tx_Buffer[40] = {0};
 
+bool dribbler_initialized = false;
+
 //Dribbler control
 #define CONTROL_TIMER_PERIOD 0.001f
 float setpoint = 0;
@@ -71,7 +73,7 @@ void init(){
     HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
     HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL); //enable timer for the encoder
     LOG_init();
-    dribbler_Init();
+    dribbler_initialized = dribbler_Init();
     ballsensor_init();
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
 
@@ -216,12 +218,13 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-    if(dribbler_hasEncoder()){
-        has_encoder_control();
-    } else{
-        no_encoder_control();
+    if(dribbler_initialized){
+        if(dribbler_hasEncoder()){
+            has_encoder_control();
+        } else{
+            no_encoder_control();
+        }
     }
-
 
 } 
 

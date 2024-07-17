@@ -18,7 +18,7 @@ float dribbler_max_speed = 0;
 int calculateDifference(int value1, int value2, int maxvalue);//calculated difference between 2 values, with wrapping
 float dribbler_speed = 0;
 
-void dribbler_Init(){
+bool dribbler_Init(){
 	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
 	start_PWM(PWM_Dribbler_a);
@@ -26,7 +26,7 @@ void dribbler_Init(){
 	dribbler_motor_Init();
 
 	dribbler_test(); //Test the motor and see if it's reversed or not
-
+	return true;
 }
 
 void dribbler_motor_Init(){
@@ -53,7 +53,7 @@ void dribbler_motor_Init(){
 */
 void dribbler_test(){
 	dribbler_SetSpeed(0.15f, 1);
-	HAL_Delay(200);
+	HAL_Delay(70);
 
 	if(dribbler_GetEncoderSpeed() == 0){
 		has_encoder = false;

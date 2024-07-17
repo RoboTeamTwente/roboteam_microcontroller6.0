@@ -34,7 +34,7 @@ extern uint32_t encoder_value;
 // Test the dribbler motor
 void dribbler_test();
 // Initializes the PIDs / encoders / PWM timers
-void dribbler_Init();
+bool dribbler_Init();
 // Initializes the motor driver for the PWM
 void dribbler_motor_Init();
 // The current value we set, limits acceleration
