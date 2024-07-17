@@ -18,13 +18,15 @@ float dribbler_max_speed = 0;
 int calculateDifference(int value1, int value2, int maxvalue);//calculated difference between 2 values, with wrapping
 float dribbler_speed = 0;
 
-void dribbler_Init(){
+bool dribbler_Init(){
 	current_limit=1.0f; // [A] 0.32A is the maximum continuous current of the dribbler motor
 	HAL_TIM_Base_Start(PWM_DRIBBLER);
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
 	dribbler_motor_Init();
-	dribbler_SetSpeed(0.0f, 1);
+
+	dribbler_test(); //Test the motor and see if it's reversed or not
+	return true;
 }
 
 void dribbler_motor_Init(){
@@ -34,7 +36,6 @@ void dribbler_motor_Init(){
 
 	// For the voltage
 	dribbler_setCurrentLimit(current_limit);
-	dribbler_test(); //Test the motor and see if it's reversed or not
 }
 
 /**
@@ -52,7 +53,7 @@ void dribbler_motor_Init(){
 */
 void dribbler_test(){
 	dribbler_SetSpeed(0.15f, 1);
-	HAL_Delay(100);
+	HAL_Delay(70);
 
 	if(dribbler_GetEncoderSpeed() == 0){
 		has_encoder = false;
@@ -62,12 +63,12 @@ void dribbler_test(){
 		motor_reversed = true;
 	}
 	dribbler_SetSpeed(0.0f, 1);
-	HAL_Delay(100);
+	HAL_Delay(10);
 
 	if(has_encoder){
 		for(float f = 0.0f; f <= 0.2f; f += 0.01f){
 			dribbler_SetSpeed(f, 1);
-			HAL_Delay(15);
+			HAL_Delay(5);
 			dribbler_min_speed = dribbler_GetEncoderSpeed();
 			if(fabs(dribbler_min_speed) > 20){
 				dribbler_min_speed_PWM = f;
@@ -76,6 +77,13 @@ void dribbler_test(){
 		}
 		HAL_Delay(10);
 	}
+
+	if(has_encoder){
+		LOG_printf("Has encoder");
+	} else{
+		LOG_printf("No encoder");
+	}
+	LOG_sendAll();
 	
 	
 	// dribbler_SetIdleSpeed(1);

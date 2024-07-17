@@ -44,6 +44,8 @@ uint32_t heart_beat_10ms = 0;
 
 uint8_t Uart_Tx_Buffer[40] = {0};
 
+bool dribbler_initialized = false;
+
 //Dribbler control
 #define CONTROL_TIMER_PERIOD 0.001f
 float setpoint = 0;
@@ -71,7 +73,7 @@ void init(){
     HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
     HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL); //enable timer for the encoder
     LOG_init();
-    dribbler_Init();
+    dribbler_initialized = dribbler_Init();
     ballsensor_init();
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
 
@@ -122,10 +124,20 @@ void loop(){
 	}
     do_send_ballState();
 
+    // if(dribblerCommand.dribblerOn){
+    //     LOG_printf("Dribbler is on\n");
+    // } else {
+    //     LOG_printf("Dribbler is off\n");
+    // }
+    // LOG_sendAll();
+
 #ifdef LOGGING
     sprintf((char*) Uart_Tx_Buffer, "S:%.2f,D:%.2f,P:%.2f,T:%.4f\n",setpoint, speed, PWM, timestamp);
     HAL_UART_Transmit_DMA(&huart1, Uart_Tx_Buffer, sizeof (Uart_Tx_Buffer)-1);
 #endif
+
+
+
 }
 
 /* ============================================= */
@@ -206,7 +218,7 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-    if (dribblerCommand.dribblerOn){
+    if(dribbler_initialized){
         if(dribbler_hasEncoder()){
             has_encoder_control();
         } else{
@@ -222,7 +234,7 @@ void control_dribbler_callback() {
 void has_encoder_control() {
 
 
-    if(ballsensor_hasBall()){
+    if(ballsensor_hasBall() && dribblerCommand.dribblerOn){
             setpoint = 500;
             state = 1;
     } else {
@@ -256,20 +268,24 @@ void has_encoder_control() {
 
 
 void no_encoder_control(){
-    if(ballsensor_hasBall()){
-        ball_counter = 0;
-        dribbler_SetMaxSpeed(1);
-        return;
-    }
-    else if (ball_counter < 5){
-        ball_counter = ball_counter + 1;
-        dribbler_SetIdleSpeed(1);
-        return;
-    } else if (dribblerCommand.SystemTest) {
-        dribbler_SetSpeed(0.5f, 1);
-        return;
-    } 
+    if(dribblerCommand.dribblerOn){
+        if(ballsensor_hasBall()){
+            ball_counter = 0;
+            dribbler_SetMaxSpeed(1);
+            return;
+        }
+        else if (ball_counter < 5){
+            ball_counter = ball_counter + 1;
+            dribbler_SetIdleSpeed(1);
+            return;
+        } else if (dribblerCommand.SystemTest) {
+            dribbler_SetSpeed(0.5f, 1);
+            return;
+        } 
+            dribbler_SetSpeed(0.0f, 1);
+    } else{
         dribbler_SetSpeed(0.0f, 1);
+    }
 }
 
 
