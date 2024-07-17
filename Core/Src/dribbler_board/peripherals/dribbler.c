@@ -127,6 +127,7 @@ float dribbler_getCurrent(){
 bool dribbler_hasBall(){
 	float currentA = dribbler_getCurrent();
 	return (currentA>0.15f);
+	return false;
 }
 
 void dribbler_DeInit(){

@@ -199,13 +199,14 @@ void do_send_ballState(){
         sendSeesBall = true;
     }
 
-    // if (mcp_seesBall.dribblerSeesBall != dribbler_hasBall()) {
-    //     mcp_seesBall.dribblerSeesBall = dribbler_hasBall();
-    //     sendSeesBall = true;
-    // }
+    if (mcp_seesBall.dribblerSeesBall != dribbler_hasBall()) {
+        mcp_seesBall.dribblerSeesBall = dribbler_hasBall();
+        sendSeesBall = true;
+    }
 
     if (sendSeesBall) {
         MCP_Send_Ball_State();
+        HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
     }
 }
 void control_dribbler_callback() { 
@@ -214,7 +215,7 @@ void control_dribbler_callback() {
     timestamp += CONTROL_TIMER_PERIOD;
 
     set_Pin(LED1, ballsensor_hasBall());
-    set_Pin(LED2, dribbler_hasBall());
+    // set_Pin(LED2, dribbler_hasBall()); //moved to mcp send sees ball
 
     do_send_ballState();
 
