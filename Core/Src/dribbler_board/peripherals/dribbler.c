@@ -24,7 +24,9 @@ void dribbler_Init(){
 	start_PWM(PWM_Dribbler_a);
 	start_PWM(PWM_Dribbler_b);
 	dribbler_motor_Init();
-	dribbler_SetSpeed(0.0f, 1);
+
+	dribbler_test(); //Test the motor and see if it's reversed or not
+
 }
 
 void dribbler_motor_Init(){
@@ -34,7 +36,6 @@ void dribbler_motor_Init(){
 
 	// For the voltage
 	dribbler_setCurrentLimit(current_limit);
-	dribbler_test(); //Test the motor and see if it's reversed or not
 }
 
 /**
@@ -52,7 +53,7 @@ void dribbler_motor_Init(){
 */
 void dribbler_test(){
 	dribbler_SetSpeed(0.15f, 1);
-	HAL_Delay(100);
+	HAL_Delay(200);
 
 	if(dribbler_GetEncoderSpeed() == 0){
 		has_encoder = false;
@@ -62,12 +63,12 @@ void dribbler_test(){
 		motor_reversed = true;
 	}
 	dribbler_SetSpeed(0.0f, 1);
-	HAL_Delay(100);
+	HAL_Delay(10);
 
 	if(has_encoder){
 		for(float f = 0.0f; f <= 0.2f; f += 0.01f){
 			dribbler_SetSpeed(f, 1);
-			HAL_Delay(15);
+			HAL_Delay(5);
 			dribbler_min_speed = dribbler_GetEncoderSpeed();
 			if(fabs(dribbler_min_speed) > 20){
 				dribbler_min_speed_PWM = f;
@@ -76,6 +77,13 @@ void dribbler_test(){
 		}
 		HAL_Delay(10);
 	}
+
+	if(has_encoder){
+		LOG_printf("Has encoder");
+	} else{
+		LOG_printf("No encoder");
+	}
+	LOG_sendAll();
 	
 	
 	// dribbler_SetIdleSpeed(1);
