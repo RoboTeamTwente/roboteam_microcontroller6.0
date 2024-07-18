@@ -272,7 +272,7 @@ void wheels_Update() {
 
 
 		// Set motor PWM fraction/voltage
-			float max_voltage = 7.5;
+			float max_voltage = 5.5;
 			// Add PID to commanded speed and convert to PWM (range between -1 and 1)
 			float wheel_voltage_to_be_applied = feed_forward[motor] + feed_back_voltage;
 			if (wheel_voltage_to_be_applied > max_voltage) {
