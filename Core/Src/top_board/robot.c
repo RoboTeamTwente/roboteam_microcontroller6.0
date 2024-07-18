@@ -498,8 +498,10 @@ void init(void){
 }
 
 	set_Pin(LED2_pin, 1);
-	IWDG_Refresh(iwdg);
-	IWDG_Init(iwdg, 250);
+	if (!TEST_MODE) {
+		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 250);
+	}
 
 { // ====== SX : PINS, CALLBACKS, CHANNEL, SYNCWORDS
 	/* Initialize the SX1280 wireless chip */
@@ -533,8 +535,10 @@ void init(void){
 }
 
 	set_Pin(LED3_pin, 1);
-	IWDG_Refresh(iwdg);
-	IWDG_Init(iwdg, 7500);
+	if (!TEST_MODE) {
+		IWDG_Refresh(iwdg);
+		IWDG_Init(iwdg, 7500);
+	}
 
 { // ====== INITIALIZE IMU (XSENS). 1 second calibration time, XFP_VRU_general = no magnetometer */
 	LOG("[init:"STRINGIZE(__LINE__)"] Initializing MTi\n");
