@@ -15,31 +15,31 @@ static bool start_ready;
 void chip_test_initChildren(page_struct *parent) {
     pages_set_default_values(&chip_two_ms, parent);
     chip_two_ms.id = 1321;
-    strcpy(chip_two_ms.page_name, "2.0 m/s");
+    page_set_page_name("2.0 m/s", &chip_two_ms);
     chip_two_ms.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&chip_two_ms);
 
     pages_set_default_values(&chip_three_five_ms, parent);
     chip_three_five_ms.id = 1322;
-    strcpy(chip_three_five_ms.page_name, "3.5 m/s");
+    page_set_page_name("3.5 m/s", &chip_three_five_ms);
     chip_three_five_ms.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&chip_three_five_ms);
 
     pages_set_default_values(&chip_four_five_ms, parent);
     chip_four_five_ms.id = 1323;
-    strcpy(chip_four_five_ms.page_name, "4.5 m/s");
+    page_set_page_name("4.5 m/s", &chip_four_five_ms);
     chip_four_five_ms.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&chip_four_five_ms);
 
     pages_set_default_values(&chip_five_five_ms, parent);
     chip_five_five_ms.id = 1324;
-    strcpy(chip_five_five_ms.page_name, "5.5 m/s");
+    page_set_page_name("5.5 m/s", &chip_five_five_ms);
     chip_five_five_ms.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&chip_five_five_ms);
 
     pages_set_default_values(&chip_six_five_ms, parent);
     chip_six_five_ms.id = 1325;
-    strcpy(chip_six_five_ms.page_name, "6.5 m/s");
+    page_set_page_name("6.5 m/s", &chip_six_five_ms);
     chip_six_five_ms.is_test = NON_BLOCKING_TEST;
     add_child_to_parent(&chip_six_five_ms);
 }
@@ -73,23 +73,23 @@ void chip_shoot_run(float speed, page_struct *page){
 
         /* Display what happend according to robot */
         if (start_ready && !after_ready) {
-            strcpy(page->line0, "CHIP SUCCES!");
+            page_put_text_in_line(&page, "CHIP SUCCES!", 0);
         } else {
-            strcpy(page->line0, "CHIP FAILED:");
+            page_put_text_in_line(&page, "CHIP FAILED:", 0);
             //reasoning why it failed
             if (start_on && !start_ready) {
-                strcpy(page->line1, "CHARGING");
+                page_put_text_in_line(&page, "CHARGING", 1);
             } else if (!start_on) {
-                strcpy(page->line1, "SHOOT_OFF");
+                page_put_text_in_line(&page, "SHOOT_OFF", 1);
             } else if (start_ready && after_ready) {
-                strcpy(page->line1, "MCP DOWN?");
+                page_put_text_in_line(&page, "MCP DOWN?", 1);
             } else {
-                strcpy(page->line1, "REASON UNKNOWN");
+                page_put_text_in_line(&page, "REASON UNKNOWN", 1);
             }
         }
         
         if (kickerStatus.kickerFault) {
-            strcpy(page->line3, "FAULT!!");
+            page_put_text_in_line(&page, "FAULT!!", 3);
         }
         display_text();
         SSD1306_UpdateScreen(); // update screen

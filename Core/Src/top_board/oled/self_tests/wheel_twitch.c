@@ -14,24 +14,24 @@ void wheel_twitch_init(page_struct *parent) {
     //Display warning
     pages_set_default_values(&wheel_twitch_warning, parent);
     wheel_twitch_warning.id = 1121;
-    strcpy(wheel_twitch_warning.page_name, "Wheel twitch");
+    page_set_page_name("Wheel twitch", &wheel_twitch_warning);
     wheel_twitch_warning.is_test = BLOCKING_TEST;
-    strcpy(wheel_twitch_warning.line0, "Make sure that");
-    strcpy(wheel_twitch_warning.line1, "the wheels are");
-    strcpy(wheel_twitch_warning.line2, "off the ground!");
-    strcpy(wheel_twitch_warning.line3, "OK to continue");
+    page_put_text_in_line(&wheel_twitch_running, "Make sure that", 0);
+    page_put_text_in_line(&wheel_twitch_running, "the wheels are", 1);
+    page_put_text_in_line(&wheel_twitch_running, "off the ground!", 2);
+    page_put_text_in_line(&wheel_twitch_running, "OK to continue", 3);
     add_child_to_parent(&wheel_twitch_warning);
     //running test
     pages_set_default_values(&wheel_twitch_running, &wheel_twitch_warning);
     wheel_twitch_running.id = 1122;
-    strcpy(wheel_twitch_running.page_name, "Wheel twitch");
+    page_set_page_name("Wheel twitch", &wheel_twitch_running);
     wheel_twitch_running.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_running);
 
     //results
     pages_set_default_values(&wheel_twitch_result, &wheel_twitch_running);
     wheel_twitch_result.id = 1123;
-    strcpy(wheel_twitch_result.page_name, "Wheel twitch");
+    page_set_page_name("Wheel twitch", &wheel_twitch_result);
     wheel_twitch_result.is_test = BLOCKING_TEST;
     add_child_to_parent(&wheel_twitch_result);
 }
@@ -83,13 +83,16 @@ void wheel_twitch_run() {
     //Prepping results to be displayed
     char temp[MAX_STRING_LENGTH];
     sprintf(temp, "RF: %s", number_to_status(working[0]));
-    strcpy(wheel_twitch_result.line0, temp);
+    page_put_text_in_line(&wheel_twitch_result, temp, 0);
+
     sprintf(temp, "LF: %s", number_to_status(working[1]));
-    strcpy(wheel_twitch_result.line1, temp);
+    page_put_text_in_line(&wheel_twitch_result, temp, 1);
+
     sprintf(temp, "LB: %s", number_to_status(working[2]));
-    strcpy(wheel_twitch_result.line2, temp);
+    page_put_text_in_line(&wheel_twitch_result, temp, 2);
+    
     sprintf(temp, "RB: %s", number_to_status(working[3]));
-    strcpy(wheel_twitch_result.line3, temp);
+    page_put_text_in_line(&wheel_twitch_result, temp, 3);
 }
 
 /**

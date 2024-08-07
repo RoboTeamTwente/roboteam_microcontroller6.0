@@ -23,6 +23,38 @@ void pages_set_default_values(page_struct *page, page_struct *parent) {
     page -> parent = parent;
 }
 
+void page_set_page_name(char* name, page_struct *page) {
+    if (strlen(name) > MAX_MENU_NAME_LENGTH) {
+        pageNameTooLongException(name);
+    } else {
+        strcpy(page->page_name, name);
+    }
+}
+
+void page_put_text_in_line(page_struct *page, char* text, int lineNum) {
+    if (strlen(text) > MAX_STRING_LENGTH) {
+        textTooLongException(page->page_name, lineNum, strlen(text));
+    } else {
+        switch (lineNum) {
+        case 0:
+            strcpy(page->line0, text);
+            break;
+        case 1:
+            strcpy(page->line1, text);
+            break;
+        case 2:
+            strcpy(page->line2, text);
+            break;
+        case 3:
+            strcpy(page->line3, text);
+            break;
+        default:
+            unknownLineNumber(page->page_name, lineNum);
+            break;
+        }
+    }
+}
+
 /**
  * @brief add page as child to it's parent
 */

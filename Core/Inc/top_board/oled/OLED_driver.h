@@ -7,9 +7,7 @@
 #include <stdlib.h>
 
 #define MAX_CHILDEREN 9
-#define MAX_VAR_NAME_LENGTH 9
 #define MAX_MENU_NAME_LENGTH 15
-#define MAX_SUBMENU_NAME_LENGTH 23
 #define MAX_STRING_LENGTH 23
 
 typedef struct page_struct page_struct;
@@ -62,5 +60,8 @@ void end_of_test();
 enum test_type OLED_get_current_page_test_type();
 void end_of_boot_screen(bool MCP_OK);
 void display_text();
+void pageNameTooLongException(char* name);
+void textTooLongException(char* page_name, int line, int length);
+void unknownLineNumber(char* page_name, int line);
 
 #endif /* INC_OLED_H_ */ 

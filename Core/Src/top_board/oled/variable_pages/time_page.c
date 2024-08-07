@@ -6,17 +6,17 @@ struct page_struct time_page;
 void time_page_init(page_struct* parent) {
     pages_set_default_values(&time_page, parent);
     time_page.id = 221;
-    strcpy(time_page.page_name, "Robot time");
+    page_set_page_name("Robot time", &time_page);
     time_page.has_variables = true;
     add_child_to_parent(&time_page);
 }
 
 void time_page_update(page_struct *page) {
     if (TEST_MODE) {
-        strcpy(page->line0, "Time not avail-");
-        strcpy(page->line1, "able in test-mode.");
-        strcpy(page->line2, "Flip switch 7");
-        strcpy(page->line3, "and reboot");
+        page_put_text_in_line(&page, "Time not avail-", 0);
+        page_put_text_in_line(&page, "able in test-mode.", 1);
+        page_put_text_in_line(&page, "Flip switch 7", 2);
+        page_put_text_in_line(&page, "and reboot", 3);
         return;
     }
 
@@ -28,16 +28,16 @@ void time_page_update(page_struct *page) {
     //Day
     strftime(clock, sizeof(clock), "%d/%m", tmp);
     sprintf(temp, "Date-> %s", clock);
-    strcpy(page->line0, temp);
+    page_put_text_in_line(&page, temp, 0);
     //Hour:Minute
     strftime(clock, sizeof(clock), "%R", tmp);
     sprintf(temp, "H:M -> %s UTC", clock);
-    strcpy(page->line1, temp);
+    page_put_text_in_line(&page, temp, 1);
     //Seconds
     strftime(clock, sizeof(clock), "%S", tmp);
     sprintf(temp, "Sec -> %s", clock);
-    strcpy(page->line2, temp);
+    page_put_text_in_line(&page, temp, 2);
     //Millisecond
     sprintf(temp, "ms  -> %d", unix_timestamp - (time_adjusted * 1000));
-    strcpy(page->line3, temp);   
+    page_put_text_in_line(&page, temp, 3);
 }

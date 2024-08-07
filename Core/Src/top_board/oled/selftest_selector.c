@@ -96,6 +96,9 @@ void run_test(page_struct *page) {
         case 35:
             drain_battery_run(24.5f);
             break;
+        case 36:
+            drain_battery_run(22.2f);
+            break;
         default:
             break;
     }   

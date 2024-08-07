@@ -5,27 +5,27 @@ struct page_struct kicker_status_page;
 void kicker_status_Init(page_struct *parent) {
     pages_set_default_values(&kicker_status_page, parent);
     kicker_status_page.id = 24;
-    strcpy(kicker_status_page.page_name, "Kicker status");
+    page_set_page_name("Kicker status", &kicker_status_page);
     kicker_status_page.has_variables = true;
     add_child_to_parent(&kicker_status_page);
 }
 
 void kicker_status_Update(page_struct *page) {
     if (kickerStatus.kickerOn) {
-        strcpy(page->line0, "On/Off: On");
+        page_put_text_in_line(&page, "On/Off: On", 0);
     } else {
-        strcpy(page->line0, "On/Off: Off");
+        page_put_text_in_line(&page, "On/Off: Off", 0);
     }
 
     if (kickerStatus.kickerReady) {
-        strcpy(page->line1, "Ready: Yes");
+        page_put_text_in_line(&page, "Ready: Yes", 1);
     } else {
-        strcpy(page->line1, "Ready: No");
+        page_put_text_in_line(&page, "Ready: No", 1);
     }
 
     if (kickerStatus.kickerFault) {
-        strcpy(page->line2, "Fault: Yes");
+        page_put_text_in_line(&page, "Fault: Yes", 2);
     } else {
-        strcpy(page->line2, "Fault: No");
+        page_put_text_in_line(&page, "Fault: No", 2);
     }
 }
