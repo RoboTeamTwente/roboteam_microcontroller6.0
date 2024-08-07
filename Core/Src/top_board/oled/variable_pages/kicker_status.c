@@ -12,20 +12,20 @@ void kicker_status_Init(page_struct *parent) {
 
 void kicker_status_Update(page_struct *page) {
     if (kickerStatus.kickerOn) {
-        page_put_text_in_line(&page, "On/Off: On", 0);
+        page_put_text_in_line(page, "On/Off: On", 0);
     } else {
-        page_put_text_in_line(&page, "On/Off: Off", 0);
+        page_put_text_in_line(page, "On/Off: Off", 0);
     }
 
     if (kickerStatus.kickerReady) {
-        page_put_text_in_line(&page, "Ready: Yes", 1);
+        page_put_text_in_line(page, "Ready: Yes", 1);
     } else {
-        page_put_text_in_line(&page, "Ready: No", 1);
+        page_put_text_in_line(page, "Ready: No", 1);
     }
 
     if (kickerStatus.kickerFault) {
-        page_put_text_in_line(&page, "Fault: Yes", 2);
+        page_put_text_in_line(page, "Fault: Yes", 2);
     } else {
-        page_put_text_in_line(&page, "Fault: No", 2);
+        page_put_text_in_line(page, "Fault: No", 2);
     }
 }
