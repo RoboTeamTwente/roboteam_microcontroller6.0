@@ -16,26 +16,26 @@ void mcp_page_init(page_struct *parent) {
 
 void mcp_page_update(page_struct *page) {
     if (n_not_alive == 0){
-        page_put_text_in_line(&page, "All boards", 0);
-        page_put_text_in_line(&page, "are alive", 1);
-        page_put_text_in_line(&page, "and functioning", 2);
+        page_put_text_in_line(page, "All boards", 0);
+        page_put_text_in_line(page, "are alive", 1);
+        page_put_text_in_line(page, "and functioning", 2);
     } else {
         uint32_t current_time = HAL_GetTick();
-        page_put_text_in_line(&page, "No signal from", 0);
-        page_put_text_in_line(&page, "these board(s): ", 1);
+        page_put_text_in_line(page, "No signal from", 0);
+        page_put_text_in_line(page, "these board(s): ", 1);
         if (n_not_alive == 1) {
-            page_put_text_in_line(&page, board_names[0], 2);
+            page_put_text_in_line(page, board_names[0], 2);
         } else if (n_not_alive == 2) {
-            page_put_text_in_line(&page, board_names[0], 2);
-            page_put_text_in_line(&page, board_names[1], 3);
+            page_put_text_in_line(page, board_names[0], 2);
+            page_put_text_in_line(page, board_names[1], 3);
         } else {
             //change what 2 boards are displayed every second
             if (current_time > time_last_change + 1000) {
                 time_last_change = current_time;
                 mcp_state++;
             }
-            page_put_text_in_line(&page, board_names[mcp_state % n_not_alive], 2);
-            page_put_text_in_line(&page, board_names[(mcp_state + 1) % n_not_alive], 3);
+            page_put_text_in_line(page, board_names[mcp_state % n_not_alive], 2);
+            page_put_text_in_line(page, board_names[(mcp_state + 1) % n_not_alive], 3);
         }
 
     }

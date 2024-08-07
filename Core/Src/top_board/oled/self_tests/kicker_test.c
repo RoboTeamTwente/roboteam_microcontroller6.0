@@ -72,23 +72,23 @@ void kicker_shoot_run(float speed, page_struct *page){
 
         /* Display what happend according to robot */
         if (start_ready && !after_ready) {
-            page_put_text_in_line(&page, "KICK SUCCES!", 0);
+            page_put_text_in_line(page, "KICK SUCCES!", 0);
         } else {
-            page_put_text_in_line(&page, "KICK FAILED:", 0);
+            page_put_text_in_line(page, "KICK FAILED:", 0);
             //reasoning why it failed
             if (start_on && !start_ready) {
-                page_put_text_in_line(&page, "CHARGING", 1);
+                page_put_text_in_line(page, "CHARGING", 1);
             } else if (!start_on) {
-                page_put_text_in_line(&page, "SHOOT_OFF", 1);
+                page_put_text_in_line(page, "SHOOT_OFF", 1);
             } else if (start_ready && after_ready) {
-                page_put_text_in_line(&page, "MCP DOWN?", 1);
+                page_put_text_in_line(page, "MCP DOWN?", 1);
             } else {
-                page_put_text_in_line(&page, "REASON UNKNOWN", 1);
+                page_put_text_in_line(page, "REASON UNKNOWN", 1);
             }
         }
         
         if (kickerStatus.kickerFault) {
-            page_put_text_in_line(&page, "FAULT!!", 3);
+            page_put_text_in_line(page, "FAULT!!", 3);
         }
         display_text();
         SSD1306_UpdateScreen(); // update screen

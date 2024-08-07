@@ -12,13 +12,13 @@ void voltage_reading_init(page_struct *parent) {
 
 void voltage_update_page(page_struct *page){
     char temp[MAX_STRING_LENGTH];
-    page_put_text_in_line(&page, "Power board", 0);
+    page_put_text_in_line(page, "Power board", 0);
 
     sprintf(temp, "Reading: %f", powerVoltage.voltagePowerBoard);
-    page_put_text_in_line(&page, temp, 1);
+    page_put_text_in_line(page, temp, 1);
 
-    page_put_text_in_line(&page, "Kicker Capacitor", 2);
+    page_put_text_in_line(page, "Kicker Capacitor", 2);
 
     sprintf(temp, "Reading: %u", kickerCapacitorVoltage.voltage);
-    page_put_text_in_line(&page, temp, 3);
+    page_put_text_in_line(page, temp, 3);
 }

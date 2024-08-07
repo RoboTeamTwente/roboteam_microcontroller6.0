@@ -25,10 +25,10 @@ void rem_page_init(page_struct *parent) {
 
 void rem_page_update(page_struct *page) {
     rem_page_remove_timestamps();
-    page_put_text_in_line(&page, "Incoming", 0);
+    page_put_text_in_line(page, "Incoming", 0);
     char temp[MAX_STRING_LENGTH];
     sprintf(temp, "REM_Commands: %d", rem_node_size);
-    page_put_text_in_line(&page, temp, 1);
+    page_put_text_in_line(page, temp, 1);
 }
 
 void rem_page_add_timestamp(uint64_t recieved_time) {
