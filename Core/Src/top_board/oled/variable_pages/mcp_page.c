@@ -9,33 +9,33 @@ int mcp_state = 0;
 void mcp_page_init(page_struct *parent) {
     pages_set_default_values(&mcp_page, parent);
     mcp_page.id = 222;
-    strcpy(mcp_page.page_name, "MCP Alive");
+    page_set_page_name("MCP Alive", &mcp_page);
     mcp_page.has_variables = true;
     add_child_to_parent(&mcp_page);
 }
 
 void mcp_page_update(page_struct *page) {
     if (n_not_alive == 0){
-        strcpy(page->line0, "All boards");
-        strcpy(page->line1, "are alive");
-        strcpy(page->line2, "and functioning");
+        page_put_text_in_line(page, "All boards", 0);
+        page_put_text_in_line(page, "are alive", 1);
+        page_put_text_in_line(page, "and functioning", 2);
     } else {
         uint32_t current_time = HAL_GetTick();
-        strcpy(page->line0, "No signal from");
-        strcpy(page->line1, "these board(s): ");
+        page_put_text_in_line(page, "No signal from", 0);
+        page_put_text_in_line(page, "these board(s): ", 1);
         if (n_not_alive == 1) {
-            strcpy(page->line2, board_names[0]);
+            page_put_text_in_line(page, board_names[0], 2);
         } else if (n_not_alive == 2) {
-            strcpy(page->line2, board_names[0]);
-            strcpy(page->line3, board_names[1]);
+            page_put_text_in_line(page, board_names[0], 2);
+            page_put_text_in_line(page, board_names[1], 3);
         } else {
             //change what 2 boards are displayed every second
             if (current_time > time_last_change + 1000) {
                 time_last_change = current_time;
                 mcp_state++;
             }
-            strcpy(page->line2, board_names[mcp_state % n_not_alive]);
-            strcpy(page->line3, board_names[(mcp_state + 1) % n_not_alive]);
+            page_put_text_in_line(page, board_names[mcp_state % n_not_alive], 2);
+            page_put_text_in_line(page, board_names[(mcp_state + 1) % n_not_alive], 3);
         }
 
     }

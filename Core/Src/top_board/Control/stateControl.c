@@ -262,7 +262,7 @@ void wheels_Update() {
 			}
 
 			float feed_back_voltage = wheelFBOn*24.0f*(0.001367311 * (PID(angular_velocity_error, &wheelsK[motor])));
-			float max_fb_voltage = 12.5f;
+			float max_fb_voltage = 3.0f;
 			if (feed_back_voltage > max_fb_voltage) {
 				feed_back_voltage = max_fb_voltage;
 			}
@@ -272,7 +272,7 @@ void wheels_Update() {
 
 
 		// Set motor PWM fraction/voltage
-			float max_voltage = 12.5;
+			float max_voltage = 5.5;
 			// Add PID to commanded speed and convert to PWM (range between -1 and 1)
 			float wheel_voltage_to_be_applied = feed_forward[motor] + feed_back_voltage;
 			if (wheel_voltage_to_be_applied > max_voltage) {

@@ -18,17 +18,17 @@ void rem_page_remove_timestamps();
 void rem_page_init(page_struct *parent) {
     pages_set_default_values(&rem_page, parent);
     rem_page.id = 223;
-    strcpy(rem_page.page_name, "REM info");
+    page_set_page_name("REM info", &rem_page);
     rem_page.has_variables = true;
     add_child_to_parent(&rem_page);
 }
 
 void rem_page_update(page_struct *page) {
     rem_page_remove_timestamps();
-    strcpy(page->line0, "Incoming");
+    page_put_text_in_line(page, "Incoming", 0);
     char temp[MAX_STRING_LENGTH];
     sprintf(temp, "REM_Commands: %d", rem_node_size);
-    strcpy(page->line1, temp);
+    page_put_text_in_line(page, temp, 1);
 }
 
 void rem_page_add_timestamp(uint64_t recieved_time) {

@@ -2,7 +2,6 @@
 #define INC_INFO_MENU_H_
 
 #include "OLED_driver.h"
-#include "general_info.h"
 #include "encoder_page.h"
 #include "mcp_page.h"
 #include "time_page.h"

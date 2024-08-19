@@ -10,19 +10,19 @@ struct page_struct send_feedback_off;
 
 void init_sendFeedback(page_struct *parent) {
     pages_set_default_values(&send_feedback_menu, parent);
-    strcpy(send_feedback_menu.page_name, "Send Feedback");
+    page_set_page_name("Send Feedback", &send_feedback_menu);
     send_feedback_menu.id = 141;
     send_feedback_menu.is_menu = true;
     add_child_to_parent(&send_feedback_menu);
 
     pages_set_default_values(&send_feedback_on, &send_feedback_menu);
-    strcpy(send_feedback_on.page_name, "ON");
+    page_set_page_name("On", &send_feedback_on);
     send_feedback_on.id = 142;
     send_feedback_on.is_test = BLOCKING_TEST;
     add_child_to_parent(&send_feedback_on);
 
     pages_set_default_values(&send_feedback_off, &send_feedback_menu);
-    strcpy(send_feedback_off.page_name, "OFF");
+    page_set_page_name("Off", &send_feedback_off);
     send_feedback_off.id = 143;
     send_feedback_off.is_test = BLOCKING_TEST;
     add_child_to_parent(&send_feedback_off);

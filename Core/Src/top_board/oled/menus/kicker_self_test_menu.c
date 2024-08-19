@@ -11,27 +11,27 @@ struct page_struct no_charge;
 void kicker_self_test_menu_initChildren(page_struct *parent) {
     pages_set_default_values(&kick_menu, parent);
     kick_menu.id = 131;
-    strcpy(kick_menu.page_name, "Test Kick");
+    page_set_page_name("Test Kick", &kick_menu);
     kick_menu.is_menu = true;
     add_child_to_parent(&kick_menu);
     kicker_test_initChildren(&kick_menu);
 
     pages_set_default_values(&chip_menu, parent);
     chip_menu.id = 132;
-    strcpy(chip_menu.page_name, "Test Chip");
+    page_set_page_name("Test Chip", &chip_menu);
     chip_menu.is_menu = true;
     add_child_to_parent(&chip_menu);
     chip_test_initChildren(&chip_menu);
 
     pages_set_default_values(&no_charge, parent);
     no_charge.id = 133;
-    strcpy(no_charge.page_name, "No Charging!");
+    page_set_page_name("No Charging!", &no_charge);
     no_charge.is_test = BLOCKING_TEST;
     add_child_to_parent(&no_charge);
 
     pages_set_default_values(&charge, parent);
     charge.id = 134;
-    strcpy(charge.page_name, "Charging!");
+    page_set_page_name("Charging!", &charge);
     charge.is_test = BLOCKING_TEST;
     add_child_to_parent(&charge);
 }

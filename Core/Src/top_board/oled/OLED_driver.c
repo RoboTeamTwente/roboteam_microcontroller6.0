@@ -21,11 +21,13 @@ static bool oled_initialized = false;
 static page_struct *current_page;
 struct page_struct not_in_test_mode;
 struct page_struct error_menu_has_no_children;
+struct page_struct error_non_specified;
 struct page_struct root_page; 
 static int item_selector;
 static int id_self_test_menu;
 bool flag_error_too_many_children = false;
 bool flag_error_too_many_children_page_init = false;
+bool flag_error_page_name_too_long = false;
 char* page_name_error_too_many_children;
 bool test_is_finished = false;
 static char *robotNames[] = {"404", "WALL-E", "Bob", "Pumba", "Ted", "Eve", "Susie", "James", "Lizzy", "McQueen", "Kevin", "Brum", "Van Robogh", "Wout", "Jenny", "Hermann"};
@@ -36,24 +38,31 @@ static char *robotNames[] = {"404", "WALL-E", "Bob", "Pumba", "Ted", "Eve", "Sus
  * @brief initialize the OLED screen
 */
 void OLED_Init() {
+    // ERROR & EXCEPTION PAGES
     pages_set_default_values(&error_menu_has_no_children, NULL);
     error_menu_has_no_children.id = 50;
     strcpy(error_menu_has_no_children.page_name, "Error");
+
+    pages_set_default_values(&error_non_specified, NULL);
+    error_non_specified.id = 60;
+    strcpy(error_non_specified.page_name, "Error");
+
+    initNotInTestMode();
+    id_self_test_menu = getSelfTestMenuID();
 
     //ROOT
     pages_set_default_values(&root_page, NULL);
     root_page.id = 0;
     strcpy(root_page.page_name, "Root");
 
-    pages_init(&root_page);
-    initNotInTestMode();
-
     clear_screen();
     current_page = &root_page;
     item_selector = 0;
-    oled_initialized = true;
-    id_self_test_menu = getSelfTestMenuID();
+    
     boot_screen();
+
+    pages_init(&root_page);
+    oled_initialized = true;
 }
 
 /**
@@ -72,9 +81,13 @@ void OLED_Update(button_id_t button, bool test_mode) {
         return;
     }
 
-    /* show error if a menu has too many children; afterwards return */
+    /* error handling */
     if (flag_error_too_many_children) {
         if (!flag_error_too_many_children_page_init) menuHasTooManyChildrenException();
+        return;
+    }
+
+    if (current_page->id == error_non_specified.id) {
         return;
     }
 
@@ -124,8 +137,9 @@ void OLED_Update(button_id_t button, bool test_mode) {
  * @display useful information after boot such as ID, team color, MCP alive, and test mode
 */
 void end_of_boot_screen(bool MCP_OK) {
+    if (current_page->id == error_non_specified.id) return;
     clear_screen();
-    strcpy(current_page->page_name, robotNames[robot_get_ID()]);
+    page_set_page_name(robotNames[robot_get_ID()], current_page);
     putPageName();
     char temp[MAX_STRING_LENGTH];
     //ID + TEAM COLOR
@@ -134,10 +148,10 @@ void end_of_boot_screen(bool MCP_OK) {
     } else {
         sprintf(temp, "ID: %d YELLOW", robot_get_ID());
     }
-    strcpy(current_page->line0, temp);
+    page_put_text_in_line(current_page, temp, 0);
     //POWER
     sprintf(temp, "%.2fV REM: %d", powerAlive.voltagePowerBoard, REM_LOCAL_VERSION);
-    strcpy(current_page->line1, temp);
+    page_put_text_in_line(current_page, temp, 1);
     //MCP ALIVE
     if (MCP_OK) {
         strcpy(current_page->line2, "MCP: OK");
@@ -195,7 +209,6 @@ void end_of_test() {
     strcpy(current_page->line1, "Test done!");
     strcpy(current_page->line2, "press \"OK\" to");
     strcpy(current_page->line3, "continue");
-    strcpy(current_page->line3, "");
     display_text();
     SSD1306_UpdateScreen();
 }
@@ -219,6 +232,63 @@ void display_text() {
     SSD1306_Puts(current_page->line2, &Font_7x10, 1);
     SSD1306_GotoXY (5,53);
     SSD1306_Puts(current_page->line3, &Font_7x10, 1);
+}
+
+void pageNameTooLongException(char* name) {
+    current_page = &error_non_specified;
+    clear_screen();
+    SSD1306_GotoXY (5,0);
+    SSD1306_Puts("ERROR", &Font_11x18, 1);
+    SSD1306_GotoXY (5,20);
+    char tempstr[20];
+    SSD1306_Puts("Page name:", &Font_7x10, 1);
+    SSD1306_GotoXY (5,31);
+    sprintf(tempstr, "%s", name);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts("is too long!", &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    sprintf(tempstr, "length %d > %d", strlen(name), MAX_MENU_NAME_LENGTH);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_UpdateScreen();
+}
+
+void textTooLongException(char* page_name, int line, int length) {
+    current_page = &error_non_specified;
+    clear_screen();
+    SSD1306_GotoXY (5,0);
+    SSD1306_Puts("ERROR", &Font_11x18, 1);
+    SSD1306_GotoXY (5,20);
+    char tempstr[20];
+    sprintf(tempstr, "page %s", page_name);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_GotoXY (5,31);
+    sprintf(tempstr, "line %d ", line);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts("is too long.", &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    sprintf(tempstr, "length %d > %d", length, MAX_STRING_LENGTH);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_UpdateScreen();
+}
+
+void unknownLineNumber(char* page_name, int line) {
+    current_page = &error_non_specified;
+    clear_screen();
+    SSD1306_GotoXY (5,0);
+    SSD1306_Puts("ERROR", &Font_11x18, 1);
+    SSD1306_GotoXY (5,20);
+    char tempstr[20];
+    sprintf(tempstr, "page %s", page_name);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_GotoXY (5,31);
+    sprintf(tempstr, "line %d ", line);
+    SSD1306_Puts(tempstr, &Font_7x10, 1);
+    SSD1306_GotoXY (5,42);
+    SSD1306_Puts("does not exist", &Font_7x10, 1);
+    SSD1306_GotoXY (5,53);
+    SSD1306_UpdateScreen();
 }
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS

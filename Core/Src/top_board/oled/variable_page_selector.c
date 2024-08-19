@@ -35,6 +35,9 @@ void update_variables(page_struct *page) {
         case 35:
             drain_battery_update_screen(page);
             break;
+        case 36:
+            drain_battery_update_screen(page);
+            break;
         default:
             break;
     }
