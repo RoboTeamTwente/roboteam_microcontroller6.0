@@ -230,17 +230,18 @@ void Wireless_RXDone(SX1280_Packet_Status* status) {
 Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_callback = &Wireless_Default };
 
 void executeCommands(REM_RobotCommand* robotCommand) {
-	stateControl_useAbsoluteAngle(robotCommand->useYaw);
-	float stateReference[4];
-	stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
-	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
-	stateReference[vel_w] = robotCommand->angularVelocity;
-	stateReference[yaw] = robotCommand->yaw;
-	float accelerationReference[3];
-	accelerationReference[vel_x] = (robotCommand->acceleration_magnitude) * cosf(robotCommand->acceleration_angle);
-	accelerationReference[vel_y] = (robotCommand->acceleration_magnitude) * sinf(robotCommand->acceleration_angle);
-	accelerationReference[vel_w] = 0.0f;
-	stateControl_SetRef(stateReference, accelerationReference);
+	// OLD CONTROL CODE
+	// stateControl_useAbsoluteAngle(robotCommand->useYaw);
+	// float stateReference[4];
+	// stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
+	// stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
+	// stateReference[vel_w] = robotCommand->angularVelocity;
+	// stateReference[yaw] = robotCommand->yaw;
+	// float accelerationReference[3];
+	// accelerationReference[vel_x] = (robotCommand->acceleration_magnitude) * cosf(robotCommand->acceleration_angle);
+	// accelerationReference[vel_y] = (robotCommand->acceleration_magnitude) * sinf(robotCommand->acceleration_angle);
+	// accelerationReference[vel_w] = 0.0f;
+	// stateControl_SetRef(stateReference, accelerationReference);
 
 	MCP_DribblerCommand dribCommand = { 0 };
 	dribCommand.dribblerOn = robotCommand->dribblerOn;
@@ -485,7 +486,7 @@ void init(void) {
 	{ // ====== INITIALIZE CONTROL CONSTANTS, STATE CONTROL, STATE ESTIMATION, OLED SCREEN
 		// Initialize control systems
 		control_init();
-		LOG("[init:"STRINGIZE(__LINE__)"] control_utils_Init step passed!\n");
+		LOG("[init:"STRINGIZE(__LINE__)"] control_init step passed!\n");
 
 		SSD1306_Init(); // init oled
 		OLED_Init();//start the menu
@@ -821,33 +822,35 @@ void loop(void) {
 		SDCard_Write(robotCommandPayload.payload, REM_PACKET_SIZE_REM_ROBOT_COMMAND, false);
 	}
 	/* === Update PID Gains === */
-	if (flag_update_send_PID_gains) {
-		PIDvariables body[4] = { 0 };
-		stateControl_GetPIDGains(body);
-		robotPIDGains.PbodyX = body[vel_u].kP;
-		robotPIDGains.IbodyX = body[vel_u].kI;
-		robotPIDGains.DbodyX = body[vel_u].kD;
-		robotPIDGains.DbodyX2 = 0;
-		robotPIDGains.PbodyY = body[vel_v].kP;
-		robotPIDGains.IbodyY = body[vel_v].kI;
-		robotPIDGains.DbodyY = body[vel_v].kD;
-		robotPIDGains.DbodyY2 = 0;
-		robotPIDGains.PbodyW = body[vel_w].kP;
-		robotPIDGains.IbodyW = body[vel_w].kI;
-		robotPIDGains.DbodyW = body[vel_w].kD;
-		robotPIDGains.DbodyW2 = 0;
-		robotPIDGains.PbodyYaw = body[yaw].kP;
-		robotPIDGains.IbodyYaw = body[yaw].kI;
-		robotPIDGains.DbodyYaw = body[yaw].kD;
-		robotPIDGains.DbodyYaw2 = 0;
+	// OLD CONTROL CODE
+	// if (flag_update_send_PID_gains) {
+	// 	PIDvariables body[4] = { 0 };
+	// 	stateControl_GetPIDGains(body);
+	// 	robotPIDGains.PbodyX = body[vel_u].kP;
+	// 	robotPIDGains.IbodyX = body[vel_u].kI;
+	// 	robotPIDGains.DbodyX = body[vel_u].kD;
+	// 	robotPIDGains.DbodyX2 = 0;
+	// 	robotPIDGains.PbodyY = body[vel_v].kP;
+	// 	robotPIDGains.IbodyY = body[vel_v].kI;
+	// 	robotPIDGains.DbodyY = body[vel_v].kD;
+	// 	robotPIDGains.DbodyY2 = 0;
+	// 	robotPIDGains.PbodyW = body[vel_w].kP;
+	// 	robotPIDGains.IbodyW = body[vel_w].kI;
+	// 	robotPIDGains.DbodyW = body[vel_w].kD;
+	// 	robotPIDGains.DbodyW2 = 0;
+	// 	robotPIDGains.PbodyYaw = body[yaw].kP;
+	// 	robotPIDGains.IbodyYaw = body[yaw].kI;
+	// 	robotPIDGains.DbodyYaw = body[yaw].kD;
+	// 	robotPIDGains.DbodyYaw2 = 0;
 
-		float PIDwheels[3] = { 0 };
-		wheels_GetPIDGains(PIDwheels);
-		robotPIDGains.Pwheels = PIDwheels[0];
-		robotPIDGains.Iwheels = PIDwheels[1];
-		robotPIDGains.Dwheels = PIDwheels[2];
-		flag_update_send_PID_gains = false;
-	}
+	// 	float PIDwheels[3] = { 0 };
+	// 	wheels_GetPIDGains(PIDwheels);
+	// 	robotPIDGains.Pwheels = PIDwheels[0];
+	// 	robotPIDGains.Iwheels = PIDwheels[1];
+	// 	robotPIDGains.Dwheels = PIDwheels[2];
+	// 	flag_update_send_PID_gains = false;
+	// }
+	flag_update_send_PID_gains = false;
 
 	// Heartbeat every 17ms	
 	if (heartbeat_17ms < current_time) {
@@ -1179,6 +1182,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 		stateInfo.xsensYaw = (MTi->angles[2] * M_PI / 180); //Gradients to Radians
 		stateInfo.rateOfTurn = MTi->gyr[2];
 
+		// Gather reference data
+		ControlRef ref;
+		ref.velRef[vel_x] = (activeRobotCommand.rho) * cosf(activeRobotCommand.theta);
+		ref.velRef[vel_y] = (activeRobotCommand.rho) * sinf(activeRobotCommand.theta);
+		ref.yawRateRef = activeRobotCommand.angularVelocity;
+		ref.yawRef = activeRobotCommand.yaw;
+		ref.accRef[vel_x] = (activeRobotCommand.acceleration_magnitude) * cosf(activeRobotCommand.acceleration_angle);
+		ref.accRef[vel_y] = (activeRobotCommand.acceleration_magnitude) * sinf(activeRobotCommand.acceleration_angle);
+		ref.YawAccRef = 0.0f;
+
 		// Drain battery code
 		// Probably broken, even before the refactor
 		if (!TEST_MODE || OLED_get_current_page_test_type() == NON_BLOCKING_TEST) {
@@ -1204,7 +1217,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 		// Run the control subsystem
 		ControlOutput ctrl_out;
-		control_step(&ctrl_out, &stateInfo);
+		control_step(&ctrl_out, &stateInfo, &ref);
 
 		// Stop wheels of if told to do so
 		if (activeRobotCommand.wheelsOff) {
