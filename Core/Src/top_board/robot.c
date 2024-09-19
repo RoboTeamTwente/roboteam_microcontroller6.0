@@ -1177,9 +1177,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 		computeWheelSpeeds();
 		wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
+		yaw_Calibrate(MTi->angles[2] * M_PI / 180, 0.0f, false, MTi->gyr[2]);
 		stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
 		stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
 		stateInfo.xsensYaw = (MTi->angles[2] * M_PI / 180); //Gradients to Radians
+		stateInfo.xsensYaw = yaw_GetCalibratedYaw();
 		stateInfo.rateOfTurn = MTi->gyr[2];
 
 		// Gather reference data
@@ -1205,7 +1207,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 				// TODO Instruct each wheel to go 30 rad/s
 				float wheel_speeds[4] = { 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI, 30.0f * M_PI };
-				wheels_set_command_speed(wheel_speeds);
+				memcpy(ref.velRef, wheel_speeds, sizeof(wheel_speeds));
 
 				// If the gyroscope detects some rotational movement, we stop the drainage program.
 				if (fabs(MTi->gyr[2]) > 0.3f) {

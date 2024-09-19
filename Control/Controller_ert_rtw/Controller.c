@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.2
+ * Model version                  : 1.11
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Sep 17 13:51:16 2024
+ * C/C++ source code generated on : Thu Sep 19 12:26:50 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -65,7 +65,6 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
   real32_T rtb_Saturation;
   real32_T rtb_Sum;
   UNUSED_PARAMETER(arg_Wheelspeeds);
-  UNUSED_PARAMETER(arg_YawRate);
   UNUSED_PARAMETER(arg_VelRef);
   UNUSED_PARAMETER(arg_AccRef);
   UNUSED_PARAMETER(arg_YawRateRef);
@@ -79,22 +78,21 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
 
   /* Gain: '<S38>/Filter Coefficient' incorporates:
    *  DiscreteIntegrator: '<S30>/Filter'
-   *  Gain: '<S28>/Derivative Gain'
-   *  Sum: '<S30>/SumD'
    */
-  rtb_FilterCoefficient = (0.0F * rtb_Sum - rtDW.Filter_DSTATE) * 100.0F;
+  rtb_FilterCoefficient = 100.0F * rtDW.Filter_DSTATE;
 
   /* Sum: '<S44>/Sum' incorporates:
    *  DiscreteIntegrator: '<S35>/Integrator'
-   * */
-  rtb_Sum += rtDW.Integrator_DSTATE;
-  rtb_Saturation = rtb_Sum + rtb_FilterCoefficient;
+   *  Gain: '<S40>/Proportional Gain'
+   */
+  rtb_Saturation = (0.2F * rtb_Sum + rtDW.Integrator_DSTATE) +
+    rtb_FilterCoefficient;
 
   /* Saturate: '<Root>/Saturation' */
-  if (rtb_Saturation > 0.1F) {
-    rtb_Saturation = 0.1F;
-  } else if (rtb_Saturation < -1.0F) {
-    rtb_Saturation = -1.0F;
+  if (rtb_Saturation > 0.05F) {
+    rtb_Saturation = 0.05F;
+  } else if (rtb_Saturation < -0.05F) {
+    rtb_Saturation = -0.05F;
   }
 
   /* End of Saturate: '<Root>/Saturation' */
@@ -107,11 +105,18 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
   arg_Motorefforts[2] = rtb_Saturation;
   arg_Motorefforts[3] = rtb_Saturation;
 
-  /* Update for DiscreteIntegrator: '<S35>/Integrator' */
-  rtDW.Integrator_DSTATE = rtb_Sum;
+  /* Update for DiscreteIntegrator: '<S35>/Integrator' incorporates:
+   *  Gain: '<S32>/Integral Gain'
+   */
+  rtDW.Integrator_DSTATE += 0.0F * rtb_Sum * 0.01F;
 
-  /* Update for DiscreteIntegrator: '<S30>/Filter' */
-  rtDW.Filter_DSTATE += rtb_FilterCoefficient;
+  /* Update for DiscreteIntegrator: '<S30>/Filter' incorporates:
+   *  Gain: '<S28>/Derivative Gain'
+   *  Inport: '<Root>/YawRate'
+   *  Sum: '<S30>/SumD'
+   *  UnaryMinus: '<S29>/Unary Minus'
+   */
+  rtDW.Filter_DSTATE += (0.01F * -arg_YawRate - rtb_FilterCoefficient) * 0.01F;
 }
 
 /* Model initialize function */

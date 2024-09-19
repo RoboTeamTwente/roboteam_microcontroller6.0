@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.2
+ * Model version                  : 1.11
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Sep 17 13:51:16 2024
+ * C/C++ source code generated on : Thu Sep 19 12:26:50 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -44,13 +44,6 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
   real32_T arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef, real32_T
   arg_AccRef[2], real_T arg_YawRateRef, real_T arg_YawAccRef, real32_T
   arg_Motorefforts[4]);
-
-/*-
- * These blocks were eliminated from the model due to optimizations:
- *
- * Block '<S32>/Integral Gain' : Eliminated nontunable gain of 1
- * Block '<S40>/Proportional Gain' : Eliminated nontunable gain of 1
- */
 
 /*-
  * The generated code includes comments that allow you to trace directly
@@ -95,8 +88,8 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
  * '<S26>'  : 'Controller/Discrete PID Controller/preSat Signal'
  * '<S27>'  : 'Controller/Discrete PID Controller/Anti-windup/Passthrough'
  * '<S28>'  : 'Controller/Discrete PID Controller/D Gain/Internal Parameters'
- * '<S29>'  : 'Controller/Discrete PID Controller/External Derivative/Error'
- * '<S30>'  : 'Controller/Discrete PID Controller/Filter/Disc. Forward Euler Filter'
+ * '<S29>'  : 'Controller/Discrete PID Controller/External Derivative/External Ydot'
+ * '<S30>'  : 'Controller/Discrete PID Controller/Filter/Disc. Forward Euler Filter Only'
  * '<S31>'  : 'Controller/Discrete PID Controller/Filter ICs/Internal IC - Filter'
  * '<S32>'  : 'Controller/Discrete PID Controller/I Gain/Internal Parameters'
  * '<S33>'  : 'Controller/Discrete PID Controller/Ideal P Gain/Passthrough'

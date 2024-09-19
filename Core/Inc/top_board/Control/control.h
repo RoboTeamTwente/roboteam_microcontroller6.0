@@ -17,6 +17,18 @@ typedef struct ControlRef {
     float YawAccRef;
 } ControlRef;
 
+typedef struct StateInfo {
+    float visionYaw;					// The yaw for this robot as indicated by vision [rad]
+    bool visionAvailable;				// Wether vision data can be used at this point
+    float xsensAcc[2];					// The acceleration as measured by the IMU in the X and Y directions [m/(s^2)]
+    float xsensYaw;						// They yaw for this robot as indicated by the IMU [rad]
+    float rateOfTurn;					// The angular velocity of the robot, according to gyro [rad/s]
+    float wheelSpeeds[4];				// The speed for each wheel [rad/s]
+    float dribblerSpeed;				// The measured speed of the dribbler [rad/s]
+    float dribblerFilteredSpeed;		// The filtered speed of the dribbler [rad/s]
+    float dribbleSpeedBeforeGotBall;	// The speed of the dribbler before it had a ball [rad/s]
+} StateInfo;
+
 typedef struct ControlOutput {
     float wheel_efforts[4]; // PWM fractions to be applied to the motors
 } ControlOutput;
