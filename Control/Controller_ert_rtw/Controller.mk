@@ -2,7 +2,7 @@
 ## Makefile generated for component 'Controller'. 
 ## 
 ## Makefile     : Controller.mk
-## Generated on : Wed Sep 18 14:16:24 2024
+## Generated on : Thu Sep 19 14:34:01 2024
 ## Final product: $(RELATIVE_PATH_TO_ANCHOR)\Controller.exe
 ## Product type : executable
 ## 
@@ -183,7 +183,7 @@ DEFINES = $(DEFINES_BUILD_ARGS) $(DEFINES_CUSTOM) $(DEFINES_OPTS) $(DEFINES_STAN
 ## SOURCE FILES
 ###########################################################################
 
-SRCS = $(START_DIR)\Controller_ert_rtw\Controller.c
+SRCS = $(START_DIR)\Controller_ert_rtw\Controller.c $(START_DIR)\Controller_ert_rtw\Controller_data.c
 
 MAIN_SRC = $(START_DIR)\Controller_ert_rtw\ert_main.c
 
@@ -193,7 +193,7 @@ ALL_SRCS = $(SRCS) $(MAIN_SRC)
 ## OBJECTS
 ###########################################################################
 
-OBJS = Controller.obj
+OBJS = Controller.obj Controller_data.obj
 
 MAIN_OBJ = ert_main.obj
 
@@ -416,6 +416,10 @@ $(PRODUCT) : $(OBJS) $(PREBUILT_OBJS) $(MAIN_OBJ)
 
 Controller.obj : "$(START_DIR)\Controller_ert_rtw\Controller.c"
 	$(CC) $(CFLAGS) -Fo"$@" "$(START_DIR)\Controller_ert_rtw\Controller.c"
+
+
+Controller_data.obj : "$(START_DIR)\Controller_ert_rtw\Controller_data.c"
+	$(CC) $(CFLAGS) -Fo"$@" "$(START_DIR)\Controller_ert_rtw\Controller_data.c"
 
 
 ert_main.obj : "$(START_DIR)\Controller_ert_rtw\ert_main.c"

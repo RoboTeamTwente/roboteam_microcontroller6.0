@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.11
+ * Model version                  : 1.31
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Thu Sep 19 12:26:50 2024
+ * C/C++ source code generated on : Thu Sep 19 16:58:49 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -21,9 +21,29 @@
 
 #include "Controller.h"
 #include "rtwtypes.h"
+#include <math.h>
+#include "math.h"
 
 /* Block signals and states (default storage) */
 DW rtDW;
+static real_T rtGetNaN(void);
+static real32_T rtGetNaNF(void);
+extern real_T rtInf;
+extern real_T rtMinusInf;
+extern real_T rtNaN;
+extern real32_T rtInfF;
+extern real32_T rtMinusInfF;
+extern real32_T rtNaNF;
+static boolean_T rtIsInf(real_T value);
+static boolean_T rtIsInfF(real32_T value);
+static boolean_T rtIsNaN(real_T value);
+static boolean_T rtIsNaNF(real32_T value);
+real_T rtNaN = -(real_T)NAN;
+real_T rtInf = (real_T)INFINITY;
+real_T rtMinusInf = -(real_T)INFINITY;
+real32_T rtNaNF = -(real32_T)NAN;
+real32_T rtInfF = (real32_T)INFINITY;
+real32_T rtMinusInfF = -(real32_T)INFINITY;
 
 /*===========*
  * Constants *
@@ -55,18 +75,63 @@ DW rtDW;
 #endif
 #endif
 
+/* Return rtNaN needed by the generated code. */
+static real_T rtGetNaN(void)
+{
+  return rtNaN;
+}
+
+/* Return rtNaNF needed by the generated code. */
+static real32_T rtGetNaNF(void)
+{
+  return rtNaNF;
+}
+
+/* Test if value is infinite */
+static boolean_T rtIsInf(real_T value)
+{
+  return (boolean_T)((value==rtInf || value==rtMinusInf) ? 1U : 0U);
+}
+
+/* Test if single-precision value is infinite */
+static boolean_T rtIsInfF(real32_T value)
+{
+  return (boolean_T)(((value)==rtInfF || (value)==rtMinusInfF) ? 1U : 0U);
+}
+
+/* Test if value is not a number */
+static boolean_T rtIsNaN(real_T value)
+{
+  return (boolean_T)(isnan(value) != 0);
+}
+
+/* Test if single-precision value is not a number */
+static boolean_T rtIsNaNF(real32_T value)
+{
+  return (boolean_T)(isnan(value) != 0);
+}
+
 /* Model step function */
 void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
                      arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef,
                      real32_T arg_AccRef[2], real_T arg_YawRateRef, real_T
                      arg_YawAccRef, real32_T arg_Motorefforts[4])
 {
-  real32_T rtb_FilterCoefficient;
-  real32_T rtb_Saturation;
+  int32_T b_k;
+  int32_T idx;
+  real32_T rtb_y[4];
+  real32_T varargin_1[4];
+  real32_T arg_AccRef_0;
+  real32_T arg_AccRef_1;
+  real32_T q;
   real32_T rtb_Sum;
+  real32_T rtb_y_0;
+  real32_T rtb_y_c;
+  boolean_T exitg1;
+  boolean_T rEQ0;
   UNUSED_PARAMETER(arg_Wheelspeeds);
+  UNUSED_PARAMETER(arg_YawRate);
   UNUSED_PARAMETER(arg_VelRef);
-  UNUSED_PARAMETER(arg_AccRef);
   UNUSED_PARAMETER(arg_YawRateRef);
   UNUSED_PARAMETER(arg_YawAccRef);
 
@@ -76,47 +141,172 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
    */
   rtb_Sum = arg_YawRef - arg_Yaw;
 
-  /* Gain: '<S38>/Filter Coefficient' incorporates:
-   *  DiscreteIntegrator: '<S30>/Filter'
-   */
-  rtb_FilterCoefficient = 100.0F * rtDW.Filter_DSTATE;
+  /* MATLAB Function: '<S1>/DeFlipper' */
+  if (rtIsNaNF(rtb_Sum + 3.14159274F)) {
+    rtb_y_c = (rtNaNF);
+  } else if (rtIsInfF(rtb_Sum + 3.14159274F)) {
+    rtb_y_c = (rtNaNF);
+  } else if (rtb_Sum + 3.14159274F == 0.0F) {
+    rtb_y_c = 0.0F;
+  } else {
+    rtb_y_c = fmodf(rtb_Sum + 3.14159274F, 6.28318548F);
+    rEQ0 = (rtb_y_c == 0.0F);
+    if (!rEQ0) {
+      q = fabsf((rtb_Sum + 3.14159274F) / 6.28318548F);
+      rEQ0 = !(fabsf(q - floorf(q + 0.5F)) > 1.1920929E-7F * q);
+    }
 
-  /* Sum: '<S44>/Sum' incorporates:
-   *  DiscreteIntegrator: '<S35>/Integrator'
-   *  Gain: '<S40>/Proportional Gain'
+    if (rEQ0) {
+      rtb_y_c = 0.0F;
+    } else if (rtb_Sum + 3.14159274F < 0.0F) {
+      rtb_y_c += 6.28318548F;
+    }
+  }
+
+  if (rtb_y_c < 0.0F) {
+    rtb_y_c += 6.28318548F;
+  }
+
+  rtb_y_c -= 3.14159274F;
+
+  /* End of MATLAB Function: '<S1>/DeFlipper' */
+
+  /* Gain: '<S42>/Filter Coefficient' incorporates:
+   *  DiscreteIntegrator: '<S34>/Filter'
+   *  Gain: '<S32>/Derivative Gain'
+   *  Sum: '<S34>/SumD'
    */
-  rtb_Saturation = (0.2F * rtb_Sum + rtDW.Integrator_DSTATE) +
-    rtb_FilterCoefficient;
+  rtb_Sum = (0.01F * rtb_y_c - rtDW.Filter_DSTATE) * 100.0F;
+
+  /* Sum: '<S48>/Sum' incorporates:
+   *  DiscreteIntegrator: '<S39>/Integrator'
+   *  Gain: '<S44>/Proportional Gain'
+   */
+  q = (0.2F * rtb_y_c + rtDW.Integrator_DSTATE) + rtb_Sum;
+
+  /* Saturate: '<S1>/Saturation' */
+  if (q > 0.1F) {
+    q = 0.1F;
+  } else if (q < -0.1F) {
+    q = -0.1F;
+  }
+
+  /* End of Saturate: '<S1>/Saturation' */
+
+  /* Gain: '<S2>/MassFeedForward' incorporates:
+   *  Constant: '<S2>/BodyForceCouplingMatrix'
+   *  Inport: '<Root>/AccRef'
+   *  Product: '<S2>/Product'
+   */
+  arg_AccRef_0 = arg_AccRef[0];
+  arg_AccRef_1 = arg_AccRef[1];
+  for (idx = 0; idx < 4; idx++) {
+    /* MATLAB Function: '<Root>/Desaturator' incorporates:
+     *  Constant: '<S2>/BodyForceCouplingMatrix'
+     *  Gain: '<S2>/MassFeedForward'
+     *  Product: '<S1>/Product'
+     *  Product: '<S2>/Product'
+     */
+    rtb_y_0 = (2.5F * arg_AccRef_0 * rtConstP.BodyForceCouplingMatrix_Value[idx]
+               + rtConstP.BodyForceCouplingMatrix_Value[idx + 4] * (2.5F *
+                arg_AccRef_1)) + q;
+    rtb_y[idx] = rtb_y_0;
+    varargin_1[idx] = fabsf(rtb_y_0);
+  }
+
+  /* MATLAB Function: '<Root>/Desaturator' incorporates:
+   *  Constant: '<Root>/Forcelimit'
+   */
+  if (!rtIsNaNF(varargin_1[0])) {
+    idx = 1;
+  } else {
+    idx = 0;
+    b_k = 2;
+    exitg1 = false;
+    while ((!exitg1) && (b_k < 5)) {
+      if (!rtIsNaNF(varargin_1[b_k - 1])) {
+        idx = b_k;
+        exitg1 = true;
+      } else {
+        b_k++;
+      }
+    }
+  }
+
+  if (idx == 0) {
+    q = varargin_1[0];
+  } else {
+    q = varargin_1[idx - 1];
+    for (b_k = idx + 1; b_k < 5; b_k++) {
+      arg_AccRef_0 = varargin_1[b_k - 1];
+      if (q < arg_AccRef_0) {
+        q = arg_AccRef_0;
+      }
+    }
+  }
+
+  q /= 0.1F;
+  if (q > 1.0F) {
+    rtb_y[0] /= q;
+    rtb_y[1] /= q;
+    rtb_y[2] /= q;
+    rtb_y[3] /= q;
+  }
 
   /* Saturate: '<Root>/Saturation' */
-  if (rtb_Saturation > 0.05F) {
-    rtb_Saturation = 0.05F;
-  } else if (rtb_Saturation < -0.05F) {
-    rtb_Saturation = -0.05F;
+  if (rtb_y[0] > 0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[0] = 0.1F;
+  } else if (rtb_y[0] < -0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[0] = -0.1F;
+  } else {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[0] = rtb_y[0];
+  }
+
+  if (rtb_y[1] > 0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[1] = 0.1F;
+  } else if (rtb_y[1] < -0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[1] = -0.1F;
+  } else {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[1] = rtb_y[1];
+  }
+
+  if (rtb_y[2] > 0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[2] = 0.1F;
+  } else if (rtb_y[2] < -0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[2] = -0.1F;
+  } else {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[2] = rtb_y[2];
+  }
+
+  if (rtb_y[3] > 0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[3] = 0.1F;
+  } else if (rtb_y[3] < -0.1F) {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[3] = -0.1F;
+  } else {
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[3] = rtb_y[3];
   }
 
   /* End of Saturate: '<Root>/Saturation' */
 
-  /* Outport: '<Root>/Motorefforts' incorporates:
-   *  Product: '<Root>/Product'
+  /* Update for DiscreteIntegrator: '<S39>/Integrator' incorporates:
+   *  Gain: '<S36>/Integral Gain'
    */
-  arg_Motorefforts[0] = rtb_Saturation;
-  arg_Motorefforts[1] = rtb_Saturation;
-  arg_Motorefforts[2] = rtb_Saturation;
-  arg_Motorefforts[3] = rtb_Saturation;
+  rtDW.Integrator_DSTATE += 0.0F * rtb_y_c * 0.01F;
 
-  /* Update for DiscreteIntegrator: '<S35>/Integrator' incorporates:
-   *  Gain: '<S32>/Integral Gain'
-   */
-  rtDW.Integrator_DSTATE += 0.0F * rtb_Sum * 0.01F;
-
-  /* Update for DiscreteIntegrator: '<S30>/Filter' incorporates:
-   *  Gain: '<S28>/Derivative Gain'
-   *  Inport: '<Root>/YawRate'
-   *  Sum: '<S30>/SumD'
-   *  UnaryMinus: '<S29>/Unary Minus'
-   */
-  rtDW.Filter_DSTATE += (0.01F * -arg_YawRate - rtb_FilterCoefficient) * 0.01F;
+  /* Update for DiscreteIntegrator: '<S34>/Filter' */
+  rtDW.Filter_DSTATE += 0.01F * rtb_Sum;
 }
 
 /* Model initialize function */
