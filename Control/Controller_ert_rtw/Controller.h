@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.50
+ * Model version                  : 1.67
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Fri Sep 20 17:11:54 2024
+ * C/C++ source code generated on : Mon Sep 23 16:23:19 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -35,10 +35,12 @@ typedef struct {
 
 /* Constant parameters (default storage) */
 typedef struct {
-  /* Computed Parameter: BodyForceCouplingMatrix_Value
-   * Referenced by: '<S2>/BodyForceCouplingMatrix'
+  /* Pooled Parameter (Expression: [cos(front_angle), sin(front_angle); -cos(front_angle), sin(front_angle); -cos(back_angle), -sin(back_angle); cos(back_angle), -sin(back_angle)])
+   * Referenced by:
+   *   '<S2>/BodyForceCouplingMatrix'
+   *   '<S58>/BodyForceCouplingMatrix'
    */
-  real32_T BodyForceCouplingMatrix_Value[8];
+  real32_T pooled1[8];
 } ConstP;
 
 /* Block signals and states (default storage) */
@@ -59,7 +61,7 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
 /*-
  * These blocks were eliminated from the model due to optimizations:
  *
- * Block '<S33>/Derivative Gain' : Eliminated nontunable gain of 1
+ * Block '<Root>/YeetusChrist' : Eliminated nontunable gain of 1
  */
 
 /*-
@@ -135,6 +137,7 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
  * '<S56>'  : 'Controller/AngleForceRequest/Discrete PID Controller/preSat Signal/Forward_Path'
  * '<S57>'  : 'Controller/Limiting and Prioritization/Desaturator'
  * '<S58>'  : 'Controller/TorqueControl/WheelfrictionFF'
+ * '<S59>'  : 'Controller/TorqueControl/WheelfrictionFF/MATLAB Function'
  */
 #endif                                 /* Controller_h_ */
 

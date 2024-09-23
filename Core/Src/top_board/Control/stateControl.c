@@ -113,6 +113,7 @@ int stateControl_Init() {
 	// feedforwardParameters.d[2] = 1.05f;
 	// feedforwardParameters.d[3] = 1.05f;
 
+	// All equal to 1
 	feedforwardParameters.b[0] = (2.0f * M_PI) / 360.0f * 180.0f / M_PI;
 	feedforwardParameters.b[1] = (2.0f * M_PI) / 360.0f * 180.0f / M_PI;
 	feedforwardParameters.b[2] = (2.0f * M_PI) / 360.0f * 180.0f / M_PI;
@@ -541,6 +542,7 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 
 	// Calculations
 	float vw_max_round_to_rotational = feedforwardParameters.vw_max_round_to_rotational_scaling * (rho / rad_robot);
+	// Equal to 0.3
 	float z_rotational = feedforwardParameters.rotation_feedforward_value[wheel];
 
 	// Calculate the feedforward voltage needed for purely translating
@@ -564,6 +566,7 @@ static float feedforwardFriction(float wheelRef, float rho, float theta, float o
 	float z_rotational_fixed;
 	float z_translation_fixed = z_translation;
 	if (wheel_velocity_larger_than_zero == 1) {
+		// Equal to 0.3
 		z_rotational_fixed = z_rotational;
 		if (z_translation < 0) {
 			if (detailedFit == true) {
