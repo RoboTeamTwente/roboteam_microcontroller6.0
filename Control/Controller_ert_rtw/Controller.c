@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.31
+ * Model version                  : 1.50
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Thu Sep 19 16:58:49 2024
+ * C/C++ source code generated on : Fri Sep 20 17:11:54 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -129,7 +129,6 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
   real32_T rtb_y_c;
   boolean_T exitg1;
   boolean_T rEQ0;
-  UNUSED_PARAMETER(arg_Wheelspeeds);
   UNUSED_PARAMETER(arg_YawRate);
   UNUSED_PARAMETER(arg_VelRef);
   UNUSED_PARAMETER(arg_YawRateRef);
@@ -171,18 +170,17 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
 
   /* End of MATLAB Function: '<S1>/DeFlipper' */
 
-  /* Gain: '<S42>/Filter Coefficient' incorporates:
-   *  DiscreteIntegrator: '<S34>/Filter'
-   *  Gain: '<S32>/Derivative Gain'
-   *  Sum: '<S34>/SumD'
+  /* Gain: '<S43>/Filter Coefficient' incorporates:
+   *  DiscreteIntegrator: '<S35>/Filter'
+   *  Sum: '<S35>/SumD'
    */
-  rtb_Sum = (0.01F * rtb_y_c - rtDW.Filter_DSTATE) * 100.0F;
+  rtb_Sum = (rtb_y_c - rtDW.Filter_DSTATE) * 100.0F;
 
-  /* Sum: '<S48>/Sum' incorporates:
-   *  DiscreteIntegrator: '<S39>/Integrator'
-   *  Gain: '<S44>/Proportional Gain'
+  /* Sum: '<S49>/Sum' incorporates:
+   *  DiscreteIntegrator: '<S40>/Integrator'
+   *  Gain: '<S45>/Proportional Gain'
    */
-  q = (0.2F * rtb_y_c + rtDW.Integrator_DSTATE) + rtb_Sum;
+  q = (8.0F * rtb_y_c + rtDW.Integrator_DSTATE) + rtb_Sum;
 
   /* Saturate: '<S1>/Saturation' */
   if (q > 0.1F) {
@@ -196,16 +194,16 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
   /* Gain: '<S2>/MassFeedForward' incorporates:
    *  Constant: '<S2>/BodyForceCouplingMatrix'
    *  Inport: '<Root>/AccRef'
-   *  Product: '<S2>/Product'
+   *  Product: '<S2>/Body2Wheels'
    */
   arg_AccRef_0 = arg_AccRef[0];
   arg_AccRef_1 = arg_AccRef[1];
   for (idx = 0; idx < 4; idx++) {
-    /* MATLAB Function: '<Root>/Desaturator' incorporates:
+    /* MATLAB Function: '<S3>/Desaturator' incorporates:
      *  Constant: '<S2>/BodyForceCouplingMatrix'
      *  Gain: '<S2>/MassFeedForward'
      *  Product: '<S1>/Product'
-     *  Product: '<S2>/Product'
+     *  Product: '<S2>/Body2Wheels'
      */
     rtb_y_0 = (2.5F * arg_AccRef_0 * rtConstP.BodyForceCouplingMatrix_Value[idx]
                + rtConstP.BodyForceCouplingMatrix_Value[idx + 4] * (2.5F *
@@ -214,7 +212,7 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
     varargin_1[idx] = fabsf(rtb_y_0);
   }
 
-  /* MATLAB Function: '<Root>/Desaturator' incorporates:
+  /* MATLAB Function: '<S3>/Desaturator' incorporates:
    *  Constant: '<Root>/Forcelimit'
    */
   if (!rtIsNaNF(varargin_1[0])) {
@@ -245,7 +243,7 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
     }
   }
 
-  q /= 0.1F;
+  q /= 37.0370369F;
   if (q > 1.0F) {
     rtb_y[0] /= q;
     rtb_y[1] /= q;
@@ -253,59 +251,104 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
     rtb_y[3] /= q;
   }
 
+  /* Gain: '<S4>/VToPWM' incorporates:
+   *  Gain: '<Root>/ForceToTorque'
+   *  Gain: '<S4>/IToV'
+   *  Gain: '<S4>/TorqueToI'
+   *  Gain: '<S58>/SpeedToTorque'
+   *  Inport: '<Root>/Wheelspeeds'
+   *  Sum: '<S4>/Sum1'
+   */
+  q = (0.027F * rtb_y[0] + 0.0001F * arg_Wheelspeeds[0]) * 30.4878044F *
+    0.934579432F * 0.0416666679F;
+
   /* Saturate: '<Root>/Saturation' */
-  if (rtb_y[0] > 0.1F) {
+  if (q > 0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[0] = 0.1F;
-  } else if (rtb_y[0] < -0.1F) {
+  } else if (q < -0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[0] = -0.1F;
   } else {
     /* Outport: '<Root>/Motorefforts' */
-    arg_Motorefforts[0] = rtb_y[0];
+    arg_Motorefforts[0] = q;
   }
 
-  if (rtb_y[1] > 0.1F) {
+  /* Gain: '<S4>/VToPWM' incorporates:
+   *  Gain: '<Root>/ForceToTorque'
+   *  Gain: '<S4>/IToV'
+   *  Gain: '<S4>/TorqueToI'
+   *  Gain: '<S58>/SpeedToTorque'
+   *  Inport: '<Root>/Wheelspeeds'
+   *  Sum: '<S4>/Sum1'
+   */
+  q = (0.027F * rtb_y[1] + 0.0001F * arg_Wheelspeeds[1]) * 30.4878044F *
+    0.934579432F * 0.0416666679F;
+
+  /* Saturate: '<Root>/Saturation' */
+  if (q > 0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[1] = 0.1F;
-  } else if (rtb_y[1] < -0.1F) {
+  } else if (q < -0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[1] = -0.1F;
   } else {
     /* Outport: '<Root>/Motorefforts' */
-    arg_Motorefforts[1] = rtb_y[1];
+    arg_Motorefforts[1] = q;
   }
 
-  if (rtb_y[2] > 0.1F) {
+  /* Gain: '<S4>/VToPWM' incorporates:
+   *  Gain: '<Root>/ForceToTorque'
+   *  Gain: '<S4>/IToV'
+   *  Gain: '<S4>/TorqueToI'
+   *  Gain: '<S58>/SpeedToTorque'
+   *  Inport: '<Root>/Wheelspeeds'
+   *  Sum: '<S4>/Sum1'
+   */
+  q = (0.027F * rtb_y[2] + 0.0001F * arg_Wheelspeeds[2]) * 30.4878044F *
+    0.934579432F * 0.0416666679F;
+
+  /* Saturate: '<Root>/Saturation' */
+  if (q > 0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[2] = 0.1F;
-  } else if (rtb_y[2] < -0.1F) {
+  } else if (q < -0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[2] = -0.1F;
   } else {
     /* Outport: '<Root>/Motorefforts' */
-    arg_Motorefforts[2] = rtb_y[2];
+    arg_Motorefforts[2] = q;
   }
 
-  if (rtb_y[3] > 0.1F) {
+  /* Gain: '<S4>/VToPWM' incorporates:
+   *  Gain: '<Root>/ForceToTorque'
+   *  Gain: '<S4>/IToV'
+   *  Gain: '<S4>/TorqueToI'
+   *  Gain: '<S58>/SpeedToTorque'
+   *  Inport: '<Root>/Wheelspeeds'
+   *  Sum: '<S4>/Sum1'
+   */
+  q = (0.027F * rtb_y[3] + 0.0001F * arg_Wheelspeeds[3]) * 30.4878044F *
+    0.934579432F * 0.0416666679F;
+
+  /* Saturate: '<Root>/Saturation' */
+  if (q > 0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[3] = 0.1F;
-  } else if (rtb_y[3] < -0.1F) {
+  } else if (q < -0.1F) {
     /* Outport: '<Root>/Motorefforts' */
     arg_Motorefforts[3] = -0.1F;
   } else {
     /* Outport: '<Root>/Motorefforts' */
-    arg_Motorefforts[3] = rtb_y[3];
+    arg_Motorefforts[3] = q;
   }
 
-  /* End of Saturate: '<Root>/Saturation' */
-
-  /* Update for DiscreteIntegrator: '<S39>/Integrator' incorporates:
-   *  Gain: '<S36>/Integral Gain'
+  /* Update for DiscreteIntegrator: '<S40>/Integrator' incorporates:
+   *  Gain: '<S37>/Integral Gain'
    */
   rtDW.Integrator_DSTATE += 0.0F * rtb_y_c * 0.01F;
 
-  /* Update for DiscreteIntegrator: '<S34>/Filter' */
+  /* Update for DiscreteIntegrator: '<S35>/Filter' */
   rtDW.Filter_DSTATE += 0.01F * rtb_Sum;
 }
 
