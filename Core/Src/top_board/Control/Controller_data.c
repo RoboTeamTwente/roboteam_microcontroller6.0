@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.67
+ * Model version                  : 1.84
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Sep 23 16:23:19 2024
+ * C/C++ source code generated on : Fri Sep 27 13:17:58 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -26,10 +26,10 @@ const ConstP rtConstP = {
   /* Pooled Parameter (Expression: [cos(front_angle), sin(front_angle); -cos(front_angle), sin(front_angle); -cos(back_angle), -sin(back_angle); cos(back_angle), -sin(back_angle)])
    * Referenced by:
    *   '<S2>/BodyForceCouplingMatrix'
-   *   '<S58>/BodyForceCouplingMatrix'
+   *   '<S60>/BodyForceCouplingMatrix'
    */
-  { 0.866025388F, -0.866025388F, -0.707106769F, 0.707106769F, 0.5F, 0.5F,
-    -0.707106769F, -0.707106769F }
+  { 0.707106769F, -0.707106769F, -0.852524519F, 0.852524519F, 0.707106769F,
+    0.707106769F, -0.522687256F, -0.522687256F }
 };
 
 /*
