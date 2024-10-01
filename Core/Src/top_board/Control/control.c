@@ -38,6 +38,7 @@ void control_step(ControlOutput* const output, const StateInfo* const state, con
         ref->accRef,
         ref->yawRateRef,
         ref->YawAccRef,
+        state->xsensAcc,
         output
     );
 }

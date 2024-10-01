@@ -171,7 +171,7 @@ Output entry point of generated code. Must be called periodically, every 0.01 se
 </span>
 <div class="programlisting">
 <code class="usage"><span class="include">#include "<a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'Controller.h'})" class="include">Controller.h</a>"</span>
-void <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'Controller_step'})" class="fcn">Controller_step</a>(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef, real32_T arg_AccRef[2], real_T arg_YawRateRef, real_T arg_YawAccRef, real32_T arg_Motorefforts[4])</code>
+void <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'Controller_step'})" class="fcn">Controller_step</a>(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef, real32_T arg_AccRef[2], real_T arg_YawRateRef, real_T arg_YawAccRef, real_T arg_Accelerometer[2], real32_T arg_Motorefforts[4])</code>
 </div>
 </div>
 </section>
@@ -213,7 +213,7 @@ Variables that are generated in the code based on storage class specifications f
 arg_Wheelspeeds
 </h4>
 <span class="description">
-Input data for &lt;Root&gt;/Wheelspeeds
+Input data for &lt;Root&gt;/WheelSpeeds
 </span>
 <div class="programlisting">
 <div>Defined externally</div><code class="usage">real32_T arg_Wheelspeeds[4];</code>
@@ -224,7 +224,7 @@ Input data for &lt;Root&gt;/Wheelspeeds
 arg_YawRate
 </h4>
 <span class="description">
-Input data for &lt;Root&gt;/YawRate
+Input data for &lt;Root&gt;/Gyro
 </span>
 <div class="programlisting">
 <div>Defined externally</div><code class="usage">real32_T arg_YawRate;</code>
@@ -294,6 +294,17 @@ Input data for &lt;Root&gt;/YawAccRef
 </span>
 <div class="programlisting">
 <div>Defined externally</div><code class="usage">real_T arg_YawAccRef;</code>
+</div>
+</div>
+<div id="fcn_arg_Accelerometer">
+<h4 class="function">
+arg_Accelerometer
+</h4>
+<span class="description">
+Input data for &lt;Root&gt;/Accelerometer
+</span>
+<div class="programlisting">
+<div>Defined externally</div><code class="usage">real_T arg_Accelerometer[2];</code>
 </div>
 </div>
 </section>

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.84
+ * Model version                  : 1.89
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Fri Sep 27 13:17:58 2024
+ * C/C++ source code generated on : Tue Oct  1 15:57:18 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -25,10 +25,10 @@
 
 /* Global variables used by function prototype control */
 
-/* '<Root>/Wheelspeeds' */
+/* '<Root>/WheelSpeeds' */
 static real32_T arg_Wheelspeeds[4] = { 0.0F, 0.0F, 0.0F, 0.0F };
 
-/* '<Root>/YawRate' */
+/* '<Root>/Gyro' */
 static real32_T arg_YawRate = 0.0F;
 
 /* '<Root>/Yaw' */
@@ -48,6 +48,9 @@ static real_T arg_YawRateRef = 0.0;
 
 /* '<Root>/YawAccRef' */
 static real_T arg_YawAccRef = 0.0;
+
+/* '<Root>/Accelerometer' */
+static real_T arg_Accelerometer[2] = { 0.0, 0.0 };
 
 /* '<Root>/Motorefforts' */
 static real32_T arg_Motorefforts[4];
@@ -83,7 +86,8 @@ void rt_OneStep(void)
 
   /* Step the model */
   Controller_step(arg_Wheelspeeds, arg_YawRate, arg_Yaw, arg_VelRef, arg_YawRef,
-                  arg_AccRef, arg_YawRateRef, arg_YawAccRef, arg_Motorefforts);
+                  arg_AccRef, arg_YawRateRef, arg_YawAccRef, arg_Accelerometer,
+                  arg_Motorefforts);
 
   /* Get model outputs here */
 
