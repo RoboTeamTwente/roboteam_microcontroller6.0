@@ -4,11 +4,11 @@ function output_force = drivetraction_model(relvel, absvel, whangle, decaying_fr
 % Subwheel frequency in subwheels/rotation
 
 fmax = decaying_friction;
-
+absvel = abs(absvel);
 % A fictional approximation of what the friction might be like
-friction_coeffiction = fmax - relvel/(fmax + relvel) + linear_friction;
+friction_coeffiction = fmax*exp(-absvel/4) + linear_friction;
 % A term to very vaguely model the effect of the subwheels
-subwheel_modulation = 1 + (0.1*(absvel)/(1 + absvel))*sin(whangle*subwheel_frequency);
+subwheel_modulation = 1 + 0.2*(0.5*(absvel)/(1 + 0.5*absvel))*sin(whangle*subwheel_frequency);
 output_force = friction_coeffiction*subwheel_modulation*relvel;
 end
 

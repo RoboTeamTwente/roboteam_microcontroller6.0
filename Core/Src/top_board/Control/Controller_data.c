@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.89
+ * Model version                  : 1.107
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Oct  1 15:57:18 2024
+ * C/C++ source code generated on : Thu Nov  7 15:57:08 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -23,13 +23,27 @@
 
 /* Constant parameters (default storage) */
 const ConstP rtConstP = {
-  /* Pooled Parameter (Expression: [cos(front_angle), sin(front_angle); -cos(front_angle), sin(front_angle); -cos(back_angle), -sin(back_angle); cos(back_angle), -sin(back_angle)])
+  /* Expression: Dinv
+   * Referenced by: '<Root>/Constant'
+   */
+  { 0.49248050117294279, 0.41421356237309509, -0.49248050117294279,
+    0.41421356237309509, -0.4387912809451866, -0.41421356237309509,
+    0.49248050117294279, -0.41421356237309509 },
+
+  /* Expression: Dmat
+   * Referenced by: '<Root>/Constant1'
+   */
+  { 0.86602540378443871, -0.86602540378443871, -0.70710678118654757,
+    0.70710678118654757, 0.49999999999999994, 0.49999999999999994,
+    -0.70710678118654746, -0.70710678118654746 },
+
+  /* Pooled Parameter (Expression: Dmat)
    * Referenced by:
    *   '<S2>/BodyForceCouplingMatrix'
-   *   '<S60>/BodyForceCouplingMatrix'
+   *   '<S111>/BodyForceCouplingMatrix'
    */
-  { 0.707106769F, -0.707106769F, -0.852524519F, 0.852524519F, 0.707106769F,
-    0.707106769F, -0.522687256F, -0.522687256F }
+  { 0.866025388F, -0.866025388F, -0.707106769F, 0.707106769F, 0.5F, 0.5F,
+    -0.707106769F, -0.707106769F }
 };
 
 /*

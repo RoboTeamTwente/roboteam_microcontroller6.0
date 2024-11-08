@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.89
+ * Model version                  : 1.107
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Oct  1 15:57:18 2024
+ * C/C++ source code generated on : Thu Nov  7 15:57:08 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -44,13 +44,13 @@ static real32_T arg_YawRef = 0.0F;
 static real32_T arg_AccRef[2] = { 0.0F, 0.0F };
 
 /* '<Root>/YawRateRef' */
-static real_T arg_YawRateRef = 0.0;
+static real32_T arg_YawRateRef = 0.0F;
 
 /* '<Root>/YawAccRef' */
-static real_T arg_YawAccRef = 0.0;
+static real32_T arg_YawAccRef = 0.0F;
 
 /* '<Root>/Accelerometer' */
-static real_T arg_Accelerometer[2] = { 0.0, 0.0 };
+static real32_T arg_Accelerometer[2] = { 0.0F, 0.0F };
 
 /* '<Root>/Motorefforts' */
 static real32_T arg_Motorefforts[4];
