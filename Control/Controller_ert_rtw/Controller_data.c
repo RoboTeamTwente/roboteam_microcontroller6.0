@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.116
+ * Model version                  : 1.154
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Fri Nov  8 14:41:18 2024
+ * C/C++ source code generated on : Tue Nov 12 15:28:31 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -23,15 +23,8 @@
 
 /* Constant parameters (default storage) */
 const ConstP rtConstP = {
-  /* Expression: Dinv
-   * Referenced by: '<Root>/Constant'
-   */
-  { 0.49248050117294279, 0.41421356237309509, -0.49248050117294279,
-    0.41421356237309509, -0.4387912809451866, -0.41421356237309509,
-    0.49248050117294279, -0.41421356237309509 },
-
   /* Expression: Dmat
-   * Referenced by: '<Root>/Constant1'
+   * Referenced by: '<S6>/Constant1'
    */
   { 0.86602540378443871, -0.86602540378443871, -0.70710678118654757,
     0.70710678118654757, 0.49999999999999994, 0.49999999999999994,
@@ -40,7 +33,7 @@ const ConstP rtConstP = {
   /* Pooled Parameter (Expression: Dmat)
    * Referenced by:
    *   '<S2>/BodyForceCouplingMatrix'
-   *   '<S113>/BodyForceCouplingMatrix'
+   *   '<S67>/BodyForceCouplingMatrix'
    */
   { 0.866025388F, -0.866025388F, -0.707106769F, 0.707106769F, 0.5F, 0.5F,
     -0.707106769F, -0.707106769F }

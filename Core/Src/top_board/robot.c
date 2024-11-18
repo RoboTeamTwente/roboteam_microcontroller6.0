@@ -556,7 +556,9 @@ void init(void) {
 		If the 3rd and 4th bit of the statusword are non-zero, then the initializion hasn't completed yet.
 		*/
 		while ((MTi == NULL || (MTi->statusword & (0x18)) != 0) && MTi_made_init_attempts < MTi_MAX_INIT_ATTEMPTS) {
-			MTi = MTi_Init(1, XFP_VRU_general);
+			MTi = MTi_Init(1, XFP_VRU_general); // Gives low drift and defines boot angle as zero
+			// MTi = MTi_Init(1, XFP_High_mag_dep); // Gives low drift (under perfect magnetic conditions) and seems to pick random zero-point at boot
+
 			if (!TEST_MODE) IWDG_Refresh(iwdg);
 
 
@@ -1177,7 +1179,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 		computeWheelSpeeds();
 		wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
-		yaw_Calibrate(MTi->angles[2] * M_PI / 180, 0.0f, false, MTi->gyr[2]);
+		yaw_Calibrate(MTi->angles[2] * M_PI / 180, stateInfo.visionYaw, stateInfo.visionAvailable, MTi->gyr[2]);
 		stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
 		stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
 		stateInfo.xsensYaw = (MTi->angles[2] * M_PI / 180); //Gradients to Radians
@@ -1186,12 +1188,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 		// Gather reference data
 		ControlRef ref;
-		ref.velRef[vel_x] = (activeRobotCommand.rho) * cosf(activeRobotCommand.theta);
-		ref.velRef[vel_y] = (activeRobotCommand.rho) * sinf(activeRobotCommand.theta);
+		ref.velRef[vel_x] = (activeRobotCommand.rho) * cosf(activeRobotCommand.theta - stateInfo.xsensYaw);
+		ref.velRef[vel_y] = (activeRobotCommand.rho) * sinf(activeRobotCommand.theta - stateInfo.xsensYaw);
 		ref.yawRateRef = activeRobotCommand.angularVelocity;
 		ref.yawRef = activeRobotCommand.yaw;
-		ref.accRef[vel_x] = (activeRobotCommand.acceleration_magnitude) * cosf(activeRobotCommand.acceleration_angle);
-		ref.accRef[vel_y] = (activeRobotCommand.acceleration_magnitude) * sinf(activeRobotCommand.acceleration_angle);
+		ref.accRef[vel_x] = (activeRobotCommand.acceleration_magnitude) * cosf(activeRobotCommand.acceleration_angle - stateInfo.xsensYaw);
+		ref.accRef[vel_y] = (activeRobotCommand.acceleration_magnitude) * sinf(activeRobotCommand.acceleration_angle - stateInfo.xsensYaw);
 		ref.YawAccRef = 0.0f;
 
 		// Drain battery code
