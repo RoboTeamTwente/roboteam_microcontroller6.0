@@ -18,7 +18,7 @@ void control_init() {
 
 void old_control_step(ControlOutput* const output, const StateInfo* const inputs) {
     // Run state estimation
-    float state[4];
+    f32 state[4];
     stateEstimation_Update(inputs);
     stateEstimation_GetState(state);
 
@@ -39,7 +39,8 @@ void control_step(ControlOutput* const output, const StateInfo* const state, con
         ref->yawRateRef,
         ref->YawAccRef,
         state->xsensAcc,
-        output
+        output->wheel_efforts,
+        output->debug_ports
     );
 }
 

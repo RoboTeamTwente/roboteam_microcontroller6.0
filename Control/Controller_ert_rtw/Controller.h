@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.154
+ * Model version                  : 1.167
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Nov 12 15:28:31 2024
+ * C/C++ source code generated on : Thu Nov 28 16:35:34 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -63,7 +63,7 @@ extern void Controller_initialize(void);
 extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
   real32_T arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef, real32_T
   arg_AccRef[2], real32_T arg_YawRateRef, real32_T arg_YawAccRef, real32_T
-  arg_Accelerometer[2], real32_T arg_Motorefforts[4]);
+  arg_Accelerometer[2], real32_T arg_Motorefforts[4], real32_T arg_Debug[32]);
 
 /*-
  * These blocks were eliminated from the model due to optimizations:

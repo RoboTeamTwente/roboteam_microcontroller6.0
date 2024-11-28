@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.154
+ * Model version                  : 1.167
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Nov 12 15:28:31 2024
+ * C/C++ source code generated on : Thu Nov 28 16:35:34 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -55,6 +55,9 @@ static real32_T arg_Accelerometer[2] = { 0.0F, 0.0F };
 /* '<Root>/Motorefforts' */
 static real32_T arg_Motorefforts[4];
 
+/* '<Root>/Debug' */
+static real32_T arg_Debug[32];
+
 /*
  * Associating rt_OneStep with a real-time clock or interrupt service routine
  * is what makes the generated code "real-time".  The function rt_OneStep is
@@ -87,7 +90,7 @@ void rt_OneStep(void)
   /* Step the model */
   Controller_step(arg_Wheelspeeds, arg_YawRate, arg_Yaw, arg_VelRef, arg_YawRef,
                   arg_AccRef, arg_YawRateRef, arg_YawAccRef, arg_Accelerometer,
-                  arg_Motorefforts);
+                  arg_Motorefforts, arg_Debug);
 
   /* Get model outputs here */
 

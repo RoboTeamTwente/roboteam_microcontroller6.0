@@ -22,6 +22,7 @@
 #include "REM_RobotMusicCommand.h"
 #include "REM_Log.h"
 #include "REM_RobotKillCommand.h"
+#include "REM_ControlDebug.h"
 
 #include "MCP_Driver.h"
 #include "MCP_to_top.h"
@@ -46,8 +47,8 @@ extern REM_RobotCommand activeRobotCommand;
 extern bool send_feedback_passively;
 
 //headers outgoing packets
-extern CAN_TxHeaderTypeDef areYouAliveHeaderToPower ;
-extern CAN_TxHeaderTypeDef areYouAliveHeaderToKicker ;
+extern CAN_TxHeaderTypeDef areYouAliveHeaderToPower;
+extern CAN_TxHeaderTypeDef areYouAliveHeaderToKicker;
 extern CAN_TxHeaderTypeDef areYouAliveHeaderToDribbler;
 extern CAN_TxHeaderTypeDef chipHeader;
 extern CAN_TxHeaderTypeDef kickHeader;

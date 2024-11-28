@@ -9,28 +9,31 @@
 #ifndef CONTROL_CONTROL_H_
 #define CONTROL_CONTROL_H_
 
+#include "numtypes.h"
+
 typedef struct ControlRef {
-    float velRef[2];
-    float accRef[2];
-    float yawRef;
-    float yawRateRef;
-    float YawAccRef;
+    f32 velRef[2];
+    f32 accRef[2];
+    f32 yawRef;
+    f32 yawRateRef;
+    f32 YawAccRef;
 } ControlRef;
 
 typedef struct StateInfo {
-    float visionYaw;					// The yaw for this robot as indicated by vision [rad]
+    f32 visionYaw;					// The yaw for this robot as indicated by vision [rad]
     bool visionAvailable;				// Wether vision data can be used at this point
-    float xsensAcc[2];					// The acceleration as measured by the IMU in the X and Y directions [m/(s^2)]
-    float xsensYaw;						// They yaw for this robot as indicated by the IMU [rad]
-    float rateOfTurn;					// The angular velocity of the robot, according to gyro [rad/s]
-    float wheelSpeeds[4];				// The speed for each wheel [rad/s]
-    float dribblerSpeed;				// The measured speed of the dribbler [rad/s]
-    float dribblerFilteredSpeed;		// The filtered speed of the dribbler [rad/s]
-    float dribbleSpeedBeforeGotBall;	// The speed of the dribbler before it had a ball [rad/s]
+    f32 xsensAcc[2];					// The acceleration as measured by the IMU in the X and Y directions [m/(s^2)]
+    f32 xsensYaw;						// They yaw for this robot as indicated by the IMU [rad]
+    f32 rateOfTurn;					// The angular velocity of the robot, according to gyro [rad/s]
+    f32 wheelSpeeds[4];				// The speed for each wheel [rad/s]
+    f32 dribblerSpeed;				// The measured speed of the dribbler [rad/s]
+    f32 dribblerFilteredSpeed;		// The filtered speed of the dribbler [rad/s]
+    f32 dribbleSpeedBeforeGotBall;	// The speed of the dribbler before it had a ball [rad/s]
 } StateInfo;
 
 typedef struct ControlOutput {
-    float wheel_efforts[4]; // PWM fractions to be applied to the motors
+    f32 wheel_efforts[4]; // PWM fractions to be applied to the motors
+    f32 debug_ports[32];  // Debug poerts for debug purposes
 } ControlOutput;
 
 /**

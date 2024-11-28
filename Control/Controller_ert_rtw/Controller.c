@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.154
+ * Model version                  : 1.167
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Nov 12 15:28:31 2024
+ * C/C++ source code generated on : Thu Nov 28 16:35:34 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -21,6 +21,7 @@
 
 #include "Controller.h"
 #include "rtwtypes.h"
+#include <string.h>
 #include <math.h>
 #include "math.h"
 
@@ -192,10 +193,10 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
                      arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef,
                      real32_T arg_AccRef[2], real32_T arg_YawRateRef, real32_T
                      arg_YawAccRef, real32_T arg_Accelerometer[2], real32_T
-                     arg_Motorefforts[4])
+                     arg_Motorefforts[4], real32_T arg_Debug[32])
 {
   int32_T b_k;
-  int32_T idx;
+  int32_T i;
   real32_T rtb_Sum3[4];
   real32_T varargin_1[4];
   real32_T FilterDifferentiatorTF_tmp;
@@ -204,8 +205,6 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
   real32_T q;
   real32_T rtb_FilterCoefficient_idx_0;
   real32_T rtb_FilterCoefficient_idx_1;
-  real32_T rtb_FilterCoefficient_tmp;
-  real32_T rtb_FilterCoefficient_tmp_idx_0;
   real32_T rtb_FilterDifferentiatorTF;
   real32_T rtb_Sum;
   real32_T rtb_y_c;
@@ -219,36 +218,22 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
   UNUSED_PARAMETER(arg_YawRateRef);
   UNUSED_PARAMETER(arg_Accelerometer);
 
-  /* Gain: '<S96>/Derivative Gain' incorporates:
-   *  Gain: '<S100>/Integral Gain'
-   *  Inport: '<Root>/VelRef'
-   *  Sum: '<Root>/Sum2'
+  /* SignalConversion generated from: '<Root>/Vector Concatenate' incorporates:
+   *  Outport: '<Root>/Debug'
    */
-  rtb_FilterCoefficient_tmp = 0.0F * arg_VelRef[0];
-  rtb_FilterCoefficient_tmp_idx_0 = rtb_FilterCoefficient_tmp;
+  memset(&arg_Debug[6], 0, 26U * sizeof(real32_T));
 
   /* Gain: '<S106>/Filter Coefficient' incorporates:
    *  DiscreteIntegrator: '<S98>/Filter'
    *  Gain: '<S96>/Derivative Gain'
-   *  Sum: '<S98>/SumD'
-   */
-  rtb_FilterCoefficient_idx_0 = (rtb_FilterCoefficient_tmp - rtDW.Filter_DSTATE
-    [0]) * 100.0F;
-
-  /* Gain: '<S96>/Derivative Gain' incorporates:
-   *  Gain: '<S100>/Integral Gain'
    *  Inport: '<Root>/VelRef'
    *  Sum: '<Root>/Sum2'
-   */
-  rtb_FilterCoefficient_tmp = 0.0F * arg_VelRef[1];
-
-  /* Gain: '<S106>/Filter Coefficient' incorporates:
-   *  DiscreteIntegrator: '<S98>/Filter'
-   *  Gain: '<S96>/Derivative Gain'
    *  Sum: '<S98>/SumD'
    */
-  rtb_FilterCoefficient_idx_1 = (rtb_FilterCoefficient_tmp - rtDW.Filter_DSTATE
-    [1]) * 100.0F;
+  rtb_FilterCoefficient_idx_0 = (0.0F * arg_VelRef[0] - rtDW.Filter_DSTATE[0]) *
+    100.0F;
+  rtb_FilterCoefficient_idx_1 = (0.0F * arg_VelRef[1] - rtDW.Filter_DSTATE[1]) *
+    100.0F;
 
   /* Sum: '<Root>/Sum' incorporates:
    *  Inport: '<Root>/Yaw'
@@ -340,14 +325,14 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
    */
   varargin_1[3] = rtb_y_c;
   if (!rtIsNaNF(rtb_y_c)) {
-    idx = 1;
+    i = 1;
   } else {
-    idx = 0;
+    i = 0;
     b_k = 2;
     exitg1 = false;
     while ((!exitg1) && (b_k < 5)) {
       if (!rtIsNaNF(varargin_1[b_k - 1])) {
-        idx = b_k;
+        i = b_k;
         exitg1 = true;
       } else {
         b_k++;
@@ -355,9 +340,9 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
     }
   }
 
-  if (idx != 0) {
-    rtb_y_c = varargin_1[idx - 1];
-    for (b_k = idx + 1; b_k < 5; b_k++) {
+  if (i != 0) {
+    rtb_y_c = varargin_1[i - 1];
+    for (b_k = i + 1; b_k < 5; b_k++) {
       rtb_FilterDifferentiatorTF = varargin_1[b_k - 1];
       if (rtb_y_c < rtb_FilterDifferentiatorTF) {
         rtb_y_c = rtb_FilterDifferentiatorTF;
@@ -365,7 +350,7 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
     }
   }
 
-  rtb_FilterDifferentiatorTF = rtb_y_c / 3.904F;
+  rtb_FilterDifferentiatorTF = rtb_y_c / 3.61481476F;
   if (1.0F - rtb_FilterDifferentiatorTF < 0.0F) {
     rtb_y_c = 0.0F;
   } else if (rtIsNaNF(1.0F - rtb_FilterDifferentiatorTF)) {
@@ -398,7 +383,7 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
    */
   arg_AccRef_0 = arg_AccRef[0];
   arg_AccRef_1 = arg_AccRef[1];
-  for (idx = 0; idx < 4; idx++) {
+  for (i = 0; i < 4; i++) {
     /* Saturate: '<Root>/DO NOT REMOVE THIS' incorporates:
      *  Constant: '<S2>/BodyForceCouplingMatrix'
      *  Constant: '<S6>/Constant1'
@@ -412,38 +397,57 @@ void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate, real32_T
      *  Product: '<S6>/Body2Wheels'
      *  Sum: '<Root>/Sum1'
      */
-    u0 = ((real32_T)((2.5F * arg_AccRef_0 * rtConstP.pooled1[idx] +
-                      rtConstP.pooled1[idx + 4] * (2.5F * arg_AccRef_1)) +
-                     (rtConstP.Constant1_Value[idx + 4] * tmp_0 +
-                      rtConstP.Constant1_Value[idx] * tmp)) * rtb_y_c +
-          rtb_Sum3[idx] / rtb_FilterDifferentiatorTF) * 0.025F * 30.4878044F *
-      0.934579432F * 0.0416666679F;
+    u0 = ((real32_T)((2.5F * arg_AccRef_0 * rtConstP.pooled1[i] +
+                      rtConstP.pooled1[i + 4] * (2.5F * arg_AccRef_1)) +
+                     (rtConstP.Constant1_Value[i + 4] * tmp_0 +
+                      rtConstP.Constant1_Value[i] * tmp)) * rtb_y_c + rtb_Sum3[i]
+          / rtb_FilterDifferentiatorTF) * 0.027F * 30.4878044F * 0.934579432F *
+      0.0416666679F;
     if (u0 > 0.2F) {
-      /* Outport: '<Root>/Motorefforts' */
-      arg_Motorefforts[idx] = 0.2F;
+      u0 = 0.2F;
     } else if (u0 < -0.2F) {
-      /* Outport: '<Root>/Motorefforts' */
-      arg_Motorefforts[idx] = -0.2F;
-    } else {
-      /* Outport: '<Root>/Motorefforts' */
-      arg_Motorefforts[idx] = u0;
+      u0 = -0.2F;
     }
 
+    rtb_Sum3[i] = u0;
+
     /* End of Saturate: '<Root>/DO NOT REMOVE THIS' */
+
+    /* Outport: '<Root>/Motorefforts' */
+    arg_Motorefforts[i] = u0;
+
+    /* SignalConversion generated from: '<Root>/Vector Concatenate' incorporates:
+     *  Outport: '<Root>/Debug'
+     */
+    arg_Debug[i + 2] = u0;
   }
+
+  /* SignalConversion generated from: '<Root>/Vector Concatenate' incorporates:
+   *  Outport: '<Root>/Debug'
+   */
+  arg_Debug[0] = 0.0F;
 
   /* Update for DiscreteIntegrator: '<S103>/Integrator' incorporates:
    *  Gain: '<S100>/Integral Gain'
+   *  Inport: '<Root>/VelRef'
+   *  Sum: '<Root>/Sum2'
    */
-  rtDW.Integrator_DSTATE[0] += 0.01F * rtb_FilterCoefficient_tmp_idx_0;
+  rtDW.Integrator_DSTATE[0] += 0.0F * arg_VelRef[0] * 0.01F;
 
   /* Update for DiscreteIntegrator: '<S98>/Filter' */
   rtDW.Filter_DSTATE[0] += 0.01F * rtb_FilterCoefficient_idx_0;
 
-  /* Update for DiscreteIntegrator: '<S103>/Integrator' incorporates:
-   *  Gain: '<S96>/Derivative Gain'
+  /* SignalConversion generated from: '<Root>/Vector Concatenate' incorporates:
+   *  Outport: '<Root>/Debug'
    */
-  rtDW.Integrator_DSTATE[1] += 0.01F * rtb_FilterCoefficient_tmp;
+  arg_Debug[1] = 0.0F;
+
+  /* Update for DiscreteIntegrator: '<S103>/Integrator' incorporates:
+   *  Gain: '<S100>/Integral Gain'
+   *  Inport: '<Root>/VelRef'
+   *  Sum: '<Root>/Sum2'
+   */
+  rtDW.Integrator_DSTATE[1] += 0.0F * arg_VelRef[1] * 0.01F;
 
   /* Update for DiscreteIntegrator: '<S98>/Filter' */
   rtDW.Filter_DSTATE[1] += 0.01F * rtb_FilterCoefficient_idx_1;
