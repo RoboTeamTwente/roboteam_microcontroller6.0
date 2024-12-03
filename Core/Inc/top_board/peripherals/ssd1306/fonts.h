@@ -40,7 +40,7 @@ extern C {
  *  - 16 x 26 pixels
 
  */
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "string.h"
 
 /**

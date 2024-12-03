@@ -24,7 +24,7 @@
 #ifndef INC_DRIVERS_SSD1306_OLEDDRIVER_H_
 #define INC_DRIVERS_SSD1306_OLEDDRIVER_H_
 
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "ssd1306/fonts.h"
 
 #define SSD1306_I2C_ADDR 	0x78

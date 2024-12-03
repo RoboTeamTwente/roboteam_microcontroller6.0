@@ -24,7 +24,7 @@
 #ifndef INC_WHEELS_H_
 #define INC_WHEELS_H_
 #include "main.h"
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include "control_util.h"

@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -59,9 +59,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define APB 150
 #define MAX_PWM 6000
-#define ENCODER_FILTER 15
+#define APB 240
 #define LF_FAULT_Pin GPIO_PIN_2
 #define LF_FAULT_GPIO_Port GPIOE
 #define LF_BRK_Pin GPIO_PIN_3
@@ -82,8 +81,8 @@ void Error_Handler(void);
 #define LB_BRK_GPIO_Port GPIOF
 #define LB_DIR_Pin GPIO_PIN_5
 #define LB_DIR_GPIO_Port GPIOF
-#define PWM_Buzzer_Pin GPIO_PIN_6
-#define PWM_Buzzer_GPIO_Port GPIOF
+#define PWM_BUZZER_Pin GPIO_PIN_6
+#define PWM_BUZZER_GPIO_Port GPIOF
 #define RF_Current_Pin GPIO_PIN_0
 #define RF_Current_GPIO_Port GPIOC
 #define RB_Current_Pin GPIO_PIN_1
@@ -140,22 +139,16 @@ void Error_Handler(void);
 #define SPI4_BUSY_GPIO_Port GPIOB
 #define SPI4_IRQ_Pin GPIO_PIN_11
 #define SPI4_IRQ_GPIO_Port GPIOB
-#define SPI4_IRQ_EXTI_IRQn EXTI15_10_IRQn
 #define BTN_SW0_Pin GPIO_PIN_14
 #define BTN_SW0_GPIO_Port GPIOB
-#define BTN_SW0_EXTI_IRQn EXTI15_10_IRQn
 #define BTN_SW1_Pin GPIO_PIN_15
 #define BTN_SW1_GPIO_Port GPIOB
-#define BTN_SW1_EXTI_IRQn EXTI15_10_IRQn
 #define BTN_SW2_Pin GPIO_PIN_8
 #define BTN_SW2_GPIO_Port GPIOD
-#define BTN_SW2_EXTI_IRQn EXTI9_5_IRQn
 #define BTN_SW3_Pin GPIO_PIN_9
 #define BTN_SW3_GPIO_Port GPIOD
-#define BTN_SW3_EXTI_IRQn EXTI9_5_IRQn
 #define BTN_SW4_Pin GPIO_PIN_10
 #define BTN_SW4_GPIO_Port GPIOD
-#define BTN_SW4_EXTI_IRQn EXTI15_10_IRQn
 #define RB_CHA_Pin GPIO_PIN_12
 #define RB_CHA_GPIO_Port GPIOD
 #define RB_CHB_Pin GPIO_PIN_13
@@ -190,14 +183,13 @@ void Error_Handler(void);
 #define SD_MMC1_CD_GPIO_Port GPIOD
 #define XSENS_IRQ_Pin GPIO_PIN_5
 #define XSENS_IRQ_GPIO_Port GPIOD
-#define XSENS_IRQ_EXTI_IRQn EXTI9_5_IRQn
 #define XSENS_RST_Pin GPIO_PIN_6
 #define XSENS_RST_GPIO_Port GPIOD
 #define SPI1_NSS_Pin GPIO_PIN_10
 #define SPI1_NSS_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
-extern CAN_HandleTypeDef hcan1;
+extern FDCAN_HandleTypeDef hfdcan1;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

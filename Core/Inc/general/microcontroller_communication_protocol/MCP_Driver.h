@@ -20,11 +20,11 @@ extern mailbox_buffer MailBox_three;
 extern uint32_t TxMailbox[1];
 extern bool MCP_to_process;
 
-void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id);
-void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader, uint8_t to_board);
-void MCP_Send_Message_Always(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader);
-CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board);
-void MCP_Send_Ack(CAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t old_message_id);
+void MCP_Init(FDCAN_HandleTypeDef *hcan, uint8_t board_id);
+void MCP_Send_Message(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeaderTypeDef CAN_TxHeader, uint8_t to_board);
+void MCP_Send_Message_Always(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeaderTypeDef CAN_TxHeader);
+FDCAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board);
+void MCP_Send_Ack(FDCAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t old_message_id);
 void MCP_SetReadyToReceive(bool b);
 bool MCP_GetFreeToSend(uint8_t to_board);
 void MCP_timeout();

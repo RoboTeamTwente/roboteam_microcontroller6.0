@@ -18,19 +18,19 @@ uint32_t time_last_send[MCP_MAX_ID_PLUS_ONE];
 uint8_t sending_board_id;
 
 /////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
-bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header);
-void MCP_error_LOG(CAN_TxHeaderTypeDef *Header);
+bool extract_command(uint8_t RxData[], FDCAN_RxHeaderTypeDef *Header);
+void MCP_error_LOG(FDCAN_TxHeaderTypeDef *Header);
 
 /////////////////////////////////////////// PUBLIC FUNCTIONS
 
 /**
  * @brief initialize CAN communication
 */
-void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
+void MCP_Init(FDCAN_HandleTypeDef *hcan, uint8_t board_id){
     sending_board_id = board_id;
 
     // Configuration of CAN filter
-    CAN_FilterTypeDef canfilterconfig;
+    FDCAN_FilterTypeDef canfilterconfig;
     canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
     canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
     canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
@@ -68,8 +68,8 @@ void MCP_Init(CAN_HandleTypeDef *hcan, uint8_t board_id){
     HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
-    CAN_RxHeaderTypeDef RxHeader;
+void HAL_CAN_RxFifo0MsgPendingCallback(FDCAN_HandleTypeDef *hcan){
+    FDCAN_RxHeaderTypeDef RxHeader;
     uint8_t RxData[8];
     memset(RxData, 0, sizeof(RxData));
     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
@@ -83,9 +83,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 /**
  * @brief Function to initialize MCP header structure
 */
-CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board){
+FDCAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board){
 
-    CAN_TxHeaderTypeDef TxHeader;
+    FDCAN_TxHeaderTypeDef TxHeader;
 
     TxHeader.DLC = MCP_TYPE_TO_SIZE(type);
     TxHeader.StdId = 0;
@@ -100,7 +100,7 @@ CAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_board
 /**
  * @brief send messages over CAN bus if there is space
 */
-void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader, uint8_t to_board) {
+void MCP_Send_Message(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeaderTypeDef CAN_TxHeader, uint8_t to_board) {
     if ((CAN_TxHeader.ExtId & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
     else if (free_to_send[to_board]){
         // set ack numbers
@@ -117,7 +117,7 @@ void MCP_Send_Message(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTyp
  * @brief send messages over CAN bus, disregarding is_free_to send
  * @note if ACK is actively used, set it manually
 */
-void MCP_Send_Message_Always(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHeaderTypeDef CAN_TxHeader) {
+void MCP_Send_Message_Always(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeaderTypeDef CAN_TxHeader) {
     if ((CAN_TxHeader.ExtId & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
     else {
         if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
@@ -127,9 +127,9 @@ void MCP_Send_Message_Always(CAN_HandleTypeDef *hcan, uint8_t *payload, CAN_TxHe
 /**
  * @brief send back an ackowledgement
 */
-void MCP_Send_Ack(CAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t old_message_id) {
+void MCP_Send_Ack(FDCAN_HandleTypeDef *hcan, uint8_t received_ack_number, uint32_t old_message_id) {
     uint8_t to_board = (old_message_id & MCP_FROM_ID_BIT_MASK) >> MCP_FROM_ID_BIT_SHIFT; 
-    CAN_TxHeaderTypeDef TxHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, to_board);
+    FDCAN_TxHeaderTypeDef TxHeader = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_ACK, to_board);
     MCP_Ack ack = {0};
     ack.ack_number = received_ack_number;
     MCP_AckPayload ack_payload = {0};
@@ -163,14 +163,14 @@ bool MCP_GetFreeToSend(uint8_t to_board) {
  * @brief Function to handle MCP errors
  * TODO
 */
-void MCP_error_LOG(CAN_TxHeaderTypeDef *Header){
+void MCP_error_LOG(FDCAN_TxHeaderTypeDef *Header){
     return;  // Placeholder function, not implemented
 }
 
 /**
  * @brief Function to extract command from received MCP data
 */ 
-bool extract_command(uint8_t RxData[], CAN_RxHeaderTypeDef *Header){
+bool extract_command(uint8_t RxData[], FDCAN_RxHeaderTypeDef *Header){
     uint32_t message_ID = Header->ExtId;
     uint8_t data[8];
     memset(data, 0, sizeof(data));

@@ -46,15 +46,15 @@ extern REM_RobotCommand activeRobotCommand;
 extern bool send_feedback_passively;
 
 //headers outgoing packets
-extern CAN_TxHeaderTypeDef areYouAliveHeaderToPower ;
-extern CAN_TxHeaderTypeDef areYouAliveHeaderToKicker ;
-extern CAN_TxHeaderTypeDef areYouAliveHeaderToDribbler;
-extern CAN_TxHeaderTypeDef chipHeader;
-extern CAN_TxHeaderTypeDef kickHeader;
-extern CAN_TxHeaderTypeDef kickerChargeHeader;
-extern CAN_TxHeaderTypeDef kickerStopChargeHeader;
-extern CAN_TxHeaderTypeDef killHeader;
-extern CAN_TxHeaderTypeDef dribblerCommandHeader;
+extern FDCAN_TxHeaderTypeDef areYouAliveHeaderToPower ;
+extern FDCAN_TxHeaderTypeDef areYouAliveHeaderToKicker ;
+extern FDCAN_TxHeaderTypeDef areYouAliveHeaderToDribbler;
+extern FDCAN_TxHeaderTypeDef chipHeader;
+extern FDCAN_TxHeaderTypeDef kickHeader;
+extern FDCAN_TxHeaderTypeDef kickerChargeHeader;
+extern FDCAN_TxHeaderTypeDef kickerStopChargeHeader;
+extern FDCAN_TxHeaderTypeDef killHeader;
+extern FDCAN_TxHeaderTypeDef dribblerCommandHeader;
 
 //payload incoming packets
 extern MCP_DribblerAlive dribblerAlive;
