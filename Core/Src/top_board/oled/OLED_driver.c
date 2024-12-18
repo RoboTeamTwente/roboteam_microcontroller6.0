@@ -187,7 +187,7 @@ void end_of_test() {
     activeRobotCommand.doChip = false;
     activeRobotCommand.kickAtYaw = false;
     activeRobotCommand.dribblerOn = 0;
-    activeRobotCommand.angularVelocity = 0;
+    // changed by reza:  activeRobotCommand.angularVelocity = 0;
     //screen
     clear_screen();
     putPageName();

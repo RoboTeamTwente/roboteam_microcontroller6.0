@@ -230,13 +230,16 @@ Wireless_IRQcallbacks SX_IRQcallbacks = { .rxdone = &Wireless_RXDone, .default_c
 void executeCommands(REM_RobotCommand* robotCommand){
 	stateControl_useAbsoluteAngle(robotCommand->useYaw);
 	float stateReference[4];
-	stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
-	stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
-	stateReference[vel_w] = robotCommand->angularVelocity;
+
+	// Commented by reza :)))
+
+	// stateReference[vel_x] = (robotCommand->rho) * cosf(robotCommand->theta);
+	// stateReference[vel_y] = (robotCommand->rho) * sinf(robotCommand->theta);
+	// stateReference[vel_w] = robotCommand->angularVelocity;
 	stateReference[yaw] = robotCommand->yaw;
 	float accelerationReference[3];
-	accelerationReference[vel_x] = (robotCommand->acceleration_magnitude) * cosf(robotCommand->acceleration_angle);
-	accelerationReference[vel_y] = (robotCommand->acceleration_magnitude) * sinf(robotCommand->acceleration_angle);
+	// accelerationReference[vel_x] = (robotCommand->acceleration_magnitude) * cosf(robotCommand->acceleration_angle);
+	// accelerationReference[vel_y] = (robotCommand->acceleration_magnitude) * sinf(robotCommand->acceleration_angle);
 	accelerationReference[vel_w] = 0.0f;
 	stateControl_SetRef(stateReference,accelerationReference);
 
@@ -318,7 +321,9 @@ void updateTestCommand(REM_RobotCommand* rc, uint32_t time){
 	float period_fraction = (c_time%2000)/2000.f;
 
 	// Rotate around, slowly
-	rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
+
+	//Changed by REZA ::rc->angularVelocity = 6 * (float) sin(period_fraction * 2 * M_PI);
+	
 	// Turn on dribbler
 	rc->dribblerOn = true;
 	// Kick a little every block
