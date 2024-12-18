@@ -8,7 +8,7 @@
 #ifndef UTILS_TIM_UTIL_H_
 #define UTILS_TIM_UTIL_H_
 
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "tim_util_functions.h"
 
 // Timers (clocks still need to be defined: wheel_control, KickChip)

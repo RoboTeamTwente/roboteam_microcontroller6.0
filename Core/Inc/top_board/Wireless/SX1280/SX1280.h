@@ -4,7 +4,7 @@
 #include "SX1280_Constants.h"
 #include "SX1280_Packet_Definitions.h"
 #include "stdbool.h"
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "gpio_util.h"
 #include "string.h" // to use memcpy properly
 

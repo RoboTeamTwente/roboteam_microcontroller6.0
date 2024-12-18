@@ -53,7 +53,7 @@ void kicker_shoot_run(float speed, page_struct *page){
         MCP_KickPayload payload = {0};
         kick.shootPower = speed;
         encodeMCP_Kick(&payload, &kick);
-        MCP_Send_Message(&hcan1, &payload, kickHeader, MCP_KICKER_BOARD);
+        MCP_Send_Message(&hfdcan1, &payload, kickHeader, MCP_KICKER_BOARD);
         kicker_test_start_time = current_time;
     } else if (kicker_test_start_time + 100 < current_time) {
     

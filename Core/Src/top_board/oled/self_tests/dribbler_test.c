@@ -25,7 +25,7 @@ void dribbler_test_run(bool state){
     MCP_DribblerCommandPayload dcp = {0};
     dribCommand.dribblerOn = state;
     encodeMCP_DribblerCommand(&dcp, &dribCommand);
-    MCP_Send_Message(&hcan1, &dcp, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
+    MCP_Send_Message(&hfdcan1, &dcp, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
 
     HAL_Delay(500);
     end_of_test();

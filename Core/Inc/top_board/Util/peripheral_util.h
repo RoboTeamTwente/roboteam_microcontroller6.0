@@ -8,7 +8,7 @@
 #ifndef PERIPHERAL_UTIL_H_
 #define PERIPHERAL_UTIL_H_
 
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 #define UART_PC 	(&huart8)	// PC communication
 #define UART_BACK 	(&huart5)	// UART going to backboard

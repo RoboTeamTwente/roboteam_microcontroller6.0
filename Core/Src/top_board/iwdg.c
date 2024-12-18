@@ -1,6 +1,6 @@
 
 #include "iwdg.h"
-#include "stm32f7xx.h"
+#include "stm32h7xx.h"
 
 #define TIMEOUT		48u		// wait for max 48 ms before starting
 
@@ -21,7 +21,7 @@ HAL_StatusTypeDef IWDG_Init(IWDG_Handle* hiwdg, uint32_t timeout_ms){
 	uint32_t reload_value = timeout_ms / ticks_per_ms;
 	if(4095 < reload_value) reload_value = 4095;
 
-	hiwdg->mem = (IWDG_REG*)IWDG;
+	hiwdg->mem = (IWDG_REG*)IWDG1;
 	hiwdg->Settings.Prescaler = IWDG_PRESCALER_64;
 	hiwdg->Settings.Window = reload_value;
 	hiwdg->Settings.Reload = reload_value;

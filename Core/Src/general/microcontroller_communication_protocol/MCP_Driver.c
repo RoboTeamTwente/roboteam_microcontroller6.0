@@ -31,21 +31,19 @@ void MCP_Init(FDCAN_HandleTypeDef *hcan, uint8_t board_id){
 
     // Configuration of CAN filter
     FDCAN_FilterTypeDef canfilterconfig;
-    canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
-    canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
-    canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
-    canfilterconfig.FilterBank = 10;
-    canfilterconfig.FilterFIFOAssignment = CAN_RX_FIFO0;
-    canfilterconfig.SlaveStartFilterBank = 0;
+
+    canfilterconfig.IdType = FDCAN_STANDARD_ID;
+    canfilterconfig.FilterIndex = 0;
+    canfilterconfig.FilterType = FDCAN_FILTER_MASK;
+    canfilterconfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+    
+
     uint32_t total_filter = (MCP_LOCAL_VERSION << MCP_VERSION_BIT_SHIFT) | (sending_board_id << MCP_TO_ID_BIT_SHIFT);
     uint32_t total_mask = MCP_VERSION_BIT_MASK | MCP_TO_ID_BIT_MASK;
-    // MSB bits 28:13
-    canfilterconfig.FilterIdHigh = (total_filter & 0x1FFFE000) >> 13;
-    canfilterconfig.FilterMaskIdHigh = (total_mask & 0x1FFFE000) >> 13;
-    // LSB bits 12:0
-    canfilterconfig.FilterIdLow = (total_filter & 0x1FFF) << 3;
-    canfilterconfig.FilterMaskIdLow = (total_mask & 0x1FFF) << 3;
 
+    canfilterconfig.FilterID1 = total_filter;
+    canfilterconfig.FilterID2 = total_mask;
+    canfilterconfig.RxBufferIndex = 0;
     // Mailboxes
     MailBox_one.empty = true;
     MailBox_one.message_id = 0;
@@ -61,18 +59,18 @@ void MCP_Init(FDCAN_HandleTypeDef *hcan, uint8_t board_id){
     }
 
     // Configure CAN filter
-    HAL_CAN_ConfigFilter(hcan, &canfilterconfig);
+    HAL_FDCAN_ConfigFilter(hcan, &canfilterconfig);
 
     // Start CAN communication
-    HAL_CAN_Start(hcan);
-    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+    HAL_FDCAN_Start(hcan);
+    HAL_FDCAN_ActivateNotification(hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE,0);
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(FDCAN_HandleTypeDef *hcan){
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan){
     FDCAN_RxHeaderTypeDef RxHeader;
     uint8_t RxData[8];
     memset(RxData, 0, sizeof(RxData));
-    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
+    HAL_FDCAN_GetRxMessage(hcan, FDCAN_RX_FIFO0, &RxHeader, RxData);
 
     // Extract and process the received command
     if (ready_to_receive) {
@@ -87,12 +85,33 @@ FDCAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_boa
 
     FDCAN_TxHeaderTypeDef TxHeader;
 
-    TxHeader.DLC = MCP_TYPE_TO_SIZE(type);
-    TxHeader.StdId = 0;
-    TxHeader.ExtId = MCP_TYPE_TO_ID(type, receiving_board, sending_board_id);
-    TxHeader.IDE = CAN_ID_EXT;
-    TxHeader.RTR = CAN_RTR_DATA;
-    TxHeader.TransmitGlobalTime = DISABLE;
+    // TxHeader.DLC = MCP_TYPE_TO_SIZE(type);
+    // TxHeader.StdId = 0;
+    // TxHeader.ExtId = MCP_TYPE_TO_ID(type, receiving_board, sending_board_id);
+    // TxHeader.IDE = CAN_ID_EXT;
+    // TxHeader.RTR = CAN_RTR_DATA;
+    // TxHeader.TransmitGlobalTime = DISABLE;
+
+    TxHeader.Identifier = MCP_TYPE_TO_ID(type, receiving_board, sending_board_id);
+
+    // Set the frame type (extended or standard)
+    TxHeader.IdType = FDCAN_EXTENDED_ID;
+
+    // Set the frame as a data frame (not a remote frame)
+    TxHeader.TxFrameType = FDCAN_DATA_FRAME;
+
+    // Set the Data Length Code (DLC)
+    TxHeader.DataLength = MCP_TYPE_TO_SIZE(type) << 16;  // Use a helper or macro to set the correct DLC
+    
+    // Marker for transmit (optional, can be set to 0)
+    TxHeader.MessageMarker = 0;
+
+    // Disable transmission of global time
+    TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;  // No bitrate switching for Classic CAN
+    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // Use Classic CAN format
+    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+    
     
     return TxHeader;
 }
@@ -101,12 +120,12 @@ FDCAN_TxHeaderTypeDef MCP_Initialize_Header(uint16_t type, uint8_t receiving_boa
  * @brief send messages over CAN bus if there is space
 */
 void MCP_Send_Message(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeaderTypeDef CAN_TxHeader, uint8_t to_board) {
-    if ((CAN_TxHeader.ExtId & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
+    if ((CAN_TxHeader.Identifier & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
     else if (free_to_send[to_board]){
         // set ack numbers
         payload[0] = ack_numbers[to_board];
         // send
-        if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) == HAL_OK) {
+        if (HAL_FDCAN_AddMessageToTxFifoQ(hcan, &CAN_TxHeader, payload) == HAL_OK) {
             free_to_send[to_board] = false;
             time_last_send[to_board] = HAL_GetTick();
         } else MCP_error_LOG(&CAN_TxHeader);
@@ -118,7 +137,7 @@ void MCP_Send_Message(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeade
  * @note if ACK is actively used, set it manually
 */
 void MCP_Send_Message_Always(FDCAN_HandleTypeDef *hcan, uint8_t *payload, FDCAN_TxHeaderTypeDef CAN_TxHeader) {
-    if ((CAN_TxHeader.ExtId & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
+    if ((CAN_TxHeader.Identifier & MCP_ERROR_BIT_MASK) >> MCP_ERROR_BIT_SHIFT == 1) MCP_error_LOG(&CAN_TxHeader);
     else {
         if (HAL_CAN_AddTxMessage(hcan, &CAN_TxHeader, payload, &TxMailbox[0]) != HAL_OK) MCP_error_LOG(&CAN_TxHeader);
     }
@@ -171,12 +190,12 @@ void MCP_error_LOG(FDCAN_TxHeaderTypeDef *Header){
  * @brief Function to extract command from received MCP data
 */ 
 bool extract_command(uint8_t RxData[], FDCAN_RxHeaderTypeDef *Header){
-    uint32_t message_ID = Header->ExtId;
+    uint32_t message_ID = Header->Identifier;
     uint8_t data[8];
     memset(data, 0, sizeof(data));
 
     // Copy received data to local array
-    for (int i = 0; i < Header->DLC; i++)
+    for (int i = 0; i < (Header->DataLength >> 16); i++)
         data[i] = RxData[i];
 
     if (MCP_ID_IS_TYPE_ACK(message_ID)) {

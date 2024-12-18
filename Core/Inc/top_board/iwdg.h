@@ -6,7 +6,7 @@
 #ifndef IWDG_H
 #define IWDG_H
 
-#include "stm32f7xx.h"
+#include "stm32h7xx.h"
 
 typedef struct
 {

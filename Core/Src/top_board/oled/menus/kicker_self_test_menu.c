@@ -41,7 +41,7 @@ void kicker_charge() {
     MCP_KickerCharge kc = {0};
     MCP_KickerChargePayload kcp = {0};
     encodeMCP_KickerCharge(&kcp, &kc);
-    MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+    MCP_Send_Message(&hfdcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
     HAL_Delay(500);
     end_of_test();
 }
@@ -50,7 +50,7 @@ void kicker_stopCharge() {
     MCP_KickerStopCharge ksc = {0};
     MCP_KickerStopChargePayload kscp = {0};
     encodeMCP_KickerStopCharge(&kscp, &ksc);
-    MCP_Send_Message(&hcan1, &kscp, kickerStopChargeHeader, MCP_KICKER_BOARD);
+    MCP_Send_Message(&hfdcan1, &kscp, kickerStopChargeHeader, MCP_KICKER_BOARD);
     HAL_Delay(500);
     end_of_test();
 }

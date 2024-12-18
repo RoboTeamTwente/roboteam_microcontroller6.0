@@ -54,7 +54,7 @@ void chip_shoot_run(float speed, page_struct *page){
         MCP_ChipPayload payload = {0};
         chip.shootPower = speed;
         encodeMCP_Chip(&payload, &chip);
-        MCP_Send_Message(&hcan1, &payload, chipHeader, MCP_KICKER_BOARD);
+        MCP_Send_Message(&hfdcan1, &payload, chipHeader, MCP_KICKER_BOARD);
         chip_test_start_time = current_time;
     } else if (chip_test_start_time + 100 < current_time) {
     

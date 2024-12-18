@@ -43,18 +43,18 @@ MTi_data* MTi;
 /* MCP */
 
 //headers outgoing packets
-CAN_TxHeaderTypeDef areYouAliveHeaderToPower = {0};
-CAN_TxHeaderTypeDef areYouAliveHeaderToKicker = {0};
-CAN_TxHeaderTypeDef areYouAliveHeaderToDribbler = {0};
-CAN_TxHeaderTypeDef chipHeader = {0};
-CAN_TxHeaderTypeDef kickHeader = {0};
-CAN_TxHeaderTypeDef kickerChargeHeader = {0};
-CAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
-CAN_TxHeaderTypeDef killHeader = {0};
-CAN_TxHeaderTypeDef dribblerCommandHeader = {0};
-CAN_TxHeaderTypeDef rebootHeaderToPower = {0};
-CAN_TxHeaderTypeDef rebootHeaderToKicker = {0};
-CAN_TxHeaderTypeDef rebootHeaderToDribbler = {0};
+FDCAN_TxHeaderTypeDef areYouAliveHeaderToPower = {0};
+FDCAN_TxHeaderTypeDef areYouAliveHeaderToKicker = {0};
+FDCAN_TxHeaderTypeDef areYouAliveHeaderToDribbler = {0};
+FDCAN_TxHeaderTypeDef chipHeader = {0};
+FDCAN_TxHeaderTypeDef kickHeader = {0};
+FDCAN_TxHeaderTypeDef kickerChargeHeader = {0};
+FDCAN_TxHeaderTypeDef kickerStopChargeHeader = {0};
+FDCAN_TxHeaderTypeDef killHeader = {0};
+FDCAN_TxHeaderTypeDef dribblerCommandHeader = {0};
+FDCAN_TxHeaderTypeDef rebootHeaderToPower = {0};
+FDCAN_TxHeaderTypeDef rebootHeaderToKicker = {0};
+FDCAN_TxHeaderTypeDef rebootHeaderToDribbler = {0};
 
 //payload incoming packets
 MCP_DribblerAlive dribblerAlive = {0};
@@ -152,7 +152,7 @@ SX1280_Interface SX_Interface = {.SPI= COMM_SPI, .TXbuf= SX_TX_buffer, .RXbuf= S
 
 
 void updateTestCommand(REM_RobotCommand* rc, uint32_t time);
-void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload);
+void check_otherboards(FDCAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload);
 
 /* ============================================================ */
 /* ==================== WIRELESS CALLBACKS ==================== */
@@ -251,7 +251,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 	dribCommand.SystemTest = system_test_running;
 	MCP_DribblerCommandPayload dcp = {0};
 	encodeMCP_DribblerCommand(&dcp, &dribCommand);
-	MCP_Send_Message(&hcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
+	MCP_Send_Message(&hfdcan1, dcp.payload, dribblerCommandHeader, MCP_DRIBBLER_BOARD);
 	
 	if (seesBall.ballsensorSeesBall || robotCommand->doForce) {	
 		if (robotCommand->doChip) {
@@ -259,13 +259,13 @@ void executeCommands(REM_RobotCommand* robotCommand){
 			chip.shootPower = robotCommand->kickChipPower;
 			MCP_ChipPayload cp = {0};
 			encodeMCP_Chip(&cp, &chip);
-			MCP_Send_Message(&hcan1, cp.payload, chipHeader, MCP_KICKER_BOARD);
+			MCP_Send_Message(&hfdcan1, cp.payload, chipHeader, MCP_KICKER_BOARD);
 		} else if (robotCommand->doKick) {
 			MCP_Kick kick = {0};
 			kick.shootPower = robotCommand->kickChipPower;
 			MCP_KickPayload kp = {0};
 			encodeMCP_Kick(&kp, &kick);
-			MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
+			MCP_Send_Message(&hfdcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
 		} else if (robotCommand->kickAtYaw) {
 			float localState[4] = {0.0f};
 			stateEstimation_GetState(localState);
@@ -274,7 +274,7 @@ void executeCommands(REM_RobotCommand* robotCommand){
 				kick.shootPower = robotCommand->kickChipPower;
 				MCP_KickPayload kp = {0};
 				encodeMCP_Kick(&kp, &kick);
-				MCP_Send_Message(&hcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
+				MCP_Send_Message(&hfdcan1, kp.payload, kickHeader, MCP_KICKER_BOARD);
 			}
 		}
 	}
@@ -358,7 +358,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 				MCP_KickerCharge kc = {0};
 				MCP_KickerChargePayload kcp = {0};
 				encodeMCP_KickerCharge(&kcp, &kc);
-				MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+				MCP_Send_Message(&hfdcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 			}
 			break;
 		case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_CAPACITOR_VOLTAGE: ;
@@ -379,7 +379,7 @@ void MCP_Process_Message(mailbox_buffer *to_Process) {
 			break;
 	}
 
-	if (send_ack) MCP_Send_Ack(&hcan1, to_Process->data_Frame[0], to_Process->message_id);
+	if (send_ack) MCP_Send_Ack(&hfdcan1, to_Process->data_Frame[0], to_Process->message_id);
 
 	LOG_sendAll();
 	to_Process->empty = true;
@@ -612,7 +612,7 @@ void init(void){
 
 {	// ====== MCP =====
   	//initialize MCP
-	MCP_Init(&hcan1, MCP_TOP_BOARD);
+	MCP_Init(&hfdcan1, MCP_TOP_BOARD);
 	LOG_printf("[init:"STRINGIZE(__LINE__)"] CAN VERSION: %d\n", MCP_LOCAL_VERSION);
 	powerVoltage.voltagePowerBoard = 24.0f; //making sure control code runs, even if powerboard doesn't send the voltage
 	
@@ -688,7 +688,7 @@ void init(void){
 	MCP_KickerCharge kc = {0};
     MCP_KickerChargePayload kcp = {0};
     encodeMCP_KickerCharge(&kcp, &kc);
-    MCP_Send_Message(&hcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
+    MCP_Send_Message(&hfdcan1, &kcp, kickerChargeHeader, MCP_KICKER_BOARD);
 
 	/* Set the heartbeat timers */
 	heartbeat_17ms   = timestamp_initialized + 17;
@@ -708,13 +708,13 @@ uint8_t robot_get_Channel() {
 	return ROBOT_CHANNEL == YELLOW_CHANNEL ? 0 : 1;
 }
 
-void check_otherboards(CAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload) {
+void check_otherboards(FDCAN_TxHeaderTypeDef board_header, bool *board_state, MCP_AreYouAlivePayload* board_payload) {
 
 	//We check if the board is alive three times, which means we send the message thrice
 	uint8_t MAX_ATTEMPTS = 0;
 	while (MAX_ATTEMPTS < 3 && *board_state == false) {
 		MAX_ATTEMPTS++;
-		MCP_Send_Message_Always(&hcan1, &board_payload, board_header);
+		MCP_Send_Message_Always(&hfdcan1, &board_payload, board_header);
 		HAL_Delay(10);
 		if (MCP_to_process){
 			if (!MailBox_one.empty) MCP_Process_Message(&MailBox_one);
@@ -1000,7 +1000,7 @@ void handleRobotKillCommand(uint8_t* packet_buffer){
 		REM_RobotKillCommand_get_toRobotId(rkcp) == robot_get_ID() && 
 		REM_RobotKillCommand_get_payloadSize(rkcp) == REM_PACKET_SIZE_REM_ROBOT_KILL_COMMAND) {
 		MCP_KillPayload* kp = {0};
-		MCP_Send_Message_Always(&hcan1, &kp, killHeader);
+		MCP_Send_Message_Always(&hfdcan1, &kp, killHeader);
 	}
 }
 

@@ -6,7 +6,7 @@
  */
 
 #include "tim_util.h"
-#include "stm32f7xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 PWM_struct PWM_RF		= { &htim8 , TIM_CHANNEL_2};
 PWM_struct PWM_RB		= { &htim8 , TIM_CHANNEL_1};
