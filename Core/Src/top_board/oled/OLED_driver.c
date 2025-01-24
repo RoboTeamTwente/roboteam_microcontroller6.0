@@ -350,48 +350,44 @@ static void static_page() {
 }
 
 /**
- * @brief display menu with 4+ items 
+ * @brief display menu with 4+ items
 */
+
 static void scrollable_page() {
-    //TODO add scrollbar
-    int back_index = current_page->n_of_children;
-    //first item
-    SSD1306_GotoXY (5,20);
-    char* line0 = "Back";
-    if (item_selector > 0) {
-        line0 = current_page->children[item_selector-1]->page_name;
-    }
-    SSD1306_Puts(line0, &Font_7x10, 1);
+    clear_screen();
 
-    //second item
-    SSD1306_GotoXY (5,31);
-    SSD1306_DrawBitmap(0, 29, bitmap_item_sel_outline_13, 128, 13, 1);
-    char* line1 = "Back";
-    if (item_selector != back_index) {
-        line1 = current_page->children[item_selector]->page_name;
-    }
-    SSD1306_Puts(line1, &Font_7x10, 1);
+    int back_index = current_page->n_of_children; // Index for "Back" option
+    int max_displayed_items = 4; // Max items to display at a time
+    int total_items = back_index + 1; // Total items, including "Back"
 
-    //third item
-    SSD1306_GotoXY (5,42);
-    char* line2 = "Back";
-    if (item_selector + 1 != back_index) {
-        line2 = current_page->children[(item_selector + 1) % back_index]->page_name;
-    }
-    SSD1306_Puts(line2, &Font_7x10, 1);
+    // Loop through the maximum visible items and calculate the displayed text
+    for (int i = 0; i < max_displayed_items; i++) {
+        int y_position = 20 + (11 * i); // Dynamically calculate the Y position
+        SSD1306_GotoXY(5, y_position);
 
-    //fourth item
-    SSD1306_GotoXY (5,53);
-    char* line3 = "Back";
-    if (item_selector + 2 != back_index) {
-        line3 = current_page->children[(item_selector + 2) % back_index]->page_name;
-    }
-    SSD1306_Puts(line3, &Font_7x10, 1);
+        char line = "Back"; // Default to "Back" for out-of-range cases
+        int index = (item_selector - 1 + i + total_items) % total_items; // Calculate the correct index
 
-    //scrollbar
-    SSD1306_DrawBitmap(115, 0, bitmap_scrollbar_background , 8, 64, 1); //scrollbar background
-    int scrollbar_size = 64 / (current_page->n_of_children + 1);
-    SSD1306_DrawFilledRectangle(119, scrollbar_size * item_selector, 3, scrollbar_size, 1);
+        if (index < back_index) { // Only show children if index is valid
+            line = current_page->children[index]->page_name;
+        }
+
+        // Highlight the selected item (centered at the second line)
+        if (i == 1) {
+            SSD1306_DrawBitmap(0, y_position - 2, bitmap_item_sel_outline_13, 128, 13, 1);
+        }
+
+        SSD1306_Puts(line, &Font_7x10, 1);
+    }
+
+    // Draw the scrollbar
+    SSD1306_DrawBitmap(115, 0, bitmap_scrollbar_background, 8, 64, 1); // Scrollbar background
+    int scrollbar_size = 64 / total_items; // Size of the scrollbar thumb
+    int scrollbar_position = scrollbar_size * item_selector; // Position of the scrollbar thumb
+    SSD1306_DrawFilledRectangle(119, scrollbar_position, 3, scrollbar_size, 1);
+
+    // Refresh the OLED screen
+    SSD1306_UpdateScreen();
 }
 
 /**
