@@ -5,7 +5,7 @@ wheel_radius = 0.027; % m
 wheel_inertia = 1e-3; % kg/m^2
 
 wheel_strafetraction = 0.1; % Ns/m
-wheel_lineardrivetraction = 1000; % Ns/m
+wheel_lineardrivetraction = 1; % Ns/m
 wheel_staticdrivetraction = 100; % Ns/m
 wheel_subwheels = 25;
 

@@ -80,10 +80,8 @@ volatile bool RobotMusicCommand_received_flag = false;
 // Outgoing packets
 REM_RobotFeedback robotFeedback = { 0 };
 REM_RobotFeedbackPayload robotFeedbackPayload = { 0 };
-// REM_RobotStateInfo robotStateInfo = { 0 };
-// REM_RobotStateInfoPayload robotStateInfoPayload = { 0 };
-REM_ControlDebug controlDebugPorts = { 0 };
-REM_ControlDebugPayload controlDebugPortsPayload = { 0 };
+REM_RobotStateInfo robotStateInfo = { 0 };
+REM_RobotStateInfoPayload robotStateInfoPayload = { 0 };
 REM_RobotPIDGains robotPIDGains = { 0 };
 REM_Log robotLog = { 0 };
 REM_LogPayload robotLogPayload = { 0 };
@@ -200,8 +198,8 @@ void Wireless_SendPacket() {
 	txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_FEEDBACK;
 
 	if (flag_useStateInfo) {
-		encodeREM_ControlDebug((REM_ControlDebugPayload*)(txPacket.message + txPacket.payloadLength), &controlDebugPorts);
-		txPacket.payloadLength += REM_PACKET_SIZE_REM_CONTROL_DEBUG;
+		encodeREM_RobotStateInfo((REM_RobotStateInfoPayload*)(txPacket.message + txPacket.payloadLength), &robotStateInfo);
+		txPacket.payloadLength += REM_PACKET_SIZE_REM_ROBOT_STATE_INFO;
 	}
 
 	if (flag_send_PID_gains) {
@@ -443,7 +441,7 @@ void init(void) {
 
 		initPacketHeader((REM_Packet*)&activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
 		initPacketHeader((REM_Packet*)&robotFeedback, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_FEEDBACK);
-		initPacketHeader((REM_Packet*)&controlDebugPorts, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_CONTROL_DEBUG);
+		initPacketHeader((REM_Packet*)&robotStateInfo, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_STATE_INFO);
 		initPacketHeader((REM_Packet*)&robotPIDGains, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_PIDGAINS);
 		initPacketHeader((REM_Packet*)&robotLog, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_LOG);
 		sx1280filler.header = REM_PACKET_INDEX_REM_SX1280FILLER;
@@ -804,7 +802,7 @@ void loop(void) {
 
 	if (halt) {
 		// LOG_printf("HALT %d %d %d\n", xsens_CalibrationDone, checkWirelessConnection(), isSerialConnected);
-		stateControl_ResetAngleI();
+		// stateControl_ResetAngleI();
 		resetRobotCommand(&activeRobotCommand);
 		initPacketHeader((REM_Packet*)&activeRobotCommand, ROBOT_ID, ROBOT_CHANNEL, REM_PACKET_TYPE_REM_ROBOT_COMMAND);
 	}
@@ -826,11 +824,11 @@ void loop(void) {
 	if (flag_sdcard_write_feedback) {
 		flag_sdcard_write_feedback = false;
 		encodeREM_RobotFeedback(&robotFeedbackPayload, &robotFeedback);
-		if (flag_useStateInfo) encodeREM_ControlDebug(&controlDebugPortsPayload, &controlDebugPorts);
+		if (flag_useStateInfo) encodeREM_RobotStateInfo(&robotStateInfoPayload, &robotStateInfo);
 
 		// Write to SD card
 		SDCard_Write(robotFeedbackPayload.payload, REM_PACKET_SIZE_REM_ROBOT_FEEDBACK, true);
-		if (flag_useStateInfo) SDCard_Write(controlDebugPortsPayload.payload, REM_PACKET_SIZE_REM_CONTROL_DEBUG, false);
+		if (flag_useStateInfo) SDCard_Write(robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, false);
 	}
 	if (flag_sdcard_write_command) {
 		flag_sdcard_write_command = false;
@@ -882,8 +880,8 @@ void loop(void) {
 			encodeREM_RobotFeedback(&robotFeedbackPayload, &robotFeedback);
 			HAL_UART_Transmit(UART_PC, robotFeedbackPayload.payload, REM_PACKET_SIZE_REM_ROBOT_FEEDBACK, 10);
 
-			encodeREM_ControlDebug(&controlDebugPortsPayload, &controlDebugPorts);
-			HAL_UART_Transmit(UART_PC, controlDebugPortsPayload.payload, REM_PACKET_SIZE_REM_CONTROL_DEBUG, 10);
+			encodeREM_RobotStateInfo(&robotStateInfoPayload, &robotStateInfo);
+			HAL_UART_Transmit(UART_PC, robotStateInfoPayload.payload, REM_PACKET_SIZE_REM_ROBOT_STATE_INFO, 10);
 		}
 	}
 
@@ -980,8 +978,8 @@ void handleRobotSetPIDGains(u8* packet_buffer) {
 		REM_RobotSetPIDGains_get_toRobotId(rspidgp) == robot_get_ID() &&
 		REM_RobotSetPIDGains_get_payloadSize(rspidgp) == REM_PACKET_SIZE_REM_ROBOT_SET_PIDGAINS) {
 		decodeREM_RobotSetPIDGains(&robotSetPIDGains, rspidgp);
-		stateControl_SetPIDGains(&robotSetPIDGains);
-		wheels_SetPIDGains(&robotSetPIDGains);
+		//stateControl_SetPIDGains(&robotSetPIDGains);
+		//wheels_SetPIDGains(&robotSetPIDGains);
 		flag_update_send_PID_gains = true;
 	}
 }
@@ -1247,49 +1245,49 @@ void control_loop(u32 current_time) {
 	/* == Fill robotStateInfo packet == */
 	if (flag_useStateInfo) {
 		// Fill basic info and control inputs
-		controlDebugPorts.timestamp = unix_timestamp;
-		controlDebugPorts.xsensAcc1 = stateInfo.xsensAcc[0];
-		controlDebugPorts.xsensAcc2 = stateInfo.xsensAcc[1];
-		controlDebugPorts.xsensYaw = yaw_GetCalibratedYaw();
-		controlDebugPorts.rateOfTurn = stateEstimation_GetFilteredRoT();
-		controlDebugPorts.wheelSpeed1 = stateInfo.wheelSpeeds[0];
-		controlDebugPorts.wheelSpeed2 = stateInfo.wheelSpeeds[1];
-		controlDebugPorts.wheelSpeed3 = stateInfo.wheelSpeeds[2];
-		controlDebugPorts.wheelSpeed4 = stateInfo.wheelSpeeds[3];
+		robotStateInfo.timestamp = unix_timestamp;
+		robotStateInfo.xsensAcc1 = stateInfo.xsensAcc[0];
+		robotStateInfo.xsensAcc2 = stateInfo.xsensAcc[1];
+		robotStateInfo.xsensYaw = yaw_GetCalibratedYaw();
+		robotStateInfo.rateOfTurn = stateEstimation_GetFilteredRoT();
+		robotStateInfo.wheelSpeed1 = stateInfo.wheelSpeeds[0];
+		robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
+		robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
+		robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
 
 		// Fill all the debug ports
-		controlDebugPorts.Debug0 = ctrl_out.debug_ports[0];
-		controlDebugPorts.Debug1 = ctrl_out.debug_ports[1];
-		controlDebugPorts.Debug2 = ctrl_out.debug_ports[2];
-		controlDebugPorts.Debug3 = ctrl_out.debug_ports[3];
-		controlDebugPorts.Debug4 = ctrl_out.debug_ports[4];
-		controlDebugPorts.Debug5 = ctrl_out.debug_ports[5];
-		controlDebugPorts.Debug6 = ctrl_out.debug_ports[6];
-		controlDebugPorts.Debug7 = ctrl_out.debug_ports[7];
-		controlDebugPorts.Debug8 = ctrl_out.debug_ports[8];
-		controlDebugPorts.Debug9 = ctrl_out.debug_ports[9];
-		controlDebugPorts.Debug10 = ctrl_out.debug_ports[10];
-		controlDebugPorts.Debug11 = ctrl_out.debug_ports[11];
-		controlDebugPorts.Debug12 = ctrl_out.debug_ports[12];
-		controlDebugPorts.Debug13 = ctrl_out.debug_ports[13];
-		controlDebugPorts.Debug14 = ctrl_out.debug_ports[14];
-		controlDebugPorts.Debug15 = ctrl_out.debug_ports[15];
-		controlDebugPorts.Debug16 = ctrl_out.debug_ports[16];
-		controlDebugPorts.Debug17 = ctrl_out.debug_ports[17];
-		controlDebugPorts.Debug18 = ctrl_out.debug_ports[18];
-		controlDebugPorts.Debug19 = ctrl_out.debug_ports[19];
-		controlDebugPorts.Debug20 = ctrl_out.debug_ports[20];
-		controlDebugPorts.Debug21 = ctrl_out.debug_ports[21];
-		controlDebugPorts.Debug22 = ctrl_out.debug_ports[22];
-		controlDebugPorts.Debug23 = ctrl_out.debug_ports[23];
-		controlDebugPorts.Debug24 = ctrl_out.debug_ports[24];
-		controlDebugPorts.Debug25 = ctrl_out.debug_ports[25];
-		controlDebugPorts.Debug26 = ctrl_out.debug_ports[26];
-		controlDebugPorts.Debug27 = ctrl_out.debug_ports[27];
-		controlDebugPorts.Debug28 = ctrl_out.debug_ports[28];
-		controlDebugPorts.Debug29 = ctrl_out.debug_ports[29];
-		controlDebugPorts.Debug30 = ctrl_out.debug_ports[30];
-		controlDebugPorts.Debug31 = ctrl_out.debug_ports[31];
+		robotStateInfo.Debug0 = ctrl_out.debug_ports[0];
+		robotStateInfo.Debug1 = ctrl_out.debug_ports[1];
+		robotStateInfo.Debug2 = ctrl_out.debug_ports[2];
+		robotStateInfo.Debug3 = ctrl_out.debug_ports[3];
+		robotStateInfo.Debug4 = ctrl_out.debug_ports[4];
+		robotStateInfo.Debug5 = ctrl_out.debug_ports[5];
+		robotStateInfo.Debug6 = ctrl_out.debug_ports[6];
+		robotStateInfo.Debug7 = ctrl_out.debug_ports[7];
+		robotStateInfo.Debug8 = ctrl_out.debug_ports[8];
+		robotStateInfo.Debug9 = ctrl_out.debug_ports[9];
+		robotStateInfo.Debug10 = ctrl_out.debug_ports[10];
+		robotStateInfo.Debug11 = ctrl_out.debug_ports[11];
+		robotStateInfo.Debug12 = ctrl_out.debug_ports[12];
+		robotStateInfo.Debug13 = ctrl_out.debug_ports[13];
+		robotStateInfo.Debug14 = ctrl_out.debug_ports[14];
+		robotStateInfo.Debug15 = ctrl_out.debug_ports[15];
+		// controlDebugPorts.Debug16 = ctrl_out.debug_ports[16];
+		// controlDebugPorts.Debug17 = ctrl_out.debug_ports[17];
+		// controlDebugPorts.Debug18 = ctrl_out.debug_ports[18];
+		// controlDebugPorts.Debug19 = ctrl_out.debug_ports[19];
+		// controlDebugPorts.Debug20 = ctrl_out.debug_ports[20];
+		// controlDebugPorts.Debug21 = ctrl_out.debug_ports[21];
+		// controlDebugPorts.Debug22 = ctrl_out.debug_ports[22];
+		// controlDebugPorts.Debug23 = ctrl_out.debug_ports[23];
+		// controlDebugPorts.Debug24 = ctrl_out.debug_ports[24];
+		// controlDebugPorts.Debug25 = ctrl_out.debug_ports[25];
+		// controlDebugPorts.Debug26 = ctrl_out.debug_ports[26];
+		// controlDebugPorts.Debug27 = ctrl_out.debug_ports[27];
+		// controlDebugPorts.Debug28 = ctrl_out.debug_ports[28];
+		// controlDebugPorts.Debug29 = ctrl_out.debug_ports[29];
+		// controlDebugPorts.Debug30 = ctrl_out.debug_ports[30];
+		// controlDebugPorts.Debug31 = ctrl_out.debug_ports[31];
 	}
 
 

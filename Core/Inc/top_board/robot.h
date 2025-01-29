@@ -22,7 +22,6 @@
 #include "REM_RobotMusicCommand.h"
 #include "REM_Log.h"
 #include "REM_RobotKillCommand.h"
-#include "REM_ControlDebug.h"
 
 #include "MCP_Driver.h"
 #include "MCP_to_top.h"
