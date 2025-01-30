@@ -33,6 +33,7 @@ typedef struct StateInfo {
 
 typedef struct ControlOutput {
     f32 wheel_efforts[4]; // PWM fractions to be applied to the motors
+    f32 vel_est[2];
     f32 debug_ports[32];  // Debug poerts for debug purposes
 } ControlOutput;
 

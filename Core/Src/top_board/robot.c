@@ -1166,8 +1166,8 @@ void control_loop(u32 current_time) {
 	computeWheelSpeeds();
 	wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
 	yaw_Calibrate(MTi->angles[2] * M_PI / 180, stateInfo.visionYaw, stateInfo.visionAvailable, MTi->gyr[2]);
-	stateInfo.xsensAcc[vel_x] = MTi->acc[vel_x];
-	stateInfo.xsensAcc[vel_y] = MTi->acc[vel_y];
+	stateInfo.xsensAcc[vel_x] = 9.81f * MTi->acc[vel_x];
+	stateInfo.xsensAcc[vel_y] = 9.81f * MTi->acc[vel_y];
 	// stateInfo.xsensYaw = (MTi->angles[2] * M_PI / 180); //Gradients to Radians
 	stateInfo.xsensYaw = yaw_GetCalibratedYaw();
 	stateInfo.rateOfTurn = MTi->gyr[2];
@@ -1219,10 +1219,9 @@ void control_loop(u32 current_time) {
 	/* == Fill robotFeedback packet == */ {
 		robotFeedback.timestamp = unix_timestamp;
 
-		float localState[4] = { 0.0f };
-		stateEstimation_GetState(localState);
-		float vu = localState[vel_u];
-		float vv = localState[vel_v];
+		f32 localState[4] = { 0.0f };
+		f32 vu = ctrl_out.vel_est[0];
+		f32 vv = ctrl_out.vel_est[1];
 		robotFeedback.rho = sqrt(vu * vu + vv * vv);
 		robotFeedback.yaw = localState[yaw];
 		robotFeedback.theta = atan2(vv, vu);
@@ -1272,22 +1271,22 @@ void control_loop(u32 current_time) {
 		robotStateInfo.Debug13 = ctrl_out.debug_ports[13];
 		robotStateInfo.Debug14 = ctrl_out.debug_ports[14];
 		robotStateInfo.Debug15 = ctrl_out.debug_ports[15];
-		// controlDebugPorts.Debug16 = ctrl_out.debug_ports[16];
-		// controlDebugPorts.Debug17 = ctrl_out.debug_ports[17];
-		// controlDebugPorts.Debug18 = ctrl_out.debug_ports[18];
-		// controlDebugPorts.Debug19 = ctrl_out.debug_ports[19];
-		// controlDebugPorts.Debug20 = ctrl_out.debug_ports[20];
-		// controlDebugPorts.Debug21 = ctrl_out.debug_ports[21];
-		// controlDebugPorts.Debug22 = ctrl_out.debug_ports[22];
-		// controlDebugPorts.Debug23 = ctrl_out.debug_ports[23];
-		// controlDebugPorts.Debug24 = ctrl_out.debug_ports[24];
-		// controlDebugPorts.Debug25 = ctrl_out.debug_ports[25];
-		// controlDebugPorts.Debug26 = ctrl_out.debug_ports[26];
-		// controlDebugPorts.Debug27 = ctrl_out.debug_ports[27];
-		// controlDebugPorts.Debug28 = ctrl_out.debug_ports[28];
-		// controlDebugPorts.Debug29 = ctrl_out.debug_ports[29];
-		// controlDebugPorts.Debug30 = ctrl_out.debug_ports[30];
-		// controlDebugPorts.Debug31 = ctrl_out.debug_ports[31];
+		robotStateInfo.Debug16 = ctrl_out.debug_ports[16];
+		robotStateInfo.Debug17 = ctrl_out.debug_ports[17];
+		robotStateInfo.Debug18 = ctrl_out.debug_ports[18];
+		robotStateInfo.Debug19 = ctrl_out.debug_ports[19];
+		robotStateInfo.Debug20 = ctrl_out.debug_ports[20];
+		robotStateInfo.Debug21 = ctrl_out.debug_ports[21];
+		robotStateInfo.Debug22 = ctrl_out.debug_ports[22];
+		robotStateInfo.Debug23 = ctrl_out.debug_ports[23];
+		robotStateInfo.Debug24 = ctrl_out.debug_ports[24];
+		robotStateInfo.Debug25 = ctrl_out.debug_ports[25];
+		robotStateInfo.Debug26 = ctrl_out.debug_ports[26];
+		robotStateInfo.Debug27 = ctrl_out.debug_ports[27];
+		robotStateInfo.Debug28 = ctrl_out.debug_ports[28];
+		robotStateInfo.Debug29 = ctrl_out.debug_ports[29];
+		robotStateInfo.Debug30 = ctrl_out.debug_ports[30];
+		robotStateInfo.Debug31 = ctrl_out.debug_ports[31];
 	}
 
 

@@ -40,7 +40,8 @@ void control_step(ControlOutput* const output, const StateInfo* const state, con
         ref->YawAccRef,
         state->xsensAcc,
         output->wheel_efforts,
-        output->debug_ports
+        output->debug_ports,
+        output->vel_est
     );
 }
 

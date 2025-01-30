@@ -10,5 +10,6 @@ wheel_staticdrivetraction = 100; % Ns/m
 wheel_subwheels = 25;
 
 Dmat = [cos(wheel_front_angle), sin(wheel_front_angle); -cos(wheel_front_angle), sin(wheel_front_angle); -cos(wheel_back_angle), -sin(wheel_back_angle); cos(wheel_back_angle), -sin(wheel_back_angle)];
+Dforce = 1./Dmat;
 Dinv = DinvCalc(wheel_front_angle, wheel_back_angle);
 wheel_angles = deg2rad([wheel_front_angle, pi - wheel_front_angle, pi + wheel_back_angle, 2*pi - wheel_back_angle]);

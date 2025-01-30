@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.174
+ * Model version                  : 1.213
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Dec 24 23:04:40 2024
+ * C/C++ source code generated on : Wed Jan 29 18:23:52 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -29,15 +29,18 @@
 
 /* Block signals and states (default storage) for system '<Root>' */
 typedef struct {
-  real32_T Integrator_DSTATE[2];       /* '<S103>/Integrator' */
-  real32_T Filter_DSTATE[2];           /* '<S98>/Filter' */
+  real32_T Wheels2Body[2];             /* '<S4>/Wheels2Body' */
+  real32_T DigitalFilter[2];           /* '<S63>/Digital Filter' */
+  real32_T DigitalFilter_FILT_STATES[4];/* '<S63>/Digital Filter' */
+  real32_T Integrator_DSTATE[2];       /* '<S101>/Integrator' */
+  real32_T Filter_DSTATE[2];           /* '<S96>/Filter' */
   real32_T Integrator_DSTATE_h;        /* '<S45>/Integrator' */
   real32_T FilterDifferentiatorTF_states;/* '<S38>/Filter Differentiator TF' */
 } DW;
 
 /* Constant parameters (default storage) */
 typedef struct {
-  /* Expression: Dmat
+  /* Expression: Dforce
    * Referenced by: '<S6>/Constant1'
    */
   real_T Constant1_Value[8];
@@ -45,9 +48,14 @@ typedef struct {
   /* Pooled Parameter (Expression: Dmat)
    * Referenced by:
    *   '<S2>/BodyForceCouplingMatrix'
-   *   '<S67>/BodyForceCouplingMatrix'
+   *   '<S65>/BodyForceCouplingMatrix'
    */
   real32_T pooled1[8];
+
+  /* Computed Parameter: Constant_Value_h
+   * Referenced by: '<S4>/Constant'
+   */
+  real32_T Constant_Value_h[8];
 } ConstP;
 
 /* Block signals and states (default storage) */
@@ -63,21 +71,17 @@ extern void Controller_initialize(void);
 extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
   real32_T arg_Yaw, real32_T arg_VelRef[2], real32_T arg_YawRef, real32_T
   arg_AccRef[2], real32_T arg_YawRateRef, real32_T arg_YawAccRef, real32_T
-  arg_Accelerometer[2], real32_T arg_Motorefforts[4], real32_T arg_Debug[32]);
+  arg_Accelerometer[2], real32_T arg_Motorefforts[4], real32_T arg_Debug[32],
+  real32_T arg_Velest[2]);
 
 /*-
  * These blocks were eliminated from the model due to optimizations:
  *
- * Block '<S4>/Constant' : Unused code path elimination
- * Block '<S65>/Check Signal Attributes' : Unused code path elimination
- * Block '<S63>/Digital Filter' : Unused code path elimination
- * Block '<S66>/Check Signal Attributes' : Unused code path elimination
- * Block '<S64>/Digital Filter' : Unused code path elimination
- * Block '<S4>/Discrete-Time Integrator' : Unused code path elimination
- * Block '<S4>/Rad2M' : Unused code path elimination
- * Block '<S4>/Sum' : Unused code path elimination
- * Block '<S4>/Wheels2Body' : Unused code path elimination
+ * Block '<S1>/Discrete Transfer Fcn' : Unused code path elimination
+ * Block '<S64>/Check Signal Attributes' : Unused code path elimination
  * Block '<Root>/RotInertiaFeedforward' : Eliminated nontunable gain of 1
+ * Block '<S93>/Kb' : Eliminated nontunable gain of 1
+ * Block '<S106>/Proportional Gain' : Eliminated nontunable gain of 1
  * Block '<Root>/YeetusChrist' : Eliminated nontunable gain of 1
  */
 
@@ -158,63 +162,61 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
  * '<S60>'  : 'Controller/AngleForceRequest/Discrete PID Controller/postSat Signal/Forward_Path'
  * '<S61>'  : 'Controller/AngleForceRequest/Discrete PID Controller/preSat Signal/Forward_Path'
  * '<S62>'  : 'Controller/Limiting and Prioritization/Desaturator'
- * '<S63>'  : 'Controller/StateEst/Digital Filter Design'
- * '<S64>'  : 'Controller/StateEst/Digital Filter Design1'
- * '<S65>'  : 'Controller/StateEst/Digital Filter Design/Check Signal Attributes'
- * '<S66>'  : 'Controller/StateEst/Digital Filter Design1/Check Signal Attributes'
- * '<S67>'  : 'Controller/TorqueControl/WheelfrictionFF'
- * '<S68>'  : 'Controller/TorqueControl/WheelfrictionFF/MATLAB Function'
- * '<S69>'  : 'Controller/VelocityFeedback/SpeedControl'
- * '<S70>'  : 'Controller/VelocityFeedback/SpeedControl/Anti-windup'
- * '<S71>'  : 'Controller/VelocityFeedback/SpeedControl/D Gain'
- * '<S72>'  : 'Controller/VelocityFeedback/SpeedControl/External Derivative'
- * '<S73>'  : 'Controller/VelocityFeedback/SpeedControl/Filter'
- * '<S74>'  : 'Controller/VelocityFeedback/SpeedControl/Filter ICs'
- * '<S75>'  : 'Controller/VelocityFeedback/SpeedControl/I Gain'
- * '<S76>'  : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain'
- * '<S77>'  : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain Fdbk'
- * '<S78>'  : 'Controller/VelocityFeedback/SpeedControl/Integrator'
- * '<S79>'  : 'Controller/VelocityFeedback/SpeedControl/Integrator ICs'
- * '<S80>'  : 'Controller/VelocityFeedback/SpeedControl/N Copy'
- * '<S81>'  : 'Controller/VelocityFeedback/SpeedControl/N Gain'
- * '<S82>'  : 'Controller/VelocityFeedback/SpeedControl/P Copy'
- * '<S83>'  : 'Controller/VelocityFeedback/SpeedControl/Parallel P Gain'
- * '<S84>'  : 'Controller/VelocityFeedback/SpeedControl/Reset Signal'
- * '<S85>'  : 'Controller/VelocityFeedback/SpeedControl/Saturation'
- * '<S86>'  : 'Controller/VelocityFeedback/SpeedControl/Saturation Fdbk'
- * '<S87>'  : 'Controller/VelocityFeedback/SpeedControl/Sum'
- * '<S88>'  : 'Controller/VelocityFeedback/SpeedControl/Sum Fdbk'
- * '<S89>'  : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode'
- * '<S90>'  : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode Sum'
- * '<S91>'  : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Integral'
- * '<S92>'  : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Ngain'
- * '<S93>'  : 'Controller/VelocityFeedback/SpeedControl/postSat Signal'
- * '<S94>'  : 'Controller/VelocityFeedback/SpeedControl/preSat Signal'
- * '<S95>'  : 'Controller/VelocityFeedback/SpeedControl/Anti-windup/Passthrough'
- * '<S96>'  : 'Controller/VelocityFeedback/SpeedControl/D Gain/Internal Parameters'
- * '<S97>'  : 'Controller/VelocityFeedback/SpeedControl/External Derivative/Error'
- * '<S98>'  : 'Controller/VelocityFeedback/SpeedControl/Filter/Disc. Forward Euler Filter'
- * '<S99>'  : 'Controller/VelocityFeedback/SpeedControl/Filter ICs/Internal IC - Filter'
- * '<S100>' : 'Controller/VelocityFeedback/SpeedControl/I Gain/Internal Parameters'
- * '<S101>' : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain/Passthrough'
- * '<S102>' : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain Fdbk/Disabled'
- * '<S103>' : 'Controller/VelocityFeedback/SpeedControl/Integrator/Discrete'
- * '<S104>' : 'Controller/VelocityFeedback/SpeedControl/Integrator ICs/Internal IC'
- * '<S105>' : 'Controller/VelocityFeedback/SpeedControl/N Copy/Disabled'
- * '<S106>' : 'Controller/VelocityFeedback/SpeedControl/N Gain/Internal Parameters'
- * '<S107>' : 'Controller/VelocityFeedback/SpeedControl/P Copy/Disabled'
- * '<S108>' : 'Controller/VelocityFeedback/SpeedControl/Parallel P Gain/Internal Parameters'
- * '<S109>' : 'Controller/VelocityFeedback/SpeedControl/Reset Signal/Disabled'
- * '<S110>' : 'Controller/VelocityFeedback/SpeedControl/Saturation/Passthrough'
- * '<S111>' : 'Controller/VelocityFeedback/SpeedControl/Saturation Fdbk/Disabled'
- * '<S112>' : 'Controller/VelocityFeedback/SpeedControl/Sum/Sum_PID'
- * '<S113>' : 'Controller/VelocityFeedback/SpeedControl/Sum Fdbk/Disabled'
- * '<S114>' : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode/Disabled'
- * '<S115>' : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode Sum/Passthrough'
- * '<S116>' : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Integral/TsSignalSpecification'
- * '<S117>' : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Ngain/Passthrough'
- * '<S118>' : 'Controller/VelocityFeedback/SpeedControl/postSat Signal/Forward_Path'
- * '<S119>' : 'Controller/VelocityFeedback/SpeedControl/preSat Signal/Forward_Path'
+ * '<S63>'  : 'Controller/StateEst/Digital Filter Design2'
+ * '<S64>'  : 'Controller/StateEst/Digital Filter Design2/Check Signal Attributes'
+ * '<S65>'  : 'Controller/TorqueControl/WheelfrictionFF'
+ * '<S66>'  : 'Controller/TorqueControl/WheelfrictionFF/MATLAB Function'
+ * '<S67>'  : 'Controller/VelocityFeedback/SpeedControl'
+ * '<S68>'  : 'Controller/VelocityFeedback/SpeedControl/Anti-windup'
+ * '<S69>'  : 'Controller/VelocityFeedback/SpeedControl/D Gain'
+ * '<S70>'  : 'Controller/VelocityFeedback/SpeedControl/External Derivative'
+ * '<S71>'  : 'Controller/VelocityFeedback/SpeedControl/Filter'
+ * '<S72>'  : 'Controller/VelocityFeedback/SpeedControl/Filter ICs'
+ * '<S73>'  : 'Controller/VelocityFeedback/SpeedControl/I Gain'
+ * '<S74>'  : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain'
+ * '<S75>'  : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain Fdbk'
+ * '<S76>'  : 'Controller/VelocityFeedback/SpeedControl/Integrator'
+ * '<S77>'  : 'Controller/VelocityFeedback/SpeedControl/Integrator ICs'
+ * '<S78>'  : 'Controller/VelocityFeedback/SpeedControl/N Copy'
+ * '<S79>'  : 'Controller/VelocityFeedback/SpeedControl/N Gain'
+ * '<S80>'  : 'Controller/VelocityFeedback/SpeedControl/P Copy'
+ * '<S81>'  : 'Controller/VelocityFeedback/SpeedControl/Parallel P Gain'
+ * '<S82>'  : 'Controller/VelocityFeedback/SpeedControl/Reset Signal'
+ * '<S83>'  : 'Controller/VelocityFeedback/SpeedControl/Saturation'
+ * '<S84>'  : 'Controller/VelocityFeedback/SpeedControl/Saturation Fdbk'
+ * '<S85>'  : 'Controller/VelocityFeedback/SpeedControl/Sum'
+ * '<S86>'  : 'Controller/VelocityFeedback/SpeedControl/Sum Fdbk'
+ * '<S87>'  : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode'
+ * '<S88>'  : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode Sum'
+ * '<S89>'  : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Integral'
+ * '<S90>'  : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Ngain'
+ * '<S91>'  : 'Controller/VelocityFeedback/SpeedControl/postSat Signal'
+ * '<S92>'  : 'Controller/VelocityFeedback/SpeedControl/preSat Signal'
+ * '<S93>'  : 'Controller/VelocityFeedback/SpeedControl/Anti-windup/Back Calculation'
+ * '<S94>'  : 'Controller/VelocityFeedback/SpeedControl/D Gain/Internal Parameters'
+ * '<S95>'  : 'Controller/VelocityFeedback/SpeedControl/External Derivative/Error'
+ * '<S96>'  : 'Controller/VelocityFeedback/SpeedControl/Filter/Disc. Forward Euler Filter'
+ * '<S97>'  : 'Controller/VelocityFeedback/SpeedControl/Filter ICs/Internal IC - Filter'
+ * '<S98>'  : 'Controller/VelocityFeedback/SpeedControl/I Gain/Internal Parameters'
+ * '<S99>'  : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain/Passthrough'
+ * '<S100>' : 'Controller/VelocityFeedback/SpeedControl/Ideal P Gain Fdbk/Disabled'
+ * '<S101>' : 'Controller/VelocityFeedback/SpeedControl/Integrator/Discrete'
+ * '<S102>' : 'Controller/VelocityFeedback/SpeedControl/Integrator ICs/Internal IC'
+ * '<S103>' : 'Controller/VelocityFeedback/SpeedControl/N Copy/Disabled'
+ * '<S104>' : 'Controller/VelocityFeedback/SpeedControl/N Gain/Internal Parameters'
+ * '<S105>' : 'Controller/VelocityFeedback/SpeedControl/P Copy/Disabled'
+ * '<S106>' : 'Controller/VelocityFeedback/SpeedControl/Parallel P Gain/Internal Parameters'
+ * '<S107>' : 'Controller/VelocityFeedback/SpeedControl/Reset Signal/Disabled'
+ * '<S108>' : 'Controller/VelocityFeedback/SpeedControl/Saturation/Enabled'
+ * '<S109>' : 'Controller/VelocityFeedback/SpeedControl/Saturation Fdbk/Disabled'
+ * '<S110>' : 'Controller/VelocityFeedback/SpeedControl/Sum/Sum_PID'
+ * '<S111>' : 'Controller/VelocityFeedback/SpeedControl/Sum Fdbk/Disabled'
+ * '<S112>' : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode/Disabled'
+ * '<S113>' : 'Controller/VelocityFeedback/SpeedControl/Tracking Mode Sum/Passthrough'
+ * '<S114>' : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Integral/TsSignalSpecification'
+ * '<S115>' : 'Controller/VelocityFeedback/SpeedControl/Tsamp - Ngain/Passthrough'
+ * '<S116>' : 'Controller/VelocityFeedback/SpeedControl/postSat Signal/Forward_Path'
+ * '<S117>' : 'Controller/VelocityFeedback/SpeedControl/preSat Signal/Forward_Path'
  */
 #endif                                 /* Controller_h_ */
 
