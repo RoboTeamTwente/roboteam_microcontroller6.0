@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.213
+ * Model version                  : 1.222
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Jan 29 18:23:52 2025
+ * C/C++ source code generated on : Thu Jan 30 17:18:03 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -29,37 +29,47 @@
 
 /* Block signals and states (default storage) for system '<Root>' */
 typedef struct {
-  real32_T Wheels2Body[2];             /* '<S4>/Wheels2Body' */
-  real32_T DigitalFilter[2];           /* '<S63>/Digital Filter' */
-  real32_T DigitalFilter_FILT_STATES[4];/* '<S63>/Digital Filter' */
+  real32_T DigitalFilter[4];           /* '<S3>/Digital Filter' */
+  real32_T DigitalFilter_FILT_STATES[8];/* '<S3>/Digital Filter' */
   real32_T Integrator_DSTATE[2];       /* '<S101>/Integrator' */
   real32_T Filter_DSTATE[2];           /* '<S96>/Filter' */
-  real32_T Integrator_DSTATE_h;        /* '<S45>/Integrator' */
-  real32_T FilterDifferentiatorTF_states;/* '<S38>/Filter Differentiator TF' */
+  real32_T Integrator_DSTATE_h;        /* '<S46>/Integrator' */
+  real32_T FilterDifferentiatorTF_states;/* '<S39>/Filter Differentiator TF' */
 } DW;
 
 /* Constant parameters (default storage) */
 typedef struct {
   /* Expression: Dforce
-   * Referenced by: '<S6>/Constant1'
+   * Referenced by: '<S7>/Constant1'
    */
   real_T Constant1_Value[8];
 
-  /* Pooled Parameter (Expression: Dmat)
-   * Referenced by:
-   *   '<S2>/BodyForceCouplingMatrix'
-   *   '<S65>/BodyForceCouplingMatrix'
+  /* Computed Parameter: BodyForceCouplingMatrix_Value
+   * Referenced by: '<S2>/BodyForceCouplingMatrix'
    */
-  real32_T pooled1[8];
+  real32_T BodyForceCouplingMatrix_Value[8];
 
   /* Computed Parameter: Constant_Value_h
-   * Referenced by: '<S4>/Constant'
+   * Referenced by: '<S5>/Constant'
    */
   real32_T Constant_Value_h[8];
+
+  /* Computed Parameter: BodyForceCouplingMatrix_Value_d
+   * Referenced by: '<S65>/BodyForceCouplingMatrix'
+   */
+  real32_T BodyForceCouplingMatrix_Value_d[8];
 } ConstP;
+
+/* External inputs (root inport signals with default storage) */
+typedef struct {
+  real32_T WheelSpeeds[4];             /* '<Root>/WheelSpeeds' */
+} ExtU;
 
 /* Block signals and states (default storage) */
 extern DW rtDW;
+
+/* External inputs (root inport signals with default storage) */
+extern ExtU rtU;
 
 /* Constant parameters (default storage) */
 extern const ConstP rtConstP;
@@ -78,8 +88,8 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
  * These blocks were eliminated from the model due to optimizations:
  *
  * Block '<S1>/Discrete Transfer Fcn' : Unused code path elimination
- * Block '<S64>/Check Signal Attributes' : Unused code path elimination
- * Block '<Root>/RotInertiaFeedforward' : Eliminated nontunable gain of 1
+ * Block '<S63>/Check Signal Attributes' : Unused code path elimination
+ * Block '<S37>/Derivative Gain' : Eliminated nontunable gain of 1
  * Block '<S93>/Kb' : Eliminated nontunable gain of 1
  * Block '<S106>/Proportional Gain' : Eliminated nontunable gain of 1
  * Block '<Root>/YeetusChrist' : Eliminated nontunable gain of 1
@@ -102,68 +112,68 @@ extern void Controller_step(real32_T arg_Wheelspeeds[4], real32_T arg_YawRate,
  * '<Root>' : 'Controller'
  * '<S1>'   : 'Controller/AngleForceRequest'
  * '<S2>'   : 'Controller/BodyMassFeedforward'
- * '<S3>'   : 'Controller/Limiting and Prioritization'
- * '<S4>'   : 'Controller/StateEst'
- * '<S5>'   : 'Controller/TorqueControl'
- * '<S6>'   : 'Controller/VelocityFeedback'
- * '<S7>'   : 'Controller/AngleForceRequest/CubicCompensator'
- * '<S8>'   : 'Controller/AngleForceRequest/DeFlipper'
- * '<S9>'   : 'Controller/AngleForceRequest/Discrete PID Controller'
- * '<S10>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Anti-windup'
- * '<S11>'  : 'Controller/AngleForceRequest/Discrete PID Controller/D Gain'
- * '<S12>'  : 'Controller/AngleForceRequest/Discrete PID Controller/External Derivative'
- * '<S13>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter'
- * '<S14>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter ICs'
- * '<S15>'  : 'Controller/AngleForceRequest/Discrete PID Controller/I Gain'
- * '<S16>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain'
- * '<S17>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain Fdbk'
- * '<S18>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator'
- * '<S19>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator ICs'
- * '<S20>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Copy'
- * '<S21>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Gain'
- * '<S22>'  : 'Controller/AngleForceRequest/Discrete PID Controller/P Copy'
- * '<S23>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Parallel P Gain'
- * '<S24>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Reset Signal'
- * '<S25>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation'
- * '<S26>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation Fdbk'
- * '<S27>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum'
- * '<S28>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum Fdbk'
- * '<S29>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode'
- * '<S30>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode Sum'
- * '<S31>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Integral'
- * '<S32>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Ngain'
- * '<S33>'  : 'Controller/AngleForceRequest/Discrete PID Controller/postSat Signal'
- * '<S34>'  : 'Controller/AngleForceRequest/Discrete PID Controller/preSat Signal'
- * '<S35>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Anti-windup/Passthrough'
- * '<S36>'  : 'Controller/AngleForceRequest/Discrete PID Controller/D Gain/Internal Parameters'
- * '<S37>'  : 'Controller/AngleForceRequest/Discrete PID Controller/External Derivative/Error'
- * '<S38>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter/Disc. Trapezoidal Filter'
- * '<S39>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter/Disc. Trapezoidal Filter/Tsamp'
- * '<S40>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter/Disc. Trapezoidal Filter/Tsamp/Internal Ts'
- * '<S41>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter ICs/Internal IC - Filter'
- * '<S42>'  : 'Controller/AngleForceRequest/Discrete PID Controller/I Gain/Internal Parameters'
- * '<S43>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain/Passthrough'
- * '<S44>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain Fdbk/Disabled'
- * '<S45>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator/Discrete'
- * '<S46>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator ICs/Internal IC'
- * '<S47>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Copy/Internal Parameters'
- * '<S48>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Gain/Internal Parameters'
- * '<S49>'  : 'Controller/AngleForceRequest/Discrete PID Controller/P Copy/Disabled'
- * '<S50>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Parallel P Gain/Internal Parameters'
- * '<S51>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Reset Signal/Disabled'
- * '<S52>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation/Passthrough'
- * '<S53>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation Fdbk/Disabled'
- * '<S54>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum/Sum_PID'
- * '<S55>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum Fdbk/Disabled'
- * '<S56>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode/Disabled'
- * '<S57>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode Sum/Passthrough'
- * '<S58>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Integral/TsSignalSpecification'
- * '<S59>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Ngain/Passthrough'
- * '<S60>'  : 'Controller/AngleForceRequest/Discrete PID Controller/postSat Signal/Forward_Path'
- * '<S61>'  : 'Controller/AngleForceRequest/Discrete PID Controller/preSat Signal/Forward_Path'
- * '<S62>'  : 'Controller/Limiting and Prioritization/Desaturator'
- * '<S63>'  : 'Controller/StateEst/Digital Filter Design2'
- * '<S64>'  : 'Controller/StateEst/Digital Filter Design2/Check Signal Attributes'
+ * '<S3>'   : 'Controller/Digital Filter Design2'
+ * '<S4>'   : 'Controller/Limiting and Prioritization'
+ * '<S5>'   : 'Controller/StateEst'
+ * '<S6>'   : 'Controller/TorqueControl'
+ * '<S7>'   : 'Controller/VelocityFeedback'
+ * '<S8>'   : 'Controller/AngleForceRequest/CubicCompensator'
+ * '<S9>'   : 'Controller/AngleForceRequest/DeFlipper'
+ * '<S10>'  : 'Controller/AngleForceRequest/Discrete PID Controller'
+ * '<S11>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Anti-windup'
+ * '<S12>'  : 'Controller/AngleForceRequest/Discrete PID Controller/D Gain'
+ * '<S13>'  : 'Controller/AngleForceRequest/Discrete PID Controller/External Derivative'
+ * '<S14>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter'
+ * '<S15>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter ICs'
+ * '<S16>'  : 'Controller/AngleForceRequest/Discrete PID Controller/I Gain'
+ * '<S17>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain'
+ * '<S18>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain Fdbk'
+ * '<S19>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator'
+ * '<S20>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator ICs'
+ * '<S21>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Copy'
+ * '<S22>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Gain'
+ * '<S23>'  : 'Controller/AngleForceRequest/Discrete PID Controller/P Copy'
+ * '<S24>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Parallel P Gain'
+ * '<S25>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Reset Signal'
+ * '<S26>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation'
+ * '<S27>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation Fdbk'
+ * '<S28>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum'
+ * '<S29>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum Fdbk'
+ * '<S30>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode'
+ * '<S31>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode Sum'
+ * '<S32>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Integral'
+ * '<S33>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Ngain'
+ * '<S34>'  : 'Controller/AngleForceRequest/Discrete PID Controller/postSat Signal'
+ * '<S35>'  : 'Controller/AngleForceRequest/Discrete PID Controller/preSat Signal'
+ * '<S36>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Anti-windup/Passthrough'
+ * '<S37>'  : 'Controller/AngleForceRequest/Discrete PID Controller/D Gain/Internal Parameters'
+ * '<S38>'  : 'Controller/AngleForceRequest/Discrete PID Controller/External Derivative/Error'
+ * '<S39>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter/Disc. Trapezoidal Filter'
+ * '<S40>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter/Disc. Trapezoidal Filter/Tsamp'
+ * '<S41>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter/Disc. Trapezoidal Filter/Tsamp/Internal Ts'
+ * '<S42>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Filter ICs/Internal IC - Filter'
+ * '<S43>'  : 'Controller/AngleForceRequest/Discrete PID Controller/I Gain/Internal Parameters'
+ * '<S44>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain/Passthrough'
+ * '<S45>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Ideal P Gain Fdbk/Disabled'
+ * '<S46>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator/Discrete'
+ * '<S47>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Integrator ICs/Internal IC'
+ * '<S48>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Copy/Internal Parameters'
+ * '<S49>'  : 'Controller/AngleForceRequest/Discrete PID Controller/N Gain/Internal Parameters'
+ * '<S50>'  : 'Controller/AngleForceRequest/Discrete PID Controller/P Copy/Disabled'
+ * '<S51>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Parallel P Gain/Internal Parameters'
+ * '<S52>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Reset Signal/Disabled'
+ * '<S53>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation/Passthrough'
+ * '<S54>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Saturation Fdbk/Disabled'
+ * '<S55>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum/Sum_PID'
+ * '<S56>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Sum Fdbk/Disabled'
+ * '<S57>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode/Disabled'
+ * '<S58>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tracking Mode Sum/Passthrough'
+ * '<S59>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Integral/TsSignalSpecification'
+ * '<S60>'  : 'Controller/AngleForceRequest/Discrete PID Controller/Tsamp - Ngain/Passthrough'
+ * '<S61>'  : 'Controller/AngleForceRequest/Discrete PID Controller/postSat Signal/Forward_Path'
+ * '<S62>'  : 'Controller/AngleForceRequest/Discrete PID Controller/preSat Signal/Forward_Path'
+ * '<S63>'  : 'Controller/Digital Filter Design2/Check Signal Attributes'
+ * '<S64>'  : 'Controller/Limiting and Prioritization/Desaturator'
  * '<S65>'  : 'Controller/TorqueControl/WheelfrictionFF'
  * '<S66>'  : 'Controller/TorqueControl/WheelfrictionFF/MATLAB Function'
  * '<S67>'  : 'Controller/VelocityFeedback/SpeedControl'
