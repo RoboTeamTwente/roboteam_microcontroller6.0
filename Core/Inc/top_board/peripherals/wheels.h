@@ -69,5 +69,7 @@ void encoder_ResetCounter(motor_id_t id);
 void computeWheelSpeeds();
 // Get the last measured wheel speeds in rad/s
 void wheels_GetMeasuredSpeeds(float speeds[4]);
+// Get the last measured wheel positions in rad
+void wheels_GetMeasuredPositions(float positions[4]);
 
 #endif /* INC_WHEELS_H_ */

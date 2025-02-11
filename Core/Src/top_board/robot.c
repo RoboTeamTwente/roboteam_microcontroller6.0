@@ -1164,6 +1164,7 @@ void control_loop(u32 current_time) {
 	stateInfo.visionAvailable = activeRobotCommand.useCameraYaw;
 	stateInfo.visionYaw = activeRobotCommand.cameraYaw;
 	computeWheelSpeeds();
+	wheels_GetMeasuredPositions(stateInfo.encoders);
 	wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
 	yaw_Calibrate(MTi->angles[2] * M_PI / 180, stateInfo.visionYaw, stateInfo.visionAvailable, MTi->gyr[2]);
 	stateInfo.xsensAcc[vel_x] = 9.81f * MTi->acc[vel_x];
@@ -1171,6 +1172,7 @@ void control_loop(u32 current_time) {
 	// stateInfo.xsensYaw = (MTi->angles[2] * M_PI / 180); //Gradients to Radians
 	stateInfo.xsensYaw = yaw_GetCalibratedYaw();
 	stateInfo.rateOfTurn = MTi->gyr[2];
+	stateInfo.batteryVoltage = powerVoltage.voltagePowerBoard;
 
 	// Gather reference data
 	ControlRef ref;

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 1.222
- * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Thu Jan 30 17:18:03 2025
+ * Model version                  : 2.29
+ * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
+ * C/C++ source code generated on : Tue Feb 11 15:35:57 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -25,8 +25,8 @@
 
 /* Global variables used by function prototype control */
 
-/* '<Root>/WheelSpeeds' */
-static real32_T arg_Wheelspeeds[4] = { 0.0F, 0.0F, 0.0F, 0.0F };
+/* '<Root>/Encoders' */
+static real32_T arg_Encoders[4] = { 0.0F, 0.0F, 0.0F, 0.0F };
 
 /* '<Root>/Gyro' */
 static real32_T arg_YawRate = 0.0F;
@@ -52,6 +52,9 @@ static real32_T arg_YawAccRef = 0.0F;
 /* '<Root>/Accelerometer' */
 static real32_T arg_Accelerometer[2] = { 0.0F, 0.0F };
 
+/* '<Root>/Vbat' */
+static real32_T arg_VBat = 0.0F;
+
 /* '<Root>/Motorefforts' */
 static real32_T arg_Motorefforts[4];
 
@@ -60,6 +63,9 @@ static real32_T arg_Debug[32];
 
 /* '<Root>/Velest' */
 static real32_T arg_Velest[2];
+
+/* '<Root>/AFL' */
+static real32_T arg_AFL;
 
 /*
  * Associating rt_OneStep with a real-time clock or interrupt service routine
@@ -91,9 +97,9 @@ void rt_OneStep(void)
   /* Set model inputs here */
 
   /* Step the model */
-  Controller_step(arg_Wheelspeeds, arg_YawRate, arg_Yaw, arg_VelRef, arg_YawRef,
+  Controller_step(arg_Encoders, arg_YawRate, arg_Yaw, arg_VelRef, arg_YawRef,
                   arg_AccRef, arg_YawRateRef, arg_YawAccRef, arg_Accelerometer,
-                  arg_Motorefforts, arg_Debug, arg_Velest);
+                  arg_Motorefforts, arg_Debug, arg_Velest, &arg_AFL, arg_VBat);
 
   /* Get model outputs here */
 

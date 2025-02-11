@@ -30,7 +30,7 @@ void old_control_step(ControlOutput* const output, const StateInfo* const inputs
 
 void control_step(ControlOutput* const output, const StateInfo* const state, const ControlRef* const ref) {
     // Pass the arguments on to the generated step function
-    Controller_step(state->wheelSpeeds,
+    Controller_step(state->encoders,
         state->rateOfTurn,
         state->xsensYaw,
         ref->velRef,
@@ -41,7 +41,9 @@ void control_step(ControlOutput* const output, const StateInfo* const state, con
         state->xsensAcc,
         output->wheel_efforts,
         output->debug_ports,
-        output->vel_est
+        output->vel_est,
+        &output->adaptive_force_limit,
+        state->batteryVoltage
     );
 }
 
