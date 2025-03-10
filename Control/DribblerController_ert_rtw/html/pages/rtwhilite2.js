@@ -1,4 +1,4 @@
-// Copyright 2006-2021 The MathWorks, Inc.
+// Copyright 2006-2024 The MathWorks, Inc.
 
 // Class RTW_Hash ------------------------------------------------------------
 // Internal web browser doesn't change window.location.hash if the link points
@@ -1357,8 +1357,8 @@ function rtwHilite(aBlock,aParentSID) {
         } 
     } 
     if (typeof aParentSID === "undefined") {
-        if (top.RTW_SidParentMap && top.RTW_SidParentMap.instance)
-            aParentSID = top.RTW_SidParentMap.instance.getParentSid(aBlock);
+        if (RTW_SidParentMap && RTW_SidParentMap.instance)
+            aParentSID = RTW_SidParentMap.instance.getParentSid(aBlock);
         else
             aParentSID = aBlock;
     }

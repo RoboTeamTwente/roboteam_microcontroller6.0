@@ -1,5 +1,6 @@
 #include "dribbler_board.h"
 #include "control.h"
+#include "control.c"
 #include <stdlib.h>
 #include <string.h>
 
@@ -235,12 +236,13 @@ void control_dribbler_callback() {
 
 void codegen_encoder_control() {
     bool ballsensor_hasBall = ballsensor_hasBall();
-    float motor_current dribbler_GetEncoderSpeed();
-    float encoder_speed = 
+    float motor_current = dribbler_getCurrent();
+    float encoder_speed = dribbler_GetEncoderSpeed();
+    float motor_effort;
 
-    // do the codegen simulink model
+    control_init();
 
-    dribbler_SetSpeed(motor_effort, 1) //the motor will be in breaking mode here (what does this do?)
+    dribbler_SetSpeed(motor_effort, 1); //the motor will be in breaking mode here (what does this do?)
 }
 
 

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'DribblerController'.
  *
- * Model version                  : 1.7
- * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Dec 24 22:58:45 2024
+ * Model version                  : 2.4
+ * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
+ * C/C++ source code generated on : Mon Mar 10 17:20:10 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -27,7 +27,7 @@
 static real_T arg_encoder = 0.0;
 
 /* '<Root>/ball_detec' */
-static boolean_T arg_ball_detec = false;
+static boolean_T ballsensor_hasBall = false;
 
 /* '<Root>/current' */
 static real_T arg_current = 0.0;
@@ -66,7 +66,7 @@ void rt_OneStep(void)
   /* Set model inputs here */
 
   /* Step the model */
-  DribblerController_step(arg_encoder, arg_ball_detec, arg_current,
+  DribblerController_step(arg_encoder, ballsensor_hasBall, arg_current,
     &arg_motor_effort);
 
   /* Get model outputs here */

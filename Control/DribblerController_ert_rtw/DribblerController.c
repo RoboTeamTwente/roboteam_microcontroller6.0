@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'DribblerController'.
  *
- * Model version                  : 1.7
- * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Dec 24 22:58:45 2024
+ * Model version                  : 2.4
+ * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
+ * C/C++ source code generated on : Mon Mar 10 17:20:10 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -30,12 +30,12 @@ RT_MODEL_DribblerController_T *const DribblerController_M =
   &DribblerController_M_;
 
 /* Model step function */
-void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
+void DribblerController_step(real_T arg_encoder, boolean_T ballsensor_hasBall,
   real_T arg_current, real_T *arg_motor_effort)
 {
   real_T Diff;
-  real_T rtb_Filter;
-  real_T rtb_Filter_k;
+  real_T rtb_Filter_a;
+  real_T rtb_Integrator_c;
   real_T rtb_Sum;
   real_T rtb_Sum_j;
   real_T rtb_TSamp;
@@ -79,9 +79,9 @@ void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
   /* Copy the initial part of input to ContextBuff_Dwork */
   DribblerController_DW.DigitalFilter_simContextBuf[50] = Diff;
   for (srcIdx = 0; srcIdx < 1; srcIdx++) {
-    rtb_Filter = 0.0;
+    rtb_Filter_a = 0.0;
     for (n = 0; n < 51; n++) {
-      rtb_Filter += DribblerController_DW.DigitalFilter_simRevCoeff[n] *
+      rtb_Filter_a += DribblerController_DW.DigitalFilter_simRevCoeff[n] *
         DribblerController_DW.DigitalFilter_simContextBuf[n];
     }
 
@@ -104,7 +104,7 @@ void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
    *  Constant: '<Root>/Constant1'
    *  Inport: '<Root>/ball_detec'
    */
-  if (arg_ball_detec) {
+  if (ballsensor_hasBall) {
     srcIdx = 200;
   } else {
     srcIdx = 0;
@@ -113,41 +113,40 @@ void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
   /* Sum: '<Root>/Sum' incorporates:
    *  Switch: '<Root>/Switch'
    */
-  rtb_Filter_k = (real_T)srcIdx - rtb_Filter;
+  rtb_Integrator_c = (real_T)srcIdx - rtb_Filter_a;
 
-  /* Gain: '<S92>/Filter Coefficient' incorporates:
-   *  DiscreteIntegrator: '<S84>/Filter'
-   *  Gain: '<S82>/Derivative Gain'
-   *  Sum: '<S84>/SumD'
+  /* Gain: '<S95>/Filter Coefficient' incorporates:
+   *  DiscreteIntegrator: '<S87>/Filter'
+   *  Sum: '<S87>/SumD'
    */
-  Diff = (0.0 * rtb_Filter_k - DribblerController_DW.Filter_DSTATE) * 100.0;
+  Diff = (rtb_Integrator_c - DribblerController_DW.Filter_DSTATE) * 100.0;
 
-  /* Sum: '<S99>/Sum' incorporates:
-   *  DiscreteIntegrator: '<S89>/Integrator'
+  /* Sum: '<S102>/Sum' incorporates:
+   *  DiscreteIntegrator: '<S92>/Integrator'
    */
-  rtb_Sum = (rtb_Filter_k + DribblerController_DW.Integrator_DSTATE) + Diff;
+  rtb_Sum = (rtb_Integrator_c + DribblerController_DW.Integrator_DSTATE) + Diff;
 
-  /* Switch: '<S97>/Switch2' incorporates:
+  /* Switch: '<S100>/Switch2' incorporates:
    *  Constant: '<Root>/Constant2'
-   *  RelationalOperator: '<S97>/LowerRelop1'
-   *  RelationalOperator: '<S97>/UpperRelop'
-   *  Switch: '<S97>/Switch'
+   *  RelationalOperator: '<S100>/LowerRelop1'
+   *  RelationalOperator: '<S100>/UpperRelop'
+   *  Switch: '<S100>/Switch'
    */
-  if (rtb_Sum > 3.0) {
-    rtb_Filter = 3.0;
+  if (rtb_Sum > 0.32) {
+    rtb_Filter_a = 0.32;
   } else if (rtb_Sum < DribblerController_ConstB.Gain) {
-    /* Switch: '<S97>/Switch' */
-    rtb_Filter = DribblerController_ConstB.Gain;
+    /* Switch: '<S100>/Switch' */
+    rtb_Filter_a = DribblerController_ConstB.Gain;
   } else {
-    rtb_Filter = rtb_Sum;
+    rtb_Filter_a = rtb_Sum;
   }
 
-  /* End of Switch: '<S97>/Switch2' */
+  /* End of Switch: '<S100>/Switch2' */
 
-  /* Sum: '<S81>/SumI4' incorporates:
-   *  Sum: '<S81>/SumI2'
+  /* Sum: '<S84>/SumI4' incorporates:
+   *  Sum: '<S84>/SumI2'
    */
-  rtb_Filter_k += rtb_Filter - rtb_Sum;
+  rtb_Integrator_c += rtb_Filter_a - rtb_Sum;
 
   /* Signum: '<Root>/Sign' incorporates:
    *  UnitDelay: '<Root>/Unit Delay'
@@ -165,21 +164,22 @@ void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
    *  Product: '<Root>/Product'
    *  Signum: '<Root>/Sign'
    */
-  rtb_Filter -= rtb_Sum * arg_current;
+  rtb_Filter_a -= rtb_Sum * arg_current;
 
-  /* Gain: '<S41>/Filter Coefficient' incorporates:
-   *  DiscreteIntegrator: '<S33>/Filter'
-   *  Gain: '<S31>/Derivative Gain'
-   *  Sum: '<S33>/SumD'
+  /* Gain: '<S42>/Filter Coefficient' incorporates:
+   *  DiscreteIntegrator: '<S34>/Filter'
+   *  Sum: '<S34>/SumD'
    */
-  rtb_Sum = (0.0 * rtb_Filter - DribblerController_DW.Filter_DSTATE_b) * 100.0;
+  rtb_Sum = (rtb_Filter_a - DribblerController_DW.Filter_DSTATE_b) * 100.0;
 
-  /* Sum: '<S47>/Sum' incorporates:
-   *  DiscreteIntegrator: '<S38>/Integrator'
+  /* Sum: '<S48>/Sum' incorporates:
+   *  DiscreteIntegrator: '<S39>/Integrator'
+   *  Gain: '<S44>/Proportional Gain'
    */
-  rtb_Sum_j = (rtb_Filter + DribblerController_DW.Integrator_DSTATE_a) + rtb_Sum;
+  rtb_Sum_j = (2.0 * rtb_Filter_a + DribblerController_DW.Integrator_DSTATE_a) +
+    rtb_Sum;
 
-  /* Saturate: '<S45>/Saturation' */
+  /* Saturate: '<S46>/Saturation' */
   if (rtb_Sum_j > 1.0) {
     DribblerController_DW.UnitDelay_DSTATE = 1.0;
   } else if (rtb_Sum_j < -1.0) {
@@ -188,7 +188,7 @@ void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
     DribblerController_DW.UnitDelay_DSTATE = rtb_Sum_j;
   }
 
-  /* End of Saturate: '<S45>/Saturation' */
+  /* End of Saturate: '<S46>/Saturation' */
 
   /* Outport: '<Root>/motor_effort' incorporates:
    *  UnitDelay: '<Root>/Unit Delay'
@@ -203,22 +203,22 @@ void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
    */
   DribblerController_DW.UD_DSTATE = rtb_TSamp;
 
-  /* Update for DiscreteIntegrator: '<S84>/Filter' */
+  /* Update for DiscreteIntegrator: '<S87>/Filter' */
   DribblerController_DW.Filter_DSTATE += 0.01 * Diff;
 
-  /* Update for DiscreteIntegrator: '<S89>/Integrator' */
-  DribblerController_DW.Integrator_DSTATE += 0.01 * rtb_Filter_k;
+  /* Update for DiscreteIntegrator: '<S92>/Integrator' */
+  DribblerController_DW.Integrator_DSTATE += 0.01 * rtb_Integrator_c;
 
-  /* Update for DiscreteIntegrator: '<S33>/Filter' */
-  DribblerController_DW.Filter_DSTATE_b += 0.01 * rtb_Sum;
-
-  /* Update for DiscreteIntegrator: '<S38>/Integrator' incorporates:
-   *  Sum: '<S30>/SumI2'
-   *  Sum: '<S30>/SumI4'
+  /* Update for DiscreteIntegrator: '<S39>/Integrator' incorporates:
+   *  Sum: '<S31>/SumI2'
+   *  Sum: '<S31>/SumI4'
    *  UnitDelay: '<Root>/Unit Delay'
    */
   DribblerController_DW.Integrator_DSTATE_a +=
-    ((DribblerController_DW.UnitDelay_DSTATE - rtb_Sum_j) + rtb_Filter) * 0.01;
+    ((DribblerController_DW.UnitDelay_DSTATE - rtb_Sum_j) + rtb_Filter_a) * 0.01;
+
+  /* Update for DiscreteIntegrator: '<S34>/Filter' */
+  DribblerController_DW.Filter_DSTATE_b += 0.01 * rtb_Sum;
 }
 
 /* Model initialize function */

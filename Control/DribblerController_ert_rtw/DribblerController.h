@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'DribblerController'.
  *
- * Model version                  : 1.7
- * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Dec 24 22:58:45 2024
+ * Model version                  : 2.4
+ * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
+ * C/C++ source code generated on : Mon Mar 10 17:20:10 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -42,11 +42,11 @@
 typedef struct {
   real_T UD_DSTATE;                    /* '<S2>/UD' */
   real_T DigitalFilter_states[50];     /* '<S3>/Digital Filter' */
-  real_T Filter_DSTATE;                /* '<S84>/Filter' */
-  real_T Integrator_DSTATE;            /* '<S89>/Integrator' */
+  real_T Filter_DSTATE;                /* '<S87>/Filter' */
+  real_T Integrator_DSTATE;            /* '<S92>/Integrator' */
   real_T UnitDelay_DSTATE;             /* '<Root>/Unit Delay' */
-  real_T Filter_DSTATE_b;              /* '<S33>/Filter' */
-  real_T Integrator_DSTATE_a;          /* '<S38>/Integrator' */
+  real_T Integrator_DSTATE_a;          /* '<S39>/Integrator' */
+  real_T Filter_DSTATE_b;              /* '<S34>/Filter' */
   real_T DigitalFilter_simContextBuf[100];/* '<S3>/Digital Filter' */
   real_T DigitalFilter_simRevCoeff[51];/* '<S3>/Digital Filter' */
 } DW_DribblerController_T;
@@ -81,8 +81,8 @@ extern void DribblerController_initialize(void);
 extern void DribblerController_terminate(void);
 
 /* Customized model step function */
-extern void DribblerController_step(real_T arg_encoder, boolean_T arg_ball_detec,
-  real_T arg_current, real_T *arg_motor_effort);
+extern void DribblerController_step(real_T arg_encoder, boolean_T
+  ballsensor_hasBall, real_T arg_current, real_T *arg_motor_effort);
 
 /* Real-time Model object */
 extern RT_MODEL_DribblerController_T *const DribblerController_M;
@@ -91,15 +91,16 @@ extern RT_MODEL_DribblerController_T *const DribblerController_M;
  * These blocks were eliminated from the model due to optimizations:
  *
  * Block '<S2>/Data Type Duplicate' : Unused code path elimination
- * Block '<S55>/Check Signal Attributes' : Unused code path elimination
- * Block '<S97>/Data Type Duplicate' : Unused code path elimination
- * Block '<S97>/Data Type Propagation' : Unused code path elimination
- * Block '<S30>/Kb' : Eliminated nontunable gain of 1
- * Block '<S35>/Integral Gain' : Eliminated nontunable gain of 1
- * Block '<S43>/Proportional Gain' : Eliminated nontunable gain of 1
- * Block '<S81>/Kb' : Eliminated nontunable gain of 1
- * Block '<S86>/Integral Gain' : Eliminated nontunable gain of 1
- * Block '<S94>/Proportional Gain' : Eliminated nontunable gain of 1
+ * Block '<S57>/Check Signal Attributes' : Unused code path elimination
+ * Block '<S100>/Data Type Duplicate' : Unused code path elimination
+ * Block '<S100>/Data Type Propagation' : Unused code path elimination
+ * Block '<S31>/Kb' : Eliminated nontunable gain of 1
+ * Block '<S32>/Derivative Gain' : Eliminated nontunable gain of 1
+ * Block '<S36>/Integral Gain' : Eliminated nontunable gain of 1
+ * Block '<S84>/Kb' : Eliminated nontunable gain of 1
+ * Block '<S85>/Derivative Gain' : Eliminated nontunable gain of 1
+ * Block '<S89>/Integral Gain' : Eliminated nontunable gain of 1
+ * Block '<S97>/Proportional Gain' : Eliminated nontunable gain of 1
  */
 
 /*-
@@ -145,84 +146,88 @@ extern RT_MODEL_DribblerController_T *const DribblerController_M;
  * '<S26>'  : 'DribblerController/Current PI/Tsamp - Integral'
  * '<S27>'  : 'DribblerController/Current PI/Tsamp - Ngain'
  * '<S28>'  : 'DribblerController/Current PI/postSat Signal'
- * '<S29>'  : 'DribblerController/Current PI/preSat Signal'
- * '<S30>'  : 'DribblerController/Current PI/Anti-windup/Back Calculation'
- * '<S31>'  : 'DribblerController/Current PI/D Gain/Internal Parameters'
- * '<S32>'  : 'DribblerController/Current PI/External Derivative/Error'
- * '<S33>'  : 'DribblerController/Current PI/Filter/Disc. Forward Euler Filter'
- * '<S34>'  : 'DribblerController/Current PI/Filter ICs/Internal IC - Filter'
- * '<S35>'  : 'DribblerController/Current PI/I Gain/Internal Parameters'
- * '<S36>'  : 'DribblerController/Current PI/Ideal P Gain/Passthrough'
- * '<S37>'  : 'DribblerController/Current PI/Ideal P Gain Fdbk/Disabled'
- * '<S38>'  : 'DribblerController/Current PI/Integrator/Discrete'
- * '<S39>'  : 'DribblerController/Current PI/Integrator ICs/Internal IC'
- * '<S40>'  : 'DribblerController/Current PI/N Copy/Disabled'
- * '<S41>'  : 'DribblerController/Current PI/N Gain/Internal Parameters'
- * '<S42>'  : 'DribblerController/Current PI/P Copy/Disabled'
- * '<S43>'  : 'DribblerController/Current PI/Parallel P Gain/Internal Parameters'
- * '<S44>'  : 'DribblerController/Current PI/Reset Signal/Disabled'
- * '<S45>'  : 'DribblerController/Current PI/Saturation/Enabled'
- * '<S46>'  : 'DribblerController/Current PI/Saturation Fdbk/Disabled'
- * '<S47>'  : 'DribblerController/Current PI/Sum/Sum_PID'
- * '<S48>'  : 'DribblerController/Current PI/Sum Fdbk/Disabled'
- * '<S49>'  : 'DribblerController/Current PI/Tracking Mode/Disabled'
- * '<S50>'  : 'DribblerController/Current PI/Tracking Mode Sum/Passthrough'
- * '<S51>'  : 'DribblerController/Current PI/Tsamp - Integral/TsSignalSpecification'
- * '<S52>'  : 'DribblerController/Current PI/Tsamp - Ngain/Passthrough'
- * '<S53>'  : 'DribblerController/Current PI/postSat Signal/Forward_Path'
- * '<S54>'  : 'DribblerController/Current PI/preSat Signal/Forward_Path'
- * '<S55>'  : 'DribblerController/LPF/Check Signal Attributes'
- * '<S56>'  : 'DribblerController/Speed PI/Anti-windup'
- * '<S57>'  : 'DribblerController/Speed PI/D Gain'
- * '<S58>'  : 'DribblerController/Speed PI/External Derivative'
- * '<S59>'  : 'DribblerController/Speed PI/Filter'
- * '<S60>'  : 'DribblerController/Speed PI/Filter ICs'
- * '<S61>'  : 'DribblerController/Speed PI/I Gain'
- * '<S62>'  : 'DribblerController/Speed PI/Ideal P Gain'
- * '<S63>'  : 'DribblerController/Speed PI/Ideal P Gain Fdbk'
- * '<S64>'  : 'DribblerController/Speed PI/Integrator'
- * '<S65>'  : 'DribblerController/Speed PI/Integrator ICs'
- * '<S66>'  : 'DribblerController/Speed PI/N Copy'
- * '<S67>'  : 'DribblerController/Speed PI/N Gain'
- * '<S68>'  : 'DribblerController/Speed PI/P Copy'
- * '<S69>'  : 'DribblerController/Speed PI/Parallel P Gain'
- * '<S70>'  : 'DribblerController/Speed PI/Reset Signal'
- * '<S71>'  : 'DribblerController/Speed PI/Saturation'
- * '<S72>'  : 'DribblerController/Speed PI/Saturation Fdbk'
- * '<S73>'  : 'DribblerController/Speed PI/Sum'
- * '<S74>'  : 'DribblerController/Speed PI/Sum Fdbk'
- * '<S75>'  : 'DribblerController/Speed PI/Tracking Mode'
- * '<S76>'  : 'DribblerController/Speed PI/Tracking Mode Sum'
- * '<S77>'  : 'DribblerController/Speed PI/Tsamp - Integral'
- * '<S78>'  : 'DribblerController/Speed PI/Tsamp - Ngain'
- * '<S79>'  : 'DribblerController/Speed PI/postSat Signal'
- * '<S80>'  : 'DribblerController/Speed PI/preSat Signal'
- * '<S81>'  : 'DribblerController/Speed PI/Anti-windup/Back Calculation'
- * '<S82>'  : 'DribblerController/Speed PI/D Gain/Internal Parameters'
- * '<S83>'  : 'DribblerController/Speed PI/External Derivative/Error'
- * '<S84>'  : 'DribblerController/Speed PI/Filter/Disc. Forward Euler Filter'
- * '<S85>'  : 'DribblerController/Speed PI/Filter ICs/Internal IC - Filter'
- * '<S86>'  : 'DribblerController/Speed PI/I Gain/Internal Parameters'
- * '<S87>'  : 'DribblerController/Speed PI/Ideal P Gain/Passthrough'
- * '<S88>'  : 'DribblerController/Speed PI/Ideal P Gain Fdbk/Disabled'
- * '<S89>'  : 'DribblerController/Speed PI/Integrator/Discrete'
- * '<S90>'  : 'DribblerController/Speed PI/Integrator ICs/Internal IC'
- * '<S91>'  : 'DribblerController/Speed PI/N Copy/Disabled'
- * '<S92>'  : 'DribblerController/Speed PI/N Gain/Internal Parameters'
- * '<S93>'  : 'DribblerController/Speed PI/P Copy/Disabled'
- * '<S94>'  : 'DribblerController/Speed PI/Parallel P Gain/Internal Parameters'
- * '<S95>'  : 'DribblerController/Speed PI/Reset Signal/Disabled'
- * '<S96>'  : 'DribblerController/Speed PI/Saturation/External'
- * '<S97>'  : 'DribblerController/Speed PI/Saturation/External/Saturation Dynamic'
- * '<S98>'  : 'DribblerController/Speed PI/Saturation Fdbk/Disabled'
- * '<S99>'  : 'DribblerController/Speed PI/Sum/Sum_PID'
- * '<S100>' : 'DribblerController/Speed PI/Sum Fdbk/Disabled'
- * '<S101>' : 'DribblerController/Speed PI/Tracking Mode/Disabled'
- * '<S102>' : 'DribblerController/Speed PI/Tracking Mode Sum/Passthrough'
- * '<S103>' : 'DribblerController/Speed PI/Tsamp - Integral/TsSignalSpecification'
- * '<S104>' : 'DribblerController/Speed PI/Tsamp - Ngain/Passthrough'
- * '<S105>' : 'DribblerController/Speed PI/postSat Signal/Forward_Path'
- * '<S106>' : 'DribblerController/Speed PI/preSat Signal/Forward_Path'
+ * '<S29>'  : 'DribblerController/Current PI/preInt Signal'
+ * '<S30>'  : 'DribblerController/Current PI/preSat Signal'
+ * '<S31>'  : 'DribblerController/Current PI/Anti-windup/Back Calculation'
+ * '<S32>'  : 'DribblerController/Current PI/D Gain/Internal Parameters'
+ * '<S33>'  : 'DribblerController/Current PI/External Derivative/Error'
+ * '<S34>'  : 'DribblerController/Current PI/Filter/Disc. Forward Euler Filter'
+ * '<S35>'  : 'DribblerController/Current PI/Filter ICs/Internal IC - Filter'
+ * '<S36>'  : 'DribblerController/Current PI/I Gain/Internal Parameters'
+ * '<S37>'  : 'DribblerController/Current PI/Ideal P Gain/Passthrough'
+ * '<S38>'  : 'DribblerController/Current PI/Ideal P Gain Fdbk/Disabled'
+ * '<S39>'  : 'DribblerController/Current PI/Integrator/Discrete'
+ * '<S40>'  : 'DribblerController/Current PI/Integrator ICs/Internal IC'
+ * '<S41>'  : 'DribblerController/Current PI/N Copy/Disabled'
+ * '<S42>'  : 'DribblerController/Current PI/N Gain/Internal Parameters'
+ * '<S43>'  : 'DribblerController/Current PI/P Copy/Disabled'
+ * '<S44>'  : 'DribblerController/Current PI/Parallel P Gain/Internal Parameters'
+ * '<S45>'  : 'DribblerController/Current PI/Reset Signal/Disabled'
+ * '<S46>'  : 'DribblerController/Current PI/Saturation/Enabled'
+ * '<S47>'  : 'DribblerController/Current PI/Saturation Fdbk/Disabled'
+ * '<S48>'  : 'DribblerController/Current PI/Sum/Sum_PID'
+ * '<S49>'  : 'DribblerController/Current PI/Sum Fdbk/Disabled'
+ * '<S50>'  : 'DribblerController/Current PI/Tracking Mode/Disabled'
+ * '<S51>'  : 'DribblerController/Current PI/Tracking Mode Sum/Passthrough'
+ * '<S52>'  : 'DribblerController/Current PI/Tsamp - Integral/TsSignalSpecification'
+ * '<S53>'  : 'DribblerController/Current PI/Tsamp - Ngain/Passthrough'
+ * '<S54>'  : 'DribblerController/Current PI/postSat Signal/Forward_Path'
+ * '<S55>'  : 'DribblerController/Current PI/preInt Signal/Internal PreInt'
+ * '<S56>'  : 'DribblerController/Current PI/preSat Signal/Forward_Path'
+ * '<S57>'  : 'DribblerController/LPF/Check Signal Attributes'
+ * '<S58>'  : 'DribblerController/Speed PI/Anti-windup'
+ * '<S59>'  : 'DribblerController/Speed PI/D Gain'
+ * '<S60>'  : 'DribblerController/Speed PI/External Derivative'
+ * '<S61>'  : 'DribblerController/Speed PI/Filter'
+ * '<S62>'  : 'DribblerController/Speed PI/Filter ICs'
+ * '<S63>'  : 'DribblerController/Speed PI/I Gain'
+ * '<S64>'  : 'DribblerController/Speed PI/Ideal P Gain'
+ * '<S65>'  : 'DribblerController/Speed PI/Ideal P Gain Fdbk'
+ * '<S66>'  : 'DribblerController/Speed PI/Integrator'
+ * '<S67>'  : 'DribblerController/Speed PI/Integrator ICs'
+ * '<S68>'  : 'DribblerController/Speed PI/N Copy'
+ * '<S69>'  : 'DribblerController/Speed PI/N Gain'
+ * '<S70>'  : 'DribblerController/Speed PI/P Copy'
+ * '<S71>'  : 'DribblerController/Speed PI/Parallel P Gain'
+ * '<S72>'  : 'DribblerController/Speed PI/Reset Signal'
+ * '<S73>'  : 'DribblerController/Speed PI/Saturation'
+ * '<S74>'  : 'DribblerController/Speed PI/Saturation Fdbk'
+ * '<S75>'  : 'DribblerController/Speed PI/Sum'
+ * '<S76>'  : 'DribblerController/Speed PI/Sum Fdbk'
+ * '<S77>'  : 'DribblerController/Speed PI/Tracking Mode'
+ * '<S78>'  : 'DribblerController/Speed PI/Tracking Mode Sum'
+ * '<S79>'  : 'DribblerController/Speed PI/Tsamp - Integral'
+ * '<S80>'  : 'DribblerController/Speed PI/Tsamp - Ngain'
+ * '<S81>'  : 'DribblerController/Speed PI/postSat Signal'
+ * '<S82>'  : 'DribblerController/Speed PI/preInt Signal'
+ * '<S83>'  : 'DribblerController/Speed PI/preSat Signal'
+ * '<S84>'  : 'DribblerController/Speed PI/Anti-windup/Back Calculation'
+ * '<S85>'  : 'DribblerController/Speed PI/D Gain/Internal Parameters'
+ * '<S86>'  : 'DribblerController/Speed PI/External Derivative/Error'
+ * '<S87>'  : 'DribblerController/Speed PI/Filter/Disc. Forward Euler Filter'
+ * '<S88>'  : 'DribblerController/Speed PI/Filter ICs/Internal IC - Filter'
+ * '<S89>'  : 'DribblerController/Speed PI/I Gain/Internal Parameters'
+ * '<S90>'  : 'DribblerController/Speed PI/Ideal P Gain/Passthrough'
+ * '<S91>'  : 'DribblerController/Speed PI/Ideal P Gain Fdbk/Disabled'
+ * '<S92>'  : 'DribblerController/Speed PI/Integrator/Discrete'
+ * '<S93>'  : 'DribblerController/Speed PI/Integrator ICs/Internal IC'
+ * '<S94>'  : 'DribblerController/Speed PI/N Copy/Disabled'
+ * '<S95>'  : 'DribblerController/Speed PI/N Gain/Internal Parameters'
+ * '<S96>'  : 'DribblerController/Speed PI/P Copy/Disabled'
+ * '<S97>'  : 'DribblerController/Speed PI/Parallel P Gain/Internal Parameters'
+ * '<S98>'  : 'DribblerController/Speed PI/Reset Signal/Disabled'
+ * '<S99>'  : 'DribblerController/Speed PI/Saturation/External'
+ * '<S100>' : 'DribblerController/Speed PI/Saturation/External/Saturation Dynamic'
+ * '<S101>' : 'DribblerController/Speed PI/Saturation Fdbk/Disabled'
+ * '<S102>' : 'DribblerController/Speed PI/Sum/Sum_PID'
+ * '<S103>' : 'DribblerController/Speed PI/Sum Fdbk/Disabled'
+ * '<S104>' : 'DribblerController/Speed PI/Tracking Mode/Disabled'
+ * '<S105>' : 'DribblerController/Speed PI/Tracking Mode Sum/Passthrough'
+ * '<S106>' : 'DribblerController/Speed PI/Tsamp - Integral/TsSignalSpecification'
+ * '<S107>' : 'DribblerController/Speed PI/Tsamp - Ngain/Passthrough'
+ * '<S108>' : 'DribblerController/Speed PI/postSat Signal/Forward_Path'
+ * '<S109>' : 'DribblerController/Speed PI/preInt Signal/Internal PreInt'
+ * '<S110>' : 'DribblerController/Speed PI/preSat Signal/Forward_Path'
  */
 #endif                                 /* DribblerController_h_ */
 

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 2.29
+ * Model version                  : 2.30
  * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Tue Feb 11 15:35:57 2025
+ * C/C++ source code generated on : Mon Mar 10 17:14:12 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -27,9 +27,6 @@
 
 /* Block signals and states (default storage) */
 DW rtDW;
-
-/* External inputs (root inport signals with default storage) */
-ExtU rtU;
 extern real32_T rt_powf_snf(real32_T u0, real32_T u1);
 extern real32_T rt_atan2f_snf(real32_T u0, real32_T u1);
 extern real32_T rt_hypotf_snf(real32_T u0, real32_T u1);
@@ -285,6 +282,10 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
   real32_T rtb_Saturation_0;
   real32_T rtb_Saturation_1;
   real32_T rtb_Sum;
+  real32_T rtb_TSamp_0;
+  real32_T rtb_TSamp_idx_0;
+  real32_T rtb_TSamp_idx_1;
+  real32_T rtb_TSamp_idx_2;
   real32_T rtb_y_d;
   real32_T u0;
   boolean_T eq_signs[4];
@@ -297,15 +298,6 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
   };
 
   boolean_T exitg1;
-
-  /* Copy value for root inport '<Root>/Encoders' since it is accessed globally */
-  {
-    int32_T i;
-    for (i = 0; i < 4; i++) {
-      rtU.Encoders[i] = arg_Encoders[i];
-    }
-  }
-
   UNUSED_PARAMETER(arg_YawRate);
   UNUSED_PARAMETER(arg_Accelerometer);
 
@@ -314,67 +306,152 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
    */
   memset(&arg_Debug[8], 0, 24U * sizeof(real32_T));
 
-  /* S-Function (sdspbiquad): '<S3>/Digital Filter' incorporates:
+  /* SampleTimeMath: '<S4>/TSamp' incorporates:
    *  Inport: '<Root>/Encoders'
+   *
+   * About '<S4>/TSamp':
+   *  y = u * K where K = 1 / ( w * Ts )
+   *   */
+  rtb_TSamp_0 = arg_Encoders[0] * 100.0F;
+  rtb_TSamp_idx_0 = rtb_TSamp_0;
+
+  /* Sum: '<S4>/Diff' incorporates:
+   *  UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/Diff':
+   *
+   *  Add in CPU
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
    */
-  DigitalFilter_TEMP_STATES = (0.245237276F * rtU.Encoders[0] - -0.509525478F *
+  rtDW.Diff[0] = rtb_TSamp_0 - rtDW.UD_DSTATE[0];
+
+  /* SampleTimeMath: '<S4>/TSamp' incorporates:
+   *  Inport: '<Root>/Encoders'
+   *
+   * About '<S4>/TSamp':
+   *  y = u * K where K = 1 / ( w * Ts )
+   *   */
+  rtb_TSamp_0 = arg_Encoders[1] * 100.0F;
+  rtb_TSamp_idx_1 = rtb_TSamp_0;
+
+  /* Sum: '<S4>/Diff' incorporates:
+   *  UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/Diff':
+   *
+   *  Add in CPU
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.Diff[1] = rtb_TSamp_0 - rtDW.UD_DSTATE[1];
+
+  /* SampleTimeMath: '<S4>/TSamp' incorporates:
+   *  Inport: '<Root>/Encoders'
+   *
+   * About '<S4>/TSamp':
+   *  y = u * K where K = 1 / ( w * Ts )
+   *   */
+  rtb_TSamp_0 = arg_Encoders[2] * 100.0F;
+  rtb_TSamp_idx_2 = rtb_TSamp_0;
+
+  /* Sum: '<S4>/Diff' incorporates:
+   *  UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/Diff':
+   *
+   *  Add in CPU
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.Diff[2] = rtb_TSamp_0 - rtDW.UD_DSTATE[2];
+
+  /* SampleTimeMath: '<S4>/TSamp' incorporates:
+   *  Inport: '<Root>/Encoders'
+   *
+   * About '<S4>/TSamp':
+   *  y = u * K where K = 1 / ( w * Ts )
+   *   */
+  rtb_TSamp_0 = arg_Encoders[3] * 100.0F;
+
+  /* Sum: '<S4>/Diff' incorporates:
+   *  UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/Diff':
+   *
+   *  Add in CPU
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.Diff[3] = rtb_TSamp_0 - rtDW.UD_DSTATE[3];
+
+  /* S-Function (sdspbiquad): '<S3>/Digital Filter' */
+  DigitalFilter_TEMP_STATES = (0.245237276F * rtDW.Diff[0] - -0.509525478F *
     rtDW.DigitalFilter_FILT_STATES[0]) - 0.0F * rtDW.DigitalFilter_FILT_STATES[1];
   DigitalFilter_TEMP_STATES_idx_0 = DigitalFilter_TEMP_STATES;
   rtDW.DigitalFilter[0] = (DigitalFilter_TEMP_STATES +
     rtDW.DigitalFilter_FILT_STATES[0]) + 0.0F * rtDW.DigitalFilter_FILT_STATES[1];
-  DigitalFilter_TEMP_STATES = (0.245237276F * rtU.Encoders[1] - -0.509525478F *
+  DigitalFilter_TEMP_STATES = (0.245237276F * rtDW.Diff[1] - -0.509525478F *
     rtDW.DigitalFilter_FILT_STATES[2]) - 0.0F * rtDW.DigitalFilter_FILT_STATES[3];
   DigitalFilter_TEMP_STATES_idx_1 = DigitalFilter_TEMP_STATES;
   rtDW.DigitalFilter[1] = (DigitalFilter_TEMP_STATES +
     rtDW.DigitalFilter_FILT_STATES[2]) + 0.0F * rtDW.DigitalFilter_FILT_STATES[3];
-  DigitalFilter_TEMP_STATES = (0.245237276F * rtU.Encoders[2] - -0.509525478F *
+  DigitalFilter_TEMP_STATES = (0.245237276F * rtDW.Diff[2] - -0.509525478F *
     rtDW.DigitalFilter_FILT_STATES[4]) - 0.0F * rtDW.DigitalFilter_FILT_STATES[5];
   DigitalFilter_TEMP_STATES_idx_2 = DigitalFilter_TEMP_STATES;
   rtDW.DigitalFilter[2] = (DigitalFilter_TEMP_STATES +
     rtDW.DigitalFilter_FILT_STATES[4]) + 0.0F * rtDW.DigitalFilter_FILT_STATES[5];
-  DigitalFilter_TEMP_STATES = (0.245237276F * rtU.Encoders[3] - -0.509525478F *
+  DigitalFilter_TEMP_STATES = (0.245237276F * rtDW.Diff[3] - -0.509525478F *
     rtDW.DigitalFilter_FILT_STATES[6]) - 0.0F * rtDW.DigitalFilter_FILT_STATES[7];
   rtDW.DigitalFilter[3] = (DigitalFilter_TEMP_STATES +
     rtDW.DigitalFilter_FILT_STATES[6]) + 0.0F * rtDW.DigitalFilter_FILT_STATES[7];
 
-  /* Gain: '<S5>/Rad2M1' */
+  /* Gain: '<S6>/Rad2M1' */
   rtb_Rad2M1[0] = 0.027F * rtDW.DigitalFilter[0];
   rtb_Rad2M1[1] = 0.027F * rtDW.DigitalFilter[1];
   rtb_Rad2M1[2] = 0.027F * rtDW.DigitalFilter[2];
   rtb_Rad2M1[3] = 0.027F * rtDW.DigitalFilter[3];
 
-  /* S-Function (sdspstatfcns): '<S5>/Mean' */
+  /* S-Function (sdspstatfcns): '<S6>/Mean' */
   rtb_FilterDifferentiatorTF = (((rtb_Rad2M1[0] + rtb_Rad2M1[1]) + rtb_Rad2M1[2])
     + rtb_Rad2M1[3]) / 4.0F;
   idx = 1;
 
-  /* Sum: '<S5>/Sum1' */
+  /* Sum: '<S6>/Sum1' */
   rtb_y_d = rtb_Rad2M1[0] - rtb_FilterDifferentiatorTF;
   rtb_Rad2M1[0] = rtb_y_d;
 
-  /* MATLAB Function: '<S5>/MATLAB Function' */
+  /* MATLAB Function: '<S6>/MATLAB Function' */
   rtb_RotInertiaFeedforward = rtb_y_d * 0.0712164491F;
 
-  /* Sum: '<S5>/Sum1' */
+  /* Sum: '<S6>/Sum1' */
   rtb_y_d = rtb_Rad2M1[1] - rtb_FilterDifferentiatorTF;
   rtb_Rad2M1[1] = rtb_y_d;
 
-  /* MATLAB Function: '<S5>/MATLAB Function' */
+  /* MATLAB Function: '<S6>/MATLAB Function' */
   rtb_RotInertiaFeedforward += rtb_y_d * -0.319719762F;
 
-  /* Sum: '<S5>/Sum1' */
+  /* Sum: '<S6>/Sum1' */
   rtb_y_d = rtb_Rad2M1[2] - rtb_FilterDifferentiatorTF;
   rtb_Rad2M1[2] = rtb_y_d;
 
-  /* MATLAB Function: '<S5>/MATLAB Function' */
+  /* MATLAB Function: '<S6>/MATLAB Function' */
   rtb_RotInertiaFeedforward += rtb_y_d * 0.360715747F;
 
-  /* Sum: '<S5>/Sum1' */
+  /* Sum: '<S6>/Sum1' */
   rtb_y_d = rtb_Rad2M1[3] - rtb_FilterDifferentiatorTF;
 
-  /* MATLAB Function: '<S5>/MATLAB Function' incorporates:
-   *  Constant: '<S5>/Constant1'
-   *  Sum: '<S5>/Sum1'
+  /* MATLAB Function: '<S6>/MATLAB Function' incorporates:
+   *  Constant: '<S6>/Constant1'
+   *  Sum: '<S6>/Sum1'
    */
   rtb_Sum = (rtb_y_d * -0.112212442F + rtb_RotInertiaFeedforward) * 0.5F;
   rtb_RotInertiaFeedforward = rtb_Rad2M1[0] - rtb_Sum * 0.142432898F;
@@ -382,9 +459,9 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
   FilterDifferentiatorTF_tmp = rtb_Rad2M1[2] - rtb_Sum * 0.721431494F;
   rtb_Sum = rtb_y_d - rtb_Sum * -0.224424884F;
   for (i = 0; i < 2; i++) {
-    /* Sum: '<S5>/Sum' incorporates:
-     *  Constant: '<S5>/Constant'
-     *  Product: '<S5>/Wheels2Body'
+    /* Sum: '<S6>/Sum' incorporates:
+     *  Constant: '<S6>/Constant'
+     *  Product: '<S6>/Wheels2Body'
      */
     rtb_y_d = ((rtConstP.Constant_Value_h[i + 2] * Integrator +
                 rtConstP.Constant_Value_h[i] * rtb_RotInertiaFeedforward) +
@@ -394,31 +471,31 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
 
     /* Sum: '<Root>/Sum2' incorporates:
      *  Inport: '<Root>/VelRef'
-     *  Sum: '<S5>/Sum'
+     *  Sum: '<S6>/Sum'
      */
     rtb_y_d = arg_VelRef[i] - rtb_y_d;
 
-    /* Gain: '<S98>/Derivative Gain' incorporates:
-     *  Gain: '<S102>/Integral Gain'
+    /* Gain: '<S99>/Derivative Gain' incorporates:
+     *  Gain: '<S103>/Integral Gain'
      */
     rtb_Reciprocal = 0.0F * rtb_y_d;
     rtb_FilterCoefficient_tmp[i] = rtb_Reciprocal;
 
-    /* Gain: '<S108>/Filter Coefficient' incorporates:
-     *  DiscreteIntegrator: '<S100>/Filter'
-     *  Gain: '<S98>/Derivative Gain'
-     *  Sum: '<S100>/SumD'
+    /* Gain: '<S109>/Filter Coefficient' incorporates:
+     *  DiscreteIntegrator: '<S101>/Filter'
+     *  Gain: '<S99>/Derivative Gain'
+     *  Sum: '<S101>/SumD'
      */
     rtb_Reciprocal = (rtb_Reciprocal - rtDW.Filter_DSTATE[i]) * 100.0F;
     rtb_FilterCoefficient[i] = rtb_Reciprocal;
 
-    /* Sum: '<S114>/Sum' incorporates:
-     *  DiscreteIntegrator: '<S105>/Integrator'
+    /* Sum: '<S115>/Sum' incorporates:
+     *  DiscreteIntegrator: '<S106>/Integrator'
      */
     rtb_y_d = (rtb_y_d + rtDW.Integrator_DSTATE[i]) + rtb_Reciprocal;
     rtb_Sum2[i] = rtb_y_d;
 
-    /* Saturate: '<S112>/Saturation' */
+    /* Saturate: '<S113>/Saturation' */
     if (rtb_y_d > 5.4666667F) {
       rtb_Saturation[i] = 5.4666667F;
     } else if (rtb_y_d < -5.4666667F) {
@@ -427,7 +504,7 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
       rtb_Saturation[i] = rtb_y_d;
     }
 
-    /* End of Saturate: '<S112>/Saturation' */
+    /* End of Saturate: '<S113>/Saturation' */
   }
 
   /* Sum: '<Root>/Sum' incorporates:
@@ -458,31 +535,31 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
     }
   }
 
-  /* Gain: '<S44>/Integral Gain' incorporates:
+  /* Gain: '<S45>/Integral Gain' incorporates:
    *  MATLAB Function: '<S1>/DeFlipper'
    */
   rtb_Sum = (rtb_y_d - 3.14159274F) * 0.1F;
 
-  /* DiscreteIntegrator: '<S47>/Integrator' */
+  /* DiscreteIntegrator: '<S48>/Integrator' */
   Integrator = 0.005F * rtb_Sum + rtDW.Integrator_DSTATE_h;
 
-  /* DiscreteTransferFcn: '<S40>/Filter Differentiator TF' incorporates:
+  /* DiscreteTransferFcn: '<S41>/Filter Differentiator TF' incorporates:
    *  MATLAB Function: '<S1>/DeFlipper'
    */
   FilterDifferentiatorTF_tmp = (rtb_y_d - 3.14159274F) - -0.6F *
     rtDW.FilterDifferentiatorTF_states;
 
   /* Sum: '<Root>/Sum3' incorporates:
-   *  DiscreteTransferFcn: '<S40>/Filter Differentiator TF'
+   *  DiscreteTransferFcn: '<S41>/Filter Differentiator TF'
    *  Gain: '<Root>/RotInertiaFeedforward'
-   *  Gain: '<S50>/Filter Coefficient'
-   *  Gain: '<S52>/Proportional Gain'
+   *  Gain: '<S51>/Filter Coefficient'
+   *  Gain: '<S53>/Proportional Gain'
    *  Inport: '<Root>/YawAccRef'
    *  MATLAB Function: '<S1>/CubicCompensator'
    *  MATLAB Function: '<S1>/DeFlipper'
-   *  Product: '<S40>/DenCoefOut'
+   *  Product: '<S41>/DenCoefOut'
    *  Sum: '<S1>/Sum'
-   *  Sum: '<S56>/Sum'
+   *  Sum: '<S57>/Sum'
    */
   rtb_y_d = ((((rtb_y_d - 3.14159274F) * 9.0F + Integrator) +
               (FilterDifferentiatorTF_tmp - rtDW.FilterDifferentiatorTF_states) *
@@ -490,7 +567,7 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
     + 15.2415791F * arg_YawAccRef;
   rtb_Rad2M1[0] = rtb_y_d;
 
-  /* MATLAB Function: '<S4>/Desaturator' incorporates:
+  /* MATLAB Function: '<S5>/Desaturator' incorporates:
    *  Sum: '<Root>/Sum3'
    */
   rtb_RotInertiaFeedforward = fabsf(rtb_y_d);
@@ -499,19 +576,19 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
   /* Sum: '<Root>/Sum3' */
   rtb_Rad2M1[1] = rtb_y_d;
 
-  /* MATLAB Function: '<S4>/Desaturator' */
+  /* MATLAB Function: '<S5>/Desaturator' */
   rtb_y[1] = rtb_RotInertiaFeedforward;
 
   /* Sum: '<Root>/Sum3' */
   rtb_Rad2M1[2] = rtb_y_d;
 
-  /* MATLAB Function: '<S4>/Desaturator' */
+  /* MATLAB Function: '<S5>/Desaturator' */
   rtb_y[2] = rtb_RotInertiaFeedforward;
 
   /* Sum: '<Root>/Sum3' */
   rtb_Rad2M1[3] = rtb_y_d;
 
-  /* MATLAB Function: '<S4>/Desaturator' incorporates:
+  /* MATLAB Function: '<S5>/Desaturator' incorporates:
    *  Constant: '<Root>/Forcelimit'
    */
   rtb_y[3] = rtb_RotInertiaFeedforward;
@@ -554,19 +631,19 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
     rtb_y_d = 1.0F;
   }
 
-  /* Product: '<S68>/Body2Wheels' incorporates:
-   *  Constant: '<S68>/BodyForceCouplingMatrix'
+  /* Product: '<S69>/Body2Wheels' incorporates:
+   *  Constant: '<S69>/BodyForceCouplingMatrix'
    *  Inport: '<Root>/VelRef'
    */
   rtb_Reciprocal = arg_VelRef[1];
   rtb_FilterDifferentiatorTF = arg_VelRef[0];
 
-  /* MATLAB Function: '<S68>/MATLAB Function' incorporates:
-   *  Constant: '<S68>/BodyForceCouplingMatrix'
-   *  Constant: '<S68>/Roborad'
+  /* MATLAB Function: '<S69>/MATLAB Function' incorporates:
+   *  Constant: '<S69>/BodyForceCouplingMatrix'
+   *  Constant: '<S69>/Roborad'
    *  Inport: '<Root>/VelRef'
    *  Inport: '<Root>/YawRateRef'
-   *  Product: '<S68>/Body2Wheels'
+   *  Product: '<S69>/Body2Wheels'
    */
   for (idx = 0; idx < 4; idx++) {
     rtb_y[idx] = rtConstP.BodyForceCouplingMatrix_Value_d[idx + 4] *
@@ -700,13 +777,13 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
   arg_AccRef_0 = arg_AccRef[0];
   arg_AccRef_1 = arg_AccRef[1];
 
-  /* Product: '<S7>/Body2Wheels' incorporates:
-   *  Constant: '<S7>/Constant1'
+  /* Product: '<S8>/Body2Wheels' incorporates:
+   *  Constant: '<S8>/Constant1'
    */
   rtb_Saturation_0 = rtb_Saturation[1];
   rtb_Saturation_1 = rtb_Saturation[0];
   for (i = 0; i < 4; i++) {
-    /* MATLAB Function: '<S68>/MATLAB Function' */
+    /* MATLAB Function: '<S69>/MATLAB Function' */
     rtb_FilterDifferentiatorTF = rtb_y[i];
     rEQ0 = eq_signs[i];
     rtb_FilterDifferentiatorTF = ((real32_T)(params[i + 12] * (real_T)!rEQ0) *
@@ -716,19 +793,19 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
 
     /* Saturate: '<Root>/DO NOT REMOVE THIS' incorporates:
      *  Constant: '<S2>/BodyForceCouplingMatrix'
-     *  Constant: '<S7>/Constant1'
+     *  Constant: '<S8>/Constant1'
      *  Gain: '<Root>/ForceToTorque'
      *  Gain: '<S2>/MassFeedForward'
-     *  Gain: '<S6>/IToV'
-     *  Gain: '<S6>/OmegaToV'
-     *  Gain: '<S6>/TorqueToI'
+     *  Gain: '<S7>/IToV'
+     *  Gain: '<S7>/OmegaToV'
+     *  Gain: '<S7>/TorqueToI'
      *  Inport: '<Root>/Vbat'
-     *  MATLAB Function: '<S4>/Desaturator'
+     *  MATLAB Function: '<S5>/Desaturator'
      *  Product: '<Root>/Divide'
      *  Product: '<S2>/Body2Wheels'
-     *  Product: '<S7>/Body2Wheels'
+     *  Product: '<S8>/Body2Wheels'
      *  Sum: '<Root>/Sum1'
-     *  Sum: '<S6>/Sum'
+     *  Sum: '<S7>/Sum'
      */
     u0 = ((((real32_T)((2.5F * arg_AccRef_0 *
                         rtConstP.BodyForceCouplingMatrix_Value[i] +
@@ -771,42 +848,84 @@ void Controller_step(real32_T arg_Encoders[4], real32_T arg_YawRate, real32_T
    */
   *arg_AFL = 5.4666667F;
 
+  /* Update for UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.UD_DSTATE[0] = rtb_TSamp_idx_0;
+
   /* Update for S-Function (sdspbiquad): '<S3>/Digital Filter' */
   rtDW.DigitalFilter_FILT_STATES[1] = rtDW.DigitalFilter_FILT_STATES[0];
   rtDW.DigitalFilter_FILT_STATES[0] = DigitalFilter_TEMP_STATES_idx_0;
+
+  /* Update for UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.UD_DSTATE[1] = rtb_TSamp_idx_1;
+
+  /* Update for S-Function (sdspbiquad): '<S3>/Digital Filter' */
   rtDW.DigitalFilter_FILT_STATES[3] = rtDW.DigitalFilter_FILT_STATES[2];
   rtDW.DigitalFilter_FILT_STATES[2] = DigitalFilter_TEMP_STATES_idx_1;
+
+  /* Update for UnitDelay: '<S4>/UD'
+   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.UD_DSTATE[2] = rtb_TSamp_idx_2;
+
+  /* Update for S-Function (sdspbiquad): '<S3>/Digital Filter' */
   rtDW.DigitalFilter_FILT_STATES[5] = rtDW.DigitalFilter_FILT_STATES[4];
   rtDW.DigitalFilter_FILT_STATES[4] = DigitalFilter_TEMP_STATES_idx_2;
+
+  /* Update for UnitDelay: '<S4>/UD' incorporates:
+   *  SampleTimeMath: '<S4>/TSamp'
+   *
+   * About '<S4>/TSamp':
+   *  y = u * K where K = 1 / ( w * Ts )
+   *   *
+   * Block description for '<S4>/UD':
+   *
+   *  Store in Global RAM
+   */
+  rtDW.UD_DSTATE[3] = rtb_TSamp_0;
+
+  /* Update for S-Function (sdspbiquad): '<S3>/Digital Filter' */
   rtDW.DigitalFilter_FILT_STATES[7] = rtDW.DigitalFilter_FILT_STATES[6];
   rtDW.DigitalFilter_FILT_STATES[6] = DigitalFilter_TEMP_STATES;
 
-  /* Update for DiscreteIntegrator: '<S105>/Integrator' incorporates:
-   *  Gain: '<S102>/Integral Gain'
-   *  Sum: '<S97>/SumI2'
-   *  Sum: '<S97>/SumI4'
+  /* Update for DiscreteIntegrator: '<S106>/Integrator' incorporates:
+   *  Gain: '<S103>/Integral Gain'
+   *  Sum: '<S98>/SumI2'
+   *  Sum: '<S98>/SumI4'
    */
   rtDW.Integrator_DSTATE[0] += ((rtb_Saturation[0] - rtb_Sum2[0]) +
     rtb_FilterCoefficient_tmp[0]) * 0.01F;
 
-  /* Update for DiscreteIntegrator: '<S100>/Filter' */
+  /* Update for DiscreteIntegrator: '<S101>/Filter' */
   rtDW.Filter_DSTATE[0] += 0.01F * rtb_FilterCoefficient[0];
 
-  /* Update for DiscreteIntegrator: '<S105>/Integrator' incorporates:
-   *  Gain: '<S102>/Integral Gain'
-   *  Sum: '<S97>/SumI2'
-   *  Sum: '<S97>/SumI4'
+  /* Update for DiscreteIntegrator: '<S106>/Integrator' incorporates:
+   *  Gain: '<S103>/Integral Gain'
+   *  Sum: '<S98>/SumI2'
+   *  Sum: '<S98>/SumI4'
    */
   rtDW.Integrator_DSTATE[1] += ((rtb_Saturation[1] - rtb_Sum2[1]) +
     rtb_FilterCoefficient_tmp[1]) * 0.01F;
 
-  /* Update for DiscreteIntegrator: '<S100>/Filter' */
+  /* Update for DiscreteIntegrator: '<S101>/Filter' */
   rtDW.Filter_DSTATE[1] += 0.01F * rtb_FilterCoefficient[1];
 
-  /* Update for DiscreteIntegrator: '<S47>/Integrator' */
+  /* Update for DiscreteIntegrator: '<S48>/Integrator' */
   rtDW.Integrator_DSTATE_h = 0.005F * rtb_Sum + Integrator;
 
-  /* Update for DiscreteTransferFcn: '<S40>/Filter Differentiator TF' */
+  /* Update for DiscreteTransferFcn: '<S41>/Filter Differentiator TF' */
   rtDW.FilterDifferentiatorTF_states = FilterDifferentiatorTF_tmp;
 }
 
