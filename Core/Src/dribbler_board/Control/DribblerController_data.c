@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'DribblerController'.
  *
- * Model version                  : 1.7
- * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Dec 24 22:58:45 2024
+ * Model version                  : 2.8
+ * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
+ * C/C++ source code generated on : Tue Mar 11 16:25:26 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -21,7 +21,8 @@
 
 /* Invariant block signals (default storage) */
 const ConstB_DribblerController_T DribblerController_ConstB = {
-  -3.0                                 /* '<Root>/Gain' */
+  -3.0,                                /* '<Root>/Gain' */
+  1.0                                  /* '<S5>/Reciprocal' */
 };
 
 /* Constant parameters (default storage) */

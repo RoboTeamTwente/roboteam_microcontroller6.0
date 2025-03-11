@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'DribblerController'.
  *
- * Model version                  : 1.7
- * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Dec 24 22:58:45 2024
+ * Model version                  : 2.8
+ * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
+ * C/C++ source code generated on : Tue Mar 11 16:25:26 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -31,13 +31,13 @@ real32_T rtMinusInfF = -(real32_T)INFINITY;
 /* Test if value is infinite */
 boolean_T rtIsInf(real_T value)
 {
-  return (boolean_T)((value==rtInf || value==rtMinusInf) ? 1U : 0U);
+  return (boolean_T)isinf(value);
 }
 
 /* Test if single-precision value is infinite */
 boolean_T rtIsInfF(real32_T value)
 {
-  return (boolean_T)(((value)==rtInfF || (value)==rtMinusInfF) ? 1U : 0U);
+  return (boolean_T)isinf(value);
 }
 
 /* Test if value is not a number */

@@ -223,22 +223,23 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-    if (dribbler_initialized) {
-        if (dribbler_hasEncoder()) {
-            has_encoder_control();
-        }
-        else {
-            no_encoder_control();
-        }
-    }
-
+    codegen_encoder_control()
+    // if (dribbler_initialized) {
+    //     if (dribbler_hasEncoder()) {
+    //         has_encoder_control();
+    //     }
+    //     else {
+    //         no_encoder_control();
+    //     }
+    // }
 }
 
 void codegen_encoder_control() {
     bool ballsensor_hasBall = ballsensor_hasBall();
+    bool encoder_func = dribbler_hasEncoder();
     float motor_current = dribbler_getCurrent();
     float encoder_speed = dribbler_GetEncoderSpeed();
-    float motor_effort;
+    float motor_effort = 0;
 
     control_init();
 

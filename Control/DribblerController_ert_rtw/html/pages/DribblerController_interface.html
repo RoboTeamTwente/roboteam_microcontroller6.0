@@ -180,7 +180,7 @@ Output entry point of generated code. Must be called periodically, every 0.01 se
 </span>
 <div class="programlisting">
 <code class="usage"><span class="include">#include "<a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'DribblerController.h'})" class="include">DribblerController.h</a>"</span>
-void <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'DribblerController_step'})" class="fcn">DribblerController_step</a>(real_T arg_encoder, boolean_T ballsensor_hasBall, real_T arg_current, real_T *arg_motor_effort)</code>
+void <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'DribblerController_step'})" class="fcn">DribblerController_step</a>(real_T arg_encoder, boolean_T ballsensor_hasBall, real_T arg_current, real_T *arg_motor_effort, real_T *arg_In1)</code>
 </div>
 </div>
 </section>
@@ -248,6 +248,17 @@ Input data for &lt;Root&gt;/current
 </span>
 <div class="programlisting">
 <div>Defined externally</div><code class="usage">real_T arg_current;</code>
+</div>
+</div>
+<div id="fcn_arg_In1">
+<h4 class="function">
+arg_In1
+</h4>
+<span class="description">
+Input data for &lt;Root&gt;/encoder_func
+</span>
+<div class="programlisting">
+<div>Defined externally</div><code class="usage">real_T arg_In1;</code>
 </div>
 </div>
 </section>
