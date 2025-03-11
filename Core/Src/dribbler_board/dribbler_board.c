@@ -1,5 +1,6 @@
 #include "dribbler_board.h"
 #include "control.h"
+#include "control.c"
 #include <stdlib.h>
 #include <string.h>
 
@@ -222,15 +223,27 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-    if (dribbler_initialized) {
-        if (dribbler_hasEncoder()) {
-            has_encoder_control();
-        }
-        else {
-            no_encoder_control();
-        }
-    }
+    codegen_encoder_control()
+    // if (dribbler_initialized) {
+    //     if (dribbler_hasEncoder()) {
+    //         has_encoder_control();
+    //     }
+    //     else {
+    //         no_encoder_control();
+    //     }
+    // }
+}
 
+void codegen_encoder_control() {
+    bool ballsensor_hasBall = ballsensor_hasBall();
+    bool encoder_func = dribbler_hasEncoder();
+    float motor_current = dribbler_getCurrent();
+    float encoder_speed = dribbler_GetEncoderSpeed();
+    float motor_effort = 0;
+
+    control_init();
+
+    dribbler_SetSpeed(motor_effort, 1); //the motor will be in breaking mode here (what does this do?)
 }
 
 
@@ -241,43 +254,39 @@ void has_encoder_control() {
     dribbler_SetSpeed(output, 1);
 }
 
-// void has_encoder_control() {
+void has_encoder_control() {
+    if (ballsensor_hasBall() && dribblerCommand.dribblerOn) {
+        setpoint = 500;
+        state = 1;
+    }
+    else {
+        setpoint = 0;
+        state = 2;
+    }
 
+    speed = dribbler_GeetEncoderSpeed();
 
-//     if (ballsensor_hasBall() && dribblerCommand.dribblerOn) {
-//         setpoint = 500;
-//         state = 1;
-//     }
-//     else {
-//         setpoint = 0;
-//         state = 2;
-//     }
+    float error = setpoint - (float)fabs(speed);
 
+    integral += error * CONTROL_TIMER_PERIOD;
 
-//     speed = dribbler_GetEncoderSpeed();
+    float derivative = (error - previous_error) / CONTROL_TIMER_PERIOD;
 
-//     float error = setpoint - (float)fabs(speed);
+    float output = (Kp * error) + (Ki * integral) + (Kd * derivative);
 
-//     integral += error * CONTROL_TIMER_PERIOD;
+    PWM += output;
 
-//     float derivative = (error - previous_error) / CONTROL_TIMER_PERIOD;
+    if (PWM > 1.0f) {
+        PWM = 1.0f;
+    }
+    else if (PWM < 0.0f) {
+        PWM = 0.0f;
+    }
 
-//     float output = (Kp * error) + (Ki * integral) + (Kd * derivative);
+    previous_error = error;
 
-//     PWM += output;
-
-//     if (PWM > 1.0f) {
-//         PWM = 1.0f;
-//     }
-//     else if (PWM < 0.0f) {
-//         PWM = 0.0f;
-//     }
-
-//     previous_error = error;
-
-//     dribbler_SetSpeed(PWM, 1);
-// }
-
+    dribbler_SetSpeed(PWM, 1);
+}
 
 void no_encoder_control() {
     if (dribblerCommand.dribblerOn) {

@@ -11,7 +11,7 @@ Coder Assumptions for 'DribblerController'
 </h1>
 <div>
 <p>
-List of assumptions that you can check and expected results for selected target environment. For more information see, <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'legacyMCall', expr:'helpview(fullfile(docroot,\'toolbox\',\'ecoder\',\'helptargets.map\'),\'verif_of_code_generation_assumptions\')'})" >Verification of Code Generation Assumptions</a>.
+Code generation assumptions that you can check and expected results for selected target environment. <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'legacyMCall', expr:'helpview(\'ecoder\',\'verification_of_code_gen_assumptions\')'})" >Related documentation</a>.
 </p>
 </div>
 <div id="table_of_contents">
@@ -153,7 +153,7 @@ C Language Standard
 <tr>
 <td align="left" valign="top">
 <p>
-Zero initialization code has been optimized for model 'DribblerController'.
+Zero initialization code optimized for model 'DribblerController'.
 </p>
 <p>
 <table class="AltRow" cellspacing="0">
@@ -180,7 +180,7 @@ True
 
 </p>
 <p>
-If assumption is not correct, remove optimization by using <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'legacyMCall', expr:'rtw.report.CoderAssumptions.showMemZeroInitParams(\'DribblerController\')'})" >Configuration Parameters > Code Generation > Optimization</a> settings. Alternatively, configure target environment to make assumption hold.
+If code generator assumption is incorrect, disable corresponding model configuration optimization parameter or change target environment configuration to align with assumption.
 </p>
 
 </td>
@@ -222,7 +222,7 @@ False
 
 </p>
 <p>
-If assumptions are not correct, subnormal numbers might cause mismatches between model and generated code simulation results.  For more information see, <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'legacyMCall', expr:'helpview(fullfile(docroot,\'toolbox\',\'ecoder\',\'helptargets.map\'),\'subnormal_numbers_performance\')'})" >Subnormal Number Performance</a>.
+If code generator assumptions are incorrect, subnormal numbers might cause mismatches between model and generated code simulation results.
 </p>
 
 </td>

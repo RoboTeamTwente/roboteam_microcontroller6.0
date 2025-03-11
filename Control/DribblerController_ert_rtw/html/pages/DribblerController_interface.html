@@ -118,7 +118,7 @@ The code generator produced a data code interface for the model. The code interf
 <table width="100%" name="rtwIdDataInterface_table_002" id="rtwIdDataInterface_table_002" border="0">
 <tr>
 <td align="left" valign="top">
-External code initiates execution of the generated code by calling entry-point functions generated for the model. The type of function code that the code generator produces for a model depends on the modelling style and periodic rates represented in the model. For more information, see <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'legacyMCall', expr:'helpview(fullfile(docroot,\'toolbox\',\'ecoder\',\'helptargets.map\'),\'model_entry_points\')'})" >Configure Generated C Function Interface for Model Entry-Point Functions</a><br><br>
+External code initiates execution of the generated code by calling entry-point functions generated for the model. The type of function code that the code generator produces for a model depends on the modeling style and periodic rates represented in the model. For more information, see <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'legacyMCall', expr:'helpview(fullfile(docroot,\'toolbox\',\'ecoder\',\'helptargets.map\'),\'model_entry_points\')'})" >Configure Generated C Function Interface for Model Entry-Point Functions</a><br><br>
 </td>
 
 </tr>
@@ -180,7 +180,7 @@ Output entry point of generated code. Must be called periodically, every 0.01 se
 </span>
 <div class="programlisting">
 <code class="usage"><span class="include">#include "<a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'DribblerController.h'})" class="include">DribblerController.h</a>"</span>
-void <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'DribblerController_step'})" class="fcn">DribblerController_step</a>(real_T arg_encoder, boolean_T arg_ball_detec, real_T arg_current, real_T *arg_motor_effort)</code>
+void <a href="javascript: void(0)" onclick="postParentWindowMessage({message:'jumpToCode',location:'DribblerController_step'})" class="fcn">DribblerController_step</a>(real_T arg_encoder, boolean_T ballsensor_hasBall, real_T arg_current, real_T *arg_motor_effort, real_T *arg_In1)</code>
 </div>
 </div>
 </section>
@@ -217,7 +217,7 @@ A data code interface maps model data interface elements, such as root-level inp
 <h3>
 3.1 Inports
 </h3>
-Variables that are generated in the code based on storage class specifications for model root-level inports.<div id="fcn_arg_encoder">
+Inputs are variables that are generated in the code based on storage class specifications for model root-level input ports.<div id="fcn_arg_encoder">
 <h4 class="function">
 arg_encoder
 </h4>
@@ -228,15 +228,15 @@ Input data for &lt;Root&gt;/encoder
 <div>Defined externally</div><code class="usage">real_T arg_encoder;</code>
 </div>
 </div>
-<div id="fcn_arg_ball_detec">
+<div id="fcn_ballsensor_hasBall">
 <h4 class="function">
-arg_ball_detec
+ballsensor_hasBall
 </h4>
 <span class="description">
 Input data for &lt;Root&gt;/ball_detec
 </span>
 <div class="programlisting">
-<div>Defined externally</div><code class="usage">boolean_T arg_ball_detec;</code>
+<div>Defined externally</div><code class="usage">boolean_T ballsensor_hasBall;</code>
 </div>
 </div>
 <div id="fcn_arg_current">
@@ -250,12 +250,23 @@ Input data for &lt;Root&gt;/current
 <div>Defined externally</div><code class="usage">real_T arg_current;</code>
 </div>
 </div>
+<div id="fcn_arg_In1">
+<h4 class="function">
+arg_In1
+</h4>
+<span class="description">
+Input data for &lt;Root&gt;/encoder_func
+</span>
+<div class="programlisting">
+<div>Defined externally</div><code class="usage">real_T arg_In1;</code>
+</div>
+</div>
 </section>
 <section id="sec_outports">
 <h3>
 3.2 Outports
 </h3>
-Variables that are generated in the code based on storage class specifications for model root-level outports.<div id="fcn_arg_motor_effort">
+Outputs are variables that are generated in the code based on storage class specifications for model root-level output ports.<div id="fcn_arg_motor_effort">
 <h4 class="function">
 arg_motor_effort
 </h4>
@@ -271,16 +282,16 @@ Output data for &lt;Root&gt;/motor_effort
 <h3>
 3.3 Parameters
 </h3>
-Variables in the generated code that represent model parameters and model parameter arguments that are generated in the code based on a storage class specification and flagged to be tunable or not tunable while the model code executes in the target environment.<p>
-No interface/tunable parameters in model.
+Parameters are variables in the generated code that represent model parameters and model parameter arguments. The variable is generated based on a storage class specification and flagged to be tunable or not tunable while the model code executes in the target environment.<p>
+No interface or tunable parameters in the model.
 </p>
 </section>
 <section id="sec_data_stores">
 <h3>
 3.4 Internal data
 </h3>
-Variables in the generated code that represent signal data, blocks that have internal state, and data stores that are generated in the code based on a storage class specification and flagged to be measured or not measured while the model code executes in the target environment.<p>
-No data stores in model; note that this report lists only data stores with non-auto default storage class and global data stores
+Internal data are variables in the generated code that represent signal data, blocks that have internal states, and data stores. The variable is generated based on a storage class specification and flagged to be measured or not measured while the model code executes in the target environment.<p>
+No global data stores or data stores with non-auto storage classes in the model.
 </p>
 </section>
 

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Controller'.
  *
- * Model version                  : 2.29
+ * Model version                  : 2.30
  * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Tue Feb 11 15:35:57 2025
+ * C/C++ source code generated on : Mon Mar 10 17:14:12 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -24,7 +24,7 @@
 /* Constant parameters (default storage) */
 const ConstP rtConstP = {
   /* Expression: wheels.Dforce
-   * Referenced by: '<S7>/Constant1'
+   * Referenced by: '<S8>/Constant1'
    */
   { 1.1547005383792515, -1.1547005383792515, -1.4142135623730949,
     1.4142135623730949, 2.0000000000000004, 2.0000000000000004,
@@ -37,13 +37,13 @@ const ConstP rtConstP = {
     -1.41421354F, -1.41421354F },
 
   /* Computed Parameter: Constant_Value_h
-   * Referenced by: '<S5>/Constant'
+   * Referenced by: '<S6>/Constant'
    */
   { 0.492480487F, 0.414213568F, -0.492480487F, 0.414213568F, -0.438791275F,
     -0.414213568F, 0.492480487F, -0.414213568F },
 
   /* Computed Parameter: BodyForceCouplingMatrix_Value_d
-   * Referenced by: '<S68>/BodyForceCouplingMatrix'
+   * Referenced by: '<S69>/BodyForceCouplingMatrix'
    */
   { 0.866025388F, -0.866025388F, -0.707106769F, 0.707106769F, 0.5F, 0.5F,
     -0.707106769F, -0.707106769F }

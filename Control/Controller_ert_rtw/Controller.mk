@@ -2,7 +2,7 @@
 ## Makefile generated for component 'Controller'. 
 ## 
 ## Makefile     : Controller.mk
-## Generated on : Mon Feb 10 17:12:26 2025
+## Generated on : Mon Mar 10 17:14:19 2025
 ## Final product: $(RELATIVE_PATH_TO_ANCHOR)/Controller
 ## Product type : executable
 ## 
@@ -21,7 +21,7 @@ MAKEFILE                  = Controller.mk
 MATLAB_ROOT               = /usr/local/MATLAB/R2024b
 MATLAB_BIN                = /usr/local/MATLAB/R2024b/bin
 MATLAB_ARCH_BIN           = $(MATLAB_BIN)/glnxa64
-START_DIR                 = /home/marijn/Roboteam/roboteam_microcontroller6.0/Control
+START_DIR                 = /home/joje/Documents/RoboTeam_Twente/Github_RoboTeam/roboteam_microcontroller6.0/Control
 SOLVER                    = 
 SOLVER_OBJ                = 
 CLASSIC_INTERFACE         = 0
