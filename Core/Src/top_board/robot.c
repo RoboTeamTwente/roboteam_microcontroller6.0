@@ -1221,11 +1221,10 @@ void control_loop(u32 current_time) {
 	/* == Fill robotFeedback packet == */ {
 		robotFeedback.timestamp = unix_timestamp;
 
-		f32 localState[4] = { 0.0f };
 		f32 vu = ctrl_out.vel_est[0];
 		f32 vv = ctrl_out.vel_est[1];
 		robotFeedback.rho = sqrt(vu * vu + vv * vv);
-		robotFeedback.yaw = localState[yaw];
+		robotFeedback.yaw = yaw_GetCalibratedYaw();
 		robotFeedback.theta = atan2(vv, vu);
 
 		if (powerAlive.sensorWorking && powerVoltage.voltagePowerBoard > 15.1f) {
