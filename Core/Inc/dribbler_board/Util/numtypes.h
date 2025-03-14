@@ -15,4 +15,7 @@ typedef int64_t i64;
 typedef float f32;
 typedef double f64;
 
+// Bool
+// typedef _Bool bool;
+
 #endif // GENERAL_UTILS_H
