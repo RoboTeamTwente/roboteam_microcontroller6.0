@@ -7,6 +7,12 @@
 
 ///////////////////////////////////////////////////// DEFINITIONS
 
+// Compiler compatiblity hack
+// M_PI is not part of the C standard for some reason, so some compilers/IDE backends will complain if this isn't here
+#ifndef M_PI
+#   define M_PI 3.1415926535897932384626433832f
+#endif
+
 // System
 #define TIME_DIFF 0.01F 		// time difference due to 100Hz frequency
 #define WIRELESS_RX_COUNT 4000  // count after which wireless should go to timeout after last packet. Multiply with period base (62.5 us) to get to the time in seconds.
@@ -27,7 +33,7 @@
 #define WHEEL_GEAR_RATIO 1.0F 	// gear ratio between motor and wheel
 #define MAX_PWM_MOTOR_DRIVER 1.0F // MAX_PWM is 6000 but the new PWM range sent to the motor driver is between -1 and 1. 
 #define MAX_VOLTAGE 24.0F	// [V] see datasheet // NEW MOTOR: ECXFL32L 48V (we use the 24V version)
-float SPEED_CONSTANT; 	
+float SPEED_CONSTANT;
 #define SPEED_CONSTANT_MOTOR 291.0F //[(rpm/V] see datasheet // translation from rpm/V to rad/s/V is done later.
 #define TORQUE_CONSTANT_MOTOR 0.0328F //[Nm/A]
 #define RESISTANCE_MOTOR 1.07F //[ohm]
@@ -46,8 +52,8 @@ float WHEEL_REF_LIMIT; 							// [rad/s] Limit the maximum wheel reference to le
 
 /*
 * @brief The axis on which a robot is being controlled.
-* 
-* @note The x, y and u, v velocities can technically be used interchangeably. 
+*
+* @note The x, y and u, v velocities can technically be used interchangeably.
 *	However, in order to stick to the conventions one should use x and y when
 *   they refer to the global frame and u and v for the local frame.
 */
@@ -75,7 +81,7 @@ typedef enum {
 	idle		// Not used at this moment
 }PID_states;// keeps track of the state of the system
 
-struct PIDstruct{
+struct PIDstruct {
 	float kP;			// The gain of the proportional action 
 	float kI;			// The gain of the integrating action
 	float kD;			// The gain fo the deriving action
@@ -86,7 +92,7 @@ struct PIDstruct{
 	float maxOutput;	// Not being used at this moment. The maximal output of this PID
 	float ramp;			// Not being used at this moment. The maximal change of this PID value
 	float prev_PID;		// The previous PID value
-} static PIDdefault = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, TIME_DIFF, -1000000, 1000000, 1000000, 0};
+} static PIDdefault = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, TIME_DIFF, -1000000, 1000000, 1000000, 0 };
 
 typedef struct PIDstruct PIDvariables;
 
@@ -98,7 +104,7 @@ void control_util_Init();
 
 /**
  * Initializes the PID values.
- * 
+ *
  * Loads the constants into the struct and sets up the default PID parameters.
  */
 void initPID(PIDvariables* PID, float kP, float kI, float kD);

@@ -28,17 +28,18 @@
 
 ///////////////////////////////////////////////////// STRUCTS
 
-typedef struct StateInfo {
-	float visionYaw;					// The yaw for this robot as indicated by vision [rad]
-	bool visionAvailable;				// Wether vision data can be used at this point
-	float xsensAcc[2];					// The acceleration as measured by the IMU in the X and Y directions [m/(s^2)]
-	float xsensYaw;						// They yaw for this robot as indicated by the IMU [rad]
-	float rateOfTurn;					// The angular velocity of the robot [rad/s]
-	float wheelSpeeds[4];				// The speed for each wheel [rad/s]
-	float dribblerSpeed;				// The measured speed of the dribbler [rad/s]
-	float dribblerFilteredSpeed;		// The filtered speed of the dribbler [rad/s]
-	float dribbleSpeedBeforeGotBall;	// The speed of the dribbler before it had a ball [rad/s]
-} StateInfo;
+// MOVED TO CONTROL.H
+// typedef struct StateInfo {
+// 	float visionYaw;					// The yaw for this robot as indicated by vision [rad]
+// 	bool visionAvailable;				// Wether vision data can be used at this point
+// 	float xsensAcc[2];					// The acceleration as measured by the IMU in the X and Y directions [m/(s^2)]
+// 	float xsensYaw;						// They yaw for this robot as indicated by the IMU [rad]
+// 	float rateOfTurn;					// The angular velocity of the robot [rad/s]
+// 	float wheelSpeeds[4];				// The speed for each wheel [rad/s]
+// 	float dribblerSpeed;				// The measured speed of the dribbler [rad/s]
+// 	float dribblerFilteredSpeed;		// The filtered speed of the dribbler [rad/s]
+// 	float dribbleSpeedBeforeGotBall;	// The speed of the dribbler before it had a ball [rad/s]
+// } StateInfo;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION DECLARATIONS
 
@@ -54,21 +55,21 @@ int stateEstimation_DeInit();
 
 /**
  * Updates the current state based on the measured wheel speeds, vision yaw and acceleration
- * 
+ *
  * @param input The vision, IMU and encoder data used for state estimation
  */
-void stateEstimation_Update(StateInfo* input);
+ //void stateEstimation_Update(StateInfo* input);
 
-/**
- * Get the current estimated local state
- * 
- * @param _stateLocal The curent state for u [m/s], v [m/s], w [rad/s] and yaw [rad]
- */
+ /**
+  * Get the current estimated local state
+  *
+  * @param _stateLocal The curent state for u [m/s], v [m/s], w [rad/s] and yaw [rad]
+  */
 void stateEstimation_GetState(float _stateLocal[4]);
 
 /**
  * Identical to stateEstimation_GetState(), but only returns w [rad/s].
- * 
+ *
  * @return float Rate of return
  */
 float stateEstimation_GetFilteredRoT();

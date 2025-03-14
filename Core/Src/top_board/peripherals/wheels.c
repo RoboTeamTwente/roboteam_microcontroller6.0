@@ -15,6 +15,7 @@ static uint16_t wheels_TransmitCommand(motor_id_t motor, uint8_t rwBit, uint8_t 
 ///////////////////////////////////////////////////// VARIABLES
 
 static float wheels_measured_speeds[4] = {0.0f};      // Stores most recent measurement of wheel speeds in rad/s
+static float wheels_measured_positions[4] = {0.0f};   // Stores most recent measurement of wheel positions in rad
 static bool wheels_braking = true;
 
 ///////////////////////////////////////////////////// PUBLIC FUNCTION IMPLEMENTATIONS
@@ -264,6 +265,7 @@ void computeWheelSpeeds(){
 		int16_t	encoder_value = encoder_GetCounter(motor);
 		encoder_ResetCounter(motor);
 		wheels_measured_speeds[motor] =  WHEEL_ENCODER_TO_OMEGA * encoder_value;
+		wheels_measured_positions[motor] += WHEEL_ENCODER_TO_OMEGA * encoder_value;
 	}	
 }
 
@@ -276,6 +278,18 @@ void wheels_GetMeasuredSpeeds(float speeds[4]) {
 	// Copy into "speeds", so that the file-local variable "wheels_measured_speeds" doesn't escape
 	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
 		speeds[wheel] = wheels_measured_speeds[wheel];
+	}
+}
+
+/**
+ * @brief Get the last measured wheel positions in rad
+ * 
+ * @param positions float[4]{RF, LF, LB, RB} output array in which the measured positionss will be stored
+ */
+void wheels_GetMeasuredPositions(float positions[4]) {
+	// Copy into "positions", so that the file-local variable "wheels_measured_positions" doesn't escape
+	for (wheel_names wheel = wheels_RF; wheel <= wheels_RB; wheel++) {
+		positions[wheel] = wheels_measured_speeds[wheel];
 	}
 }
 
