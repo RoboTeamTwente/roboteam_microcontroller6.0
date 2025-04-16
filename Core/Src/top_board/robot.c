@@ -1178,25 +1178,46 @@ void control_loop(u32 current_time) {
 ControlRef ref;
 
 // Compute delta to target in world frame
-float deltaX = activeRobotCommand.targetX;
-float deltaY = activeRobotCommand.targetY;
+typedef struct {
+    float x;
+    float y;
+} Vector2D;
+// On receiving new command
+Vector2D currentPos = {0.0f, 0.0f};  // Assume always starts from 0 for now
+Vector2D targetPos = {activeRobotCommand.targetX, activeRobotCommand.targetY};
+Vector2D delta = {
+    targetPos.x - currentPos.x,
+    targetPos.y - currentPos.y
+};
+// Normalize to get direction
+float distance = sqrtf(delta.x * delta.x + delta.y * delta.y);
+Vector2D velocity = {0.0f, 0.0f};
+
+if (distance > 0.01f) {
+    velocity.x = (delta.x / distance) * MAX_SPEED;
+    velocity.y = (delta.y / distance) * MAX_SPEED;
+} else {
+    velocity.x = 0.0f;
+    velocity.y = 0.0f;
+}
 
 // Convert delta to robot's local frame using inverse yaw
 float cosYaw = cosf(-stateInfo.xsensYaw);
 float sinYaw = sinf(-stateInfo.xsensYaw);
 
-ref.velRef[vel_x] = deltaX * cosYaw - deltaY * sinYaw; // local X
-ref.velRef[vel_y] = deltaX * sinYaw + deltaY * cosYaw; // local Y
+ref.velRef[vel_x] = velocity.x * cosYaw - velocity.y * sinYaw;
+ref.velRef[vel_y] = velocity.x * sinYaw + velocity.y * cosYaw;
 
-// Optional: Normalize if you want a fixed speed
-float magnitude = sqrtf(ref.velRef[vel_x]*ref.velRef[vel_x] + ref.velRef[vel_y]*ref.velRef[vel_y]);
-if (magnitude > 1e-3f) {
-    float maxSpeed = 0.5f; // or whatever speed you want
-    ref.velRef[vel_x] = (ref.velRef[vel_x] / magnitude) * maxSpeed;
-    ref.velRef[vel_y] = (ref.velRef[vel_y] / magnitude) * maxSpeed;
-} else {
+float dx = currentPos.x - targetPos.x;
+float dy = currentPos.y - targetPos.y;
+float distance_to_target = sqrtf(dx*dx + dy*dy);
+
+// This part runs every control cycle
+if (distance_to_target < 0.05f) {
     ref.velRef[vel_x] = 0.0f;
     ref.velRef[vel_y] = 0.0f;
+    ref.yawRateRef = 0.0f;
+    // optionally mark the target as reached
 }
 
 // Set yaw and angular velocity from the command
