@@ -1174,15 +1174,39 @@ void control_loop(u32 current_time) {
 	stateInfo.rateOfTurn = MTi->gyr[2];
 	stateInfo.batteryVoltage = powerVoltage.voltagePowerBoard;
 
-	// Gather reference data
-	ControlRef ref;
-	ref.velRef[vel_x] = (activeRobotCommand.rho) * cosf(activeRobotCommand.theta - stateInfo.xsensYaw);
-	ref.velRef[vel_y] = (activeRobotCommand.rho) * sinf(activeRobotCommand.theta - stateInfo.xsensYaw);
-	ref.yawRateRef = activeRobotCommand.angularVelocity;
-	ref.yawRef = activeRobotCommand.yaw;
-	ref.accRef[vel_x] = (activeRobotCommand.acceleration_magnitude) * cosf(activeRobotCommand.acceleration_angle - stateInfo.xsensYaw);
-	ref.accRef[vel_y] = (activeRobotCommand.acceleration_magnitude) * sinf(activeRobotCommand.acceleration_angle - stateInfo.xsensYaw);
-	ref.YawAccRef = 0.0f;
+// Gather reference data from target position
+ControlRef ref;
+
+// Compute delta to target in world frame
+float deltaX = activeRobotCommand.targetX;
+float deltaY = activeRobotCommand.targetY;
+
+// Convert delta to robot's local frame using inverse yaw
+float cosYaw = cosf(-stateInfo.xsensYaw);
+float sinYaw = sinf(-stateInfo.xsensYaw);
+
+ref.velRef[vel_x] = deltaX * cosYaw - deltaY * sinYaw; // local X
+ref.velRef[vel_y] = deltaX * sinYaw + deltaY * cosYaw; // local Y
+
+// Optional: Normalize if you want a fixed speed
+float magnitude = sqrtf(ref.velRef[vel_x]*ref.velRef[vel_x] + ref.velRef[vel_y]*ref.velRef[vel_y]);
+if (magnitude > 1e-3f) {
+    float maxSpeed = 0.5f; // or whatever speed you want
+    ref.velRef[vel_x] = (ref.velRef[vel_x] / magnitude) * maxSpeed;
+    ref.velRef[vel_y] = (ref.velRef[vel_y] / magnitude) * maxSpeed;
+} else {
+    ref.velRef[vel_x] = 0.0f;
+    ref.velRef[vel_y] = 0.0f;
+}
+
+// Set yaw and angular velocity from the command
+ref.yawRef = activeRobotCommand.yaw;
+ref.yawRateRef = activeRobotCommand.angularVelocity;
+
+// If you're not using acceleration control, zero these:
+ref.accRef[vel_x] = 0.1f;
+ref.accRef[vel_y] = 0.1f;
+ref.YawAccRef = 0.1f;
 
 
 	// Run the control subsystem
