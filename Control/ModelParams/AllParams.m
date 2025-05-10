@@ -9,14 +9,14 @@ accel.noise = 2;
 % Wheel position angles
 wheels.back_angle = deg2rad(45);  % rad
 wheels.front_angle = deg2rad(30); % rad
-wheels.angles = deg2rad([wheels.front_angle, pi - wheels.front_angle, ...
-    pi + wheels.back_angle, 2*pi - wheels.back_angle]);
+wheels.angles = [wheels.front_angle, pi - wheels.front_angle, ...
+    pi + wheels.back_angle, 2*pi - wheels.back_angle];
 wheels.distance = 0.0810; % m
 wheels.radius = 0.027; % m
 wheels.inertia = 1e-3; % kg/m^2
 % Wheel friction params
 wheels.strafetraction = 0.1; % Ns/m
-wheels.lineardrivetraction = 1; % Ns/m
+wheels.lineardrivetraction = 100; % Ns/m
 wheels.staticdrivetraction = 100; % Ns/m
 wheels.subwheels = 25;
 % Kinematic transformation matrices
