@@ -78,6 +78,7 @@ void init() {
     dribbler_initialized = dribbler_Init();
     ballsensor_init();
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
+    control_init();
 
     //MCP
     MCP_Init(&hcan, MCP_DRIBBLER_BOARD);
@@ -239,20 +240,21 @@ void codegen_encoder_control() {
     bool encoder_func = dribbler_hasEncoder();
     float motor_current = dribbler_getCurrent();
     float encoder_speed = dribbler_GetEncoderSpeed();
-    float motor_effort = 0;
-
-    control_init();
-
-    dribbler_SetSpeed(motor_effort, 1); //the motor will be in breaking mode here (what does this do?)
-}
-
-
-void has_encoder_control() {
     f32 output;
-    // TODO: Add current feedback
-    control_step(&output, 0.0f, 2.4576f * (f32)dribbler_GetEncoderMeasurement(), ballsensor_hasBall());
-    dribbler_SetSpeed(output, 1);
+
+    control_step(&output, motor_current, encoder_speed, ballsensor_hasBall);
+
+
+    dribbler_SetSpeed(output, 1); //the motor will be in breaking mode here (what does this do?)
 }
+
+
+// void has_encoder_control() {
+//     f32 output;
+//     // TODO: Add current feedback
+//     control_step(&output, 0.0f, 2.4576f * (f32)dribbler_GetEncoderMeasurement(), ballsensor_hasBall());
+//     dribbler_SetSpeed(output, 1);
+// }
 
 void has_encoder_control() {
     if (ballsensor_hasBall() && dribblerCommand.dribblerOn) {

@@ -6,7 +6,7 @@
 uint16_t dribbler_current_Buffer[current_Buffer_Size];
 float current_limit;
 bool motor_reversed = false;
-bool has_encoder = true;
+bool has_encoder = false;
 float dribbler_min_speed_PWM = 0.1f;
 float dribbler_idle_speed_PWM = 0.2f;
 float dribbler_max_speed_PWM = 0.8f;
