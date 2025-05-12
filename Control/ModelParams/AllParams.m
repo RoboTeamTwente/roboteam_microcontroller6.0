@@ -1,5 +1,5 @@
 % Body params
-body.inertia = 0.1; % kg/m^2
+body.inertia = 0.02; % kg/m^2
 body.mass = 2.5;    % kg
 
 % Sensor params
@@ -13,10 +13,10 @@ wheels.angles = [wheels.front_angle, pi - wheels.front_angle, ...
     pi + wheels.back_angle, 2*pi - wheels.back_angle];
 wheels.distance = 0.0810; % m
 wheels.radius = 0.027; % m
-wheels.inertia = 1e-3; % kg/m^2
+wheels.inertia = 1e-5; % kg/m^2
 % Wheel friction params
 wheels.strafetraction = 0.1; % Ns/m
-wheels.lineardrivetraction = 100; % Ns/m
+wheels.lineardrivetraction = 5; % Ns/m
 wheels.staticdrivetraction = 100; % Ns/m
 wheels.subwheels = 25;
 % Kinematic transformation matrices
@@ -33,7 +33,7 @@ wheels.slipvec = null([wheels.force2body; 1 1 1 1]); % Could in theory be used t
 % Motor params
 motor.resistance = single(1.07); % Ohm
 motor.gyration = single(0.0328); % Nm/A
-motor.friction = single(1e-4);   % Nms/rad
+motor.friction = single(1e-5);   % Nms/rad
 motor.inductance = single(0.805e-3); % H
 motor.tmax = single(155); % deg C
 
