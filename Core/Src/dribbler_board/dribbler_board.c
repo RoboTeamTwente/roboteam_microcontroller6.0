@@ -1,6 +1,6 @@
 #include "dribbler_board.h"
 #include "control.h"
-#include "control.c"
+#include "ballSensor.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -224,7 +224,7 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-    codegen_encoder_control()
+    codegen_encoder_control();
     // if (dribbler_initialized) {
     //     if (dribbler_hasEncoder()) {
     //         has_encoder_control();
@@ -236,13 +236,17 @@ void control_dribbler_callback() {
 }
 
 void codegen_encoder_control() {
-    bool ballsensor_hasBall = ballsensor_hasBall();
-    bool encoder_func = dribbler_hasEncoder();
-    float motor_current = dribbler_getCurrent();
-    float encoder_speed = dribbler_GetEncoderSpeed();
+    _Bool ballsensorTrueOrFalse = ballsensor_hasBall();
+    LOG_printf("ball sensor is %d", ballsensorTrueOrFalse);
+    // _Bool encoder_func = dribbler_hasEncoder();
+    f32 motor_current = dribbler_getCurrent();
+    LOG_printf("motor current is %f", motor_current);
+    f32 encoder_speed = dribbler_GetEncoderSpeed();
+    LOG_printf("encoder speed is %f", encoder_speed);
     f32 output;
+    LOG_printf("output is %f", output);
 
-    control_step(&output, motor_current, encoder_speed, ballsensor_hasBall);
+    control_step(&output, motor_current, encoder_speed, ballsensorTrueOrFalse);
 
 
     dribbler_SetSpeed(output, 1); //the motor will be in breaking mode here (what does this do?)
