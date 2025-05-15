@@ -72,14 +72,17 @@ int state = 0;
 void init() {
     HAL_IWDG_Refresh(&hiwdg);
     // Peripherals
+
     HAL_TIM_Base_Start_IT(CONTROL_TIMER); //start the timer used for the control loop
     HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL); //enable timer for the encoder
     LOG_init();
+    LOG_printf("hihihihi\n");
+    LOG_sendAll();
     dribbler_initialized = dribbler_Init();
     ballsensor_init();
     ball_counter = 250; // making sure that the dribbler doesn't spin on bootup
     control_init();
-
+ 
     //MCP
     MCP_Init(&hcan, MCP_DRIBBLER_BOARD);
     dribblerAliveHeaderToTop = MCP_Initialize_Header(MCP_PACKET_TYPE_MCP_DRIBBLER_ALIVE, MCP_TOP_BOARD);
@@ -125,6 +128,8 @@ void loop() {
             MCP_Process_Message(&MailBox_three);
         MCP_to_process = false;
     }
+    // TODO switch between the two sends or comment out encoder
+    do_send_encoder();
     do_send_ballState();
 
     // if(dribblerCommand.dribblerOn){
@@ -132,7 +137,7 @@ void loop() {
     // } else {
     //     LOG_printf("Dribbler is off\n");
     // }
-    // LOG_sendAll();
+    LOG_sendAll();
 
 #ifdef LOGGING
     sprintf((char*)Uart_Tx_Buffer, "S:%.2f,D:%.2f,P:%.2f,T:%.4f\n", setpoint, speed, PWM, timestamp);
@@ -189,6 +194,14 @@ void MCP_Send_Ball_State() {
     }
 }
 
+void MCP_Send_Encode() {
+    if ((MCP_GetFreeToSend(MCP_TOP_BOARD))) {
+        MCP_DribblerEncoder de = {0};
+        encodeMCP_DribblerEncoder(&de, &mcp_encoder);
+        MCP_Send_Message(&hcan, &de, dribblerEncoderHeader, MCP_TOP_BOARD);
+    }
+}
+
 void MCP_resetSendMsg() {
     sendSeesBall = false;
 }
@@ -214,6 +227,11 @@ void do_send_ballState() {
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
     }
 }
+
+void do_send_encoder() {
+    MCP_Send_Encode();
+}
+
 void control_dribbler_callback() {
 
     dribbler_UpdateEncoderSpeed();
@@ -241,8 +259,10 @@ void codegen_encoder_control() {
     // _Bool encoder_func = dribbler_hasEncoder();
     f32 motor_current = dribbler_getCurrent();
     LOG_printf("motor current is %f", motor_current);
+    mcp_encoder.filteredSpeed = motor_current;
     f32 encoder_speed = dribbler_GetEncoderSpeed();
     LOG_printf("encoder speed is %f", encoder_speed);
+    mcp_encoder.measuredSpeed = encoder_speed;
     f32 output;
     LOG_printf("output is %f", output);
 

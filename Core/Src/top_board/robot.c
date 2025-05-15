@@ -383,6 +383,10 @@ void MCP_Process_Message(mailbox_buffer* to_Process) {
 		MCP_SeesBallPayload* spb = (MCP_SeesBallPayload*)to_Process->data_Frame;
 		decodeMCP_SeesBall(&seesBall, spb);
 		break;
+	case MCP_PACKET_ID_DRIBBLER_TO_TOP_MCP_DRIBBLER_ENCODER:;
+		MCP_DribblerEncoderPayload* de = (MCP_DribblerEncoderPayload*)to_Process->data_Frame;
+		decodeMCP_DribblerEncoder(&dribblerEncoder, de);
+		break;
 	case MCP_PACKET_ID_KICKER_TO_TOP_MCP_KICKER_STATUS:;
 		MCP_KickerStatusPayload* ksp = (MCP_KickerStatusPayload*)to_Process->data_Frame;
 		decodeMCP_KickerStatus(&kickerStatus, ksp);
@@ -1254,40 +1258,42 @@ void control_loop(u32 current_time) {
 		robotStateInfo.wheelSpeed2 = stateInfo.wheelSpeeds[1];
 		robotStateInfo.wheelSpeed3 = stateInfo.wheelSpeeds[2];
 		robotStateInfo.wheelSpeed4 = stateInfo.wheelSpeeds[3];
+		robotStateInfo.dribbleSpeed = dribblerEncoder.measuredSpeed;
+		robotStateInfo.filteredDribbleSpeed = dribblerEncoder.filteredSpeed; // actually motor current
 
 		// Fill all the debug ports
-		robotStateInfo.Debug0 = ctrl_out.debug_ports[0];
-		robotStateInfo.Debug1 = ctrl_out.debug_ports[1];
-		robotStateInfo.Debug2 = ctrl_out.debug_ports[2];
-		robotStateInfo.Debug3 = ctrl_out.debug_ports[3];
-		robotStateInfo.Debug4 = ctrl_out.debug_ports[4];
-		robotStateInfo.Debug5 = ctrl_out.debug_ports[5];
-		robotStateInfo.Debug6 = ctrl_out.debug_ports[6];
-		robotStateInfo.Debug7 = ctrl_out.debug_ports[7];
-		robotStateInfo.Debug8 = ctrl_out.debug_ports[8];
-		robotStateInfo.Debug9 = ctrl_out.debug_ports[9];
-		robotStateInfo.Debug10 = ctrl_out.debug_ports[10];
-		robotStateInfo.Debug11 = ctrl_out.debug_ports[11];
-		robotStateInfo.Debug12 = ctrl_out.debug_ports[12];
-		robotStateInfo.Debug13 = ctrl_out.debug_ports[13];
-		robotStateInfo.Debug14 = ctrl_out.debug_ports[14];
-		robotStateInfo.Debug15 = ctrl_out.debug_ports[15];
-		robotStateInfo.Debug16 = ctrl_out.debug_ports[16];
-		robotStateInfo.Debug17 = ctrl_out.debug_ports[17];
-		robotStateInfo.Debug18 = ctrl_out.debug_ports[18];
-		robotStateInfo.Debug19 = ctrl_out.debug_ports[19];
-		robotStateInfo.Debug20 = ctrl_out.debug_ports[20];
-		robotStateInfo.Debug21 = ctrl_out.debug_ports[21];
-		robotStateInfo.Debug22 = ctrl_out.debug_ports[22];
-		robotStateInfo.Debug23 = ctrl_out.debug_ports[23];
-		robotStateInfo.Debug24 = ctrl_out.debug_ports[24];
-		robotStateInfo.Debug25 = ctrl_out.debug_ports[25];
-		robotStateInfo.Debug26 = ctrl_out.debug_ports[26];
-		robotStateInfo.Debug27 = ctrl_out.debug_ports[27];
-		robotStateInfo.Debug28 = ctrl_out.debug_ports[28];
-		robotStateInfo.Debug29 = ctrl_out.debug_ports[29];
-		robotStateInfo.Debug30 = ctrl_out.debug_ports[30];
-		robotStateInfo.Debug31 = ctrl_out.debug_ports[31];
+	// 	robotStateInfo.Debug0 = ctrl_out.debug_ports[0];
+	// 	robotStateInfo.Debug1 = ctrl_out.debug_ports[1];
+	// 	robotStateInfo.Debug2 = ctrl_out.debug_ports[2];
+	// 	robotStateInfo.Debug3 = ctrl_out.debug_ports[3];
+	// 	robotStateInfo.Debug4 = ctrl_out.debug_ports[4];
+	// 	robotStateInfo.Debug5 = ctrl_out.debug_ports[5];
+	// 	robotStateInfo.Debug6 = ctrl_out.debug_ports[6];
+	// 	robotStateInfo.Debug7 = ctrl_out.debug_ports[7];
+	// 	robotStateInfo.Debug8 = ctrl_out.debug_ports[8];
+	// 	robotStateInfo.Debug9 = ctrl_out.debug_ports[9];
+	// 	robotStateInfo.Debug10 = ctrl_out.debug_ports[10];
+	// 	robotStateInfo.Debug11 = ctrl_out.debug_ports[11];
+	// 	robotStateInfo.Debug12 = ctrl_out.debug_ports[12];
+	// 	robotStateInfo.Debug13 = ctrl_out.debug_ports[13];
+	// 	robotStateInfo.Debug14 = ctrl_out.debug_ports[14];
+	// 	robotStateInfo.Debug15 = ctrl_out.debug_ports[15];
+	// 	robotStateInfo.Debug16 = ctrl_out.debug_ports[16];
+	// 	robotStateInfo.Debug17 = ctrl_out.debug_ports[17];
+	// 	robotStateInfo.Debug18 = ctrl_out.debug_ports[18];
+	// 	robotStateInfo.Debug19 = ctrl_out.debug_ports[19];
+	// 	robotStateInfo.Debug20 = ctrl_out.debug_ports[20];
+	// 	robotStateInfo.Debug21 = ctrl_out.debug_ports[21];
+	// 	robotStateInfo.Debug22 = ctrl_out.debug_ports[22];
+	// 	robotStateInfo.Debug23 = ctrl_out.debug_ports[23];
+	// 	robotStateInfo.Debug24 = ctrl_out.debug_ports[24];
+	// 	robotStateInfo.Debug25 = ctrl_out.debug_ports[25];
+	// 	robotStateInfo.Debug26 = ctrl_out.debug_ports[26];
+	// 	robotStateInfo.Debug27 = ctrl_out.debug_ports[27];
+	// 	robotStateInfo.Debug28 = ctrl_out.debug_ports[28];
+	// 	robotStateInfo.Debug29 = ctrl_out.debug_ports[29];
+	// 	robotStateInfo.Debug30 = ctrl_out.debug_ports[30];
+	// 	robotStateInfo.Debug31 = ctrl_out.debug_ports[31];
 	}
 
 
