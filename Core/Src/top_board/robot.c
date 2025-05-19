@@ -1166,7 +1166,7 @@ void control_loop(u32 current_time) {
 	computeWheelSpeeds();
 	wheels_GetMeasuredPositions(stateInfo.encoders);
 	wheels_GetMeasuredSpeeds(stateInfo.wheelSpeeds);
-	yaw_Calibrate(MTi->angles[2] * M_PI / 180, stateInfo.visionYaw, stateInfo.visionAvailable, MTi->gyr[2]);
+	yaw_Calibrate(MTi->angles[2] * M_PI / 180.0f, stateInfo.visionYaw, stateInfo.visionAvailable, MTi->gyr[2]);
 	stateInfo.xsensAcc[vel_x] = 9.81f * MTi->acc[vel_x];
 	stateInfo.xsensAcc[vel_y] = 9.81f * MTi->acc[vel_y];
 	// stateInfo.xsensYaw = (MTi->angles[2] * M_PI / 180); //Gradients to Radians
