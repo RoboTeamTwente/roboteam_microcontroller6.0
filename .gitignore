@@ -15,6 +15,7 @@ EWARM/
 /Release/
 Drivers
 *.ld
+*.slxc
 
 Core/Inc/general/microcontroller_communication_protocol/generator/__pycache__
 python_utils/rem/*
