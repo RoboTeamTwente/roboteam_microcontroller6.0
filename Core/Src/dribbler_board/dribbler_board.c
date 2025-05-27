@@ -242,6 +242,7 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
+    
     codegen_encoder_control();
     // if (dribbler_initialized) {
     //     if (dribbler_hasEncoder()) {
@@ -254,19 +255,19 @@ void control_dribbler_callback() {
 }
 
 void codegen_encoder_control() {
-    _Bool ballsensorTrueOrFalse = ballsensor_hasBall();
-    LOG_printf("ball sensor is %d", ballsensorTrueOrFalse);
+    bool ballsensorTrueOrFalse = ballsensor_hasBall();
+    // LOG_printf("ball sensor is %d", ballsensorTrueOrFalse);
     // _Bool encoder_func = dribbler_hasEncoder();
     f32 motor_current = dribbler_getCurrent();
-    LOG_printf("motor current is %f", motor_current);
+    // LOG_printf("motor current is %f", motor_current);
     mcp_encoder.filteredSpeed = motor_current;
     f32 encoder_speed = dribbler_GetEncoderSpeed();
-    LOG_printf("encoder speed is %f", encoder_speed);
+    // LOG_printf("encoder speed is %f", encoder_speed);
     mcp_encoder.measuredSpeed = encoder_speed;
-    f32 output;
-    LOG_printf("output is %f", output);
+    f32 output = 0.0f;
+    // LOG_printf("output is %f", output);
 
-    control_step(&output, motor_current, encoder_speed, ballsensorTrueOrFalse);
+    // control_step(&output, motor_current, encoder_speed, ballsensorTrueOrFalse);
 
 
     dribbler_SetSpeed(output, 1); //the motor will be in breaking mode here (what does this do?)
