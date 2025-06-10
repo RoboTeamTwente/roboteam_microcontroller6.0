@@ -53,9 +53,9 @@ float PWM = 0.0f;
 float speed = 0; 
 float timestamp = 0;
 
-float Kp = 0.002f;  
-float Ki = 0.00f; 
-float Kd = 0.00f;  
+float Kp = 0.00001f;  
+float Ki = 0.0001f; 
+float Kd = 0.000001f;  
 
 float previous_error = 0.0f;
 float integral = 0.0f;
@@ -219,53 +219,53 @@ void control_dribbler_callback() {
 
     do_send_ballState();
 
-    if(dribbler_initialized){
-        if(dribbler_hasEncoder()){
-            has_encoder_control();
-        } else{
-            no_encoder_control();
-        }
-    }
+
+    has_encoder_control();
+
+    // if(dribbler_initialized){
+    //     if(dribbler_hasEncoder()){
+    //         has_encoder_control();
+    //     } else{
+    //         no_encoder_control();
+    //     }
+    // }
 
 } 
 
-
-
-
 void has_encoder_control() {
-
-
-    if(ballsensor_hasBall() && dribblerCommand.dribblerOn){
-            setpoint = 500;
-            state = 1;
-    } else {
-            setpoint = 0;
-            state = 2;
+    if (ballsensor_hasBall() && dribblerCommand.dribblerOn) {
+        setpoint = 300;
+        state = 1;
     }
-
+    else {
+        setpoint = 0;
+        state = 2;
+    }
 
     speed = dribbler_GetEncoderSpeed();
 
     float error = setpoint - (float)fabs(speed);
-    
+
     integral += error * CONTROL_TIMER_PERIOD;
-    
+
     float derivative = (error - previous_error) / CONTROL_TIMER_PERIOD;
-    
+
     float output = (Kp * error) + (Ki * integral) + (Kd * derivative);
-    
+
     PWM += output;
 
-    if (PWM > 1.0f) {
-        PWM = 1.0f;
-    } else if (PWM < 0.0f) {
+    if (PWM > 2.0f) {
+        // PWM = 2.0f;
+    }
+    else if (PWM < 0.0f) {
         PWM = 0.0f;
     }
-    
+
     previous_error = error;
 
-    dribbler_SetSpeed(PWM,1);
+    dribbler_SetSpeed(PWM, 1);
 }
+
 
 
 void no_encoder_control(){
