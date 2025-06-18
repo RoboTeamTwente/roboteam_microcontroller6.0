@@ -1,9 +1,17 @@
-function discretize_plant(ts, model)
-proj = currentProject;
-
-if nargin < 2
-    model = "Plant";
+function discretize_plant(ts, options)
+arguments
+    ts {mustBePositive}
+    options.model (1,1) string = "Plant"
+    options.STF (1,1) boolean = true
 end
+%DISCRETIZE_PLANT Recursively creates discretized versions of model and the
+%referenced submodels it contains.
+% TS: sample time
+% MODEL: Model to produce discretized version of, defaults to "Plant"
+
+proj = currentProject;
+model = options.model;
+STF = options.STF;
 
 model_d = model+"_d"
 model_fname = "Subsystems/"+model+".slx";
