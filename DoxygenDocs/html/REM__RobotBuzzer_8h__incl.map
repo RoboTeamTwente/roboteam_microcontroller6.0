@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/roboteam_embedded_messages/include/REM_RobotBuzzer.h" name="Core/Inc/general/roboteam_embedded_messages/include/REM_RobotBuzzer.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,284,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="51,167,134,192"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,48,85,68,66,94,62,110,65,127,80,157,75,160,60,128,57,110,61,92,82,64,108,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="161,167,232,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,43,208,64,228,92,232,110,230,128,214,160,210,157,225,127,227,110,224,94,204,68,178,48"/>
+<area shape="rect" id="Node000004" href="$REM__BaseTypes_8h.html" title=" " alt="" coords="75,93,214,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,46,147,83,142,83,142,46"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="138,121,109,160,105,157,134,117"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="155,117,185,157,180,160,151,121"/>
+</map>

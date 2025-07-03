@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/roboteam_embedded_messages/include/REM_RobotAssuredPacket.h" name="Core/Inc/general/roboteam_embedded_messages/include/REM_RobotAssuredPacket.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,336,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="77,167,160,192"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,48,111,68,92,94,88,110,91,127,106,157,101,160,86,128,83,110,87,92,108,64,134,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="187,167,258,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,43,234,64,254,92,258,110,256,128,240,160,236,157,251,127,253,110,250,94,230,68,204,48"/>
+<area shape="rect" id="Node000004" href="$REM__BaseTypes_8h.html" title=" " alt="" coords="101,93,240,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,46,173,83,168,83,168,46"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="164,121,135,160,131,157,160,117"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="181,117,211,157,206,160,177,121"/>
+</map>

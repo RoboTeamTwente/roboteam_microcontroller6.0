@@ -1,0 +1,25 @@
+var structMTi__data__struct =
+[
+    [ "acc", "structMTi__data__struct.html#abf8e86960c0777d45469e12a1573ea12", null ],
+    [ "angles", "structMTi__data__struct.html#aaabd34a79e7e8bffafc15d2251cf4d00", null ],
+    [ "configuration_total", "structMTi__data__struct.html#a4c1d13f98c1d8fd9a4df4302f8c45724", null ],
+    [ "CS_pin", "structMTi__data__struct.html#a1bcd27a15a7c003960b5de65edf90e85", null ],
+    [ "data_configurations", "structMTi__data__struct.html#ac790e5ffc5e6082e1cf807be6cd570d8", null ],
+    [ "gyr", "structMTi__data__struct.html#a9ff41d72d36381ed8945494711bc6ed1", null ],
+    [ "HAL_UART_ErrorCallback_flag", "structMTi__data__struct.html#ac58eadaf863f77fbae2d0f9e67b8f09e", null ],
+    [ "init_phase", "structMTi__data__struct.html#a176b3f98dd6d507669d5af90277563b2", null ],
+    [ "LastAck", "structMTi__data__struct.html#a68c5afad419f9a8fbe0417a9f43ca8c2", null ],
+    [ "MT_Data_succerr", "structMTi__data__struct.html#a4e66691967271617a9a7726d3f850c83", null ],
+    [ "packetcounter", "structMTi__data__struct.html#a969101b2da4e9ded7ed12971740cfdfc", null ],
+    [ "ReceivedMessageStorage", "structMTi__data__struct.html#a79eddd3edd6ebe136e11e7de82afcba2", null ],
+    [ "RX_state", "structMTi__data__struct.html#a515a75bfc5dabc7ccd1e7a2b361da9f7", null ],
+    [ "RxBuffer", "structMTi__data__struct.html#a5e9f9d1c0f9bcbef3338da2cab68aad5", null ],
+    [ "RxDataFlag", "structMTi__data__struct.html#a8b59b3e1656274e38ec46d6d8716d3a2", null ],
+    [ "SPI", "structMTi__data__struct.html#aa3e56fd9f04cd84774e920728c9bc73f", null ],
+    [ "SPI_busy", "structMTi__data__struct.html#a3251801e56f419360197cc44032e7993", null ],
+    [ "started_icc", "structMTi__data__struct.html#a411e99d4516be087f39072a0f61f944e", null ],
+    [ "statusword", "structMTi__data__struct.html#a8b4a0a8e7a9ae26258b29f03598e7c3d", null ],
+    [ "TxBuffer", "structMTi__data__struct.html#a42b55a58a4934c8b90bc7c23cbea2882", null ],
+    [ "XBParser", "structMTi__data__struct.html#a2bc1eb73903afc2bf7f68cb899ce2eb2", null ],
+    [ "Xstate", "structMTi__data__struct.html#ac11e44609035faa7a1111fd8aabc9b45", null ]
+];

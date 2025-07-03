@@ -1,0 +1,17 @@
+<map id="Core/Inc/kicker_chipper_board/peripherals/voltage.h" name="Core/Inc/kicker_chipper_board/peripherals/voltage.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="195,5,553,31"/>
+<area shape="rect" id="Node000002" href="$kicker__board_8h.html" title=" " alt="" coords="5,152,321,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="273,36,229,53,208,65,191,80,179,97,172,117,166,152,161,151,166,115,174,95,187,77,205,61,226,48,271,31"/>
+<area shape="rect" id="Node000005" href="$shoot_8h.html" title=" " alt="" coords="201,79,547,104"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="377,41,377,79,371,79,371,41"/>
+<area shape="rect" id="Node000007" href="$voltage_8c.html" title=" " alt="" coords="572,79,931,104"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="444,30,691,76,690,81,443,35"/>
+<area shape="rect" id="Node000003" href="$kicker__chipper__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="30,225,297,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="158,187,159,225,154,225,152,187"/>
+<area shape="rect" id="Node000004" href="$kicker__board_8c.html" title=" " alt="" coords="321,225,637,251"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="224,177,429,223,428,228,223,182"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="169,216,168,178,173,178,174,216"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="332,110,198,154,197,149,330,105"/>
+<area shape="rect" id="Node000006" href="$shoot_8c.html" title=" " alt="" coords="346,152,693,177"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="407,106,497,149,494,154,405,111"/>
+</map>

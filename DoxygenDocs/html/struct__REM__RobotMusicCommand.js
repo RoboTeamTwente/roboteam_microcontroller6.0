@@ -1,0 +1,28 @@
+var struct__REM__RobotMusicCommand =
+[
+    [ "folderId", "struct__REM__RobotMusicCommand.html#a71bdfe651af379c0a06dc3bd019fc44e", null ],
+    [ "fromBS", "struct__REM__RobotMusicCommand.html#abc9f7d9153d7257b5bc05735e5eeed2c", null ],
+    [ "fromColor", "struct__REM__RobotMusicCommand.html#a2fa4dd3cc5693c227a15b9d8584b5f1f", null ],
+    [ "fromPC", "struct__REM__RobotMusicCommand.html#aaa3d73bbe46feb3618737edbf8f24eee", null ],
+    [ "fromRobotId", "struct__REM__RobotMusicCommand.html#af7ecbf0ad6849b818ffcb72243dbf138", null ],
+    [ "messageId", "struct__REM__RobotMusicCommand.html#a73d6174efbaeb5953e77396726fd5b28", null ],
+    [ "nextSong", "struct__REM__RobotMusicCommand.html#af7840f0a9e5581d7cf1a0cafbbed454f", null ],
+    [ "packetType", "struct__REM__RobotMusicCommand.html#a1c831fc72aed4bf5ab529d0981a9de7a", null ],
+    [ "pause", "struct__REM__RobotMusicCommand.html#a93ae6b8c1219c1fca4ed119a19995827", null ],
+    [ "payloadSize", "struct__REM__RobotMusicCommand.html#aa653b7d20c9e93a18dbd0a3930c11224", null ],
+    [ "play", "struct__REM__RobotMusicCommand.html#a76231e2345ab640e01442ca0345b76a1", null ],
+    [ "previousSong", "struct__REM__RobotMusicCommand.html#a0a6864f1a39d83823d2e611535184417", null ],
+    [ "remVersion", "struct__REM__RobotMusicCommand.html#a22e5891fc1d74f7e019ece0efc27a42e", null ],
+    [ "reserved", "struct__REM__RobotMusicCommand.html#a4dbcd70edffa242cef704a6395f64b69", null ],
+    [ "songId", "struct__REM__RobotMusicCommand.html#af17f4cfdca88c06e71e0140f1f30a1c1", null ],
+    [ "stop", "struct__REM__RobotMusicCommand.html#a357b202818704dd75262d68303ff5a30", null ],
+    [ "timestamp", "struct__REM__RobotMusicCommand.html#a6384f72d7b9cb74f5869b9e0ec49350f", null ],
+    [ "toBC", "struct__REM__RobotMusicCommand.html#a1a5f66b08ea3a70993592cead5813b61", null ],
+    [ "toBS", "struct__REM__RobotMusicCommand.html#a6890353881095bb5e7603082e9411ffb", null ],
+    [ "toColor", "struct__REM__RobotMusicCommand.html#a270f2ea65ac4efb87e8b70d91d05eb4a", null ],
+    [ "toPC", "struct__REM__RobotMusicCommand.html#a18f661dd8340a8c204c5143b886d4044", null ],
+    [ "toRobotId", "struct__REM__RobotMusicCommand.html#a59a1e98fdd4a7dd2e0d4d709aa7925c4", null ],
+    [ "volume", "struct__REM__RobotMusicCommand.html#a0baa31e614780bdd651e89af77b43240", null ],
+    [ "volumeDown", "struct__REM__RobotMusicCommand.html#a4e8ed64fd98951b1b890e826c42b1f64", null ],
+    [ "volumeUp", "struct__REM__RobotMusicCommand.html#aaf66e619f7a89082ecc8f86d4a81fb7c", null ]
+];

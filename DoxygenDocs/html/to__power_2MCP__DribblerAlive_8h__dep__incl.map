@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/to_power/MCP_DribblerAlive.h" name="Core/Inc/general/microcontroller_communication_protocol/to_power/MCP_DribblerAlive.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="115,5,369,60"/>
+<area shape="rect" id="Node000002" href="$MCP__to__power_8h.html" title=" " alt="" coords="115,108,369,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,70,245,108,239,108,239,70"/>
+<area shape="rect" id="Node000003" href="$power__board_8h.html" title=" " alt="" coords="111,211,373,236"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="245,172,245,210,239,210,239,172"/>
+<area shape="rect" id="Node000004" href="$power__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="5,284,217,309"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="214,243,134,286,131,281,211,238"/>
+<area shape="rect" id="Node000005" href="$power__board_8c.html" title=" " alt="" coords="241,284,504,309"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="273,238,353,281,350,286,270,243"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/from_power/MCP_Ack.h" name="Core/Inc/general/microcontroller_communication_protocol/from_power/MCP_Ack.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="68,5,416,45"/>
+<area shape="rect" id="Node000002" href="$MCP__from__power_8h.html" title=" " alt="" coords="106,93,378,148"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,55,245,93,239,93,239,55"/>
+<area shape="rect" id="Node000003" href="$power__board_8h.html" title=" " alt="" coords="111,196,373,221"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="245,158,245,196,239,196,239,158"/>
+<area shape="rect" id="Node000004" href="$power__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="5,269,217,295"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="214,228,134,271,131,267,211,224"/>
+<area shape="rect" id="Node000005" href="$power__board_8c.html" title=" " alt="" coords="241,269,504,295"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="273,224,353,267,350,271,270,228"/>
+</map>

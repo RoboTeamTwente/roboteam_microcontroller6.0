@@ -1,0 +1,15 @@
+var searchData=
+[
+  ['validatecommand_0',['validateCommand',['../Wireless_8c.html#a7c3cb613cbad1be04b6ee05b78b723d3',1,'Wireless.c']]],
+  ['voltage2pwm_1',['voltage2PWM',['../stateControl_8h.html#ae1f48905f8776301cad098f7bb04a7ae',1,'voltage2PWM(float wheelVoltage):&#160;stateControl.c'],['../stateControl_8c.html#ae1f48905f8776301cad098f7bb04a7ae',1,'voltage2PWM(float wheelVoltage):&#160;stateControl.c']]],
+  ['voltage_5fget_2',['voltage_Get',['../voltage_8h.html#a4402715f8c8626b13582eb2743444a4b',1,'voltage_Get():&#160;voltage.c'],['../voltage_8c.html#a4402715f8c8626b13582eb2743444a4b',1,'voltage_Get():&#160;voltage.c']]],
+  ['voltage_5finit_3',['voltage_Init',['../voltage_8h.html#af02293244dad988157c82b5fb2f55d8c',1,'voltage_Init():&#160;voltage.c'],['../voltage_8c.html#af02293244dad988157c82b5fb2f55d8c',1,'voltage_Init():&#160;voltage.c']]],
+  ['voltage_5fread_4',['voltage_Read',['../voltage_8h.html#a992fa843ef2d4368f9d0b43deff110b0',1,'voltage_Read():&#160;voltage.c'],['../voltage_8c.html#a992fa843ef2d4368f9d0b43deff110b0',1,'voltage_Read():&#160;voltage.c']]],
+  ['voltage_5freading_5finit_5',['voltage_reading_init',['../voltage__reading_8h.html#acb0f0945393a8b93175d3c6b70c69f65',1,'voltage_reading_init(page_struct *parent):&#160;voltage_reading.c'],['../voltage__reading_8c.html#acb0f0945393a8b93175d3c6b70c69f65',1,'voltage_reading_init(page_struct *parent):&#160;voltage_reading.c']]],
+  ['voltage_5fupdate_5fpage_6',['voltage_update_page',['../voltage__reading_8h.html#a09bba0976afcc0804f18cbdb5181146d',1,'voltage_update_page(page_struct *page):&#160;voltage_reading.c'],['../voltage__reading_8c.html#a09bba0976afcc0804f18cbdb5181146d',1,'voltage_update_page(page_struct *page):&#160;voltage_reading.c']]],
+  ['vpc_5fgetcurrent_7',['VPC_getCurrent',['../VPC__Sensor_8h.html#ac481aba6537e7d05ad1c6ccb28ee9538',1,'VPC_getCurrent():&#160;VPC_Sensor.c'],['../VPC__Sensor_8c.html#ac481aba6537e7d05ad1c6ccb28ee9538',1,'VPC_getCurrent():&#160;VPC_Sensor.c']]],
+  ['vpc_5fgetpower_8',['VPC_getPower',['../VPC__Sensor_8h.html#af8e416633da40ec5371a485958c06e48',1,'VPC_getPower():&#160;VPC_Sensor.c'],['../VPC__Sensor_8c.html#af8e416633da40ec5371a485958c06e48',1,'VPC_getPower():&#160;VPC_Sensor.c']]],
+  ['vpc_5fgetvoltage_9',['VPC_getVoltage',['../VPC__Sensor_8h.html#aa4f9ff000c92b4129e22eeb9c0409d0a',1,'VPC_getVoltage():&#160;VPC_Sensor.c'],['../VPC__Sensor_8c.html#aa4f9ff000c92b4129e22eeb9c0409d0a',1,'VPC_getVoltage():&#160;VPC_Sensor.c']]],
+  ['vpc_5fread_10',['VPC_read',['../VPC__Sensor_8h.html#a17ca85af849b4f74463631293e11bb6c',1,'VPC_read(uint8_t reg_toRead):&#160;VPC_Sensor.c'],['../VPC__Sensor_8c.html#a17ca85af849b4f74463631293e11bb6c',1,'VPC_read(uint8_t reg_toRead):&#160;VPC_Sensor.c']]],
+  ['vpc_5fwrite_11',['VPC_write',['../VPC__Sensor_8h.html#a5fdd4d3e191ca948e707126d3db53bf0',1,'VPC_write(uint8_t register, uint8_t *data):&#160;VPC_Sensor.c'],['../VPC__Sensor_8c.html#a6d60bf14e8ac52542008cad40a767194',1,'VPC_write(uint8_t reg_toWrite, uint8_t *data):&#160;VPC_Sensor.c']]]
+];

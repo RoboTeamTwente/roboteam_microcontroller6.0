@@ -1,0 +1,11 @@
+<map id="Core/Src/dribbler_board/peripherals/ballSensor.c" name="Core/Src/dribbler_board/peripherals/ballSensor.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="16,5,267,45"/>
+<area shape="rect" id="Node000002" href="$ballSensor_8h.html" title=" " alt="" coords="91,93,192,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,46,144,83,139,83,139,46"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,72,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="126,121,65,163,62,159,123,116"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="96,167,187,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="144,119,144,157,139,157,139,119"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="211,167,295,192"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="161,116,228,159,225,163,158,121"/>
+</map>

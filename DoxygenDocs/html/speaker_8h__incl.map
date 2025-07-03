@@ -1,0 +1,14 @@
+<map id="Core/Inc/top_board/peripherals/speaker.h" name="Core/Inc/top_board/peripherals/speaker.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="41,5,327,31"/>
+<area shape="rect" id="Node000002" href="$REM__RobotMusicCommand_8h.html" title=" " alt="" coords="5,79,219,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,33,132,74,129,70,170,29"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="177,225,247,251"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="199,29,218,50,233,78,240,116,238,154,231,189,223,217,217,215,226,188,233,153,235,116,228,80,214,53,195,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="11,225,93,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="83,106,51,125,37,138,26,153,22,169,24,185,39,216,35,218,19,187,17,168,22,151,33,134,48,121,80,102"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="134,102,163,122,189,151,204,183,212,215,207,216,199,185,184,153,159,126,131,106"/>
+<area shape="rect" id="Node000005" href="$REM__BaseTypes_8h.html" title=" " alt="" coords="36,152,175,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="114,105,110,143,105,142,108,104"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="99,179,69,219,64,216,94,176"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="124,175,188,218,185,222,121,180"/>
+</map>

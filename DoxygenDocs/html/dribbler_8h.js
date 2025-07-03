@@ -1,0 +1,28 @@
+var dribbler_8h =
+[
+    [ "current_Buffer_Size", "dribbler_8h.html#a4b439366e0402d4c35453eed7d7e24c3", null ],
+    [ "CURRENT_THRESHOLD", "dribbler_8h.html#a5fc1a9be80a4d9d74938e0f6ded1d231", null ],
+    [ "DRIBBLER_ENCODER_TO_OMEGA", "dribbler_8h.html#aea47f6c3ebd9c898acd4ea9f8f53f882", null ],
+    [ "DRIBBLER_GEAR_RATIO", "dribbler_8h.html#ad3453b72e980bda58e8a34fb9b5593aa", null ],
+    [ "DRIBBLER_PULSES_PER_ROTATION", "dribbler_8h.html#a5e6a8234cc5bab49c6f25dd295bf84f1", null ],
+    [ "DRIBBLER_TIME_DIFF", "dribbler_8h.html#ae935c93d844c8087f4b2c0bf7ec89c36", null ],
+    [ "dribbler_DeInit", "dribbler_8h.html#a521924da937742361306a6f88e48d041", null ],
+    [ "dribbler_getCurrent", "dribbler_8h.html#a134f6a70a46c6c75d252ca2798b39895", null ],
+    [ "dribbler_GetEncoderMeasurement", "dribbler_8h.html#a79d8d00cdfd883c90fbb340c79ac3bb7", null ],
+    [ "dribbler_GetEncoderSpeed", "dribbler_8h.html#a201e65753ef8f4fe607aaa01db63e215", null ],
+    [ "dribbler_GetIdleSpeed", "dribbler_8h.html#a80bd859b4b1ce3d4ecba4a3f900960a0", null ],
+    [ "dribbler_GetMaxSpeed", "dribbler_8h.html#ac67dcc7fd0fd8e9d3ac585a6360028ad", null ],
+    [ "dribbler_GetMinSpeed", "dribbler_8h.html#a332df2d84a7edafb123849793b3d3fe8", null ],
+    [ "dribbler_hasBall", "dribbler_8h.html#a5cf12637b886ae97b064c42aa543d292", null ],
+    [ "dribbler_hasEncoder", "dribbler_8h.html#ad305f96838eaa92e699b494d44d0fc7d", null ],
+    [ "dribbler_Init", "dribbler_8h.html#a38ed6230235d2668b2ee5b49a5d008b6", null ],
+    [ "dribbler_motor_Init", "dribbler_8h.html#af59e4117bbd4f2136eed1383bdb0dfdc", null ],
+    [ "dribbler_setCurrentLimit", "dribbler_8h.html#a4fcbec4c4496b4682160c308dd58f1d3", null ],
+    [ "dribbler_SetIdleSpeed", "dribbler_8h.html#a6f3886150726a8c824354b60145e3b8d", null ],
+    [ "dribbler_SetMaxSpeed", "dribbler_8h.html#ab47195a9e1f206df35b4e277e01178f4", null ],
+    [ "dribbler_SetMinSpeed", "dribbler_8h.html#ad7c58539eac4f1c490abf3250cf279b0", null ],
+    [ "dribbler_SetSpeed", "dribbler_8h.html#aa284441bb997a5f03b889f790f289d40", null ],
+    [ "dribbler_test", "dribbler_8h.html#aa4f20b7b3dee44be341ff961c9444ecb", null ],
+    [ "dribbler_UpdateEncoderSpeed", "dribbler_8h.html#a4e5af9dd0e65543de64e7908b3a58c96", null ],
+    [ "encoder_value", "dribbler_8h.html#af73ee329558eb97754e4ebbec9d11682", null ]
+];

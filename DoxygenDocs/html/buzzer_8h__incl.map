@@ -1,0 +1,42 @@
+<map id="Core/Inc/top_board/peripherals/buzzer.h" name="Core/Inc/top_board/peripherals/buzzer.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="493,5,771,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="412,79,503,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="605,33,496,77,494,72,603,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="527,79,611,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="624,33,588,73,584,70,620,29"/>
+<area shape="rect" id="Node000004" href="$buzzer__tunes_8h.html" title=" " alt="" coords="636,79,756,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="645,29,681,70,677,73,641,33"/>
+<area shape="rect" id="Node000005" href="$robot_8h.html" title=" " alt="" coords="781,79,849,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="662,28,777,73,775,78,660,33"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="5,152,80,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="781,104,768,107,666,120,579,127,430,131,282,135,195,142,92,155,90,155,89,150,92,149,194,136,281,130,430,126,579,122,665,115,768,101,780,99"/>
+<area shape="rect" id="Node000007" href="$top__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="104,152,171,177"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="781,102,756,107,669,119,594,126,466,130,340,135,267,141,181,153,180,148,266,136,340,129,466,125,594,120,668,113,756,101,780,96"/>
+<area shape="rect" id="Node000009" href="$drivers_8h.html" title=" " alt="" coords="195,152,274,177"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="781,104,768,107,633,125,527,131,421,138,286,155,284,155,283,150,285,149,420,132,527,126,633,119,768,101,780,99"/>
+<area shape="rect" id="Node000026" href="$pages_8h.html" title=" " alt="" coords="298,152,371,177"/>
+<area shape="poly" id="edge9_Node000005_Node000026" title=" " alt="" coords="781,104,768,107,660,123,576,131,491,139,383,155,381,155,381,150,382,149,490,133,575,126,660,118,768,101,780,99"/>
+<area shape="rect" id="Node000049" href="$rem_8h.html" title=" " alt="" coords="395,152,455,177"/>
+<area shape="poly" id="edge10_Node000005_Node000049" title=" " alt="" coords="781,104,769,107,684,121,618,130,552,139,469,155,466,155,464,150,467,149,552,134,618,125,683,116,767,101,780,99"/>
+<area shape="rect" id="Node000050" href="$REM__Packet_8h.html" title=" " alt="" coords="480,152,592,177"/>
+<area shape="poly" id="edge11_Node000005_Node000050" title=" " alt="" coords="781,104,591,152,590,147,780,99"/>
+<area shape="rect" id="Node000051" href="$REM__RobotCommand_8h.html" title=" " alt="" coords="617,152,791,177"/>
+<area shape="poly" id="edge12_Node000005_Node000051" title=" " alt="" coords="798,106,732,149,729,144,795,102"/>
+<area shape="rect" id="Node000052" href="$REM__RobotCommandTesting_8h.html" title=" " alt="" coords="816,152,1037,177"/>
+<area shape="poly" id="edge13_Node000005_Node000052" title=" " alt="" coords="834,102,901,144,899,149,831,106"/>
+<area shape="rect" id="Node000053" href="$REM__RobotFeedback_8h.html" title=" " alt="" coords="1061,152,1232,177"/>
+<area shape="poly" id="edge14_Node000005_Node000053" title=" " alt="" coords="850,97,1084,147,1083,153,848,103"/>
+<area shape="rect" id="Node000054" href="$REM__RobotBuzzer_8h.html" title=" " alt="" coords="1257,152,1407,177"/>
+<area shape="poly" id="edge15_Node000005_Node000054" title=" " alt="" coords="849,95,1247,149,1246,154,849,100"/>
+<area shape="rect" id="Node000055" href="$REM__RobotStateInfo_8h.html" title=" " alt="" coords="1431,152,1598,177"/>
+<area shape="poly" id="edge16_Node000005_Node000055" title=" " alt="" coords="849,93,1420,149,1422,150,1421,155,1420,155,849,98"/>
+<area shape="rect" id="Node000056" href="$REM__RobotGetPIDGains_8h.html" title=" " alt="" coords="1622,152,1813,177"/>
+<area shape="poly" id="edge17_Node000005_Node000056" title=" " alt="" coords="849,92,1161,113,1611,149,1613,150,1612,155,1610,155,1160,119,849,97"/>
+<area shape="rect" id="Node000016" href="$REM__RobotSetPIDGains_8h.html" title=" " alt="" coords="1837,152,2025,177"/>
+<area shape="poly" id="edge18_Node000005_Node000016" title=" " alt="" coords="849,91,1242,110,1529,128,1826,149,1827,149,1827,155,1825,155,1529,133,1241,116,849,97"/>
+<area shape="rect" id="Node000057" href="$REM__RobotPIDGains_8h.html" title=" " alt="" coords="2049,152,2215,177"/>
+<area shape="poly" id="edge19_Node000005_Node000057" title=" " alt="" coords="849,91,1321,107,1674,124,2038,149,2039,149,2039,155,2037,155,1673,129,1321,112,849,96"/>
+<area shape="rect" id="Node000058" href="$REM__SX1280Filler_8h.html" title=" " alt="" coords="2239,152,2390,177"/>
+<area shape="poly" id="edge20_Node000005_Node000058" title=" " alt="" coords="849,90,1054,94,1392,103,1803,120,2228,149,2230,149,2229,155,2228,155,1803,126,1392,108,1054,99,849,96"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="170,154,194,149,282,137,357,130,484,125,611,121,685,114,771,103,771,108,685,120,611,126,484,130,357,135,283,142,195,155,171,160"/>
+</map>

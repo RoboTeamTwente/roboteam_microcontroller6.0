@@ -1,0 +1,9 @@
+<map id="Core/Inc/dribbler_board/peripherals/ballSensor.h" name="Core/Inc/dribbler_board/peripherals/ballSensor.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="16,5,267,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,72,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,48,63,89,60,85,115,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="96,93,187,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,46,144,83,139,83,139,46"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="211,93,295,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,43,230,85,227,90,167,48"/>
+</map>

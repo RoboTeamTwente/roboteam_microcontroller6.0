@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/from_kicker/MCP_KickerAlive.h" name="Core/Inc/general/microcontroller_communication_protocol/from_kicker/MCP_KickerAlive.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,276,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="47,181,130,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,62,79,83,62,109,59,125,61,141,76,172,71,174,56,143,53,125,57,107,75,80,98,58"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="157,181,228,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,58,207,80,224,107,228,125,225,143,210,174,205,172,220,141,223,125,220,109,202,83,180,62"/>
+<area shape="rect" id="Node000004" href="$MCP__BaseTypes_8h.html" title=" " alt="" coords="71,108,210,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="143,60,143,98,138,98,138,60"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="134,135,105,175,101,172,130,132"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="151,132,181,172,176,175,147,135"/>
+</map>

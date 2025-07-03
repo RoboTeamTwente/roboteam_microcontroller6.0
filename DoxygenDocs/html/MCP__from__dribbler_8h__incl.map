@@ -1,0 +1,28 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/from_dribbler/MCP_from_dribbler.h" name="Core/Inc/general/microcontroller_communication_protocol/from_dribbler/MCP_from_dribbler.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="143,5,426,60"/>
+<area shape="rect" id="Node000002" href="$from__dribbler_2MCP__Ack_8h.html" title=" " alt="" coords="5,108,100,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,63,94,107,92,102,213,58"/>
+<area shape="rect" id="Node000006" href="$from__dribbler_2MCP__DribblerAlive_8h.html" title=" " alt="" coords="125,108,279,133"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="261,62,222,103,218,99,257,58"/>
+<area shape="rect" id="Node000007" href="$from__dribbler_2MCP__SeesBall_8h.html" title=" " alt="" coords="304,108,431,133"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="312,58,351,99,347,103,308,62"/>
+<area shape="rect" id="Node000008" href="$from__dribbler_2MCP__DribblerEncoder_8h.html" title=" " alt="" coords="455,108,629,133"/>
+<area shape="poly" id="edge15_Node000001_Node000008" title=" " alt="" coords="364,58,500,102,498,108,362,63"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="206,255,289,280"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="68,131,160,205,222,247,219,252,156,209,64,135"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="369,255,440,280"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="67,132,109,168,137,187,167,204,217,224,269,239,360,258,359,263,268,245,215,229,165,209,134,192,106,172,63,136"/>
+<area shape="rect" id="Node000005" href="$MCP__BaseTypes_8h.html" title=" " alt="" coords="178,181,317,207"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="85,131,207,175,206,180,83,136"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="250,207,250,245,245,245,245,207"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="274,204,371,248,369,253,272,209"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="193,135,170,168,165,187,168,206,188,230,214,248,211,252,184,234,164,208,160,187,165,166,188,132"/>
+<area shape="poly" id="edge9_Node000006_Node000004" title=" " alt="" coords="237,131,283,151,330,179,366,212,393,245,389,248,362,216,327,183,280,156,235,136"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="212,132,237,172,233,175,207,135"/>
+<area shape="poly" id="edge12_Node000007_Node000003" title=" " alt="" coords="367,134,354,169,331,208,306,233,279,252,276,247,302,229,327,205,349,167,362,132"/>
+<area shape="poly" id="edge13_Node000007_Node000004" title=" " alt="" coords="385,132,408,152,426,180,429,198,428,215,418,246,413,245,423,214,424,198,421,182,404,156,382,135"/>
+<area shape="poly" id="edge14_Node000007_Node000005" title=" " alt="" coords="349,136,277,178,274,174,347,131"/>
+<area shape="poly" id="edge16_Node000008_Node000003" title=" " alt="" coords="520,136,280,253,278,248,517,131"/>
+<area shape="poly" id="edge17_Node000008_Node000004" title=" " alt="" coords="533,136,424,249,420,246,529,132"/>
+<area shape="poly" id="edge18_Node000008_Node000005" title=" " alt="" coords="495,136,305,182,304,176,494,131"/>
+</map>

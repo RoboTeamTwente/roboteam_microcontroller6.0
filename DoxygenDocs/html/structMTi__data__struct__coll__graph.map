@@ -1,0 +1,14 @@
+<map id="MTi_data_struct" name="MTi_data_struct">
+<area shape="rect" id="Node000001" title=" " alt="" coords="175,181,301,207"/>
+<area shape="rect" id="Node000002" href="$structGPIO__Pin.html" title=" " alt="" coords="5,93,87,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="62,124,77,141,95,155,134,172,175,182,174,188,133,177,93,160,73,145,58,128"/>
+<area shape="rect" id="Node000003" href="$structdata__tuple.html" title=" " alt="" coords="111,93,202,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,128,151,143,155,156,168,169,185,179,183,184,165,174,150,159,145,143,147,127"/>
+<area shape="rect" id="Node000004" href="$structXbusParser.html" title="Xbus Parser state structure." alt="" coords="249,93,344,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="301,129,299,144,294,159,281,173,266,183,263,179,278,169,289,156,294,143,296,128"/>
+<area shape="rect" id="Node000005" href="$structXbusParserCallback.html" title="Callback function structure for use with the XbusParser." alt="" coords="125,5,276,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="208,39,215,54,224,68,241,81,261,91,258,96,238,85,220,71,210,57,203,41"/>
+<area shape="rect" id="Node000006" href="$structXbusMessage.html" title="An Xbus message structure with optional payload." alt="" coords="335,5,447,31"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="405,38,410,53,410,70,397,120,386,139,366,159,336,178,302,188,301,183,334,173,363,155,382,136,392,118,405,69,405,54,400,40"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="327,35,312,44,300,56,295,74,296,93,291,93,289,74,296,53,309,40,324,31"/>
+</map>

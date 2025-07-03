@@ -1,0 +1,7 @@
+<map id="Core/Inc/top_board/peripherals/speaker.h" name="Core/Inc/top_board/peripherals/speaker.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="137,5,424,31"/>
+<area shape="rect" id="Node000002" href="$speaker_8c.html" title=" " alt="" coords="5,79,292,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,38,172,81,169,76,250,33"/>
+<area shape="rect" id="Node000003" href="$robot_8c.html" title=" " alt="" coords="317,79,511,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="312,33,393,76,391,81,309,38"/>
+</map>

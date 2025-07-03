@@ -1,0 +1,18 @@
+<map id="Core/Src/dribbler_board/peripherals/dribbler.c" name="Core/Src/dribbler_board/peripherals/dribbler.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="138,5,389,45"/>
+<area shape="rect" id="Node000002" href="$dribbler_8h.html" title=" " alt="" coords="171,93,254,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,47,228,86,223,83,249,44"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="279,93,349,119"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="278,44,303,83,299,86,273,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,89,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="187,121,84,165,82,160,185,116"/>
+<area shape="rect" id="Node000004" href="$AC__DC__util_8h.html" title=" " alt="" coords="114,167,221,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="207,120,182,160,178,157,203,118"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="225,240,291,265"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="219,118,235,166,255,230,249,231,230,167,214,120"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="296,167,364,192"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="233,116,304,159,301,164,230,121"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="70,240,201,265"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="164,193,147,232,142,230,160,191"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="184,190,237,232,234,236,180,194"/>
+</map>

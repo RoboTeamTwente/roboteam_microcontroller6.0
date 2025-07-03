@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/from_top/MCP_Ack.h" name="Core/Inc/general/microcontroller_communication_protocol/from_top/MCP_Ack.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,335,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="77,167,159,192"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,48,111,68,91,94,88,110,90,127,105,157,100,160,85,128,82,110,86,92,107,64,133,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="187,167,257,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,43,233,64,254,92,258,110,255,128,240,160,235,157,250,127,252,110,249,94,229,68,204,48"/>
+<area shape="rect" id="Node000004" href="$MCP__BaseTypes_8h.html" title=" " alt="" coords="101,93,239,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,46,173,83,167,83,167,46"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="164,121,134,160,130,157,159,117"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="181,117,210,157,206,160,176,121"/>
+</map>

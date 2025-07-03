@@ -1,0 +1,11 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/to_dribbler/MCP_StopSending.h" name="Core/Inc/general/microcontroller_communication_protocol/to_dribbler/MCP_StopSending.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,269,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="44,181,127,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,62,76,83,58,109,55,125,58,141,73,172,68,174,53,143,50,125,54,107,71,80,95,58"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="154,181,225,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,58,203,80,221,107,225,125,222,143,207,174,202,172,217,141,219,125,216,109,199,83,176,62"/>
+<area shape="rect" id="Node000004" href="$MCP__BaseTypes_8h.html" title=" " alt="" coords="68,108,207,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="140,60,140,98,135,98,135,60"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="131,135,102,175,97,172,127,132"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="148,132,177,172,173,175,144,135"/>
+</map>

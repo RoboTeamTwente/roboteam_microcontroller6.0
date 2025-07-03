@@ -1,0 +1,23 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/from_power/MCP_from_power.h" name="Core/Inc/general/microcontroller_communication_protocol/from_power/MCP_from_power.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="59,5,331,60"/>
+<area shape="rect" id="Node000002" href="$from__power_2MCP__Ack_8h.html" title=" " alt="" coords="5,108,100,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,62,81,105,79,101,150,58"/>
+<area shape="rect" id="Node000006" href="$from__power_2MCP__PowerAlive_8h.html" title=" " alt="" coords="124,108,267,133"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="198,60,198,98,193,98,193,60"/>
+<area shape="rect" id="Node000007" href="$from__power_2MCP__PowerVoltage_8h.html" title=" " alt="" coords="291,108,449,133"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="250,58,339,101,337,106,248,62"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="117,255,199,280"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="47,135,33,169,31,188,36,205,50,222,68,235,108,253,106,258,65,240,47,226,32,208,26,188,28,168,42,133"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="227,255,297,280"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="63,132,91,167,130,205,174,230,219,249,216,254,172,235,127,209,87,171,59,135"/>
+<area shape="rect" id="Node000005" href="$MCP__BaseTypes_8h.html" title=" " alt="" coords="141,181,279,207"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="79,131,177,175,174,180,77,136"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="204,209,174,248,170,245,199,205"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="221,205,250,245,246,248,216,209"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="176,136,151,155,131,182,128,198,130,215,145,245,140,248,125,216,122,198,126,180,147,152,173,131"/>
+<area shape="poly" id="edge9_Node000006_Node000004" title=" " alt="" coords="231,131,265,150,281,163,294,180,299,198,296,216,280,248,275,245,291,214,293,198,289,183,277,167,262,154,229,136"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="200,133,208,171,203,173,195,134"/>
+<area shape="poly" id="edge12_Node000007_Node000003" title=" " alt="" coords="364,136,335,171,293,209,248,235,203,254,201,249,246,230,290,205,331,167,359,132"/>
+<area shape="poly" id="edge13_Node000007_Node000004" title=" " alt="" coords="379,132,393,167,395,188,388,208,372,227,352,241,308,260,306,255,349,237,369,223,384,205,389,188,388,168,374,134"/>
+<area shape="poly" id="edge14_Node000007_Node000005" title=" " alt="" coords="345,136,246,180,244,175,343,131"/>
+</map>

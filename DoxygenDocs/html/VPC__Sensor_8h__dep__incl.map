@@ -1,0 +1,11 @@
+<map id="Core/Inc/power_board/peripherals/VPC_Sensor.h" name="Core/Inc/power_board/peripherals/VPC_Sensor.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="259,5,499,45"/>
+<area shape="rect" id="Node000002" href="$power__board_8h.html" title=" " alt="" coords="111,101,373,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="343,53,262,103,259,98,340,48"/>
+<area shape="rect" id="Node000005" href="$VPC__Sensor_8c.html" title=" " alt="" coords="397,93,639,133"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="420,48,489,91,486,96,417,53"/>
+<area shape="rect" id="Node000003" href="$power__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="5,181,217,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="216,133,132,183,129,179,213,129"/>
+<area shape="rect" id="Node000004" href="$power__board_8c.html" title=" " alt="" coords="241,181,504,207"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="271,129,355,179,352,183,268,133"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="Core/Inc/top_board/MTi/Lib/MTi/xbusmessage.h" name="Core/Inc/top_board/MTi/Lib/MTi/xbusmessage.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="375,5,704,31"/>
+<area shape="rect" id="Node000002" href="$xbusparser_8h.html" title=" " alt="" coords="212,79,523,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="504,37,396,81,394,76,502,32"/>
+<area shape="rect" id="Node000007" href="$xbusmessage_8c.html" title=" " alt="" coords="547,79,876,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="577,32,684,76,682,81,575,37"/>
+<area shape="rect" id="Node000003" href="$MTi_8h.html" title=" " alt="" coords="119,152,331,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="337,111,249,154,247,149,335,106"/>
+<area shape="rect" id="Node000006" href="$xbusparser_8c.html" title=" " alt="" coords="355,152,665,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="400,106,488,149,485,154,398,111"/>
+<area shape="rect" id="Node000004" href="$MTi_8c.html" title=" " alt="" coords="5,225,217,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="199,185,131,227,128,223,197,180"/>
+<area shape="rect" id="Node000005" href="$robot_8c.html" title=" " alt="" coords="242,225,437,251"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="252,180,322,223,319,227,250,185"/>
+</map>

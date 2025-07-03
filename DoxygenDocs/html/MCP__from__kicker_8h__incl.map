@@ -1,0 +1,28 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/from_kicker/MCP_from_kicker.h" name="Core/Inc/general/microcontroller_communication_protocol/from_kicker/MCP_from_kicker.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="163,5,433,60"/>
+<area shape="rect" id="Node000002" href="$from__kicker_2MCP__Ack_8h.html" title=" " alt="" coords="5,108,100,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,63,96,107,94,102,222,58"/>
+<area shape="rect" id="Node000006" href="$from__kicker_2MCP__KickerAlive_8h.html" title=" " alt="" coords="124,108,267,133"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="268,62,219,103,215,99,265,58"/>
+<area shape="rect" id="Node000007" href="$from__kicker_2MCP__KickerCapacitorVoltage_8h.html" title=" " alt="" coords="291,108,513,133"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="331,58,382,99,379,104,328,62"/>
+<area shape="rect" id="Node000008" href="$from__kicker_2MCP__KickerStatus_8h.html" title=" " alt="" coords="537,108,688,133"/>
+<area shape="poly" id="edge15_Node000001_Node000008" title=" " alt="" coords="395,57,562,103,561,108,393,63"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="245,255,327,280"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="73,131,260,247,257,252,70,136"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="408,255,479,280"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="75,131,162,179,184,193,206,204,256,222,308,237,399,256,398,261,307,242,255,227,204,209,181,197,159,184,73,136"/>
+<area shape="rect" id="Node000005" href="$MCP__BaseTypes_8h.html" title=" " alt="" coords="217,181,355,207"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="91,131,240,176,238,181,89,136"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="289,207,289,245,283,245,283,207"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="312,204,410,248,408,253,310,209"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="196,134,196,168,200,187,207,205,228,230,254,248,251,252,224,234,202,208,195,189,191,168,191,134"/>
+<area shape="poly" id="edge9_Node000006_Node000004" title=" " alt="" coords="251,131,310,149,369,179,405,211,432,245,428,248,402,215,366,184,308,154,249,136"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="212,131,265,173,262,177,208,135"/>
+<area shape="poly" id="edge12_Node000007_Node000003" title=" " alt="" coords="402,134,391,169,369,208,345,233,318,252,315,247,341,229,365,205,386,167,397,133"/>
+<area shape="poly" id="edge13_Node000007_Node000004" title=" " alt="" coords="422,132,445,152,464,180,468,198,467,215,457,247,452,245,462,214,463,198,460,182,441,156,418,136"/>
+<area shape="poly" id="edge14_Node000007_Node000005" title=" " alt="" coords="385,136,314,178,312,174,382,131"/>
+<area shape="poly" id="edge16_Node000008_Node000003" title=" " alt="" coords="588,136,322,253,320,248,585,131"/>
+<area shape="poly" id="edge17_Node000008_Node000004" title=" " alt="" coords="601,136,466,250,463,246,597,132"/>
+<area shape="poly" id="edge18_Node000008_Node000005" title=" " alt="" coords="561,136,349,182,348,177,560,131"/>
+</map>

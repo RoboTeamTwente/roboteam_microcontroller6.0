@@ -1,0 +1,10 @@
+<map id="Core/Inc/dribbler_board/main.h" name="Core/Inc/dribbler_board/main.h">
+<area shape="rect" id="Node000001" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="173,5,395,31"/>
+<area shape="rect" id="Node000002" href="$dribbler__board_8h.html" title=" " alt="" coords="143,79,425,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="278,40,280,78,274,79,273,40"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="290,69,288,31,294,31,295,69"/>
+<area shape="rect" id="Node000003" href="$dribbler__board_8c.html" title=" " alt="" coords="5,152,288,177"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="255,111,170,154,168,149,252,106"/>
+<area shape="rect" id="Node000004" href="$dribbler__board_2main_8c.html" title=": Main program body" alt="" coords="311,152,534,177"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="316,106,401,149,399,154,314,111"/>
+</map>

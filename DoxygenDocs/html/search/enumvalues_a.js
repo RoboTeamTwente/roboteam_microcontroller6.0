@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['packet_5ffixed_5flength_0',['PACKET_FIXED_LENGTH',['../SX1280__Constants_8h.html#a812a2f122f1d0985f888dcf5e5284386ad8cbb1af19aaceb56ed1df075ef30747',1,'SX1280_Constants.h']]],
+  ['packet_5ftype_5fble_1',['PACKET_TYPE_BLE',['../SX1280__Constants_8h.html#ae920dd11e4b943078ed520aae5cd3669aa748ff103141698677f849a30487c1e8',1,'SX1280_Constants.h']]],
+  ['packet_5ftype_5fflrc_2',['PACKET_TYPE_FLRC',['../SX1280__Constants_8h.html#ae920dd11e4b943078ed520aae5cd3669afc36c27e59715cc0aa09a3eda4d6a608',1,'SX1280_Constants.h']]],
+  ['packet_5ftype_5fgfsk_3',['PACKET_TYPE_GFSK',['../SX1280__Constants_8h.html#ae920dd11e4b943078ed520aae5cd3669ab8c7c692a4a9cc7e0ee7c2ac6f21e60a',1,'SX1280_Constants.h']]],
+  ['packet_5ftype_5flora_4',['PACKET_TYPE_LORA',['../SX1280__Constants_8h.html#ae920dd11e4b943078ed520aae5cd3669ab905caebfa612d206efcc6bccbc6811c',1,'SX1280_Constants.h']]],
+  ['packet_5ftype_5franging_5',['PACKET_TYPE_RANGING',['../SX1280__Constants_8h.html#ae920dd11e4b943078ed520aae5cd3669a7f72ad7ab3a46764bae3afd73ffb00ad',1,'SX1280_Constants.h']]],
+  ['packet_5fvariable_5flength_6',['PACKET_VARIABLE_LENGTH',['../SX1280__Constants_8h.html#a812a2f122f1d0985f888dcf5e5284386a09d9b9953fb5cc778486f640f105d475',1,'SX1280_Constants.h']]],
+  ['pipestatus_7',['PipeStatus',['../MTi__protocol_8h.html#ad5901dca7a2d2b5e87d681f144cea0faad21e9ca9f298475689688f133520cdcd',1,'MTi_protocol.h']]],
+  ['pol_8',['Pol',['../MTi__protocol_8h.html#a51d8170fbd37958c3fff43c18740c413a7c713a9a8f92daa431a58598f93523a7',1,'MTi_protocol.h']]],
+  ['preamble_5flength_5f12_5fbits_9',['PREAMBLE_LENGTH_12_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaaeb708cf5c4a633f32cea6995b8588185',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f16_5fbits_10',['PREAMBLE_LENGTH_16_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaa8e9f54feeb6d7648feb00e9350b3248f',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f20_5fbits_11',['PREAMBLE_LENGTH_20_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaafb92a3496be7010865b635a36aca3d1f',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f24_5fbits_12',['PREAMBLE_LENGTH_24_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaaecbc57fe9553c92a44b0733d88c2ae4a',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f28_5fbits_13',['PREAMBLE_LENGTH_28_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaa368435ea1e88555329a78eb93f46c68e',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f32_5fbits_14',['PREAMBLE_LENGTH_32_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaa62002d57f93c560604f9c54d74b4a325',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f4_5fbits_15',['PREAMBLE_LENGTH_4_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaa3fe0b56791b42a67fc25f9a4a487046a',1,'SX1280_Constants.h']]],
+  ['preamble_5flength_5f8_5fbits_16',['PREAMBLE_LENGTH_8_BITS',['../SX1280__Constants_8h.html#adc6bf0f81153e9b501a11c522d828caaacb8fa92b95ed3b96ac6d4d4eea64faf0',1,'SX1280_Constants.h']]],
+  ['processingerr_17',['ProcessingErr',['../SX1280__Constants_8h.html#ad22c373429455d4373f2999556336aa7a8bbe5960f2218f2050c50bba7ae5e3f5',1,'SX1280_Constants.h']]]
+];

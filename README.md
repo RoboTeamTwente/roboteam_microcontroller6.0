@@ -9,3 +9,10 @@ Sometimes changes to the microcontroller are made and you need to generate new c
 4. Move the files back to their original location
 
 For the other generated files like syscalls.c and stm32[version] can be copied pasted into the correct location, replacing the old files.
+
+
+## Doxygen setup
+
+To view the html of the doxygen setup(it's still in the rough state), go to ./DoxygenDocs/html/index.html
+
+

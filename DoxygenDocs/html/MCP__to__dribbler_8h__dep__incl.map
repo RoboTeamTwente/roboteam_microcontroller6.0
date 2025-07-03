@@ -1,0 +1,12 @@
+<map id="Core/Inc/general/microcontroller_communication_protocol/to_dribbler/MCP_to_dribbler.h" name="Core/Inc/general/microcontroller_communication_protocol/to_dribbler/MCP_to_dribbler.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="122,5,386,60"/>
+<area shape="rect" id="Node000002" href="$dribbler__board_8h.html" title=" " alt="" coords="113,108,395,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,70,257,108,251,108,251,70"/>
+<area shape="rect" id="Node000003" href="$dribbler__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="5,181,228,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="218,140,133,183,131,179,215,135"/>
+<area shape="rect" id="Node000004" href="$dribbler__board_8c.html" title=" " alt="" coords="251,181,534,207"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="286,135,371,179,369,183,284,140"/>
+<area shape="rect" id="Node000005" href="$dribbler__board_2main_8c.html" title=": Main program body" alt="" coords="557,181,780,207"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="330,132,602,179,601,184,329,138"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="153,175,238,131,240,136,156,179"/>
+</map>

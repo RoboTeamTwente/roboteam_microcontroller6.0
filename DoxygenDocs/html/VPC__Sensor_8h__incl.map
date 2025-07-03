@@ -1,0 +1,7 @@
+<map id="Core/Inc/power_board/peripherals/VPC_Sensor.h" name="Core/Inc/power_board/peripherals/VPC_Sensor.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,245,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="43,93,109,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,47,91,86,86,83,111,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="133,93,216,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="140,44,164,83,160,86,135,47"/>
+</map>

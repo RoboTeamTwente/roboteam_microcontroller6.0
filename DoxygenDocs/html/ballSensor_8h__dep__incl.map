@@ -1,0 +1,14 @@
+<map id="Core/Inc/dribbler_board/peripherals/ballSensor.h" name="Core/Inc/dribbler_board/peripherals/ballSensor.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="274,5,525,45"/>
+<area shape="rect" id="Node000002" href="$dribbler__board_8h.html" title=" " alt="" coords="113,101,395,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="360,53,275,103,272,98,358,48"/>
+<area shape="rect" id="Node000006" href="$ballSensor_8c.html" title=" " alt="" coords="419,93,670,133"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="441,48,514,91,511,96,438,53"/>
+<area shape="rect" id="Node000003" href="$dribbler__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="5,181,228,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="220,133,132,183,129,179,217,128"/>
+<area shape="rect" id="Node000004" href="$dribbler__board_8c.html" title=" " alt="" coords="251,181,534,207"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="284,128,373,179,371,183,281,133"/>
+<area shape="rect" id="Node000005" href="$dribbler__board_2main_8c.html" title=": Main program body" alt="" coords="557,181,780,207"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="324,125,609,179,608,184,323,130"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="151,174,239,124,242,128,154,179"/>
+</map>

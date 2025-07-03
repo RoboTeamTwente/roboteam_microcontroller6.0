@@ -1,0 +1,19 @@
+digraph "Core/Inc/top_board/Middlewares"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10,arrowhead=open, arrowtail=open, arrowsize=0.7];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  compound=true
+  subgraph clusterdir_b7375ebf98db3131a8af8e0f0fd53161 {
+    graph [ bgcolor="#f3eef5", pencolor="grey50", label="top_board", fontname=Helvetica,fontsize=10 style="filled,dashed", URL="dir_b7375ebf98db3131a8af8e0f0fd53161.html",tooltip=""]
+  dir_61938db109a5c06030aba1627b22223a [label="FATFS", fillcolor="#c1accd", color="red", style="filled", URL="dir_61938db109a5c06030aba1627b22223a.html",tooltip=""];
+  subgraph clusterdir_c74f58884f53378e3520ba2be2800046 {
+    graph [ bgcolor="#f3eef5", pencolor="grey25", label="", fontname=Helvetica,fontsize=10 style="filled,bold", URL="dir_c74f58884f53378e3520ba2be2800046.html",tooltip=""]
+    dir_c74f58884f53378e3520ba2be2800046 [shape=plaintext, label="Middlewares"];
+  dir_b86191d3c6256919f3af5b21fc6e1232 [label="Third_Party", fillcolor="#c1accd", color="grey25", style="filled", URL="dir_b86191d3c6256919f3af5b21fc6e1232.html",tooltip=""];
+  }
+  }
+  dir_b86191d3c6256919f3af5b21fc6e1232->dir_61938db109a5c06030aba1627b22223a [headlabel="1", labeldistance=1.5 headhref="dir_000067_000010.html" color="steelblue1" fontcolor="steelblue1"];
+}

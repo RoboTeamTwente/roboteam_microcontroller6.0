@@ -1,0 +1,11 @@
+<map id="Core/Src/kicker_chipper_board/peripherals/voltage.c" name="Core/Src/kicker_chipper_board/peripherals/voltage.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,364,31"/>
+<area shape="rect" id="Node000002" href="$voltage_8h.html" title=" " alt="" coords="143,79,226,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,31,187,69,182,69,182,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="51,152,118,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="170,106,111,148,107,144,167,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="143,152,227,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="187,104,187,142,182,142,182,104"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="251,152,334,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="203,102,268,144,265,149,201,106"/>
+</map>

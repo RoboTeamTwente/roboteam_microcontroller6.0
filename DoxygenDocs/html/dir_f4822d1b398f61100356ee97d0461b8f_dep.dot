@@ -1,0 +1,19 @@
+digraph "Core/Src/top_board/Middlewares/Third_Party/FatFs"
+{
+ // INTERACTIVE_SVG=YES
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10,arrowhead=open, arrowtail=open, arrowsize=0.7];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  compound=true
+  subgraph clusterdir_6ed8cf737f5481e0e6bc1c94bb0894ce {
+    graph [ bgcolor="#f3eef5", pencolor="grey50", label="Third_Party", fontname=Helvetica,fontsize=10 style="filled,dashed", URL="dir_6ed8cf737f5481e0e6bc1c94bb0894ce.html",tooltip=""]
+  subgraph clusterdir_f4822d1b398f61100356ee97d0461b8f {
+    graph [ bgcolor="#f3eef5", pencolor="grey25", label="", fontname=Helvetica,fontsize=10 style="filled,bold", URL="dir_f4822d1b398f61100356ee97d0461b8f.html",tooltip=""]
+    dir_f4822d1b398f61100356ee97d0461b8f [shape=plaintext, label="FatFs"];
+  dir_20531f953872a75552454a7659946d2d [label="src", fillcolor="#c1accd", color="grey25", style="filled", URL="dir_20531f953872a75552454a7659946d2d.html",tooltip=""];
+  }
+  }
+  dir_e2489e887f17afa3cbc07a4ec152cdd2 [label="Inc", fillcolor="#f3eef5", color="red", style="filled,dashed", URL="dir_e2489e887f17afa3cbc07a4ec152cdd2.html",tooltip=""];
+  dir_20531f953872a75552454a7659946d2d->dir_e2489e887f17afa3cbc07a4ec152cdd2 [headlabel="5", labeldistance=1.5 headhref="dir_000060_000025.html" color="steelblue1" fontcolor="steelblue1"];
+}

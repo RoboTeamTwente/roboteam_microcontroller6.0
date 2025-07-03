@@ -1,0 +1,9 @@
+<map id="Core/Inc/top_board/peripherals/buzzer.h" name="Core/Inc/top_board/peripherals/buzzer.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,5,552,31"/>
+<area shape="rect" id="Node000002" href="$buzzer__test_8c.html" title=" " alt="" coords="5,79,249,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="362,36,197,81,195,76,361,31"/>
+<area shape="rect" id="Node000003" href="$buzzer_8c.html" title=" " alt="" coords="273,86,552,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="415,41,415,86,410,86,410,41"/>
+<area shape="rect" id="Node000004" href="$robot_8c.html" title=" " alt="" coords="577,86,771,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="461,31,637,83,635,89,459,36"/>
+</map>

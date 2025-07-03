@@ -1,0 +1,56 @@
+var control__util_8h =
+[
+    [ "PIDstruct", "structPIDstruct.html", "structPIDstruct" ],
+    [ "BACK_ANGLE", "control__util_8h.html#ae265d3a3c29b5160e0582f2e06bbb685", null ],
+    [ "cosBack", "control__util_8h.html#a61a497cbf5d7d9e55d6410fb9e258b4e", null ],
+    [ "cosFront", "control__util_8h.html#a8e77c051764b17669b55f913b2802c9b", null ],
+    [ "FRONT_ANGLE", "control__util_8h.html#a291950faab83c1b41552e6f841c0c010", null ],
+    [ "M_PI", "control__util_8h.html#ae71449b1cc6e6250b91f539153a7a0d3", null ],
+    [ "MAX_PWM_MOTOR_DRIVER", "control__util_8h.html#aa2eae675ef3afc34fd6ad191591a05e8", null ],
+    [ "MAX_VOLTAGE", "control__util_8h.html#a0637861f9419cef73e2e7e6210280e4e", null ],
+    [ "PWM_CUTOFF", "control__util_8h.html#a01b27cb9850220f14802e89d00717f08", null ],
+    [ "rad_robot", "control__util_8h.html#ae09b0eab56995d6a91c20cdfa5c2b9a4", null ],
+    [ "rad_wheel", "control__util_8h.html#a33fc0f0089236d7ffd9f5c9e808e944f", null ],
+    [ "RESISTANCE_MOTOR", "control__util_8h.html#a83cba74012a698258468ffd6fd23bdc5", null ],
+    [ "sinBack", "control__util_8h.html#a42fe3754c8dd06eef55064fa7fbeafbb", null ],
+    [ "sinFront", "control__util_8h.html#a6ae2dc91671db990c0e38e1aa3ced581", null ],
+    [ "SPEED_CONSTANT_MOTOR", "control__util_8h.html#a0ce06f6129ac329708acec9caa04c8f4", null ],
+    [ "TIME_DIFF", "control__util_8h.html#ad6e9d8f940ac89ed690e5b713c07109c", null ],
+    [ "TORQUE_CONSTANT_MOTOR", "control__util_8h.html#a312cd8a6b632b353f7ae997cbc46b327", null ],
+    [ "WHEEL_ENCODER_TO_OMEGA", "control__util_8h.html#a0246086a8afe211cf7e74fe999f387c4", null ],
+    [ "WHEEL_GEAR_RATIO", "control__util_8h.html#a53261b2f221ba4ba57d3c58a34f823ec", null ],
+    [ "WHEEL_PULSES_PER_ROTATION", "control__util_8h.html#ab388b8f240477955a56ed92b47db1f7f", null ],
+    [ "WHEEL_REF_LIMIT_PWM", "control__util_8h.html#adb3ccb9233cada8441a707d2e92d0e9d", null ],
+    [ "WIRELESS_RX_COUNT", "control__util_8h.html#ad126d1e428d5b89ec2222af3d23288b7", null ],
+    [ "YAW_MARGIN", "control__util_8h.html#a229510514e046f227e6de225b7fe7b16", null ],
+    [ "PIDvariables", "control__util_8h.html#a485051f37012cdb29cdb115199854323", null ],
+    [ "PID_states", "control__util_8h.html#ae70d7592d413cc0c7b32339d84391c4b", [
+      [ "off", "control__util_8h.html#ae70d7592d413cc0c7b32339d84391c4ba53ace14c115e45153a1c9105accceb4c", null ],
+      [ "setup", "control__util_8h.html#ae70d7592d413cc0c7b32339d84391c4ba9434643491043e90d9b8dd0585bc6837", null ],
+      [ "on", "control__util_8h.html#ae70d7592d413cc0c7b32339d84391c4baf3be4933da71233c5904ec919ac1fdb0", null ],
+      [ "turning", "control__util_8h.html#ae70d7592d413cc0c7b32339d84391c4babdef27219caadbac2f5461f1916e2895", null ],
+      [ "idle", "control__util_8h.html#ae70d7592d413cc0c7b32339d84391c4ba0e9a37114c0e458d28d52f06ec0f2242", null ]
+    ] ],
+    [ "robot_axes", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909", [
+      [ "vel_x", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909a9a9d2a610ba3b241f3eb81f5529804e2", null ],
+      [ "vel_y", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909a02d11df86ae5dd0b82bf32bac69eec0c", null ],
+      [ "vel_w", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909ae939afec47ef7e444eeb9aad8167d6ed", null ],
+      [ "vel_u", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909ab67ae06c3f1db7231398c892a56c7186", null ],
+      [ "vel_v", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909a286ed5d38b4a6c2a0ab9be54280a55e2", null ],
+      [ "yaw", "control__util_8h.html#ab5aa2355a4019c15b052ec5a016c0909aee924380480acf37e84394591141ecb7", null ]
+    ] ],
+    [ "wheel_names", "control__util_8h.html#ac83994e8083fc4f29a9e7fa07b129b68", [
+      [ "wheels_RF", "control__util_8h.html#ac83994e8083fc4f29a9e7fa07b129b68afee3648ae61885a7fbbd15331ee0836f", null ],
+      [ "wheels_LF", "control__util_8h.html#ac83994e8083fc4f29a9e7fa07b129b68a5dbd571bf9b75f24badaff38b178ddea", null ],
+      [ "wheels_LB", "control__util_8h.html#ac83994e8083fc4f29a9e7fa07b129b68a5ccc986e5d1015ea583eb5c048a4ac92", null ],
+      [ "wheels_RB", "control__util_8h.html#ac83994e8083fc4f29a9e7fa07b129b68a4935d562bd166865faec7969ef749916", null ]
+    ] ],
+    [ "constrainAngle", "control__util_8h.html#a8b3ccbddad5badb8bb94bfdb316e45f4", null ],
+    [ "control_util_Init", "control__util_8h.html#a9af118537a6b9f1e5c4c0d99c2823cd7", null ],
+    [ "initPID", "control__util_8h.html#a32d7584ad5b28bbdfd39d1295d74c0b1", null ],
+    [ "PID", "control__util_8h.html#a2aa88d263f7fefd10e5a0408defbb316", null ],
+    [ "OMEGAtoPWM", "control__util_8h.html#a8d464f8f0365fde1e2e4c8093fdcd7d5", null ],
+    [ "PIDdefault", "control__util_8h.html#a02c37baf6d50d211232bb1c532f6d727", null ],
+    [ "SPEED_CONSTANT", "control__util_8h.html#a6763eebd9ca998c6e2185245324237ad", null ],
+    [ "WHEEL_REF_LIMIT", "control__util_8h.html#a4e9c9d7c1fd2fc8823f642a222f2a3b7", null ]
+];

@@ -1,0 +1,15 @@
+<map id="Core/Inc/top_board/FATFS/Target/ffconf.h" name="Core/Inc/top_board/FATFS/Target/ffconf.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="18,5,299,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,72,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,33,68,76,65,71,138,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="95,225,225,251"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,32,145,53,137,79,135,116,138,154,155,215,149,217,133,155,129,117,132,78,140,52,150,30"/>
+<area shape="rect" id="Node000004" href="$bsp__driver__sd_8h.html" title="This file contains the common defines and functions prototypes for the bsp_driver_sd...." alt="" coords="147,79,271,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,29,198,69,193,72,165,33"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="295,79,366,104"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="187,28,295,72,293,77,185,33"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="207,105,188,153,168,217,163,215,183,151,202,103"/>
+<area shape="rect" id="Node000005" href="$fatfs__platform_8h.html" title=": fatfs_platform header file" alt="" coords="198,152,325,177"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="220,103,249,143,245,146,216,106"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="247,180,186,222,183,217,244,175"/>
+</map>

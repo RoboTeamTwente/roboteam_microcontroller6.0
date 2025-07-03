@@ -1,0 +1,30 @@
+<map id="Core/Src/top_board/Wireless/Wireless.c" name="Core/Src/top_board/Wireless/Wireless.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="127,5,403,31"/>
+<area shape="rect" id="Node000002" href="$Wireless_8h.html" title=" " alt="" coords="137,79,228,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,33,205,74,202,70,250,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="164,225,246,251"/>
+<area shape="poly" id="edge17_Node000001_Node000003" title=" " alt="" coords="264,32,213,217,208,215,259,30"/>
+<area shape="rect" id="Node000005" href="$SX1280__Constants_8h.html" title=" " alt="" coords="128,299,282,324"/>
+<area shape="poly" id="edge14_Node000001_Node000005" title=" " alt="" coords="207,33,156,49,102,73,52,107,32,129,15,153,8,177,13,199,26,220,47,239,102,271,159,293,157,298,100,276,44,243,22,224,8,201,3,177,11,151,28,125,49,103,99,68,154,44,205,28"/>
+<area shape="rect" id="Node000007" href="$SX1280_8h.html" title=" " alt="" coords="340,152,422,177"/>
+<area shape="poly" id="edge16_Node000001_Node000007" title=" " alt="" coords="277,29,368,143,364,146,272,33"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="806,225,897,251"/>
+<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="297,28,813,220,811,225,295,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="187,104,204,215,199,216,182,105"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="26,152,96,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="164,106,91,149,88,145,162,102"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="178,105,166,132,154,168,148,209,149,230,154,250,167,272,184,290,180,293,163,275,149,252,144,231,142,209,148,167,161,130,174,103"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="215,102,340,146,339,151,213,107"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="172,372,238,397"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="208,324,208,362,202,362,202,324"/>
+<area shape="poly" id="edge10_Node000007_Node000003" title=" " alt="" coords="354,180,244,224,242,219,352,175"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="368,180,228,294,225,290,365,176"/>
+<area shape="rect" id="Node000008" href="$SX1280__Packet__Definitions_8h.html" title=" " alt="" coords="322,225,531,251"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="391,176,416,216,412,219,386,179"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="556,225,686,251"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="420,175,574,220,572,225,419,180"/>
+<area shape="poly" id="edge12_Node000007_Node000010" title=" " alt="" coords="423,169,586,191,795,223,797,223,796,228,794,228,585,196,422,174"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="711,225,782,251"/>
+<area shape="poly" id="edge13_Node000007_Node000011" title=" " alt="" coords="423,171,699,223,702,223,701,229,698,228,422,176"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="392,253,251,298,249,293,390,248"/>
+</map>

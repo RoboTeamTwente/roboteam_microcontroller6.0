@@ -1,0 +1,7 @@
+<map id="Core/Inc/power_board/power_board.h" name="Core/Inc/power_board/power_board.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="111,5,373,31"/>
+<area shape="rect" id="Node000002" href="$power__board_2main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="5,79,217,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,38,134,81,131,76,211,33"/>
+<area shape="rect" id="Node000003" href="$power__board_8c.html" title=" " alt="" coords="241,79,504,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="273,33,353,76,350,81,270,38"/>
+</map>

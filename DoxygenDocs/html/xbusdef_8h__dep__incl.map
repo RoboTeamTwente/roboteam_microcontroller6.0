@@ -1,0 +1,9 @@
+<map id="Core/Inc/top_board/MTi/Lib/MTi/xbusdef.h" name="Core/Inc/top_board/MTi/Lib/MTi/xbusdef.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="369,5,659,31"/>
+<area shape="rect" id="Node000002" href="$xbusmessage_8c.html" title=" " alt="" coords="5,79,335,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="450,35,226,81,225,76,449,30"/>
+<area shape="rect" id="Node000003" href="$xbusparser_8c.html" title=" " alt="" coords="359,79,669,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="517,41,517,79,511,79,511,41"/>
+<area shape="rect" id="Node000004" href="$MTi_8c.html" title=" " alt="" coords="693,79,905,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="570,30,754,76,752,81,569,36"/>
+</map>
